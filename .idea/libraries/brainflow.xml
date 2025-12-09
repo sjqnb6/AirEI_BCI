@@ -1,0 +1,25 @@
+<component name="libraryTable">
+  <library name="brainflow">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/libs/brainflow.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/commons-lang3-3.17.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/controlP5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/core-4.4.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/GifAnimation.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/grafica.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/httpcore-4.1.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/httprequests_processing.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/jSerialComm.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/LSLLink.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/minim.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/net.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/openbci_gui_helpers.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/oscP5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/serial.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/ssdp_client.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/udp.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
