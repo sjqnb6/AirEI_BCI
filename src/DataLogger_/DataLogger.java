@@ -8,7 +8,6 @@ import DataWriterODF_.DataWriterODF;
 import Globel.GUI;
 import processing.core.PApplet;
 
-import static GUI.GGVI.*;
 import static processing.core.PApplet.println;
 
 public class DataLogger {
@@ -47,17 +46,17 @@ public class DataLogger {
 
     private void saveNewData(GUI MAIN) {
         //If data is available, save to playback file...
-        if(!settings.isLogFileOpen()) {
+        if(!MAIN.settings.isLogFileOpen()) {
             return;
         }
 
-        double[][] newData = currentBoard.getFrameData();
+        double[][] newData = MAIN.currentBoard.getFrameData();
 
         switch (outputDataSource) {
             case OUTPUT_SOURCE_ODF:
                 fileWriterODF.append(newData);
-                if (currentBoard instanceof AuxDataBoard)
-                    fileWriterAuxODF.append(((AuxDataBoard)currentBoard).getAuxFrameData());
+                if (MAIN.currentBoard instanceof AuxDataBoard)
+                    fileWriterAuxODF.append(((AuxDataBoard)MAIN.currentBoard).getAuxFrameData());
                 break;
             case OUTPUT_SOURCE_BDF:
                 fileWriterBDF.writeRawData_dataPacket(MAIN, newData);
@@ -69,12 +68,12 @@ public class DataLogger {
         }
     }
 
-    public void limitRecordingFileDuration() {
-        if (settings.isLogFileOpen() && outputDataSource == OUTPUT_SOURCE_ODF && settings.maxLogTimeReached()) {
+    public void limitRecordingFileDuration(GUI MAIN) {
+        if (MAIN.settings.isLogFileOpen() && outputDataSource == OUTPUT_SOURCE_ODF && settings.maxLogTimeReached()) {
             println("DataLogging: Max recording duration reached for OpenBCI data format. Creating a new recording file in the session folder.");
             closeLogFile();
-            openNewLogFile(directoryManager.getFileNameDateTime());
-            settings.setLogFileStartTime(System.nanoTime());
+            openNewLogFile(MAIN.directoryManager.getFileNameDateTime());
+            MAIN.settings.setLogFileStartTime(System.nanoTime());
         }
     }
 

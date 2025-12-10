@@ -2,11 +2,11 @@ package SystemManager;
 
 
 import BoardNull_.BoardNull;
-import GUI.GGVI;
+import Globel.GUI;
 
 import static Debugging_.GF.output;
 import static Debugging_.GF.outputError;
-import static GUI.GGVI.*;
+import static Globel.GUI.*;
 import static WidgetManager_.GVI.*;
 import static processing.core.PApplet.println;
 import static processing.core.PApplet.str;
@@ -22,12 +22,12 @@ public class GF {
 
     //halt the data collection
     public static void haltSystem() {
-        if (!GGVI.systemHasHalted) { //prevents system from halting more than once
+        if (!systemHasHalted) { //prevents system from halting more than once
             println("openBCI_GUI: haltSystem: Halting system for reconfiguration of settings...");
 
             //Reset the text for the Start Session buttonscreen. Skip when reiniting board while already in playback mode session.
-            if (!GGVI.reinitRequested) {
-                GGVI.controlPanel.initBox.setInitSessionButtonText("START SESSION");
+            if (!reinitRequested) {
+                controlPanel.initBox.setInitSessionButtonText("START SESSION");
             }
 
             if (w_networking != null && w_networking.getNetworkActive()) {
@@ -41,45 +41,45 @@ public class GF {
 
             stopRunning();  //stop data transfer
 
-            GGVI.topNav.resetStartStopButton();
-            GGVI.topNav.destroySmoothingButton(); //Destroy this button if exists and make null, will be re-init if needed next time session starts
+            topNav.resetStartStopButton();
+            topNav.destroySmoothingButton(); //Destroy this button if exists and make null, will be re-init if needed next time session starts
 
             //reset connect loadStrings
-            GGVI.openBCI_portName = "N/A";  // Fixes inability to reconnect after halding  JAM 1/2017
-            GGVI.ganglion_portName = "";
-            GGVI.wifi_portName = "";
+            openBCI_portName = "N/A";  // Fixes inability to reconnect after halding  JAM 1/2017
+            ganglion_portName = "";
+            wifi_portName = "";
 
-            GGVI.controlPanel.resetListItems();
+            controlPanel.resetListItems();
 
-            if (GGVI.eegDataSource == GGVI.DATASOURCE_PLAYBACKFILE) {
-                GGVI.controlPanel.recentPlaybackBox.getRecentPlaybackFiles();
+            if (eegDataSource == DATASOURCE_PLAYBACKFILE) {
+                controlPanel.recentPlaybackBox.getRecentPlaybackFiles();
             }
-            systemMode = GGVI.SYSTEMMODE_PREINIT;
+            systemMode = SYSTEMMODE_PREINIT;
 
-            GGVI.recentPlaybackFilesHaveUpdated = false;
+            recentPlaybackFilesHaveUpdated = false;
 
-            GGVI.dataLogger.uninitialize();
+            dataLogger.uninitialize();
 
-            GGVI.currentBoard.uninitialize();
-            GGVI.currentBoard = new BoardNull(); // back to null
+            currentBoard.uninitialize();
+            currentBoard = new BoardNull(); // back to null
 
-            GGVI.sessionTimeElapsed.stop();
+            sessionTimeElapsed.stop();
 
-            GGVI.systemHasHalted = true;
+            systemHasHalted = true;
         }
     } //end of halt system
 
 
     public static void stopRunning() {
         //Check again if board is streaming to avoid IllegalStateException
-        if (GGVI.currentBoard.isStreaming() && GGVI.topNav.dataStreamingButtonIsActive()) {
+        if (currentBoard.isStreaming() && topNav.dataStreamingButtonIsActive()) {
             //If streaming, attempt to stop stream
-            GGVI.currentBoard.stopStreaming();
+            currentBoard.stopStreaming();
             output("Data stream stopped.");
             try {
-                GGVI.streamTimeElapsed.stop();
-                GGVI.sessionTimeElapsed.suspend();
-                GGVI.dataLogger.onStopStreaming();
+                streamTimeElapsed.stop();
+                sessionTimeElapsed.suspend();
+                dataLogger.onStopStreaming();
             } catch (IllegalStateException e) {
                 e.printStackTrace();
                 outputError("GUI Error: Failed to stop Timer. Please make an issue on GitHub in the GUI repo.");

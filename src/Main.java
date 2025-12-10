@@ -23,7 +23,6 @@ import DirectoryManager_.DirectoryManager;
 import Extras_.DataStatus;
 import Extras_.PlotFontInfo;
 import FilterSettings_.FilterSettings;
-import Globel.GGVI;
 import Globel.GUI;
 import GuiSettings_.GuiSettings;
 import PopupMessage_.PopupMessage;
@@ -41,7 +40,6 @@ import processing.core.PApplet;
 
 import java.io.File;
 
-import static AuditoryNeurofeedback_.GVI.*;
 import static Containers_.GF.drawContainers;
 import static Containers_.GF.setupContainers;
 import static DataProcessing_.GF.initializeFFTObjects;
@@ -225,13 +223,13 @@ public class Main extends GUI {
         }
 
 
-        introAnimation();
+//        introAnimation();
 
 
 
     }
 
-    void delayedSetup() {
+    public void delayedSetup() {
         smooth(); //turn this off if it's too slow
 
         surface.setResizable(true);  //updated from frame.setResizable in Processing 2

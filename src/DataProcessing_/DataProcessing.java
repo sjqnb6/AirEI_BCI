@@ -9,7 +9,7 @@ import brainflow.NoiseTypes;
 import java.util.Arrays;
 
 import static Extras_.GF.*;
-import static GUI.GGVI.*;
+import static Globel.GUI.*;
 import static SystemManager.GF.getNfftSafe;
 import static W_HeadPlot_.GVI.smoothFac;
 import static W_HeadPlot_.GVI.smoothFac_ind;
@@ -60,7 +60,7 @@ public class DataProcessing {
             if (filterSettings.values.bandStopFilterActive[Ichan].isActive()) {
                 DataFilter.perform_bandstop(
                         tempArray,
-                        currentBoard.getSampleRate(),
+                        MAIN.currentBoard.getSampleRate(),
                         filterSettings.values.bandStopStartFreq[Ichan],
                         filterSettings.values.bandStopStopFreq[Ichan],
                         filterSettings.values.bandStopFilterOrder[Ichan].getValue(),
@@ -72,7 +72,7 @@ public class DataProcessing {
             if (filterSettings.values.bandPassFilterActive[Ichan].isActive()) {
                 DataFilter.perform_bandpass(
                         tempArray,
-                        currentBoard.getSampleRate(),
+                        MAIN.currentBoard.getSampleRate(),
                         filterSettings.values.bandPassStartFreq[Ichan],
                         filterSettings.values.bandPassStopFreq[Ichan],
                         filterSettings.values.bandPassFilterOrder[Ichan].getValue(),
@@ -85,23 +85,23 @@ public class DataProcessing {
                 case FIFTY_AND_SIXTY:
                     DataFilter.remove_environmental_noise(
                             tempArray,
-                            currentBoard.getSampleRate(),
+                            MAIN.currentBoard.getSampleRate(),
                             NoiseTypes.FIFTY.get_code());
                     DataFilter.remove_environmental_noise(
                             tempArray,
-                            currentBoard.getSampleRate(),
+                            MAIN.currentBoard.getSampleRate(),
                             NoiseTypes.SIXTY.get_code());
                     break;
                 case FIFTY:
                     DataFilter.remove_environmental_noise(
                             tempArray,
-                            currentBoard.getSampleRate(),
+                            MAIN.currentBoard.getSampleRate(),
                             NoiseTypes.FIFTY.get_code());
                     break;
                 case SIXTY:
                     DataFilter.remove_environmental_noise(
                             tempArray,
-                            currentBoard.getSampleRate(),
+                            MAIN.currentBoard.getSampleRate(),
                             NoiseTypes.SIXTY.get_code());
                     break;
                 default:

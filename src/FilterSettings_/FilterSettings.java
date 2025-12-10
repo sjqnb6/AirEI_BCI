@@ -11,7 +11,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
-import static GUI.GGVI.directoryManager;
+import static Globel.GUI.directoryManager;
 
 public class FilterSettings{
 

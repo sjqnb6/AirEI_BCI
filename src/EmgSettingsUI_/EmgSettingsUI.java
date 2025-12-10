@@ -16,7 +16,7 @@ import java.util.Map;
 
 import static Debugging_.GF.outputError;
 import static Debugging_.GF.verbosePrint;
-import static GUI.GGVI.*;
+import static Globel.GUI.*;
 
 
 public class EmgSettingsUI extends PApplet implements Runnable {

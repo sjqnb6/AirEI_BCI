@@ -50,7 +50,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static Debugging_.GF.*;
-import static GUI.GGVI.*;
+import static Globel.GUI.*;
 import static SessionSettings_.GF.*;
 import static W_AnalogRead_.GF.Duration_AR;
 import static W_AnalogRead_.GF.VertScale_AR;

@@ -1,8 +1,8 @@
 package W_Networking_;
 
+import Globel.GUI;
 import controlP5.ScrollableList;
 
-import static GUI.GGVI.settings;
 import static WidgetManager_.GVI.w_networking;
 import static processing.core.PApplet.println;
 
@@ -13,8 +13,8 @@ public class GF {
      * @description Sets the selected protocol mode from the widget's dropdown menu
      * @param `n` {int} - Index of protocol item selected in menu
      */
-    public static void Protocol(int protocolIndex) {
-        settings.nwProtocolSave = protocolIndex;
+    public static void Protocol(GUI MAIN, int protocolIndex) {
+        MAIN.settings.nwProtocolSave = protocolIndex;
         if (protocolIndex == 0) {
             w_networking.protocolMode = "UDP";
         } else if (protocolIndex == 1) {

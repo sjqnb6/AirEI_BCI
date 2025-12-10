@@ -2,7 +2,8 @@ package Debugging_;
 
 import processing.core.PApplet;
 import Globel.GUI;
-import static GUI.GGVI.*;
+
+import static Globel.GUI.*;
 
 public //this class is used to create the help widget that provides system feedback in response to interactivity
 //it is intended to serve as a pseudo-console, allowing us to print useful information to the interface as opposed to an IDE console

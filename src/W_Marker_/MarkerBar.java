@@ -8,8 +8,10 @@ import processing.core.PApplet;
 
 import java.util.List;
 
-import static GUI.GGVI.*;
 import Globel.GUI;
+
+import static Globel.GUI.*;
+
 //This class contains the time series plot for displaying the markers over time
 class MarkerBar{
     GUI MAIN;

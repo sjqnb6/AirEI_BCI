@@ -18,7 +18,7 @@ import java.util.Map;
 import static Debugging_.GF.*;
 import static Extras_.GF.isLinux;
 import static Extras_.GF.isMac;
-import static GUI.GGVI.*;
+import static Globel.GUI.*;
 import static processing.core.PApplet.println;
 import static processing.core.PConstants.LEFT;
 import static processing.core.PConstants.TOP;

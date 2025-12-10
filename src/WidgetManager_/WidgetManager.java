@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 import static Containers_.GVI.container;
 import static Debugging_.GF.verbosePrint;
-import static GUI.GGVI.*;
+import static Globel.GUI.*;
 import static WidgetManager_.GF.setupWidgets;
 import static WidgetManager_.GVI.w_networking;
 import static processing.core.PApplet.println;
@@ -39,15 +39,15 @@ public class WidgetManager{
 
         if(nchan == 4 && eegDataSource == DATASOURCE_GANGLION) {
             currentContainerLayout = 1;
-            settings.currentLayout = 1; // used for save/load settings
+            _this.settings.currentLayout = 1; // used for save/load settings
             setNewContainerLayout(currentContainerLayout); //sets and fills layout with widgets in order of widget index, to reorganize widget index, reorder the creation in setupWidgets()
         } else if (eegDataSource == DATASOURCE_PLAYBACKFILE) {
             currentContainerLayout = 1;
-            settings.currentLayout = 1; // used for save/load settings
+            _this.settings.currentLayout = 1; // used for save/load settings
             setNewContainerLayout(currentContainerLayout); //sets and fills layout with widgets in order of widget index, to reorganize widget index, reorder the creation in setupWidgets()
         } else {
             currentContainerLayout = 4; //default layout ... tall container left and 2 shorter containers stacked on the right
-            settings.currentLayout = 4; // used for save/load settings
+            _this.settings.currentLayout = 4; // used for save/load settings
             setNewContainerLayout(currentContainerLayout); //sets and fills layout with widgets in order of widget index, to reorganize widget index, reorder the creation in setupWidgets()
         }
 

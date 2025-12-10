@@ -3,8 +3,8 @@ package CustomCp5Classes_;
 import GUI.GUIManager;
 import Globel.GUI;
 
-import static GUI.GGVI.guiSettings;
-import static GUI.GGVI.p5;
+import static Globel.GUI.guiSettings;
+import static Globel.GUI.p5;
 import static processing.core.PConstants.CENTER;
 import static processing.core.PConstants.TOP;
 

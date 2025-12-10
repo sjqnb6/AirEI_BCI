@@ -7,8 +7,8 @@ import controlP5.ControlP5;
 import processing.core.PApplet;
 import processing.core.PFont;
 
-import static GUI.GGVI.buttonHelpText;
-import static GUI.GGVI.p5;
+import static Globel.GUI.buttonHelpText;
+import static Globel.GUI.p5;
 
 public class GUIManager extends PApplet {
     protected PApplet pApplet;

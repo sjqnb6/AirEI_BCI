@@ -313,7 +313,7 @@ public class GUI extends PApplet {
     public static CustomOutputStream outputStream;
 
 
-    public static DirectoryManager directoryManager;
+    public DirectoryManager directoryManager;
     public SessionSettings settings;
     public static GuiSettings guiSettings;
     public static DataProcessing dataProcessing;
@@ -326,7 +326,7 @@ public class GUI extends PApplet {
 
 //
 //    // Initialize board
-    public static DataSource currentBoard = new BoardNull();
+    public DataSource currentBoard = new BoardNull();
 //
     public static DataLogger dataLogger = new DataLogger();
 //

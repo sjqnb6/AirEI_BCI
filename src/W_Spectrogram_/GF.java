@@ -2,7 +2,6 @@ package W_Spectrogram_;
 
 import processing.core.PApplet;
 
-import static GUI.GGVI.settings;
 import static WidgetManager_.GVI.w_spectrogram;
 import static processing.core.PConstants.RGB;
 import Globel.GUI;
@@ -12,7 +11,7 @@ public class GF {
     //These functions need to be global! These functions are activated when an item from the corresponding dropdown is selected
 //triggered when there is an event in the Spectrogram Widget MaxFreq. Dropdown
     public static void SpectrogramMaxFreq(GUI MAIN,int n) {
-        settings.spectMaxFrqSave = n;
+        MAIN.settings.spectMaxFrqSave = n;
         //reset the vertical axis labels
         w_spectrogram.vertAxisLabel = w_spectrogram.vertAxisLabels[n];
         //Resize the height of the data image
@@ -21,10 +20,10 @@ public class GF {
         w_spectrogram.dataImg = MAIN.createImage(w_spectrogram.dataImageW, w_spectrogram.dataImageH, RGB);
     }
 
-    public static void SpectrogramSampleRate(PApplet PApplet, int n) {
-        settings.spectSampleRateSave = n;
+    public static void SpectrogramSampleRate(GUI MAIN, int n) {
+        MAIN.settings.spectSampleRateSave = n;
         //overwrite the existing image because the sample rate is about to change
-        w_spectrogram.dataImg = PApplet.createImage(w_spectrogram.dataImageW, w_spectrogram.dataImageH, RGB);
+        w_spectrogram.dataImg = MAIN.createImage(w_spectrogram.dataImageW, w_spectrogram.dataImageH, RGB);
         w_spectrogram.horizAxisLabel = w_spectrogram.horizAxisLabels[n];
         if (n == 0) {
             w_spectrogram.numHorizAxisDivs = 6;
@@ -46,8 +45,8 @@ public class GF {
         w_spectrogram.fetchTimeStrings(w_spectrogram.numHorizAxisDivs);
     }
 
-    public static void SpectrogramLogLin(int n) {
-        settings.spectLogLinSave = n;
+    public static void SpectrogramLogLin(GUI MAIN, int n) {
+        MAIN.settings.spectLogLinSave = n;
     }
 
 }

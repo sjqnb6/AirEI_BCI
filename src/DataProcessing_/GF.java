@@ -5,7 +5,7 @@ import BoardCyton_.BoardCytonConstants;
 import java.util.Arrays;
 import java.util.List;
 
-import static GUI.GGVI.*;
+import static Globel.GUI.*;
 import static SystemManager.GF.getCurrentBoardBufferSize;
 import static java.lang.Math.sqrt;
 

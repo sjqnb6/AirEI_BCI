@@ -10,7 +10,8 @@ import processing.core.PApplet;
 
 import static Debugging_.GF.output;
 import static Extras_.GF.isLinux;
-import static GUI.GGVI.*;
+//import static GUI.GGVI.*;
+import static Globel.GUI.*;
 import static SystemManager.GF.haltSystem;
 import Globel.GUI;
 public class ConfigSelector {
@@ -210,7 +211,7 @@ public class ConfigSelector {
         saveSessionSettings.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 toggleVisibility();
-                settings.saveButtonPressed();
+                MAIN.settings.saveButtonPressed();
             }
         });
         saveSessionSettings.setDescription("Expert Mode enables advanced keyboard shortcuts and access to all GUI features.");
@@ -221,7 +222,7 @@ public class ConfigSelector {
         loadSessionSettings.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 toggleVisibility();
-                settings.loadButtonPressed();
+                MAIN.settings.loadButtonPressed();
             }
         });
         loadSessionSettings.setDescription("Expert Mode enables advanced keyboard shortcuts and access to all GUI features.");
@@ -232,7 +233,7 @@ public class ConfigSelector {
         defaultSessionSettings.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 toggleVisibility();
-                settings.defaultButtonPressed();
+                MAIN.settings.defaultButtonPressed();
             }
         });
         defaultSessionSettings.setDescription("Expert Mode enables advanced keyboard shortcuts and access to all GUI features.");
@@ -273,7 +274,7 @@ public class ConfigSelector {
                 //Shorten height of this box
                 h -= margin*4 + b_h*3;
                 //User has selected Are You Sure?->Yes
-                settings.clearAll();
+                MAIN.settings.clearAll();
                 clearAllSettingsPressed = false;
                 //Stop the system if the user clears all settings
                 if (systemMode == SYSTEMMODE_POSTINIT) {

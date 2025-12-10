@@ -6,8 +6,8 @@ import Globel.GUI;
 
 import java.io.File;
 
-import static Debugging_.GVI.helpWidget;
-import static GUI.GGVI.*;
+//import static GUI.GGVI.*;
+import static Globel.GUI.*;
 import static processing.core.PConstants.CENTER;
 import static processing.core.PConstants.TOP;
 
@@ -64,7 +64,7 @@ public class ControlPanel{
         x = PAD_3;
         y = PAD_3 + topNav.controlPanelCollapser.getHeight();
         w = topNav.controlPanelCollapser.getWidth();
-        h = MAIN.height - (int)(helpWidget.h);
+        h = MAIN.height - (int)(MAIN.helpWidget.h);
 
         isOpen = false;
         fontInfo = new PlotFontInfo();
@@ -186,8 +186,8 @@ public class ControlPanel{
             //Carefully draw certain boxes based on UI/UX flow... let each box handle what is drawn inside with localCp5 instances
             if (eegDataSource == DATASOURCE_CYTON) {	//when data source is from OpenBCI
                 interfaceBoxCyton.draw();
-                if (selectedProtocol != BoardProtocol.NONE) {
-                    if (selectedProtocol == BoardProtocol.SERIAL) {
+                if (MAIN.selectedProtocol != BoardProtocol.NONE) {
+                    if (MAIN.selectedProtocol == BoardProtocol.SERIAL) {
                         serialBox.y = interfaceBoxCyton.y + interfaceBoxCyton.h;
                         serialBox.draw();
                         channelCountBox.y = serialBox.y + serialBox.h;
@@ -199,7 +199,7 @@ public class ControlPanel{
                                 channelPopup.draw();
                             }
                         }
-                    } else if (selectedProtocol == BoardProtocol.WIFI) {
+                    } else if (MAIN.selectedProtocol == BoardProtocol.WIFI) {
                         wifiBox.y = interfaceBoxCyton.y;
                         wifiBox.x = interfaceBoxCyton.x + interfaceBoxCyton.w;
                         sampleRateCytonBox.y = wifiBox.y + wifiBox.h;
@@ -222,15 +222,15 @@ public class ControlPanel{
                 synthChannelCountBox.draw();
                 bfStreamerBoxSynthetic.draw();
             } else if (eegDataSource == DATASOURCE_GANGLION) {
-                if (selectedProtocol == BoardProtocol.NONE) {
+                if (MAIN.selectedProtocol == BoardProtocol.NONE) {
                     interfaceBoxGanglion.draw();
                 } else {
                     interfaceBoxGanglion.draw();
-                    if (selectedProtocol == BoardProtocol.BLED112 || selectedProtocol == BoardProtocol.NATIVE_BLE) {
+                    if (MAIN.selectedProtocol == BoardProtocol.BLED112 || MAIN.selectedProtocol == BoardProtocol.NATIVE_BLE) {
                         bleBox.y = interfaceBoxGanglion.y + interfaceBoxGanglion.h;
                         dataLogBoxGanglion.y = bleBox.y + bleBox.h;
                         bleBox.draw();
-                    } else if (selectedProtocol == BoardProtocol.WIFI) {
+                    } else if (MAIN.selectedProtocol == BoardProtocol.WIFI) {
                         wifiBox.y = interfaceBoxGanglion.y;
                         wifiBox.x = interfaceBoxGanglion.x + interfaceBoxGanglion.w;
                         sampleRateGanglionBox.y = wifiBox.y + wifiBox.h;
@@ -290,7 +290,7 @@ public class ControlPanel{
         sb.append("OpenBCISession_");
         sb.append(dataLogger.getSessionName());
         sb.append(File.separator);
-        settings.setSessionPath(sb.toString());
+        MAIN.settings.setSessionPath(sb.toString());
     }
 
     public void setDataLoggerOutputs() {

@@ -5,7 +5,6 @@ import GUI.GUIManager;
 import Globel.GUI;
 import processing.core.PApplet;
 
-import static GUI.GGVI.currentBoard;
 
 public class DataStatus{
     GUI MAIN;
@@ -21,12 +20,13 @@ public class DataStatus{
     private double threshold_railed = 90.0;
     private double threshold_railed_warn = 75.0;
 
-    public DataStatus(PApplet pApplet) {
+    public DataStatus(GUI MAIN) {
 //        super(pApplet);
         notificationString = "";
         is_railed = false;
         is_railed_warn = false;
         percentage = 0.0;
+        this.MAIN = MAIN;
     }
     // here data is a full range for 20sec of data and doesnt take in account window size
     public void update(float[] data, int channel) {
@@ -38,16 +38,16 @@ public class DataStatus{
             return;
         }
 
-        if (currentBoard instanceof ADS1299SettingsBoard) {
-            double scaler =  (4.5 / (MAIN.pow (2, 23) - 1) / ((ADS1299SettingsBoard)currentBoard).getGain(channel) * 1000000.);
+        if (MAIN.currentBoard instanceof ADS1299SettingsBoard) {
+            double scaler =  (4.5 / (MAIN.pow (2, 23) - 1) / ((ADS1299SettingsBoard)MAIN.currentBoard).getGain(channel) * 1000000.);
             double maxVal = scaler * MAIN.pow (2, 23);
             int numSeconds = 3;
-            int nPoints = numSeconds * currentBoard.getSampleRate();
+            int nPoints = numSeconds * MAIN.currentBoard.getSampleRate();
             int endPos = data.length;
             int startPos = Math.max(0, endPos - nPoints);
 
             boolean is_straight_line = true;
-            if (!currentBoard.isStreaming()) {
+            if (!MAIN.currentBoard.isStreaming()) {
                 is_straight_line = false;
             }
             float max = Math.abs(data[startPos]);

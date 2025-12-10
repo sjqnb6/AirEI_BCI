@@ -9,7 +9,7 @@ import controlP5.Textfield;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import static Debugging_.GF.output;
-import static GUI.GGVI.*;
+import static Globel.GUI.*;
 import static WidgetManager_.GVI.w_cytonImpedance;
 import Globel.GUI;
 public class SignalCheckThresholdUI {

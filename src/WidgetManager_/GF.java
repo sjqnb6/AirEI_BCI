@@ -31,8 +31,7 @@ import processing.core.PApplet;
 
 import java.util.ArrayList;
 
-import static GUI.GGVI.currentBoard;
-import static GUI.GGVI.nchan;
+import static Globel.GUI.nchan;
 import static WidgetManager_.GVI.*;
 import Globel.GUI;
 public class GF {
@@ -51,26 +50,26 @@ public class GF {
         w_fft.setTitle("FFT Plot");
         addWidget(w_fft, w);
 
-        if (currentBoard instanceof AccelerometerCapableBoard) {
+        if (_this.currentBoard instanceof AccelerometerCapableBoard) {
             w_accelerometer = new W_Accelerometer(_this);
             w_accelerometer.setTitle("Accelerometer");
             addWidget(w_accelerometer, w);
         }
 
-        if (currentBoard instanceof BoardCyton) {
+        if (_this.currentBoard instanceof BoardCyton) {
             w_cytonImpedance = new W_CytonImpedance(_this);
             w_cytonImpedance.setTitle("Cyton Signal");
             addWidget(w_cytonImpedance, w);
         }
 
-        if(currentBoard instanceof DataSourcePlayback){
+        if(_this.currentBoard instanceof DataSourcePlayback){
             w_playback = new W_playback(_this);
             w_playback.setTitle("Playback History");
             addWidget(w_playback, w);
         }
 
         //only instantiate this widget if you are using a Ganglion board for live streaming
-        if(nchan == 4 && currentBoard instanceof BoardGanglion){
+        if(nchan == 4 && _this.currentBoard instanceof BoardGanglion){
             //If using Ganglion, this is Widget_3
             w_ganglionImpedance = new W_GanglionImpedance(_this);
             w_ganglionImpedance.setTitle("Ganglion Signal");
@@ -105,25 +104,25 @@ public class GF {
         w_spectrogram.setTitle("Spectrogram");
         addWidget(w_spectrogram, w);
 
-        if(currentBoard instanceof AnalogCapableBoard){
+        if(_this.currentBoard instanceof AnalogCapableBoard){
             w_pulsesensor = new W_PulseSensor(_this);
             w_pulsesensor.setTitle("Pulse Sensor");
             addWidget(w_pulsesensor, w);
         }
 
-        if(currentBoard instanceof DigitalCapableBoard) {
+        if(_this.currentBoard instanceof DigitalCapableBoard) {
             w_digitalRead = new W_DigitalRead(_this);
             w_digitalRead.setTitle("Digital Read");
             addWidget(w_digitalRead, w);
         }
 
-        if(currentBoard instanceof AnalogCapableBoard) {
+        if(_this.currentBoard instanceof AnalogCapableBoard) {
             w_analogRead = new W_AnalogRead(_this);
             w_analogRead.setTitle("Analog Read");
             addWidget(w_analogRead, w);
         }
 
-        if (currentBoard instanceof Board) {
+        if (_this.currentBoard instanceof Board) {
             w_packetLoss = new W_PacketLoss(_this);
             w_packetLoss.setTitle("Packet Loss");
             addWidget(w_packetLoss, w);

@@ -4,7 +4,7 @@ import EmgSettingsEnums_.*;
 
 import java.util.Arrays;
 
-import static GUI.GGVI.currentBoard;
+import static Globel.GUI.currentBoard;
 import static processing.core.PApplet.abs;
 import static processing.core.PApplet.map;
 

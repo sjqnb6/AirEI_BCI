@@ -2,7 +2,7 @@ package CustomCp5Classes_;
 
 import controlP5.Textfield;
 
-import static GUI.GGVI.copyPaste;
+import static Globel.GUI.copyPaste;
 
 public class TextFieldUpdateHelper {
 

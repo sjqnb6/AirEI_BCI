@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import static Debugging_.GF.output;
-import static GUI.GGVI.*;
+import static Globel.GUI.*;
 import static processing.core.PApplet.println;
 import static processing.core.PConstants.*;
 

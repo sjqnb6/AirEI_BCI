@@ -1,7 +1,5 @@
 package DataWriterBF_;
 
-import GUI.GGVI;
-
 import java.io.File;
 
 import static processing.core.PApplet.println;

@@ -1,6 +1,7 @@
 package W_HeadPlot_;
 
-import static GUI.GGVI.settings;
+import Globel.GUI;
+
 import static GUI.GUIManager.*;
 import static WidgetManager_.GVI.w_headPlot;
 import static processing.core.PApplet.max;
@@ -8,17 +9,17 @@ import static processing.core.PApplet.max;
 public class GF {
 
     //triggered when there is an event in the Polarity Dropdown
-    public static void Polarity(int n) {
+    public static void Polarity(GUI MAIN, int n) {
 
         if (n==0) {
             w_headPlot.headPlot.use_polarity = true;
         } else {
             w_headPlot.headPlot.use_polarity = false;
         }
-        settings.hpPolaritySave = n;
+        MAIN.settings.hpPolaritySave = n;
     }
 
-    public static void ShowContours(int n){
+    public static void ShowContours(GUI MAIN, int n){
         if(n==0){
             //turn headplot contours on
             w_headPlot.headPlot.drawHeadAsContours = true;
@@ -26,19 +27,19 @@ public class GF {
             //turn headplot contours off
             w_headPlot.headPlot.drawHeadAsContours = false;
         }
-        settings.hpContoursSave = n;
+        MAIN.settings.hpContoursSave = n;
     }
 
     //triggered when there is an event in the SmoothingHeadPlot Dropdown
-    public static void SmoothingHeadPlot(int n) {
+    public static void SmoothingHeadPlot(GUI MAIN, int n) {
         w_headPlot.setSmoothFac(smoothFac[n]);
-        settings.hpSmoothingSave = n;
+        MAIN.settings.hpSmoothingSave = n;
     }
 
-    public static void Intensity(int n){
+    public static void Intensity(GUI MAIN, int n){
         vertScaleFactor_ind = n;
         updateVertScale();
-        settings.hpIntensitySave = n;
+        MAIN.settings.hpIntensitySave = n;
     }
 
 

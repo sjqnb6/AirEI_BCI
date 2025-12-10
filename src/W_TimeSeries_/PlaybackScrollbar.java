@@ -14,8 +14,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import static GUI.GGVI.*;
 import Globel.GUI;
+
+import static Globel.GUI.*;
+
 //========================== PLAYBACKSLIDER ==========================
 class PlaybackScrollbar  {
     GUI MAIN;

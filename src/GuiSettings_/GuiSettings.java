@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static Debugging_.GF.outputWarn;
-import static GUI.GGVI.topNav;
+import static Globel.GUI.topNav;
 import static processing.core.PApplet.println;
 
 public class GuiSettings {

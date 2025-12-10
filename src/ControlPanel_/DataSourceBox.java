@@ -10,7 +10,8 @@ import processing.core.PFont;
 
 import java.util.Map;
 
-import static GUI.GGVI.*;
+//import static GUI.GGVI.*;
+import static Globel.GUI.*;
 import static SystemManager.GF.updateToNChan;
 import static processing.core.PConstants.LEFT;
 import static processing.core.PConstants.TOP;
@@ -77,11 +78,11 @@ public class DataSourceBox{
                     Map bob = sourceList.getItem((int)(sourceList.getValue()));
                     String str = (String)bob.get("headline"); // Get the text displayed in the MenuList
                     int newDataSource = (int)bob.get("value");
-                    settings.controlEventDataSource = str; //Used for output message on system start
+                    MAIN.settings.controlEventDataSource = str; //Used for output message on system start
                     eegDataSource = newDataSource;
 
                     //Reset protocol
-                    selectedProtocol = BoardProtocol.NONE;
+                    MAIN.selectedProtocol = BoardProtocol.NONE;
 
                     //Perform this check in a way that ignores order of items in the menulist
                     if (eegDataSource == DATASOURCE_CYTON) {

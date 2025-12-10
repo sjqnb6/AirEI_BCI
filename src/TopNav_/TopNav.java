@@ -18,7 +18,8 @@ import processing.data.JSONObject;
 
 import static Debugging_.GF.*;
 import static Extras_.GF.pingWebsite;
-import static GUI.GGVI.*;
+//import static GUI.GGVI.*;
+import static Globel.GUI.*;
 import static Interactivity_.GF.openURLInBrowser;
 import static SystemManager.GF.startRunning;
 import static SystemManager.GF.stopRunning;
@@ -26,10 +27,10 @@ import static WidgetManager_.GVI.w_cytonImpedance;
 import Globel.GUI;
 public class TopNav {
 
-    GUI MAIN;
-    private final int TOPNAV_DARKBLUE = MAIN.OPENBCI_BLUE;
-    private final int SUBNAV_LIGHTBLUE = MAIN.buttonsLightBlue;
-    private int strokeColor = MAIN.OPENBCI_DARKBLUE;
+    private GUI MAIN;
+    private final int TOPNAV_DARKBLUE;
+    private final int SUBNAV_LIGHTBLUE;
+    private int strokeColor;
 
     private ControlP5 topNav_cp5;
 
@@ -69,6 +70,11 @@ public class TopNav {
 
     public TopNav(GUI MAIN) {
         this.MAIN = MAIN;
+        this.TOPNAV_DARKBLUE = MAIN.OPENBCI_BLUE;
+        this.SUBNAV_LIGHTBLUE = MAIN.buttonsLightBlue;
+        this.strokeColor = MAIN.OPENBCI_DARKBLUE;
+
+
         int controlPanel_W = 256;
 
         //Instantiate local cp5 for this box

@@ -17,7 +17,6 @@ import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 
 import static Debugging_.GF.*;
-import static GUI.GGVI.*;
 import static WidgetManager_.GVI.*;
 import static processing.core.PApplet.println;
 import static processing.core.PApplet.str;
@@ -174,7 +173,7 @@ public class NetworkStreamOut extends Thread {
     }
 
     private void runLSL() {
-        if (currentBoard.isStreaming()) {
+        if (MAIN.currentBoard.isStreaming()) {
             // This method has been updated to reduce duplicate packets - RW 3/15/23
             if (checkForData()) {
                 sendData();
@@ -191,7 +190,7 @@ public class NetworkStreamOut extends Thread {
     private void runUdpOscSerial() {
         openNetwork();
         while (this.isStreaming) {
-            if (currentBoard.isStreaming()) {
+            if (MAIN.currentBoard.isStreaming()) {
                 if (checkForData()) {
                     sendData();
                 } else {
