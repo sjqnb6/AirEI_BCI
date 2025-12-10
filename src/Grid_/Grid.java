@@ -8,8 +8,8 @@ import java.util.Arrays;
 
 import static Extras_.GF.getFontStringHeight;
 import static GUI.GGVI.p5;
-
-public class Grid extends GUIManager {
+import Globel.GUI;
+public class Grid{
     private int numRows;
     private int numCols;
 
@@ -30,8 +30,8 @@ public class Grid extends GUIManager {
     private int[][] textColors;
 
     private String[][] strings;
-
-    public Grid(int _numRows, int _numCols, int _rowHeight) {
+    GUI MAIN;
+    public Grid(GUI MAIN, int _numRows, int _numCols, int _rowHeight) {
         numRows = _numRows;
         numCols = _numCols;
         rowHeight = _rowHeight;
@@ -42,27 +42,27 @@ public class Grid extends GUIManager {
         strings = new String[numRows][numCols];
         textColors = new int[numRows][numCols];
 
-        int defaultTextColor = OPENBCI_DARKBLUE;
+        int defaultTextColor = MAIN.OPENBCI_DARKBLUE;
         for (int[] row: textColors) {
             Arrays.fill(row, defaultTextColor);
         }
     }
 
     public void draw() {
-        pushStyle();
-        textAlign(LEFT);
-        stroke(OPENBCI_DARKBLUE);
-        textFont(tableFont, tableFontSize);
+        MAIN.pushStyle();
+        MAIN.textAlign(MAIN.LEFT);
+        MAIN.stroke(MAIN.OPENBCI_DARKBLUE);
+        MAIN.textFont(tableFont, tableFontSize);
 
         if (drawTableInnerLines) {
             // draw row lines
             for (int i = 0; i < numRows - 1; i++) {
-                line(x, y + rowOffset[i], x + w, y + rowOffset[i]);
+                MAIN.line(x, y + rowOffset[i], x + w, y + rowOffset[i]);
             }
 
             // draw column lines
             for (int i = 1; i < numCols; i++) {
-                line(x + colOffset[i], y, x + colOffset[i], y + rowOffset[numRows - 1]);
+                MAIN.line(x + colOffset[i], y, x + colOffset[i], y + rowOffset[numRows - 1]);
             }
         }
 
@@ -70,20 +70,20 @@ public class Grid extends GUIManager {
         for (int row = 0; row < numRows; row++) {
             for (int col = 0; col < numCols; col++) {
                 if (strings[row][col] != null) {
-                    fill(textColors[row][col]);
-                    textAlign(horizontallyCenterTextInCells ? CENTER : LEFT);
-                    text(strings[row][col], x + colOffset[col] + pad_horiz, y + rowOffset[row] - pad_vert);
+                    MAIN.fill(textColors[row][col]);
+                    MAIN.textAlign(horizontallyCenterTextInCells ? MAIN.CENTER : MAIN.LEFT);
+                    MAIN.text(strings[row][col], x + colOffset[col] + pad_horiz, y + rowOffset[row] - pad_vert);
                 }
             }
         }
 
         if (drawTableBorder) {
-            noFill();
-            stroke(OPENBCI_DARKBLUE);
-            rect(x, y, w, rowOffset[numRows - 1]);
+            MAIN.noFill();
+            MAIN.stroke(MAIN.OPENBCI_DARKBLUE);
+            MAIN.rect(x, y, w, rowOffset[numRows - 1]);
         }
 
-        popStyle();
+        MAIN.popStyle();
     }
 
     public RectDimensions getCellDims(int row, int col) {
@@ -104,7 +104,7 @@ public class Grid extends GUIManager {
         final float colFraction = 1.f / numCols;
 
         for (int i = 0; i < numCols; i++) {
-            colOffset[i] = round(w * colFraction * i);
+            colOffset[i] = MAIN.round(w * colFraction * i);
         }
 
         for (int i = 0; i < numRows; i++) {

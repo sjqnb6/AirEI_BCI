@@ -3,6 +3,7 @@ package CytonElectrodeStatus_;
 import BoardCyton_.BoardCyton;
 import Extras_.RectDimensions;
 import GUI.GUIManager;
+import Globel.GUI;
 import Grid_.Grid;
 import controlP5.Button;
 import controlP5.CallbackEvent;
@@ -18,7 +19,7 @@ import static GUI.GGVI.data_elec_imp_ohm;
 import static GUI.GGVI.is_railed;
 import static WidgetManager_.GVI.w_cytonImpedance;
 
-public class CytonElectrodeStatus extends GUIManager {
+public class CytonElectrodeStatus {
 
     private CytonElectrodeLocations thisElectrode;
 
@@ -51,8 +52,9 @@ public class CytonElectrodeStatus extends GUIManager {
 
     protected Gif checkingElectrodeGif;
     protected final int gifDiameterBorderOffset = 30; //From the weight of the pixels in the original gif
-
-    public CytonElectrodeStatus(ControlP5 _cp5, CytonElectrodeEnum electrodeEnum, BoardCyton _impBoard, Gif statusGif) {
+    GUI MAIN;
+    public CytonElectrodeStatus(GUI MAIN, ControlP5 _cp5, CytonElectrodeEnum electrodeEnum, BoardCyton _impBoard, Gif statusGif) {
+        this.MAIN = MAIN;
         local_cp5 = _cp5;
         cytonBoard = (BoardCyton)_impBoard;
         impedanceNF = new DecimalFormat("###,###.#");
@@ -82,17 +84,17 @@ public class CytonElectrodeStatus extends GUIManager {
 
         ElectrodeState state = getElectrodeState();
 
-        pushStyle();
-        fill(state.getColor());
+        MAIN.pushStyle();
+        MAIN.fill(state.getColor());
         float d = w * thisElectrode.getDiameterScalar();
-        ellipseMode(CENTER);
-        ellipse(x, y, d, d);
+        MAIN.ellipseMode(MAIN.CENTER);
+        MAIN.ellipse(x, y, d, d);
 
         if (state != ElectrodeState.NOT_TESTABLE && cytonBoard.isCheckingImpedanceNorP(channelNumber-1, is_N_Pin)) {
-            imageMode(CENTER);
-            image(checkingElectrodeGif, x - 1, y - 1, d + gifDiameterBorderOffset, d + gifDiameterBorderOffset);
+            MAIN.imageMode(MAIN.CENTER);
+            MAIN.image(checkingElectrodeGif, x - 1, y - 1, d + gifDiameterBorderOffset, d + gifDiameterBorderOffset);
         }
-        popStyle();
+        MAIN.popStyle();
     }
 
     public void update(Grid _dataTable, boolean _isImpedanceMode) {
@@ -111,7 +113,7 @@ public class CytonElectrodeStatus extends GUIManager {
             //update the impedance values
             statusValue = data_elec_imp_ohm[i]/1000; //value in kOhm
             boolean greaterThanZero = statusValue > Double.MIN_NORMAL;
-            int railedTextColor = OPENBCI_DARKBLUE;
+            int railedTextColor = MAIN.OPENBCI_DARKBLUE;
             if (statusValue > impedanceYellowCuttoff) {
                 state_imp = ElectrodeState.RED;
             } else if (statusValue < impedanceYellowCuttoff && statusValue > impedanceGreenCutoff) {
@@ -128,13 +130,13 @@ public class CytonElectrodeStatus extends GUIManager {
             //update the railed percentage values
             statusValue = is_railed[i].getPercentage();
             boolean greaterThanZero = statusValue > Double.MIN_NORMAL;
-            int railedTextColor = OPENBCI_DARKBLUE;
+            int railedTextColor = MAIN.OPENBCI_DARKBLUE;
             if (is_railed[i].is_railed) {
                 state_live = ElectrodeState.RED;
-                railedTextColor = SIGNAL_CHECK_RED;
+                railedTextColor = MAIN.SIGNAL_CHECK_RED;
             } else if (is_railed[i].is_railed_warn) {
                 state_live = ElectrodeState.YELLOW;
-                railedTextColor = SIGNAL_CHECK_YELLOW;
+                railedTextColor = MAIN.SIGNAL_CHECK_YELLOW;
             } else if (greaterThanZero) {
                 state_live = ElectrodeState.BLUE;
             }
@@ -203,16 +205,16 @@ public class CytonElectrodeStatus extends GUIManager {
         if (state == ElectrodeState.NOT_TESTABLE) {
             return; //Some electrode positions cannot be tested
         }
-        testing_button = createButton(local_cp5, name, text, _x, _y, _w, _h);
+        testing_button = MAIN.createButton(local_cp5, name, text, _x, _y, _w, _h);
         testing_button.setBorderColor(null);
-        testing_button.setColorActive(BUTTON_PRESSED_LIGHT);
-        testing_button.setColorForeground(BUTTON_HOVER_LIGHT);
+        testing_button.setColorActive(MAIN.BUTTON_PRESSED_LIGHT);
+        testing_button.setColorForeground(MAIN.BUTTON_HOVER_LIGHT);
         testing_button.setSwitch(true); //This turns the button into a switch. Switch will be Off by default.
         testing_button.onPress(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 final int _chan = channelNumber - 1;
-                final int curMillis = millis();
-                println("CytonElectrodeTestButton: Toggling Impedance on ~~ " + electrodeLocation);
+                final int curMillis = MAIN.millis();
+                MAIN.println("CytonElectrodeTestButton: Toggling Impedance on ~~ " + electrodeLocation);
                 w_cytonImpedance.toggleImpedanceOnElectrode(!cytonBoard.isCheckingImpedanceNorP(_chan, is_N_Pin), _chan, is_N_Pin, curMillis);
             }
         });
@@ -263,15 +265,15 @@ public class CytonElectrodeStatus extends GUIManager {
     }
 
     public void drawLabels(boolean _showAnatomicalName, int container_x, int container_y, int w, int h, PFont _font) {
-        pushStyle();
-        fill(OPENBCI_DARKBLUE);
-        textAlign(CENTER);
-        textFont(_font);
+        MAIN.pushStyle();
+        MAIN.fill(MAIN.OPENBCI_DARKBLUE);
+        MAIN.textAlign(MAIN.CENTER);
+        MAIN.textFont(_font);
         float x = w * thisElectrode.getLabelXY()[0];
         float y = h * thisElectrode.getLabelXY()[1];
         String s = _showAnatomicalName ? thisElectrode.getLabelName() : thisElectrode.getADSChan();
-        text(s, container_x + x, container_y + y);
-        popStyle();
+        MAIN.text(s, container_x + x, container_y + y);
+        MAIN.popStyle();
     }
 
     public String getThisElectrodeLabel() {

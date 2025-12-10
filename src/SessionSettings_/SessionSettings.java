@@ -58,9 +58,10 @@ import static W_HeadPlot_.GF.*;
 import static W_Networking_.GF.Protocol;
 import static W_Spectrogram_.GF.*;
 import static WidgetManager_.GVI.*;
-
+import Globel.GUI;
 /////////////////////////////////
-public class SessionSettings extends GUIManager {
+public class SessionSettings {
+    GUI MAIN;
     //Current version to save to JSON
     String settingsVersion = "3.0.0";
     //for screen resizing
@@ -264,14 +265,15 @@ public class SessionSettings extends GUIManager {
     Boolean loadErrorCytonEvent = false;
     final int initTimeoutThreshold = 12000; //Timeout threshold in milliseconds
 
-    public SessionSettings() {
+    public SessionSettings(GUI MAIN) {
+        this.MAIN = MAIN;
         //Instantiated on app start in OpenBCI_GUI.pde
-        dropdownColors.setActive((int)BUTTON_PRESSED); //bg color of box when pressed
-        dropdownColors.setForeground((int)BUTTON_HOVER); //when hovering over any box (primary or dropdown)
-        dropdownColors.setBackground((int)color(255)); //bg color of boxes (including primary)
-        dropdownColors.setCaptionLabel((int)color(1, 18, 41)); //color of text in primary box
+        dropdownColors.setActive((int)MAIN.BUTTON_PRESSED); //bg color of box when pressed
+        dropdownColors.setForeground((int)MAIN.BUTTON_HOVER); //when hovering over any box (primary or dropdown)
+        dropdownColors.setBackground((int)MAIN.color(255)); //bg color of boxes (including primary)
+        dropdownColors.setCaptionLabel((int)MAIN.color(1, 18, 41)); //color of text in primary box
         // dropdownColors.setValueLabel((int)color(1, 18, 41)); //color of text in all dropdown boxes
-        dropdownColors.setValueLabel((int)color(100)); //color of text in all dropdown boxes
+        dropdownColors.setValueLabel((int)MAIN.color(100)); //color of text in all dropdown boxes
 
         setLogFileDurationChoice(defaultOBCIMaxFileSize);
     }
@@ -295,7 +297,7 @@ public class SessionSettings extends GUIManager {
 
     public void setLogFileDurationChoice(int choice) {
         logFileMaxDurationNano = fileDurationInts[choice] * 1000000000L * 60;
-        println("Settings: LogFileMaxDuration = " + fileDurationInts[choice] + " minutes");
+        MAIN.println("Settings: LogFileMaxDuration = " + fileDurationInts[choice] + " minutes");
     }
 
     //Only called during live mode && using OpenBCI Data Format
@@ -329,7 +331,7 @@ public class SessionSettings extends GUIManager {
         String defaultGUIVersion = "";
 
         //Take a snapshot of the default GUI settings on every system init
-        println("InitSettings: Saving Default Settings to file!");
+        MAIN.println("InitSettings: Saving Default Settings to file!");
         try {
             this.save(defaultSettingsFileToSave); //to avoid confusion with save() image
         } catch (Exception e) {
@@ -541,7 +543,7 @@ public class SessionSettings extends GUIManager {
                 //println("widget"+i+" is not active");
             }
         }
-        println("SessionSettings: " + numActiveWidgets + " active widgets saved!");
+        MAIN.println("SessionSettings: " + numActiveWidgets + " active widgets saved!");
         //Print what widgets are in the containers used by current layout for only the number of active widgets
         //for (int i = 0; i < numActiveWidgets; i++) {
         //int containerCounter = wm.layouts.get(currentLayout).containerInts[i];
@@ -553,7 +555,7 @@ public class SessionSettings extends GUIManager {
         ///ADD more global settings above this line in the same formats as above/////////
 
         //Let's save the JSON array to a file!
-        saveJSONObject(saveSettingsJSONData, saveGUISettingsFileLocation);
+        MAIN.saveJSONObject(saveSettingsJSONData, saveGUISettingsFileLocation);
 
     }  //End of Save GUI Settings function
 
@@ -562,7 +564,7 @@ public class SessionSettings extends GUIManager {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     void load(String loadGUISettingsFileLocation) throws Exception {
         //Load all saved User Settings from a JSON file if it exists
-        loadSettingsJSONData = loadJSONObject(loadGUISettingsFileLocation);
+        loadSettingsJSONData = MAIN.loadJSONObject(loadGUISettingsFileLocation);
 
         verbosePrint(loadSettingsJSONData.toString());
 
@@ -571,7 +573,7 @@ public class SessionSettings extends GUIManager {
         numChanloaded = loadDataSettings.getInt("Channels");
         //Print error if trying to load a different number of channels
         if (numChanloaded != slnchan) {
-            println("Channels being loaded from " + loadGUISettingsFileLocation + " don't match channels being used!");
+            MAIN.println("Channels being loaded from " + loadGUISettingsFileLocation + " don't match channels being used!");
             chanNumError = true;
             throw new Exception();
         } else {
@@ -582,7 +584,7 @@ public class SessionSettings extends GUIManager {
         verbosePrint("loadGUISettings: Data source loaded: " + loadDatasource + ". Current data source: " + eegDataSource);
         //Print error if trying to load a different data source (ex. Live != Synthetic)
         if (loadDatasource != eegDataSource) {
-            println("Data source being loaded from " + loadGUISettingsFileLocation + " doesn't match current data source.");
+            MAIN.println("Data source being loaded from " + loadGUISettingsFileLocation + " doesn't match current data source.");
             dataSourceError = true;
             throw new Exception();
         } else {
@@ -739,7 +741,7 @@ public class SessionSettings extends GUIManager {
         //printArray(loadedWidgetsArray);
         int widgetToActivate = 0;
         for (int w = 0; w < numLoadedWidgets; w++) {
-            String [] loadWidgetNameNumber = split(loadedWidgetsArray[w], '_');
+            String [] loadWidgetNameNumber = MAIN.split(loadedWidgetsArray[w], '_');
             //Store the value of the widget to be activated
             widgetToActivate = Integer.valueOf(loadWidgetNameNumber[1]);
             //Load the container for the current widget[w]
@@ -747,7 +749,7 @@ public class SessionSettings extends GUIManager {
 
             wm.widgets.get(widgetToActivate).setIsActive(true);//activate the new widget
             wm.widgets.get(widgetToActivate).setContainer(containerToApply);//map it to the container that was loaded!
-            println("LoadGUISettings: Applied Widget " + widgetToActivate + " to Container " + containerToApply);
+            MAIN.println("LoadGUISettings: Applied Widget " + widgetToActivate + " to Container " + containerToApply);
         }//end case for all widget/container settings
 
         /////////////////////////////////////////////////////////////
@@ -779,7 +781,7 @@ public class SessionSettings extends GUIManager {
         }
         if (wm.widgets.get(hpWidgetNumber).getIsActive()) {
             w_headPlot.headPlot.setPositionSize(w_headPlot.headPlot.hp_x, w_headPlot.headPlot.hp_y, w_headPlot.headPlot.hp_w, w_headPlot.headPlot.hp_h, w_headPlot.headPlot.hp_win_x, w_headPlot.headPlot.hp_win_y);
-            println("Headplot is active: Redrawing");
+            MAIN.println("Headplot is active: Redrawing");
         }
     } //end of loadGUISettings
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -846,15 +848,15 @@ public class SessionSettings extends GUIManager {
                 w_bandPower.bpChanSelect.setToggleState(loadBPActiveChans.get(i), true);
             }
         } catch (Exception e) {
-            println("Settings: Exception caught applying band power settings " + e);
+            MAIN.println("Settings: Exception caught applying band power settings " + e);
         }
         verbosePrint("Settings: Band Power Active Channels: " + loadBPActiveChans);
 
         ////////////////////////////Apply Spectrogram settings
         //Apply Max Freq dropdown
-        SpectrogramMaxFreq(pApplet, spectMaxFrqLoad);
+        SpectrogramMaxFreq(MAIN, spectMaxFrqLoad);
         w_spectrogram.cp5_widget.getController("SpectrogramMaxFreq").getCaptionLabel().setText(spectMaxFrqArray[spectMaxFrqLoad]);
-        SpectrogramSampleRate(pApplet, spectSampleRateLoad);
+        SpectrogramSampleRate(MAIN, spectSampleRateLoad);
         w_spectrogram.cp5_widget.getController("SpectrogramSampleRate").getCaptionLabel().setText(spectSampleRateArray[spectSampleRateLoad]);
         SpectrogramLogLin(spectLogLinLoad);
         w_spectrogram.cp5_widget.getController("SpectrogramLogLin").getCaptionLabel().setText(fftLogLinArray[spectLogLinLoad]);
@@ -869,9 +871,9 @@ public class SessionSettings extends GUIManager {
                 w_spectrogram.spectChanSelectBot.setToggleState(loadSpectActiveChanBot.get(i), true);
             }
         } catch (Exception e) {
-            println("Settings: Exception caught applying spectrogram settings channel bar " + e);
+            MAIN.println("Settings: Exception caught applying spectrogram settings channel bar " + e);
         }
-        println("Settings: Spectrogram Active Channels: TOP - " + loadSpectActiveChanTop + " || BOT - " + loadSpectActiveChanBot);
+        MAIN.println("Settings: Spectrogram Active Channels: TOP - " + loadSpectActiveChanTop + " || BOT - " + loadSpectActiveChanBot);
 
         ///////////Apply Networking Settings
         //Update protocol with loaded value
@@ -880,7 +882,7 @@ public class SessionSettings extends GUIManager {
         w_networking.cp5_widget.getController("Protocol").getCaptionLabel().setText(w_networking.protocols.get(nwProtocolLoad)); //Reference the dropdown from the appropriate widget
         switch (nwProtocolLoad) {
             case 3:  //Apply OSC if loaded
-                println("Apply OSC Networking Mode");
+                MAIN.println("Apply OSC Networking Mode");
                 w_networking.cp5_networking_dropdowns.getController("dataType1").getCaptionLabel().setText(w_networking.dataTypes.get(nwDataType1)); //Set text on frontend
                 w_networking.cp5_networking_dropdowns.get(ScrollableList.class, "dataType1").setValue(nwDataType1); //Set value in backend
                 w_networking.cp5_networking_dropdowns.getController("dataType2").getCaptionLabel().setText(w_networking.dataTypes.get(nwDataType2)); //etc...
@@ -899,7 +901,7 @@ public class SessionSettings extends GUIManager {
                 w_networking.cp5_networking.get(Textfield.class, "OSC_port4").setText(nwOscPort4Load);
                 break;
             case 2:  //Apply UDP if loaded
-                println("Apply UDP Networking Mode");
+                MAIN.println("Apply UDP Networking Mode");
                 w_networking.cp5_networking_dropdowns.getController("dataType1").getCaptionLabel().setText(w_networking.dataTypes.get(nwDataType1)); //Set text on frontend
                 w_networking.cp5_networking_dropdowns.get(ScrollableList.class, "dataType1").setValue(nwDataType1); //Set value in backend
                 w_networking.cp5_networking_dropdowns.getController("dataType2").getCaptionLabel().setText(w_networking.dataTypes.get(nwDataType2)); //etc...
@@ -914,7 +916,7 @@ public class SessionSettings extends GUIManager {
                 w_networking.cp5_networking.get(Textfield.class, "UDP_port3").setText(nwUdpPort3Load);
                 break;
             case 1:  //Apply LSL if loaded
-                println("Apply LSL Networking Mode");
+                MAIN.println("Apply LSL Networking Mode");
                 w_networking.cp5_networking_dropdowns.getController("dataType1").getCaptionLabel().setText(w_networking.dataTypes.get(nwDataType1)); //Set text on frontend
                 w_networking.cp5_networking_dropdowns.get(ScrollableList.class, "dataType1").setValue(nwDataType1); //Set value in backend
                 w_networking.cp5_networking_dropdowns.getController("dataType2").getCaptionLabel().setText(w_networking.dataTypes.get(nwDataType2)); //etc...
@@ -929,7 +931,7 @@ public class SessionSettings extends GUIManager {
                 w_networking.cp5_networking.get(Textfield.class, "LSL_type3").setText(nwLSLType3Load);
                 break;
             case 0:  //Apply Serial if loaded
-                println("Apply Serial Networking Mode");
+                MAIN.println("Apply Serial Networking Mode");
                 w_networking.cp5_networking_dropdowns.getController("dataType1").getCaptionLabel().setText(w_networking.dataTypes.get(nwDataType1)); //Set text on frontend
                 w_networking.cp5_networking_dropdowns.get(ScrollableList.class, "dataType1").setValue(nwDataType1); //Set value in backend
                 w_networking.cp5_networking_baudRate.getController("baud_rate").getCaptionLabel().setText(w_networking.baudRates.get(nwSerialBaudRateLoad)); //Set text
@@ -959,7 +961,7 @@ public class SessionSettings extends GUIManager {
                 w_emg.emgChannelSelect.setToggleState(loadEmgActiveChannels.get(i), true);
             }
         } catch (Exception e) {
-            println("Settings: Exception caught applying EMG widget settings " + e);
+            MAIN.println("Settings: Exception caught applying EMG widget settings " + e);
         }
         verbosePrint("Settings: EMG Widget Active Channels: " + loadEmgActiveChannels);
 
@@ -972,7 +974,7 @@ public class SessionSettings extends GUIManager {
                 w_emgJoystick.updateJoystickInput(i, loadEmgJoystickInputs.get(i));
             }
         } catch (Exception e) {
-            println("Settings: Exception caught applying EMG Joystick settings " + e);
+            MAIN.println("Settings: Exception caught applying EMG Joystick settings " + e);
         }
 
         ////////////////////////////Apply Marker Widget settings
@@ -1003,7 +1005,7 @@ public class SessionSettings extends GUIManager {
                 w_timeSeries.tsChanSelect.setToggleState(loadTSChan.getInt(i), true);
             }
         } catch (Exception e) {
-            println("Settings: Exception caught applying time series settings " + e);
+            MAIN.println("Settings: Exception caught applying time series settings " + e);
         }
         verbosePrint("Settings: Time Series Active Channels: " + loadBPActiveChans);
 
@@ -1066,7 +1068,7 @@ public class SessionSettings extends GUIManager {
     }
 
     public void loadKeyPressed() {
-        loadErrorTimerStart = millis();
+        loadErrorTimerStart = MAIN.millis();
         String settingsFileToLoad = getPath("User", eegDataSource, nchan);
         try {
             load(settingsFileToLoad);
@@ -1074,7 +1076,7 @@ public class SessionSettings extends GUIManager {
         } catch (Exception e) {
             //println(e.getMessage());
             e.printStackTrace();
-            println(settingsFileToLoad + " not found or other error. Save settings with keyboard 'n' or using dropdown menu.");
+            MAIN.println(settingsFileToLoad + " not found or other error. Save settings with keyboard 'n' or using dropdown menu.");
             errorUserSettingsNotFound = true;
         }
         //Output message when Loading settings is complete
@@ -1091,7 +1093,7 @@ public class SessionSettings extends GUIManager {
 
         //Only try to delete file for SettingsNotFound/Broken settings
         if (err != null && (!chanNumError && !dataSourceError)) {
-            println("Load Settings Error: " + err);
+            MAIN.println("Load Settings Error: " + err);
             File f = new File(settingsFileToLoad);
             if (f.exists()) {
                 if (f.delete()) {
@@ -1105,11 +1107,11 @@ public class SessionSettings extends GUIManager {
 
     public void saveButtonPressed() {
         if (saveDialogName == null) {
-            selectOutput("Save a custom settings file as JSON:",
+            MAIN.selectOutput("Save a custom settings file as JSON:",
                     "saveConfigFile",
-                    dataFile(settings.getPath("User", eegDataSource, nchan)));
+                    MAIN.dataFile(settings.getPath("User", eegDataSource, nchan)));
         } else {
-            println("saveSettingsFileName = " + saveDialogName);
+            MAIN.println("saveSettingsFileName = " + saveDialogName);
             saveDialogName = null;
         }
     }
@@ -1117,10 +1119,10 @@ public class SessionSettings extends GUIManager {
     public void loadButtonPressed() {
         //Select file to load from dialog box
         if (loadDialogName == null) {
-            selectInput("Load a custom settings file from JSON:", "loadConfigFile");
+            MAIN.selectInput("Load a custom settings file from JSON:", "loadConfigFile");
             saveDialogName = null;
         } else {
-            println("loadSettingsFileName = " + loadDialogName);
+            MAIN.println("loadSettingsFileName = " + loadDialogName);
             loadDialogName = null;
         }
     }
@@ -1130,7 +1132,7 @@ public class SessionSettings extends GUIManager {
         String defaultSettingsFileToLoad = getPath("Default", eegDataSource, nchan);
         try {
             //Load all saved User Settings from a JSON file to see if it exists
-            JSONObject loadDefaultSettingsJSONData = loadJSONObject(defaultSettingsFileToLoad);
+            JSONObject loadDefaultSettingsJSONData = MAIN.loadJSONObject(defaultSettingsFileToLoad);
             this.load(defaultSettingsFileToLoad);
             outputSuccess("Default Settings Loaded!");
         } catch (Exception e) {
@@ -1138,9 +1140,9 @@ public class SessionSettings extends GUIManager {
             File f = new File(defaultSettingsFileToLoad);
             if (f.exists()) {
                 if (f.delete()) {
-                    println("SessionSettings: Old/Broken Default Settings file succesfully deleted.");
+                    MAIN.println("SessionSettings: Old/Broken Default Settings file succesfully deleted.");
                 } else {
-                    println("SessionSettings: Error deleting Default Settings file...");
+                    MAIN.println("SessionSettings: Error deleting Default Settings file...");
                 }
             }
         }

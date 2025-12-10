@@ -1,11 +1,10 @@
 package W_FFT_;
 
 import GUI.GUIManager;
-
 import static GUI.GGVI.settings;
 import static WidgetManager_.GVI.w_bandPower;
 import static WidgetManager_.GVI.w_fft;
-
+import static GUI.GGVI.*;
 public class GF extends GUIManager {
 
     //These functions need to be global! These functions are activated when an item from the corresponding dropdown is selected
@@ -51,10 +50,10 @@ public class GF extends GUIManager {
         settings.fftFilterSave = n;
         if (n==0) {
             //have FFT use filtered data -- default
-            GGVI.isFFTFiltered = true;
+            isFFTFiltered = true;
         } else {
             //have FFT use unfiltered data
-            GGVI.isFFTFiltered = false;
+            isFFTFiltered = false;
         }
         //since this function is called by both the BandPower and FFT Widgets the dropdown needs to be updated in both
         w_fft.cp5_widget.getController("UnfiltFilt").getCaptionLabel().setText(settings.fftFilterArray[n]);

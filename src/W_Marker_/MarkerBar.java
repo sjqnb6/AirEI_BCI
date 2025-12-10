@@ -9,9 +9,10 @@ import processing.core.PApplet;
 import java.util.List;
 
 import static GUI.GGVI.*;
-
+import Globel.GUI;
 //This class contains the time series plot for displaying the markers over time
-class MarkerBar extends GUIManager {
+class MarkerBar{
+    GUI MAIN;
     //this class contains the plot for the 2d graph of marker data
     private int x, y, w, h;
     private int X_AXIS_PADDING = 22;
@@ -36,9 +37,9 @@ class MarkerBar extends GUIManager {
     private float autoscaleMax;
     private int previousMillis = 0;
 
-    MarkerBar(PApplet _parent, int _yAxisMax, int markerWindow, float yLimit, int _x, int _y, int _w, int _h) {
+    MarkerBar(GUI MAIN, int _yAxisMax, int markerWindow, float yLimit, int _x, int _y, int _w, int _h) {
 //        super(_parent); //channel number, x/y location, height, width
-
+        this.MAIN = MAIN;
         yAxisMax = _yAxisMax;
         numSeconds = markerWindow;
 
@@ -55,11 +56,11 @@ class MarkerBar extends GUIManager {
             xOffset = 0;
         }
 
-        plot = new GPlot(_parent);
+        plot = new GPlot(MAIN);
         plot.setPos(x + 36 + 4 + xOffset, y); //match marker plot position with Time Series
         plot.setDim(w - 36 - 4 - xOffset, h);
         plot.setMar(0f, 0f, 0f, 0f);
-        plot.setLineColor(WHITE);
+        plot.setLineColor(MAIN.WHITE);
         plot.setXLim(-numSeconds, 0); //set the horizontal scale
         plot.setYLim((float) -0.2, (float) (yLimit + .2)); //change this to adjust vertical scale
         //plot.setPointSize(2);
@@ -70,18 +71,18 @@ class MarkerBar extends GUIManager {
         plot.setAllFontProperties("Arial", 0, 14);
         plot.getXAxis().getAxisLabel().setOffset((float)(X_AXIS_PADDING));
         plot.getYAxis().getAxisLabel().setOffset((float)(Y_AXIS_PADDING));
-        plot.getXAxis().setFontColor(OPENBCI_DARKBLUE);
-        plot.getXAxis().setLineColor(OPENBCI_DARKBLUE);
-        plot.getXAxis().getAxisLabel().setFontColor(OPENBCI_DARKBLUE);
-        plot.getYAxis().setFontColor(OPENBCI_DARKBLUE);
-        plot.getYAxis().setLineColor(OPENBCI_DARKBLUE);
-        plot.getYAxis().getAxisLabel().setFontColor(OPENBCI_DARKBLUE);
+        plot.getXAxis().setFontColor(MAIN.OPENBCI_DARKBLUE);
+        plot.getXAxis().setLineColor(MAIN.OPENBCI_DARKBLUE);
+        plot.getXAxis().getAxisLabel().setFontColor(MAIN.OPENBCI_DARKBLUE);
+        plot.getYAxis().setFontColor(MAIN.OPENBCI_DARKBLUE);
+        plot.getYAxis().setLineColor(MAIN.OPENBCI_DARKBLUE);
+        plot.getYAxis().getAxisLabel().setFontColor(MAIN.OPENBCI_DARKBLUE);
 
         initArrays();
 
 
         plot.addLayer(PLOT_LAYER, markerPointsArray);
-        plot.getLayer(PLOT_LAYER).setLineColor(ACCEL_X_COLOR);
+        plot.getLayer(PLOT_LAYER).setLineColor(MAIN.ACCEL_X_COLOR);
 
     }
 
@@ -110,7 +111,7 @@ class MarkerBar extends GUIManager {
     }
 
     public void draw() {
-        pushStyle();
+        MAIN.pushStyle();
         plot.beginDraw();
         plot.drawBox(); //we won't draw this eventually ...
         plot.drawGridLines(GPlot.BOTH);
@@ -119,7 +120,7 @@ class MarkerBar extends GUIManager {
         plot.drawYAxis();
         plot.drawXAxis();
         plot.endDraw();
-        popStyle();
+        MAIN.popStyle();
     }
 
     private int nPointsBasedOnDataSource() {
@@ -153,7 +154,7 @@ class MarkerBar extends GUIManager {
 
     void applyAutoscale() {
         //Do this once a second for all TimeSeries ChannelBars to save on resources
-        int newMillis = millis();
+        int newMillis = MAIN.millis();
         boolean doAutoscale = newMillis > previousMillis + 1000;
         if (isAutoscale && currentBoard.isStreaming() && doAutoscale) {
             autoscaleMin = (int) Math.floor(autoscaleMin);

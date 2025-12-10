@@ -5,8 +5,9 @@ import processing.core.PApplet;
 import processing.core.PFont;
 
 import static GUI.GGVI.p5;
-
+import Globel.GUI;
 public class TextBox extends Widget {
+    GUI MAIN;
     public int x;
     public int y;
     private int w, h;
@@ -21,21 +22,21 @@ public class TextBox extends Widget {
     public int alignV;
     private boolean drawObject = true;
 
-    public TextBox(PApplet _parent, String s, int x1, int y1) {
-        super(_parent);
+    public TextBox(GUI MAIN, String s, int x1, int y1) {
+        super(MAIN);
         string = s; x = x1; y = y1;
-        textColor = OPENBCI_DARKBLUE;
+        textColor = MAIN.OPENBCI_DARKBLUE;
         backgroundColor = pApplet.color(255);
         fontSize = 12;
         font = p5;
         backgroundEdge_pixels = 1;
         drawBackground = false;
-        alignH = LEFT;
-        alignV = BOTTOM;
+        alignH = MAIN.LEFT;
+        alignV = MAIN.BOTTOM;
     }
 
-    public TextBox(PApplet _parent, String s, int x1, int y1, int _textColor, int _backgroundColor, int _alignH, int _alignV) {
-        this(_parent, s, x1, y1);
+    public TextBox(GUI MAIN, String s, int x1, int y1, int _textColor, int _backgroundColor, int _alignH, int _alignV) {
+        this(MAIN, s, x1, y1);
         textColor = _textColor;
         backgroundColor = _backgroundColor;
         drawBackground = true;
@@ -43,8 +44,8 @@ public class TextBox extends Widget {
         alignV = _alignV;
     }
 
-    public TextBox(PApplet _parent, String s, int x1, int y1, int _textColor, int _backgroundColor, int _fontSize, PFont _font, int _alignH, int _alignV) {
-        this(_parent, s, x1, y1, _textColor, _backgroundColor, _alignH, _alignV);
+    public TextBox(GUI MAIN, String s, int x1, int y1, int _textColor, int _backgroundColor, int _fontSize, PFont _font, int _alignH, int _alignV) {
+        this(MAIN, s, x1, y1, _textColor, _backgroundColor, _alignH, _alignV);
         fontSize = _fontSize;
         font = _font;
     }
@@ -61,26 +62,26 @@ public class TextBox extends Widget {
 
         //draw the box behind the text
         if (drawBackground == true) {
-            w = (int)(round(pApplet.textWidth(string)));
+            w = (int)(MAIN.round(pApplet.textWidth(string)));
             int xbox = x - backgroundEdge_pixels;
             switch (alignH) {
-                case LEFT:
+                case 37:
                     xbox = x - backgroundEdge_pixels;
                     break;
-                case RIGHT:
+                case 39:
                     xbox = x - w - backgroundEdge_pixels;
                     break;
-                case CENTER:
-                    xbox = x - (int)(round((float) (w/2.0))) - backgroundEdge_pixels;
+                case 3:
+                    xbox = x - (int)(MAIN.round((float) (w/2.0))) - backgroundEdge_pixels;
                     break;
             }
             w = w + 2*backgroundEdge_pixels;
 
             h = (int)(pApplet.textAscent()) + backgroundEdge_pixels*2;
             int ybox = y;
-            if (alignV == CENTER) {
+            if (alignV == MAIN.CENTER) {
                 ybox -= (int) (pApplet.textAscent() / 2 - backgroundEdge_pixels);
-            } else if (alignV == BOTTOM) {
+            } else if (alignV == MAIN.BOTTOM) {
                 ybox -= (int) (pApplet.textAscent() + backgroundEdge_pixels*3);
             }
             pApplet.fill(backgroundColor);

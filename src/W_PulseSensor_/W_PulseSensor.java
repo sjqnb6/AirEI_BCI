@@ -24,7 +24,7 @@ import java.util.List;
 import static Debugging_.GF.output;
 import static GUI.GGVI.*;
 import static WidgetManager_.GVI.*;
-
+import Globel.GUI;
 ////////////////////////////////////////////////////
 
 public class W_PulseSensor extends Widget {
@@ -80,14 +80,14 @@ public class W_PulseSensor extends Widget {
     private int ibiValue = 600;             // int that holds the time interval between beats! Must be seeded!
 
     private AnalogCapableBoard analogBoard;
-
-    public W_PulseSensor(PApplet _parent){
-        super(_parent); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
-
+    GUI MAIN;
+    public W_PulseSensor(GUI MAIN){
+        super(MAIN); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
+        this.MAIN = MAIN;
         analogBoard = (AnalogCapableBoard)currentBoard;
 
-        eggshell = color(255, 253, 248);
-        pulseWave = BOLD_RED;
+        eggshell = MAIN.color(255, 253, 248);
+        pulseWave = MAIN.BOLD_RED;
 
         pulseWaveY = new int[PULSE_BUFFER_SIZE];
         bpmWaveY = new int[BPM_BUFFER_SIZE];
@@ -95,7 +95,7 @@ public class W_PulseSensor extends Widget {
         setPulseWidgetVariables();
         initializePulseFinderVariables();
 
-        createAnalogModeButton("pulseSensorAnalogModeButton", "Turn Analog Read On", (int)(x0 + 1), (int)(y0 + navHeight + 1), 128, navHeight - 3, p5, 12, colorNotPressed, OPENBCI_DARKBLUE);
+        createAnalogModeButton("pulseSensorAnalogModeButton", "Turn Analog Read On", (int)(x0 + 1), (int)(y0 + navHeight + 1), 128, navHeight - 3, p5, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
     }
 
     public void update(){
@@ -118,31 +118,31 @@ public class W_PulseSensor extends Widget {
         if (!analogBoard.canDeactivateAnalog()) {
             analogModeButton.setLock(true);
             analogModeButton.getCaptionLabel().setText("Analog Read On");
-            analogModeButton.setColorBackground(BUTTON_LOCKED_GREY);
+            analogModeButton.setColorBackground(MAIN.BUTTON_LOCKED_GREY);
         }
     }
 
     public void draw(){
         super.draw(); //calls the parent draw() method of Widget (DON'T REMOVE)
         //remember to refer to x,y,w,h which are the positioning variables of the Widget class
-        pushStyle();
+        MAIN.pushStyle();
 
-        fill(graphBG);
-        stroke(graphStroke);
-        rect(pulseWindowX,pulseWindowY,pulseWindowWidth,pulseWindowHeight);
-        rect(bpmWindowX,bpmWindowY,bpmWindowWidth,bpmWindowHeight);
+        MAIN.fill(graphBG);
+        MAIN.stroke(graphStroke);
+        MAIN.rect(pulseWindowX,pulseWindowY,pulseWindowWidth,pulseWindowHeight);
+        MAIN.rect(bpmWindowX,bpmWindowY,bpmWindowWidth,bpmWindowHeight);
 
-        fill(50);
-        textFont(p4, 16);
-        textAlign(LEFT,CENTER);
-        text("BPM "+bpmValue, bpmPositionX, bpmPositionY);
-        text("IBI "+ibiValue+"mS", ibiPositionX, ibiPositionY);
+        MAIN.fill(50);
+        MAIN.textFont(p4, 16);
+        MAIN.textAlign(MAIN.LEFT,MAIN.CENTER);
+        MAIN.text("BPM "+bpmValue, bpmPositionX, bpmPositionY);
+        MAIN.text("IBI "+ibiValue+"mS", ibiPositionX, ibiPositionY);
 
         if (analogBoard.isAnalogActive()) {
             drawWaves();
         }
 
-        popStyle();
+        MAIN.popStyle();
 
     }
 
@@ -154,7 +154,7 @@ public class W_PulseSensor extends Widget {
     }
 
     private void createAnalogModeButton(String name, String text, int _x, int _y, int _w, int _h, PFont _font, int _fontSize, int _bg, int _textColor) {
-        analogModeButton = createButton(cp5_widget, name, text, _x, _y, _w, _h, 0, _font, _fontSize, _bg, _textColor, BUTTON_HOVER, BUTTON_PRESSED, OBJECT_BORDER_GREY, 0);
+        analogModeButton = MAIN.createButton(cp5_widget, name, text, _x, _y, _w, _h, 0, _font, _fontSize, _bg, _textColor, MAIN.BUTTON_HOVER, MAIN.BUTTON_PRESSED, MAIN.OBJECT_BORDER_GREY, 0);
         analogModeButton.setSwitch(true);
         analogModeButton.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
@@ -234,30 +234,30 @@ public class W_PulseSensor extends Widget {
 
     private void drawWaves(){
         int xi, yi;
-        noFill();
-        strokeWeight(1);
-        stroke(pulseWave);
-        beginShape();                                  // using beginShape() renders fast
+        MAIN.noFill();
+        MAIN.strokeWeight(1);
+        MAIN.stroke(pulseWave);
+        MAIN.beginShape();                                  // using beginShape() renders fast
         for(int i=0; i<pulseWaveY.length; i++){
-            xi = (int)(map(i,0, pulseWaveY.length-1,0, pulseWindowWidth-1));
+            xi = (int)(MAIN.map(i,0, pulseWaveY.length-1,0, pulseWindowWidth-1));
             xi += pulseWindowX;
-            yi = (int)(map((float) pulseWaveY[i], 0.0F, 1023.0F,
+            yi = (int)(MAIN.map((float) pulseWaveY[i], 0.0F, 1023.0F,
                 (float)(pulseWindowY + pulseWindowHeight),(float)(pulseWindowY)));
-            vertex(xi, yi);
+            MAIN.vertex(xi, yi);
         }
-        endShape();
+        MAIN.endShape();
 
-        strokeWeight(2);
-        stroke(pulseWave);
-        beginShape();                                  // using beginShape() renders fast
+        MAIN.strokeWeight(2);
+        MAIN.stroke(pulseWave);
+        MAIN.beginShape();                                  // using beginShape() renders fast
         for(int i=0; i<bpmWaveY.length; i++){
-            xi = (int)(map(i,0, bpmWaveY.length-1,0, bpmWindowWidth-1));
+            xi = (int)(MAIN.map(i,0, bpmWaveY.length-1,0, bpmWindowWidth-1));
             xi += bpmWindowX;
-            yi = (int)(map((float) bpmWaveY[i], 0.0F, 200.0F,
+            yi = (int)(MAIN.map((float) bpmWaveY[i], 0.0F, 200.0F,
                 (float)(bpmWindowY + bpmWindowHeight), (float)(bpmWindowY)));
-            vertex(xi, yi);
+            MAIN.vertex(xi, yi);
         }
-        endShape();
+        MAIN.endShape();
 
     }
 
@@ -314,7 +314,7 @@ public class W_PulseSensor extends Widget {
                 runningTotal += rate[9];                // add the latest IBI to runningTotal
                 runningTotal /= 10;                     // average the last 10 IBI values
                 bpmValue = 60000 / runningTotal;        // how many beats can fit into a minute? that's BPM!
-                bpmValue = constrain(bpmValue, 0, 200);
+                bpmValue = MAIN.constrain(bpmValue, 0, 200);
 
                 for(int i = 0; i < bpmWaveY.length - 1; i++){
                     bpmWaveY[i] = bpmWaveY[i + 1];

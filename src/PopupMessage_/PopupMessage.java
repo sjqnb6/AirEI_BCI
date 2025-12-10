@@ -8,8 +8,9 @@ import processing.core.PApplet;
 import java.awt.*;
 
 import static GUI.GGVI.*;
-
-public class PopupMessage extends GUIManager implements Runnable {
+import Globel.GUI;
+public class PopupMessage extends PApplet implements Runnable {
+    GUI MAIN;
     private final int defaultWidth = 500;
     private final int defaultHeight = 250;
 
@@ -24,15 +25,15 @@ public class PopupMessage extends GUIManager implements Runnable {
     private String buttonMessage = "OK";
     private String buttonLink = null;
 
-    private int headerColor = OPENBCI_BLUE;
-    private int buttonColor = OPENBCI_BLUE;
-    private int backgroundColor = GREY_235;
+    private int headerColor = MAIN.OPENBCI_BLUE;
+    private int buttonColor = MAIN.OPENBCI_BLUE;
+    private int backgroundColor = MAIN.GREY_235;
 
     private ControlP5 cp5;
 
-    public PopupMessage(String header, String msg) {
+    public PopupMessage(GUI MAIN, String header, String msg) {
         super();
-
+        this.MAIN = MAIN;
         headerMessage = header;
         message = msg;
 
@@ -98,7 +99,7 @@ public class PopupMessage extends GUIManager implements Runnable {
         pushStyle();
 
         // draw bg
-        background(OPENBCI_DARKBLUE);
+        background(MAIN.OPENBCI_DARKBLUE);
         stroke(204);
         fill(backgroundColor);
         rect((width - w)/2, (height - h)/2, w, h);
@@ -110,7 +111,7 @@ public class PopupMessage extends GUIManager implements Runnable {
 
         //draw header text
         textFont(p0, 24);
-        fill(WHITE);
+        fill(MAIN.WHITE);
         textAlign(LEFT, CENTER);
         text(headerMessage, (width - w)/2 + padding, headerHeight/2);
 

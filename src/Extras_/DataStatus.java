@@ -2,18 +2,20 @@ package Extras_;
 
 import ADS1299SettingsBoard_.ADS1299SettingsBoard;
 import GUI.GUIManager;
+import Globel.GUI;
 import processing.core.PApplet;
 
 import static GUI.GGVI.currentBoard;
 
-public class DataStatus extends GUIManager {
+public class DataStatus{
+    GUI MAIN;
     public boolean is_railed;
     public boolean is_railed_warn;
     private double percentage;
     public String notificationString;
-    private final int default_color = OPENBCI_DARKBLUE;
-    private final int yellow = SIGNAL_CHECK_YELLOW;
-    private final int red = BOLD_RED;
+    private final int default_color = MAIN.OPENBCI_DARKBLUE;
+    private final int yellow = MAIN.SIGNAL_CHECK_YELLOW;
+    private final int red = MAIN.BOLD_RED;
     private int colorIndicator = default_color;
     // thresholds are pecentages of max possible value
     private double threshold_railed = 90.0;
@@ -37,8 +39,8 @@ public class DataStatus extends GUIManager {
         }
 
         if (currentBoard instanceof ADS1299SettingsBoard) {
-            double scaler =  (4.5 / (pow (2, 23) - 1) / ((ADS1299SettingsBoard)currentBoard).getGain(channel) * 1000000.);
-            double maxVal = scaler * pow (2, 23);
+            double scaler =  (4.5 / (MAIN.pow (2, 23) - 1) / ((ADS1299SettingsBoard)currentBoard).getGain(channel) * 1000000.);
+            double maxVal = scaler * MAIN.pow (2, 23);
             int numSeconds = 3;
             int nPoints = numSeconds * currentBoard.getSampleRate();
             int endPos = data.length;

@@ -35,9 +35,9 @@ import static Extras_.GF.isMac;
 import static GUI.GGVI.*;
 import static Interactivity_.GF.openURLInBrowser;
 import static WidgetManager_.GVI.w_networking;
-
+import Globel.GUI;
 public class W_Networking extends Widget {
-
+    GUI MAIN;
     /* Variables for protocol selection */
     public int protocolIndex;
     public String protocolMode;
@@ -127,8 +127,8 @@ public class W_Networking extends Widget {
 
     private List<Controller> cp5ElementsToCheck;
 
-    public W_Networking(PApplet _parent) {
-        super(_parent);
+    public W_Networking(GUI MAIN) {
+        super(MAIN);
         // ourApplet = _parent;
 
         networkActive = false;
@@ -453,7 +453,7 @@ public class W_Networking extends Widget {
 
     public void draw() {
         super.draw();
-        pushStyle();
+        MAIN.pushStyle();
 
         showCP5();
 
@@ -471,53 +471,53 @@ public class W_Networking extends Widget {
                 float[] pos = cp5_networking_dropdowns.get(ScrollableList.class, dataTypeNames.get(i)).getPosition();
                 int width = itemWidth + 2;
                 int height = cp5_networking_dropdowns.get(ScrollableList.class, dataTypeNames.get(i)).getHeight();
-                fill(0, 0, 0);
-                rect(pos[0] - 1, pos[1] - 1, width, height);
+                MAIN.fill(0, 0, 0);
+                MAIN.rect(pos[0] - 1, pos[1] - 1, width, height);
             }
         }
 
         cp5_networking_dropdowns.draw();
 
         int headerFontSize = 18;
-        fill(OPENBCI_DARKBLUE);
-        textFont(h1, headerFontSize);
+        MAIN.fill(MAIN.OPENBCI_DARKBLUE);
+        MAIN.textFont(h1, headerFontSize);
 
         if (!protocolMode.equals("Serial")) {
-            text(" Stream 1", column1, row0);
-            text(" Stream 2", column2, row0);
-            text(" Stream 3", column3, row0);
+            MAIN.text(" Stream 1", column1, row0);
+            MAIN.text(" Stream 2", column2, row0);
+            MAIN.text(" Stream 3", column3, row0);
         }
         if (protocolMode.equals("OSC")) {
-            text(" Stream 4", column4, row0);
+            MAIN.text(" Stream 4", column4, row0);
         }
-        text("Data Type", column0, row1);
+        MAIN.text("Data Type", column0, row1);
 
         if (protocolMode.equals("OSC")) {
-            textFont(f4, 40);
-            text("OSC", x + 20, y + h / 8 + 15);
-            textFont(h1, headerFontSize);
-            text("IP", column0, row2);
-            text("Port", column0, row3);
+            MAIN.textFont(f4, 40);
+            MAIN.text("OSC", x + 20, y + h / 8 + 15);
+            MAIN.textFont(h1, headerFontSize);
+            MAIN.text("IP", column0, row2);
+            MAIN.text("Port", column0, row3);
         } else if (protocolMode.equals("UDP")) {
-            textFont(f4, 40);
-            text("UDP", x + 20, y + h / 8 + 15);
-            textFont(h1, headerFontSize);
-            text("IP", column0, row2);
-            text("Port", column0, row3);
+            MAIN.textFont(f4, 40);
+            MAIN.text("UDP", x + 20, y + h / 8 + 15);
+            MAIN.textFont(h1, headerFontSize);
+            MAIN.text("IP", column0, row2);
+            MAIN.text("Port", column0, row3);
         } else if (protocolMode.equals("LSL")) {
-            textFont(f4, 40);
-            text("LSL", x + 20, y + h / 8 + 15);
-            textFont(h1, headerFontSize);
-            text("Name", column0, row2);
-            text("Type", column0, row3);
+            MAIN.textFont(f4, 40);
+            MAIN.text("LSL", x + 20, y + h / 8 + 15);
+            MAIN.textFont(h1, headerFontSize);
+            MAIN.text("Name", column0, row2);
+            MAIN.text("Type", column0, row3);
         } else if (protocolMode.equals("Serial")) {
-            textFont(f4, 40);
-            text("Serial", x + 20, y + h / 8 + 15);
-            textFont(h1, headerFontSize);
-            text("Baud/Port", column0, row2);
+            MAIN.textFont(f4, 40);
+            MAIN.text("Serial", x + 20, y + h / 8 + 15);
+            MAIN.textFont(h1, headerFontSize);
+            MAIN.text("Baud/Port", column0, row2);
             // text("Port Name", column0,row3);
         }
-        popStyle();
+        MAIN.popStyle();
 
     }
 
@@ -621,12 +621,12 @@ public class W_Networking extends Widget {
                 .setSize(120, 20) // Size of textfield
                 .setFont(f2)
                 .setFocus(false) // Deselects textfield
-                .setColor(OPENBCI_DARKBLUE)
-                .setColorBackground(color(255, 255, 255)) // text field bg color
-                .setColorValueLabel(OPENBCI_DARKBLUE) // text color
-                .setColorForeground(OPENBCI_DARKBLUE) // border color when not selected
-                .setColorActive(isSelected_color) // border color when selected
-                .setColorCursor(OPENBCI_DARKBLUE)
+                .setColor(MAIN.OPENBCI_DARKBLUE)
+                .setColorBackground(MAIN.color(255, 255, 255)) // text field bg color
+                .setColorValueLabel(MAIN.OPENBCI_DARKBLUE) // text color
+                .setColorForeground(MAIN.OPENBCI_DARKBLUE) // border color when not selected
+                .setColorActive(MAIN.isSelected_color) // border color when selected
+                .setColorCursor(MAIN.OPENBCI_DARKBLUE)
                 .setText(default_text) // Default text in the field
                 .setCaptionLabel("") // Remove caption label
                 .setVisible(false) // Initially hidden
@@ -635,14 +635,14 @@ public class W_Networking extends Widget {
     }
 
     private void createStartButton() {
-        startButton = createButton(cp5_networking, "startStopNetworkStream", "Start " + protocolMode + " Stream",
-                x + w / 2 - 70, y + h - 40, 200, 20, 0, p4, 14, TURN_ON_GREEN, OPENBCI_DARKBLUE, BUTTON_HOVER,
-                BUTTON_PRESSED, OBJECT_BORDER_GREY, 0);
+        startButton = MAIN.createButton(cp5_networking, "startStopNetworkStream", "Start " + protocolMode + " Stream",
+                x + w / 2 - 70, y + h - 40, 200, 20, 0, p4, 14, MAIN.TURN_ON_GREEN, MAIN.OPENBCI_DARKBLUE, MAIN.BUTTON_HOVER,
+                MAIN.BUTTON_PRESSED, MAIN.OBJECT_BORDER_GREY, 0);
         startButton.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 if (!networkActive) {
                     try {
-                        startButton.setColorBackground(TURN_OFF_RED);
+                        startButton.setColorBackground(MAIN.TURN_OFF_RED);
                         startButton.getCaptionLabel().setText("Stop " + protocolMode + " Stream");
                         initializeStreams(); // Establish stream
                         startNetwork(); // Begin streaming
@@ -650,16 +650,16 @@ public class W_Networking extends Widget {
                     } catch (Exception e) {
                         e.printStackTrace();
                         String exception = e.toString();
-                        String[] nwError = split(exception, ':');
+                        String[] nwError = MAIN.split(exception, ':');
                         outputError("Networking Error - Port: " + nwError[2]);
                         shutDown();
                         networkActive = false;
-                        startButton.setColorBackground(TURN_ON_GREEN);
+                        startButton.setColorBackground(MAIN.TURN_ON_GREEN);
                         startButton.getCaptionLabel().setText("Start " + protocolMode + " Stream");
                         return;
                     }
                 } else {
-                    startButton.setColorBackground(TURN_ON_GREEN);
+                    startButton.setColorBackground(MAIN.TURN_ON_GREEN);
                     startButton.getCaptionLabel().setText("Start " + protocolMode + " Stream");
                     stopNetwork(); // Stop streams
                     output("Network Stream Stopped");
@@ -671,14 +671,14 @@ public class W_Networking extends Widget {
 
     // Change appearance of networking start/stop button to Off
     void turnOffButton() {
-        startButton.setColorBackground(TURN_ON_GREEN);
+        startButton.setColorBackground(MAIN.TURN_ON_GREEN);
         startButton.getCaptionLabel().setText("Start " + protocolMode + " Stream");
     }
 
     private void createGuideButton() {
-        guideButton = createButton(cp5_networking, "networkingGuideButton", "Networking Guide", (int) (x0 + 1),
-                (int) (y0 + navH + 1), 125, navH - 3, p5, 12, colorNotPressed, OPENBCI_DARKBLUE);
-        guideButton.setBorderColor(OBJECT_BORDER_GREY);
+        guideButton = MAIN.createButton(cp5_networking, "networkingGuideButton", "Networking Guide", (int) (x0 + 1),
+                (int) (y0 + navH + 1), 125, navH - 3, p5, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
+        guideButton.setBorderColor(MAIN.OBJECT_BORDER_GREY);
         guideButton.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 openURLInBrowser(NETWORKING_GUIDE_URL);
@@ -689,10 +689,10 @@ public class W_Networking extends Widget {
     }
 
     private void createDataOutputsButton() {
-        dataOutputsButton = createButton(cp5_networking, "dataOutputsButton", "Data Outputs",
-                x0 + 1 + 3 + guideButton.getWidth(), y0 + navH + 1, 100, navH - 3, p5, 12, colorNotPressed,
-                OPENBCI_DARKBLUE);
-        dataOutputsButton.setBorderColor(OBJECT_BORDER_GREY);
+        dataOutputsButton = MAIN.createButton(cp5_networking, "dataOutputsButton", "Data Outputs",
+                x0 + 1 + 3 + guideButton.getWidth(), y0 + navH + 1, 100, navH - 3, p5, 12, MAIN.colorNotPressed,
+                MAIN.OPENBCI_DARKBLUE);
+        dataOutputsButton.setBorderColor(MAIN.OBJECT_BORDER_GREY);
         dataOutputsButton.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 openURLInBrowser(NETWORKING_DATA_OUTPUTS_URL);
@@ -707,12 +707,12 @@ public class W_Networking extends Widget {
 
         ScrollableList scrollList = cp5_networking_dropdowns.addScrollableList(name)
                 .setOpen(false)
-                .setOutlineColor(OPENBCI_DARKBLUE)
-                .setColorBackground(OPENBCI_BLUE) // text field bg color
-                .setColorValueLabel(color(255)) // text color
-                .setColorCaptionLabel(color(255))
-                .setColorForeground(color(125)) // border color when not selected
-                .setColorActive(BUTTON_PRESSED) // border color when selected
+                .setOutlineColor(MAIN.OPENBCI_DARKBLUE)
+                .setColorBackground(MAIN.OPENBCI_BLUE) // text field bg color
+                .setColorValueLabel(MAIN.color(255)) // text color
+                .setColorCaptionLabel(MAIN.color(255))
+                .setColorForeground(MAIN.color(125)) // border color when not selected
+                .setColorActive(MAIN.BUTTON_PRESSED) // border color when selected
                 // .setColorCursor(color(26,26,26))
                 .setSize(itemWidth, (_items.size() + 1) * (navH - 4))// + maxFreqList.size())
                 .setBarHeight(navH - 4) // height of top/primary bar
@@ -735,11 +735,11 @@ public class W_Networking extends Widget {
 
     private void createBaudDropdown(String name, List<String> _items) {
         ScrollableList scrollList = cp5_networking_baudRate.addScrollableList(name).setOpen(false)
-                .setOutlineColor(OPENBCI_DARKBLUE).setColorBackground(OPENBCI_BLUE) // text field bg color
-                .setColorValueLabel(color(255)) // text color
-                .setColorCaptionLabel(color(255))
-                .setColorForeground(color(125)) // border color when not selected
-                .setColorActive(BUTTON_PRESSED) // border color when selected
+                .setOutlineColor(MAIN.OPENBCI_DARKBLUE).setColorBackground(MAIN.OPENBCI_BLUE) // text field bg color
+                .setColorValueLabel(MAIN.color(255)) // text color
+                .setColorCaptionLabel(MAIN.color(255))
+                .setColorForeground(MAIN.color(125)) // border color when not selected
+                .setColorActive(MAIN.BUTTON_PRESSED) // border color when selected
                 // .setColorCursor(color(26,26,26))
                 .setSize(itemWidth, (_items.size() + 1) * (navH - 4))// + maxFreqList.size())
                 .setBarHeight(navH - 4) // height of top/primary bar
@@ -765,12 +765,12 @@ public class W_Networking extends Widget {
         if (isEmpty)
             _items.add("None"); // Fix #642 and #637
         ScrollableList scrollList = cp5_networking_portName.addScrollableList(name).setOpen(false)
-                .setOutlineColor(OPENBCI_DARKBLUE)
-                .setColorBackground(OPENBCI_BLUE) // text field bg color
-                .setColorValueLabel(color(255)) // text color
-                .setColorCaptionLabel(color(255))
-                .setColorForeground(color(125)) // border color when not selected
-                .setColorActive(BUTTON_PRESSED) // border color when selected
+                .setOutlineColor(MAIN.OPENBCI_DARKBLUE)
+                .setColorBackground(MAIN.OPENBCI_BLUE) // text field bg color
+                .setColorValueLabel(MAIN.color(255)) // text color
+                .setColorCaptionLabel(MAIN.color(255))
+                .setColorForeground(MAIN.color(125)) // border color when not selected
+                .setColorActive(MAIN.BUTTON_PRESSED) // border color when selected
                 // .setColorCursor(color(26,26,26))
                 .setSize(itemWidth, (_items.size() + 1) * (navH - 4))// + maxFreqList.size())
                 .setBarHeight(navH - 4) // height of top/primary bar
@@ -810,14 +810,14 @@ public class W_Networking extends Widget {
         cp5_networking_portName.setGraphics(pApplet, 0,0);
 
         //scale the item width of all elements in the networking widget
-        itemWidth = (int)(map(width, 1024, 1920, 100, 120)) - 4;
+        itemWidth = (int)(MAIN.map(MAIN.width, 1024, 1920, 100, 120)) - 4;
 
         column0 = x+w/22-12;
         int widthd = 46;//This value has been fine-tuned to look proper in windowed mode 1024*768 and fullscreen on 1920x1080
 
         if (protocolMode.equals("UDP") || protocolMode.equals("LSL")) {
             widthd = 38;
-            itemWidth = (int)(map(width, 1024, 1920, 120, 140)) - 4;
+            itemWidth = (int)(MAIN.map(MAIN.width, 1024, 1920, 120, 140)) - 4;
         }
 
         column1 = x+12*w/widthd-25;//This value has been fine-tuned to look proper in windowed mode 1024*768 and fullscreen on 1920x1080
@@ -840,7 +840,7 @@ public class W_Networking extends Widget {
         dataOutputsButton.setPosition(x0 + 1 + 2 + guideButton.getWidth() , y0 + navH + 1);
 
         //Responsively scale the data types dropdown height
-        int dropdownsItemsToShow = min(floor((this.h0 * datatypeDropdownScaling) / (this.navH - 4)), dataTypes.size());
+        int dropdownsItemsToShow = MAIN.min(MAIN.floor((this.h0 * datatypeDropdownScaling) / (this.navH - 4)), dataTypes.size());
         int dropdownHeight = (dropdownsItemsToShow) * (this.navH - 4);
         int maxDropdownHeight = (dataTypes.size() + 1) * (this.navH - 4);
         if (dropdownHeight > maxDropdownHeight) dropdownHeight = maxDropdownHeight;
@@ -903,8 +903,8 @@ public class W_Networking extends Widget {
 
     /* Function call to hide all widget CP5 elements */
     private void hideElements() {
-        String[] allTextFields = concat(oscTextFieldNames, udpTextFieldNames);
-        allTextFields = concat(allTextFields, lslTextFieldNames);
+        String[] allTextFields = MAIN.concat(oscTextFieldNames, udpTextFieldNames);
+        allTextFields = MAIN.concat(allTextFields, lslTextFieldNames);
         hideAllTextFields(allTextFields);
 
         cp5_networking_dropdowns.get(ScrollableList.class, "dataType1").setVisible(false);
@@ -949,7 +949,7 @@ public class W_Networking extends Widget {
                 ip = cp5_networking.get(Textfield.class, "OSC_ip1").getText();
                 port = Integer.parseInt(cp5_networking.get(Textfield.class, "OSC_port1").getText());
                 streamNumber = 0;
-                stream1 = new NetworkStreamOut(this, dt1, ip, port, baseAddress, streamNumber);
+                stream1 = new NetworkStreamOut(MAIN, dt1, ip, port, baseAddress, streamNumber);
             } else {
                 stream1 = null;
             }
@@ -957,7 +957,7 @@ public class W_Networking extends Widget {
                 ip = cp5_networking.get(Textfield.class, "OSC_ip2").getText();
                 port = Integer.parseInt(cp5_networking.get(Textfield.class, "OSC_port2").getText());
                 streamNumber = 1;
-                stream2 = new NetworkStreamOut(this, dt2, ip, port, baseAddress, streamNumber);
+                stream2 = new NetworkStreamOut(MAIN, dt2, ip, port, baseAddress, streamNumber);
             } else {
                 stream2 = null;
             }
@@ -965,7 +965,7 @@ public class W_Networking extends Widget {
                 ip = cp5_networking.get(Textfield.class, "OSC_ip3").getText();
                 port = Integer.parseInt(cp5_networking.get(Textfield.class, "OSC_port3").getText());
                 streamNumber = 2;
-                stream3 = new NetworkStreamOut(this, dt3, ip, port, baseAddress, streamNumber);
+                stream3 = new NetworkStreamOut(MAIN, dt3, ip, port, baseAddress, streamNumber);
             } else {
                 stream3 = null;
             }
@@ -973,7 +973,7 @@ public class W_Networking extends Widget {
                 ip = cp5_networking.get(Textfield.class, "OSC_ip4").getText();
                 port = Integer.parseInt(cp5_networking.get(Textfield.class, "OSC_port4").getText());
                 streamNumber = 3;
-                stream4 = new NetworkStreamOut(this, dt4, ip, port, baseAddress, streamNumber);
+                stream4 = new NetworkStreamOut(MAIN, dt4, ip, port, baseAddress, streamNumber);
             } else {
                 stream4 = null;
             }
@@ -984,7 +984,7 @@ public class W_Networking extends Widget {
                 ip = cp5_networking.get(Textfield.class, "UDP_ip1").getText();
                 port = Integer.parseInt(cp5_networking.get(Textfield.class, "UDP_port1").getText());
                 streamNumber = 0;
-                stream1 = new NetworkStreamOut(this, dt1, ip, port, streamNumber);
+                stream1 = new NetworkStreamOut(MAIN, dt1, ip, port, streamNumber);
             } else {
                 stream1 = null;
             }
@@ -992,7 +992,7 @@ public class W_Networking extends Widget {
                 ip = cp5_networking.get(Textfield.class, "UDP_ip2").getText();
                 port = Integer.parseInt(cp5_networking.get(Textfield.class, "UDP_port2").getText());
                 streamNumber = 1;
-                stream2 = new NetworkStreamOut(this, dt2, ip, port, streamNumber);
+                stream2 = new NetworkStreamOut(MAIN, dt2, ip, port, streamNumber);
             } else {
                 stream2 = null;
             }
@@ -1000,7 +1000,7 @@ public class W_Networking extends Widget {
                 ip = cp5_networking.get(Textfield.class, "UDP_ip3").getText();
                 port = Integer.parseInt(cp5_networking.get(Textfield.class, "UDP_port3").getText());
                 streamNumber = 2;
-                stream3 = new NetworkStreamOut(this, dt3, ip, port, streamNumber);
+                stream3 = new NetworkStreamOut(MAIN, dt3, ip, port, streamNumber);
             } else {
                 stream3 = null;
             }
@@ -1012,7 +1012,7 @@ public class W_Networking extends Widget {
                 type = cp5_networking.get(Textfield.class, "LSL_type1").getText();
                 numLslDataPoints = getDataTypeNumChanLSL(dt1);
                 streamNumber = 0;
-                stream1 = new NetworkStreamOut(this, dt1, name, type, numLslDataPoints, streamNumber);
+                stream1 = new NetworkStreamOut(MAIN, dt1, name, type, numLslDataPoints, streamNumber);
             } else {
                 stream1 = null;
             }
@@ -1021,7 +1021,7 @@ public class W_Networking extends Widget {
                 type = cp5_networking.get(Textfield.class, "LSL_type2").getText();
                 numLslDataPoints = getDataTypeNumChanLSL(dt2);
                 streamNumber = 1;
-                stream2 = new NetworkStreamOut(this, dt2, name, type, numLslDataPoints, streamNumber);
+                stream2 = new NetworkStreamOut(MAIN, dt2, name, type, numLslDataPoints, streamNumber);
             } else {
                 stream2 = null;
             }
@@ -1030,7 +1030,7 @@ public class W_Networking extends Widget {
                 type = cp5_networking.get(Textfield.class, "LSL_type3").getText();
                 numLslDataPoints = getDataTypeNumChanLSL(dt3);
                 streamNumber = 2;
-                stream3 = new NetworkStreamOut(this, dt3, name, type, numLslDataPoints, streamNumber);
+                stream3 = new NetworkStreamOut(MAIN, dt3, name, type, numLslDataPoints, streamNumber);
             } else {
                 stream3 = null;
             }
@@ -1038,12 +1038,12 @@ public class W_Networking extends Widget {
             if (!dt1.equals("None")) {
                 name = serialNetworkingComPorts
                         .get((int) (cp5_networking_portName.get(ScrollableList.class, "port_name").getValue()));
-                println("ComPort: " + name);
-                println("Baudrate: " + Integer.parseInt(baudRates
+                MAIN.println("ComPort: " + name);
+                MAIN.println("Baudrate: " + Integer.parseInt(baudRates
                         .get((int) (cp5_networking_baudRate.get(ScrollableList.class, "baud_rate").getValue()))));
                 baudRate = Integer.parseInt(baudRates
                         .get((int) (cp5_networking_baudRate.get(ScrollableList.class, "baud_rate").getValue())));
-                stream1 = new NetworkStreamOut(this, dt1, name, baudRate, pApplet);
+                stream1 = new NetworkStreamOut(MAIN, dt1, name, baudRate);
             } else {
                 stream1 = null;
             }
@@ -1190,7 +1190,7 @@ public class W_Networking extends Widget {
         if (w_networking.protocolMode.equals("Serial")) {
             if (n == dataTypes.indexOf("FFT")) {
                 outputError("Please use Band Power instead of FFT for Serial Output. Changing data type...");
-                println("Networking: Changing data type from FFT to BandPower. FFT data is too large to send over Serial communication.");
+                MAIN.println("Networking: Changing data type from FFT to BandPower. FFT data is too large to send over Serial communication.");
                 cp5_networking_dropdowns.getController("dataType1").getCaptionLabel().setText("BandPower");
                 cp5_networking_dropdowns.get(ScrollableList.class, "dataType1")
                         .setValue(dataTypes.indexOf("BandPower"));

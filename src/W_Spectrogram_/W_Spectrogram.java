@@ -26,11 +26,11 @@ import java.util.TimeZone;
 
 import static Extras_.GF.log10;
 import static GUI.GGVI.*;
-
+import Globel.GUI;
 //////////////////////////////////////////////////////
 
 public class W_Spectrogram extends Widget {
-
+    GUI MAIN;
     //to see all core variables/methods of the Widget class, refer to Widget.pde
     public ChannelSelect spectChanSelectTop;
     public ChannelSelect spectChanSelectBot;
@@ -85,9 +85,9 @@ public class W_Spectrogram extends Widget {
     float[] topFFTAvg;
     float[] botFFTAvg;
 
-    public W_Spectrogram(PApplet _parent){
-        super(_parent); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
-
+    public W_Spectrogram(GUI MAIN){
+        super(MAIN); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
+        this.MAIN = MAIN;
         //Add channel select dropdown to this widget
         spectChanSelectTop = new ChannelSelect(pApplet, this, x, y, w, navH, "Spectrogram_Channels_Top");
         spectChanSelectBot = new ChannelSelect(pApplet, this, x, y + navH, w, navH, "Spectrogram_Channels_Bot");
@@ -125,7 +125,7 @@ public class W_Spectrogram extends Widget {
         //Resize the height of the data image using default
         dataImageH = vertAxisLabel[0] * 2;
         //Create image using correct dimensions! Fixes bug where image size and labels do not align on session start.
-        dataImg = createImage(dataImageW, dataImageH, RGB);
+        dataImg = MAIN.createImage(dataImageW, dataImageH, MAIN.RGB);
     }
 
     public void update(){
@@ -163,7 +163,7 @@ public class W_Spectrogram extends Widget {
 
     private void onStartRunning() {
         wasRunning = true;
-        lastShift = millis();
+        lastShift = MAIN.millis();
     }
 
     private void onStopRunning() {
@@ -179,24 +179,24 @@ public class W_Spectrogram extends Widget {
         float scaleW = (float)(graphW) / dataImageW;
         float scaleH = (float)(graphH) / dataImageH;
 
-        pushStyle();
-        fill(0);
-        rect(x, y, w, h); //draw a black background for the widget
-        popStyle();
+        MAIN.pushStyle();
+        MAIN.fill(0);
+        MAIN.rect(x, y, w, h); //draw a black background for the widget
+        MAIN.popStyle();
 
         //draw the spectrogram if the widget is open, and update pixels if board is streaming data
         if (currentBoard.isStreaming()) {
-            pushStyle();
+            MAIN.pushStyle();
             dataImg.loadPixels();
 
             //Shift all pixels to the left! (every scrollspeed ms)
-            if(millis() - lastShift > scrollSpeed) {
+            if(MAIN.millis() - lastShift > scrollSpeed) {
                 for (int r = 0; r < dataImg.height; r++) {
                     if (r != 0) {
-                        arrayCopy(dataImg.pixels, dataImg.width * r, dataImg.pixels, dataImg.width * r - 1, dataImg.width);
+                        MAIN.arrayCopy(dataImg.pixels, dataImg.width * r, dataImg.pixels, dataImg.width * r - 1, dataImg.width);
                     } else {
                         //When there would be an ArrayOutOfBoundsException, account for it!
-                        arrayCopy(dataImg.pixels, dataImg.width * (r + 1), dataImg.pixels, r * dataImg.width, dataImg.width);
+                        MAIN.arrayCopy(dataImg.pixels, dataImg.width * (r + 1), dataImg.pixels, r * dataImg.width, dataImg.width);
                     }
                 }
 
@@ -205,52 +205,52 @@ public class W_Spectrogram extends Widget {
             //for (int i = 0; i < fftLin_L.specSize() - 80; i++) {
             for (int i = 0; i <= dataImg.height/2; i++) {
                 //LEFT SPECTROGRAM ON TOP
-                float hueValue = hueLimit - map((fftAvgs(spectChanSelectTop.activeChan, i)*32), 0, 256, 0, hueLimit);
+                float hueValue = hueLimit - MAIN.map((fftAvgs(spectChanSelectTop.activeChan, i)*32), 0, 256, 0, hueLimit);
                 if (settings.spectLogLinSave == 0) {
-                    hueValue = map(log10(hueValue), 0, 2, 0, hueLimit);
+                    hueValue = MAIN.map(log10(hueValue), 0, 2, 0, hueLimit);
                 }
                 // colorMode is HSB, the range for hue is 256, for saturation is 100, brightness is 100.
-                colorMode(HSB, 256, 100, 100);
+                MAIN.colorMode(MAIN.HSB, 256, 100, 100);
                 // color for stroke is specified as hue, saturation, brightness.
-                stroke((int)(hueValue), 100, 80);
+                MAIN.stroke((int)(hueValue), 100, 80);
                 // plot a point using the specified stroke
                 //point(xPos, i);
                 int loc = xPos + ((dataImg.height/2 - i) * dataImg.width);
                 if (loc >= dataImg.width * dataImg.height) loc = dataImg.width * dataImg.height - 1;
                 try {
-                    dataImg.pixels[loc] = color((int)(hueValue), 100, 80);
+                    dataImg.pixels[loc] = MAIN.color((int)(hueValue), 100, 80);
                 } catch (Exception e) {
-                    println("Major drawing error Spectrogram Left image!");
+                    MAIN.println("Major drawing error Spectrogram Left image!");
                 }
 
                 //RIGHT SPECTROGRAM ON BOTTOM
-                hueValue = hueLimit - map((fftAvgs(spectChanSelectBot.activeChan, i)*32), 0, 256, 0, hueLimit);
+                hueValue = hueLimit - MAIN.map((fftAvgs(spectChanSelectBot.activeChan, i)*32), 0, 256, 0, hueLimit);
                 if (settings.spectLogLinSave == 0) {
-                    hueValue = map(log10(hueValue), 0, 2, 0, hueLimit);
+                    hueValue = MAIN.map(log10(hueValue), 0, 2, 0, hueLimit);
                 }
                 // colorMode is HSB, the range for hue is 256, for saturation is 100, brightness is 100.
-                colorMode(HSB, 256, 100, 100);
+                MAIN.colorMode(MAIN.HSB, 256, 100, 100);
                 // color for stroke is specified as hue, saturation, brightness.
-                stroke((int)(hueValue), 100, 80);
+                MAIN.stroke((int)(hueValue), 100, 80);
                 int y_offset = -1;
                 // Pixel = X + ((Y + Height/2) * Width)
                 loc = xPos + ((i + dataImg.height/2 + y_offset) * dataImg.width);
                 if (loc >= dataImg.width * dataImg.height) loc = dataImg.width * dataImg.height - 1;
                 try {
-                    dataImg.pixels[loc] = color((int)(hueValue), 100, 80);
+                    dataImg.pixels[loc] = MAIN.color((int)(hueValue), 100, 80);
                 } catch (Exception e) {
-                    println("Major drawing error Spectrogram Right image!");
+                    MAIN.println("Major drawing error Spectrogram Right image!");
                 }
             }
             dataImg.updatePixels();
-            popStyle();
+            MAIN.popStyle();
         }
 
-        pushMatrix();
-        translate(graphX, graphY);
-        scale(scaleW, scaleH);
-        image(dataImg, 0, 0);
-        popMatrix();
+        MAIN.pushMatrix();
+        MAIN.translate(graphX, graphY);
+        MAIN.scale(scaleW, scaleH);
+        MAIN.image(dataImg, 0, 0);
+        MAIN.popMatrix();
 
         spectChanSelectTop.draw();
         spectChanSelectBot.draw();
@@ -288,75 +288,75 @@ public class W_Spectrogram extends Widget {
 
     void drawAxes(float scaledW, float scaledH) {
 
-        pushStyle();
-        fill(255);
-        textSize(14);
+        MAIN.pushStyle();
+        MAIN.fill(255);
+        MAIN.textSize(14);
         //draw horizontal axis label
-        text("Time", x + w/2 - textWidth("Time")/3, y + h - 9);
-        noFill();
-        stroke(255);
-        strokeWeight(2);
+        MAIN.text("Time", x + w/2 - MAIN.textWidth("Time")/3, y + h - 9);
+        MAIN.noFill();
+        MAIN.stroke(255);
+        MAIN.strokeWeight(2);
         //draw rectangle around the spectrogram
-        rect(graphX, graphY, scaledW * dataImageW, scaledH * dataImageH);
-        popStyle();
+        MAIN.rect(graphX, graphY, scaledW * dataImageW, scaledH * dataImageH);
+        MAIN.popStyle();
 
-        pushStyle();
+        MAIN.pushStyle();
         //draw horizontal axis ticks from left to right
         int tickMarkSize = 7; //in pixels
         float horizAxisX = graphX;
         float horizAxisY = graphY + scaledH * dataImageH;
-        stroke(255);
-        fill(255);
-        strokeWeight(2);
-        textSize(11);
+        MAIN.stroke(255);
+        MAIN.fill(255);
+        MAIN.strokeWeight(2);
+        MAIN.textSize(11);
         for (int i = 0; i <= numHorizAxisDivs; i++) {
             float offset = scaledW * dataImageW * ((float)(i) / numHorizAxisDivs);
-            line(horizAxisX + offset, horizAxisY, horizAxisX + offset, horizAxisY + tickMarkSize);
+            MAIN.line(horizAxisX + offset, horizAxisY, horizAxisX + offset, horizAxisY + tickMarkSize);
             if (horizAxisLabelStrings.get(i) != null) {
-                text(horizAxisLabelStrings.get(i), horizAxisX + offset - (int)textWidth(horizAxisLabelStrings.get(i))/2, horizAxisY + tickMarkSize * 3);
+                MAIN.text(horizAxisLabelStrings.get(i), horizAxisX + offset - (int)MAIN.textWidth(horizAxisLabelStrings.get(i))/2, horizAxisY + tickMarkSize * 3);
             }
         }
-        popStyle();
+        MAIN.popStyle();
 
-        pushStyle();
-        pushMatrix();
-        rotate(radians(-90));
-        translate(-h/2 - textWidth("Frequency (Hz)")/3, 20);
-        fill(255);
-        textSize(14);
+        MAIN.pushStyle();
+        MAIN.pushMatrix();
+        MAIN.rotate(MAIN.radians(-90));
+        MAIN.translate(-h/2 - MAIN.textWidth("Frequency (Hz)")/3, 20);
+        MAIN.fill(255);
+        MAIN.textSize(14);
         //draw y axis label
-        text("Frequency (Hz)", -y, x);
-        popMatrix();
-        popStyle();
+        MAIN.text("Frequency (Hz)", -y, x);
+        MAIN.popMatrix();
+        MAIN.popStyle();
 
-        pushStyle();
+        MAIN.pushStyle();
         //draw vertical axis ticks from top to bottom
         float vertAxisX = graphX;
         float vertAxisY = graphY;
-        stroke(255);
-        fill(255);
-        textSize(12);
-        strokeWeight(2);
+        MAIN.stroke(255);
+        MAIN.fill(255);
+        MAIN.textSize(12);
+        MAIN.strokeWeight(2);
         for (int i = 0; i <= numVertAxisDivs; i++) {
             float offset = scaledH * dataImageH * ((float)(i) / numVertAxisDivs);
             //if (i <= numVertAxisDivs/2) offset -= 2;
-            line(vertAxisX, vertAxisY + offset, vertAxisX - tickMarkSize, vertAxisY + offset);
+            MAIN.line(vertAxisX, vertAxisY + offset, vertAxisX - tickMarkSize, vertAxisY + offset);
             if (vertAxisLabel[i] == 0) midLineY = (int)(vertAxisY + offset);
             offset += paddingTop/2;
-            text(vertAxisLabel[i], vertAxisX - tickMarkSize*2 - textWidth(Integer.toString(vertAxisLabel[i])), vertAxisY + offset);
+            MAIN.text(vertAxisLabel[i], vertAxisX - tickMarkSize*2 - MAIN.textWidth(Integer.toString(vertAxisLabel[i])), vertAxisY + offset);
         }
-        popStyle();
+        MAIN.popStyle();
 
         drawColorScaleReference();
     }
 
     void drawCenterLine() {
         //draw a thick line down the middle to separate the two plots
-        pushStyle();
-        stroke(255);
-        strokeWeight(3);
-        line(graphX, midLineY, graphX + graphW, midLineY);
-        popStyle();
+        MAIN.pushStyle();
+        MAIN.stroke(255);
+        MAIN.strokeWeight(3);
+        MAIN.line(graphX, midLineY, graphX + graphW, midLineY);
+        MAIN.popStyle();
     }
 
     void drawColorScaleReference() {
@@ -368,22 +368,22 @@ public class W_Spectrogram extends Widget {
                 return;
             }
         }
-        pushStyle();
+        MAIN.pushStyle();
         //draw color scale reference to the right of the spectrogram
         for (int i = 0; i < colorScaleHeight; i++) {
-            float hueValue = hueLimit - map(i * 2, 0, colorScaleHeight*2, 0, hueLimit);
+            float hueValue = hueLimit - MAIN.map(i * 2, 0, colorScaleHeight*2, 0, hueLimit);
             if (settings.spectLogLinSave == 0) {
-                hueValue = map(log(hueValue) / log(10), 0, 2, 0, hueLimit);
+                hueValue = MAIN.map(MAIN.log(hueValue) / MAIN.log(10), 0, 2, 0, hueLimit);
             }
             //println(hueValue);
             // colorMode is HSB, the range for hue is 256, for saturation is 100, brightness is 100.
-            colorMode(HSB, 256, 100, 100);
+            MAIN.colorMode(MAIN.HSB, 256, 100, 100);
             // color for stroke is specified as hue, saturation, brightness.
-            stroke(ceil(hueValue), 100, 80);
-            strokeWeight(10);
-            point(x + w - paddingRight/2 + 1, midLineY + colorScaleHeight/2 - i);
+            MAIN.stroke(MAIN.ceil(hueValue), 100, 80);
+            MAIN.strokeWeight(10);
+            MAIN.point(x + w - paddingRight/2 + 1, midLineY + colorScaleHeight/2 - i);
         }
-        popStyle();
+        MAIN.popStyle();
     }
 
     void activateDefaultChannels() {

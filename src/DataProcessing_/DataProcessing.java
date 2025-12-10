@@ -1,6 +1,7 @@
 package DataProcessing_;
 
 import EmgSettings_.EmgSettings;
+import GUI.GUIManager;
 import brainflow.BrainFlowError;
 import brainflow.DataFilter;
 import brainflow.NoiseTypes;
@@ -13,8 +14,9 @@ import static SystemManager.GF.getNfftSafe;
 import static W_HeadPlot_.GVI.smoothFac;
 import static W_HeadPlot_.GVI.smoothFac_ind;
 import static WidgetManager_.GVI.*;
-
+import Globel.GUI;
 public class DataProcessing {
+    GUI MAIN;
     private float fs_Hz;  //sample rate
     private int nchan;
     public float[] data_std_uV;
@@ -31,7 +33,7 @@ public class DataProcessing {
 
     public EmgSettings emgSettings;
 
-    public DataProcessing(int NCHAN, float sample_rate_Hz) {
+    public DataProcessing(GUI MAIN, int NCHAN, float sample_rate_Hz) {
         nchan = NCHAN;
         fs_Hz = sample_rate_Hz;
         data_std_uV = new float[nchan];
@@ -40,7 +42,7 @@ public class DataProcessing {
         avgPowerInBins = new float[nchan][processing_band_low_Hz.length];
         headWidePower = new float[processing_band_low_Hz.length];
 
-        emgSettings = new EmgSettings();
+        emgSettings = new EmgSettings(MAIN);
     }
 
     //Process data on a channel-by-channel basis

@@ -13,8 +13,9 @@ import static Debugging_.GF.outputError;
 import static Debugging_.GF.outputWarn;
 import static GUI.GGVI.topNav;
 import static SystemManager.GF.updateToNChan;
-
-public abstract class DataSourcePlayback extends GUIManager implements DataSource, FileBoard {
+import Globel.GUI;
+public abstract class DataSourcePlayback implements DataSource, FileBoard {
+    GUI MAIN;
     private String playbackFilePathExg;
     private ArrayList<double[]> rawDataExg;
     private int currentSampleExg;
@@ -29,14 +30,16 @@ public abstract class DataSourcePlayback extends GUIManager implements DataSourc
     private int sampleRateExg = -1;
     private int numChannelsExg = 0;  // use it instead getTotalChannelCount() method for old playback files
 
-    protected DataSourcePlayback(String filePath) {
+    protected DataSourcePlayback(GUI MAIN, String filePath) {
+        this.MAIN = MAIN;
+
         playbackFilePathExg = filePath;
     }
 
     @Override
     public boolean initialize() {
         currentSampleExg = 0;
-        String[] lines = loadStrings(playbackFilePathExg);
+        String[] lines = MAIN.loadStrings(playbackFilePathExg);
 
         if(!parseExgHeader(lines)) {
             return false;
@@ -99,10 +102,10 @@ public abstract class DataSourcePlayback extends GUIManager implements DataSourc
             Class<?> boardClass = Class.forName(underlyingClassName);
             // find default contructor (since this is processing, PApplet is required arg in all constructors)
             Constructor<?> constructor = boardClass.getConstructor(GUIManager.class);
-            underlyingBoard = (Board)constructor.newInstance(pApplet);
+            underlyingBoard = (Board)constructor.newInstance(MAIN);
         } catch (Exception e) {
             outputError("Cannot instantiate underlying board of class " + underlyingClassName);
-            println(e.getMessage());
+            MAIN.println(e.getMessage());
             e.printStackTrace();
             return false;
         }
@@ -150,8 +153,8 @@ public abstract class DataSourcePlayback extends GUIManager implements DataSourc
 
         float sampleRateMS = getSampleRate() / 1000.f;
 
-        int timeElapsedMS = millis() - timeOfLastUpdateMSExg;
-        numNewSamplesThisFrameExg = floor(timeElapsedMS * sampleRateMS);
+        int timeElapsedMS = MAIN.millis() - timeOfLastUpdateMSExg;
+        numNewSamplesThisFrameExg = MAIN.floor(timeElapsedMS * sampleRateMS);
 
         // account for the fact that each update will not coincide with a sample exactly.
         // to keep the streaming rate accurate, we increment the time of last update
@@ -165,13 +168,13 @@ public abstract class DataSourcePlayback extends GUIManager implements DataSourc
         }
 
         // don't go beyond raw data array size
-        currentSampleExg = min(currentSampleExg, getTotalSamples());
+        currentSampleExg = MAIN.min(currentSampleExg, getTotalSamples());
     }
 
     @Override
     public void startStreaming() {
         streaming = true;
-        timeOfLastUpdateMSExg = millis();
+        timeOfLastUpdateMSExg = MAIN.millis();
     }
 
     @Override
@@ -265,7 +268,7 @@ public abstract class DataSourcePlayback extends GUIManager implements DataSourc
 
     @Override
     public List<double[]> getData(int maxSamples) {
-        int firstSample = max(0, currentSampleExg - maxSamples);
+        int firstSample = MAIN.max(0, currentSampleExg - maxSamples);
         List<double[]> result = rawDataExg.subList(firstSample, currentSampleExg);
 
         // if needed, pad the beginning of the array with empty data

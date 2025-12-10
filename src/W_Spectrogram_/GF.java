@@ -5,20 +5,20 @@ import processing.core.PApplet;
 import static GUI.GGVI.settings;
 import static WidgetManager_.GVI.w_spectrogram;
 import static processing.core.PConstants.RGB;
-
+import Globel.GUI;
 
 public class GF {
 
     //These functions need to be global! These functions are activated when an item from the corresponding dropdown is selected
 //triggered when there is an event in the Spectrogram Widget MaxFreq. Dropdown
-    public static void SpectrogramMaxFreq(PApplet PApplet, int n) {
+    public static void SpectrogramMaxFreq(GUI MAIN,int n) {
         settings.spectMaxFrqSave = n;
         //reset the vertical axis labels
         w_spectrogram.vertAxisLabel = w_spectrogram.vertAxisLabels[n];
         //Resize the height of the data image
         w_spectrogram.dataImageH = w_spectrogram.vertAxisLabel[0] * 2;
         //overwrite the existing image because the sample rate is about to change
-        w_spectrogram.dataImg = PApplet.createImage(w_spectrogram.dataImageW, w_spectrogram.dataImageH, RGB);
+        w_spectrogram.dataImg = MAIN.createImage(w_spectrogram.dataImageW, w_spectrogram.dataImageH, RGB);
     }
 
     public static void SpectrogramSampleRate(PApplet PApplet, int n) {

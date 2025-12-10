@@ -10,7 +10,6 @@ package W_FFT_;
 // Requires the plotting library from grafica ...
 // replacing the old gwoptics (which is now no longer supported)
 //
-
 import GUI.ColorPalette;
 import Widget_.ChannelSelect;
 import Widget_.Widget;
@@ -26,10 +25,12 @@ import java.util.List;
 
 import static GUI.GGVI.*;
 import static SystemManager.GF.getNfftSafe;
-
+import static W_HeadPlot_.GVI.*;
+import Globel.GUI;
 ///////////////////////////////////////////////////
 
 public class W_fft extends Widget {
+    GUI MAIN;
     protected PApplet pApplet;
     public ColorPalette CP;
 
@@ -50,7 +51,7 @@ public class W_fft extends Widget {
 
     List<Controller> cp5ElementsToCheck = new ArrayList<Controller>();
 
-    public W_fft(PApplet _parent){
+    public W_fft(GUI _parent){
         super(_parent); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
         pApplet = _parent;
         CP = new ColorPalette(_parent);

@@ -21,19 +21,18 @@ import java.util.Arrays;
 
 import static GUI.GGVI.*;
 import static Interactivity_.GF.openURLInBrowser;
-
+import Globel.GUI;
 ///////////////////////////////////////////////////,
 
 public class W_template extends Widget {
-
+    GUI MAIN;
     //to see all core variables/methods of the Widget class, refer to Widget.pde
     //put your custom variables here...
     ControlP5 localCP5;
     Button widgetTemplateButton;
 
-    public W_template(PApplet _parent){
-        super(_parent); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
-
+    public W_template(GUI MAIN){
+        super(MAIN); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
         //This is the protocol for setting up dropdowns.
         //Note that these 3 dropdowns correspond to the 3 global functions below
         //You just need to make sure the "id" (the 1st String) has the same name as the corresponding function
@@ -43,8 +42,8 @@ public class W_template extends Widget {
 
 
         //Instantiate local cp5 for this box. This allows extra control of drawing cp5 elements specifically inside this class.
-        localCP5 = new ControlP5(_parent);
-        localCP5.setGraphics(_parent, 0,0);
+        localCP5 = new ControlP5(MAIN);
+        localCP5.setGraphics(MAIN, 0,0);
         localCP5.setAutoDraw(false);
 
         createWidgetTemplateButton();
@@ -94,9 +93,9 @@ public class W_template extends Widget {
     //You can find more detailed examples in the Control Panel, where there are many UI objects with varying functionality.
     private void createWidgetTemplateButton() {
         //This is a generalized createButton method that allows us to save code by using a few patterns and method overloading
-        widgetTemplateButton = createButton(localCP5, "widgetTemplateButton", "Design Your Own Widget!", x + w/2, y + h/2, 200, navHeight, p4, 14, colorNotPressed, OPENBCI_DARKBLUE);
+        widgetTemplateButton = MAIN.createButton(localCP5, "widgetTemplateButton", "Design Your Own Widget!", x + w/2, y + h/2, 200, navHeight, p4, 14, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
         //Set the border color explicitely
-        widgetTemplateButton.setBorderColor(OBJECT_BORDER_GREY);
+        widgetTemplateButton.setBorderColor(MAIN.OBJECT_BORDER_GREY);
         //For this button, only call the callback listener on mouse release
         widgetTemplateButton.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {

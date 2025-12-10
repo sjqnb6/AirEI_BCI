@@ -1,12 +1,12 @@
 package Debugging_;
 
-import GUI.GUIManager;
-
+import processing.core.PApplet;
+import Globel.GUI;
 import static GUI.GGVI.*;
 
 public //this class is used to create the help widget that provides system feedback in response to interactivity
 //it is intended to serve as a pseudo-console, allowing us to print useful information to the interface as opposed to an IDE console
-class HelpWidget extends GUIManager {
+class HelpWidget {
 
     public float x, y, w, h;
     int padding;
@@ -17,8 +17,9 @@ class HelpWidget extends GUIManager {
     private int colorFadeCounter;
     private int colorFadeTimeMillis = 1000;
     private boolean outputWasTriggered = false;
-
-    public HelpWidget(float _xPos, float _yPos, float _width, float _height) {
+    GUI MAIN;
+    public HelpWidget(GUI MAIN, float _xPos, float _yPos, float _width, float _height) {
+        this.MAIN = MAIN;
         x = _xPos;
         y = _yPos;
         w = _width;
@@ -31,60 +32,60 @@ class HelpWidget extends GUIManager {
 
     public void draw() {
 
-        pushStyle();
+        MAIN.pushStyle();
 
         if(colorScheme == COLOR_SCHEME_DEFAULT){
             // draw background of widget
-            stroke(OPENBCI_DARKBLUE);
-            fill(255);
-            rect(-1, height-h, width+2, h);
-            noStroke();
+            MAIN.stroke(MAIN.OPENBCI_DARKBLUE);
+            MAIN.fill(255);
+            MAIN.rect(-1, MAIN.height-h, MAIN.width+2, h);
+            MAIN.noStroke();
 
             //draw bg of text field of widget
-            strokeWeight(1);
-            stroke(color(0, 5, 11));
-            fill(color(0, 5, 11));
-            rect(x + padding, height-h + padding, width - padding*2, h - padding *2);
+            MAIN.strokeWeight(1);
+            MAIN.stroke(MAIN.color(0, 5, 11));
+            MAIN.fill(MAIN.color(0, 5, 11));
+            MAIN.rect(x + padding, MAIN.height-h + padding, MAIN.width - padding*2, h - padding *2);
 
-            textFont(p4);
-            textSize(14);
-            fill(255);
-            textAlign(LEFT, TOP);
-            text(currentOutput, padding*2, height - h + padding);
+            MAIN.textFont(p4);
+            MAIN.textSize(14);
+            MAIN.fill(255);
+            MAIN.textAlign(MAIN.LEFT, MAIN.TOP);
+            MAIN.text(currentOutput, padding*2, MAIN.height - h + padding);
         } else if (colorScheme == COLOR_SCHEME_ALTERNATIVE_A){
             // draw background of widget
-            stroke(OPENBCI_DARKBLUE);
-            fill(OPENBCI_BLUE);
-            rect(-1, height-h, width+2, h);
-            noStroke();
+            MAIN.stroke(MAIN.OPENBCI_DARKBLUE);
+            MAIN.fill(MAIN.OPENBCI_BLUE);
+            MAIN.rect(-1, MAIN.height-h, MAIN.width+2, h);
+            MAIN.noStroke();
 
             //draw bg of text field of widget
-            strokeWeight(1);
+            MAIN.strokeWeight(1);
             int saturationFadeValue = 0;
             if (outputWasTriggered) {
-                int timeDelta = millis() - colorFadeCounter;
-                saturationFadeValue = (int)map(timeDelta, 0, colorFadeTimeMillis, 100, 0);
+                int timeDelta = MAIN.millis() - colorFadeCounter;
+                saturationFadeValue = (int)MAIN.map(timeDelta, 0, colorFadeTimeMillis, 100, 0);
                 if (timeDelta > colorFadeTimeMillis) {
                     outputWasTriggered = false;
                 }
             }
             //Colors in this method are calculated using Hue, Saturation, Brightness
-            colorMode(HSB, 360, 100, 100);
+            MAIN.colorMode(MAIN.HSB, 360, 100, 100);
             int c = getBackgroundColor(saturationFadeValue);
-            stroke(c);
-            fill(c);
-            rect(x + padding, height-h + padding, width - padding*2, h - padding *2);
+            MAIN.stroke(c);
+            MAIN.fill(c);
+            MAIN.rect(x + padding, MAIN.height-h + padding, MAIN.width - padding*2, h - padding *2);
 
             // Revert color mode back to standard RGB here
-            colorMode(RGB, 255, 255, 255);
-            textFont(p4);
-            textSize(14);
-            fill(getTextColor());
-            textAlign(LEFT, TOP);
-            text(currentOutput, padding*2, height - h + padding);
+            MAIN.colorMode(MAIN.RGB, 255, 255, 255);
+            MAIN.textFont(p4);
+            MAIN.textSize(14);
+            MAIN.fill(getTextColor());
+            MAIN.textAlign(MAIN.LEFT, MAIN.TOP);
+            MAIN.text(currentOutput, padding*2, MAIN.height - h + padding);
         }
 
-        popStyle();
+        MAIN.popStyle();
     }
 
     private int getTextColor() {
@@ -103,7 +104,7 @@ class HelpWidget extends GUIManager {
                 return color(0, 5, 11);
         }
         */
-        return OPENBCI_DARKBLUE;
+        return MAIN.OPENBCI_DARKBLUE;
     }
 
     private int getBackgroundColor(int fadeVal) {
@@ -113,28 +114,28 @@ class HelpWidget extends GUIManager {
             case INFO:
                 //base color - #BDE5F8;
                 sat = 25;
-                sat = (int)map(fadeVal, 0, 100, sat, maxSat);
-                return color(199, sat, 97);
+                sat = (int)MAIN.map(fadeVal, 0, 100, sat, maxSat);
+                return MAIN.color(199, sat, 97);
             case SUCCESS:
                 //base color -  #DFF2BF;
                 maxSat = 25;
                 sat = 0;
-                sat = (int)map(fadeVal, 0, 100, sat, maxSat);
-                return color(106, sat, 95);
+                sat = (int)MAIN.map(fadeVal, 0, 100, sat, maxSat);
+                return MAIN.color(106, sat, 95);
             case WARN:
                 //base color -  #FEEFB3;
                 sat = 30;
-                sat = (int)map(fadeVal, 0, 100, sat, maxSat);
-                return color(48, sat, 100);
+                sat = (int)MAIN.map(fadeVal, 0, 100, sat, maxSat);
+                return MAIN.color(48, sat, 100);
             case ERROR:
                 //base color -  #FFD2D2;
                 sat = 18;
-                sat = (int)map(fadeVal, 0, 100, sat, maxSat);
-                return color(0, sat, 100);
+                sat = (int)MAIN.map(fadeVal, 0, 100, sat, maxSat);
+                return MAIN.color(0, sat, 100);
             case DEFAULT:
             default:
-                colorMode(RGB, 255, 255, 255);
-                return WHITE;
+                MAIN.colorMode(MAIN.RGB, 255, 255, 255);
+                return MAIN.WHITE;
         }
     }
 
@@ -143,8 +144,8 @@ class HelpWidget extends GUIManager {
         currentOutput = _output;
 
         String outputWithPrefix = "[" + level.name() + "]: " + _output;
-        println(outputWithPrefix); // add this output to the console log
+        MAIN.println(outputWithPrefix); // add this output to the console log
         outputWasTriggered = true;
-        colorFadeCounter = millis();
+        colorFadeCounter = MAIN.millis();
     }
 };

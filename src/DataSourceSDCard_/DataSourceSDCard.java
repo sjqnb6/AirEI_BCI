@@ -6,6 +6,7 @@ import DataSource_.DataSource;
 import FileBoard_.FileBoard;
 import processing.core.PApplet;
 
+import java.applet.Applet;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ import java.util.Scanner;
 import static Debugging_.GF.outputWarn;
 import static GUI.GGVI.topNav;
 
-public class DataSourceSDCard extends PApplet implements DataSource, FileBoard, AccelerometerCapableBoard {
+public class DataSourceSDCard implements DataSource, FileBoard, AccelerometerCapableBoard {
 
     private String filePath;
     private int samplingRate;
@@ -31,8 +32,9 @@ public class DataSourceSDCard extends PApplet implements DataSource, FileBoard, 
     private double accel_x;
     private double accel_y;
     private double accel_z;
-
-    public DataSourceSDCard(String filePath) {
+    PApplet MAIN;
+    public DataSourceSDCard(PApplet applet, String filePath) {
+        this.MAIN = applet;
         this.filePath = filePath;
         samplingRate = 0;
         data = new ArrayList<double[]>();
@@ -49,10 +51,11 @@ public class DataSourceSDCard extends PApplet implements DataSource, FileBoard, 
 
     @Override
     public boolean initialize() {
+
         try {
             File file = new File(this.filePath);
             Scanner reader = new Scanner(file);
-            startTime = millis() / 1000.0;
+            startTime = MAIN.millis() / 1000.0;
             while (reader.hasNextLine()) {
                 String line = reader.nextLine();
                 String[] splitted = line.split(",");
@@ -82,7 +85,7 @@ public class DataSourceSDCard extends PApplet implements DataSource, FileBoard, 
                 counter++;
             }
             reader.close();
-            println("Initialized, data len is " + data.size() + " Num EXG Channels is " + exgChannels.length);
+            MAIN.println("Initialized, data len is " + data.size() + " Num EXG Channels is " + exgChannels.length);
             return true;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -143,8 +146,8 @@ public class DataSourceSDCard extends PApplet implements DataSource, FileBoard, 
         }
 
         float sampleRateMS = getSampleRate() / 1000.f;
-        int timeElapsedMS = millis() - timeOfLastUpdateMS;
-        numNewSamplesThisFrame = floor(timeElapsedMS * sampleRateMS);
+        int timeElapsedMS = MAIN.millis() - timeOfLastUpdateMS;
+        numNewSamplesThisFrame = MAIN.floor(timeElapsedMS * sampleRateMS);
 
         // account for the fact that each update will not coincide with a sample exactly.
         // to keep the streaming rate accurate, we increment the time of last update
@@ -158,13 +161,13 @@ public class DataSourceSDCard extends PApplet implements DataSource, FileBoard, 
         }
 
         // don't go beyond raw data array size
-        currentSample = min(currentSample, data.size() - 1);
+        currentSample = MAIN.min(currentSample, data.size() - 1);
     }
 
     @Override
     public void startStreaming() {
         streaming = true;
-        timeOfLastUpdateMS = millis();
+        timeOfLastUpdateMS = MAIN.millis();
     }
 
     @Override
@@ -242,7 +245,7 @@ public class DataSourceSDCard extends PApplet implements DataSource, FileBoard, 
 
     @Override
     public List<double[]> getData(int maxSamples) {
-        int firstSample = max(0, currentSample - maxSamples);
+        int firstSample = MAIN.max(0, currentSample - maxSamples);
         List<double[]> result = data.subList(firstSample, currentSample);
 
         // if needed, pad the beginning of the array with empty data
@@ -324,7 +327,7 @@ public class DataSourceSDCard extends PApplet implements DataSource, FileBoard, 
             hex = "00" + hex;   // keep it positive
         }
 
-        return unhex(hex);
+        return MAIN.unhex(hex);
     }
 
     private int parseInt16Hex(String hex) {
@@ -334,7 +337,7 @@ public class DataSourceSDCard extends PApplet implements DataSource, FileBoard, 
             hex = "0000" + hex;   // keep it positive
         }
 
-        return unhex(hex);
+        return MAIN.unhex(hex);
     }
 
 }

@@ -31,10 +31,12 @@ import java.util.List;
 import static Debugging_.GF.output;
 import static GUI.GGVI.*;
 import static WidgetManager_.GVI.*;
-
+import Globel.GUI;
 ////////////////////////////////////////////////////
 
 public class W_Accelerometer extends Widget {
+
+    GUI MAIN;
     protected PApplet pApplet;
     public ColorPalette CP;
 
@@ -67,12 +69,12 @@ public class W_Accelerometer extends Widget {
 
     private AccelerometerCapableBoard accelBoard;
 
-    public W_Accelerometer(PApplet _parent) {
-        super(_parent); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
+    public W_Accelerometer(GUI MAIN) {
+        super(MAIN); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
 
-        CP = new ColorPalette(_parent);
+        CP = new ColorPalette(MAIN);
 
-        pApplet = _parent;
+        pApplet = MAIN;
 
         accelBoard = (AccelerometerCapableBoard)currentBoard;
 
@@ -91,7 +93,7 @@ public class W_Accelerometer extends Widget {
         lastAccelVals = new float[NUM_ACCEL_DIMS];
 
         //create our channel bar and populate our accelerometerBar array!
-        accelerometerBar = new AccelerometerBar(_parent, accelXyzLimit, accelGraphX, accelGraphY, accelGraphWidth, accelGraphHeight);
+        accelerometerBar = new AccelerometerBar(MAIN, accelXyzLimit, accelGraphX, accelGraphY, accelGraphWidth, accelGraphHeight);
         accelerometerBar.adjustTimeAxis(xLimOptions[settings.accHorizScaleSave]);
         accelerometerBar.adjustVertScale(yLimOptions[settings.accVertScaleSave]);
 
@@ -145,30 +147,30 @@ public class W_Accelerometer extends Widget {
     public void draw() {
         super.draw(); //calls the parent draw() method of Widget (DON'T REMOVE)
 
-        pApplet.pushStyle();
+        MAIN.pushStyle();
 
-        pApplet.fill(50);
-        pApplet.textFont(p4, 14);
-        pApplet.textAlign(CENTER,CENTER);
-        pApplet.text("z", polarWindowX, (polarWindowY-polarWindowHeight/2)-12);
-        pApplet.text("x", (polarWindowX+polarWindowWidth/2)+8, polarWindowY-5);
-        pApplet.text("y", (polarWindowX+polarCorner)+10, (polarWindowY-polarCorner)-10);
+        MAIN.fill(50);
+        MAIN.textFont(p4, 14);
+        MAIN.textAlign(MAIN.CENTER,MAIN.CENTER);
+        MAIN.text("z", polarWindowX, (polarWindowY-polarWindowHeight/2)-12);
+        MAIN.text("x", (polarWindowX+polarWindowWidth/2)+8, polarWindowY-5);
+        MAIN.text("y", (polarWindowX+polarCorner)+10, (polarWindowY-polarCorner)-10);
 
-        pApplet.fill(CP.graphBG);  //pulse window background
-        pApplet.stroke(CP.graphStroke);
-        pApplet.ellipse(polarWindowX,polarWindowY,polarWindowWidth,polarWindowHeight);
+        MAIN.fill(CP.graphBG);  //pulse window background
+        MAIN.stroke(CP.graphStroke);
+        MAIN.ellipse(polarWindowX,polarWindowY,polarWindowWidth,polarWindowHeight);
 
-        pApplet.stroke(180);
-        pApplet.line(polarWindowX-polarWindowWidth/2, polarWindowY, polarWindowX+polarWindowWidth/2, polarWindowY);
-        pApplet.line(polarWindowX, polarWindowY-polarWindowHeight/2, polarWindowX, polarWindowY+polarWindowHeight/2);
-        pApplet.line(polarWindowX-polarCorner, polarWindowY+polarCorner, polarWindowX+polarCorner, polarWindowY-polarCorner);
+        MAIN.stroke(180);
+        MAIN.line(polarWindowX-polarWindowWidth/2, polarWindowY, polarWindowX+polarWindowWidth/2, polarWindowY);
+        MAIN.line(polarWindowX, polarWindowY-polarWindowHeight/2, polarWindowX, polarWindowY+polarWindowHeight/2);
+        MAIN.line(polarWindowX-polarCorner, polarWindowY+polarCorner, polarWindowX+polarCorner, polarWindowY-polarCorner);
 
         if (accelBoard.isAccelerometerActive()) {
             drawAccValues();
             draw3DGraph();
         }
 
-        pApplet.popStyle();
+        MAIN.popStyle();
 
         if (accelBoard.isAccelerometerActive()) {
             accelerometerBar.draw();
@@ -185,7 +187,7 @@ public class W_Accelerometer extends Widget {
         polarWindowHeight = accelGraphHeight;
         polarWindowX = x + w - accPadding - polarWindowWidth/2;
         polarWindowY = y + accPadding + polarWindowHeight/2 - 10;
-        polarCorner = (sqrt(2)*polarWindowWidth/2)/2;
+        polarCorner = (MAIN.sqrt(2)*polarWindowWidth/2)/2;
     }
 
     public void screenResized() {
@@ -210,7 +212,7 @@ public class W_Accelerometer extends Widget {
     }
 
     private void createAccelModeButton(String name, String text, int _x, int _y, int _w, int _h, PFont _font, int _fontSize, int _bg, int _textColor) {
-        accelModeButton = createButton(cp5_widget, name, text, _x, _y, _w, _h, 0, _font, _fontSize, _bg, _textColor, CP.BUTTON_HOVER, CP.BUTTON_PRESSED, CP.OBJECT_BORDER_GREY, 0);
+        accelModeButton = MAIN.createButton(cp5_widget, name, text, _x, _y, _w, _h, 0, _font, _fontSize, _bg, _textColor, CP.BUTTON_HOVER, CP.BUTTON_PRESSED, CP.OBJECT_BORDER_GREY, 0);
         accelModeButton.setSwitch(true);
         accelModeButton.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
@@ -255,14 +257,14 @@ public class W_Accelerometer extends Widget {
         float displayX = (float)lastAccelVals[0];
         float displayY = (float)lastAccelVals[1];
         float displayZ = (float)lastAccelVals[2];
-        pApplet.textAlign(LEFT,CENTER);
-        pApplet.textFont(h1,20);
-        pApplet.fill(CP.ACCEL_X_COLOR);
-        pApplet.text("X = " + nf(displayX, 1, 3) + " g", (float) (x+accPadding), (float) (y + (h/12)*1.5 - 5));
-        pApplet.fill(CP.ACCEL_Y_COLOR);
-        pApplet.text("Y = " + nf(displayY, 1, 3) + " g", x+accPadding, y + (h/12)*3 - 5);
-        pApplet.fill(CP.ACCEL_Z_COLOR);
-        pApplet.text("Z = " + nf(displayZ, 1, 3) + " g", (float) (x+accPadding), (float) (y + (h/12)*4.5 - 5));
+        MAIN.textAlign(MAIN.LEFT,MAIN.CENTER);
+        MAIN.textFont(h1,20);
+        MAIN.fill(CP.ACCEL_X_COLOR);
+        MAIN.text("X = " + MAIN.nf(displayX, 1, 3) + " g", (float) (x+accPadding), (float) (y + (h/12)*1.5 - 5));
+        MAIN.fill(CP.ACCEL_Y_COLOR);
+        MAIN.text("Y = " + MAIN.nf(displayY, 1, 3) + " g", x+accPadding, y + (h/12)*3 - 5);
+        MAIN.fill(CP.ACCEL_Z_COLOR);
+        MAIN.text("Z = " + MAIN.nf(displayZ, 1, 3) + " g", (float) (x+accPadding), (float) (y + (h/12)*4.5 - 5));
     }
 
     //Draw the current accelerometer values as a 3D graph
@@ -271,15 +273,15 @@ public class W_Accelerometer extends Widget {
         float displayY = (float)lastAccelVals[1];
         float displayZ = (float)lastAccelVals[2];
 
-        pApplet.noFill();
-        pApplet.strokeWeight(3);
-        pApplet.stroke(CP.ACCEL_X_COLOR);
-        pApplet.line(polarWindowX, polarWindowY, polarWindowX+map(displayX, -yMaxMin, yMaxMin, -polarWindowWidth/2, polarWindowWidth/2), polarWindowY);
-        pApplet.stroke(CP.ACCEL_Y_COLOR);
-        pApplet.line(polarWindowX, polarWindowY, polarWindowX+map((sqrt(2)*displayY/2), -yMaxMin, yMaxMin, -polarWindowWidth/2, polarWindowWidth/2), polarWindowY+map((sqrt(2)*displayY/2), -yMaxMin, yMaxMin, polarWindowWidth/2, -polarWindowWidth/2));
-        pApplet.stroke(CP.ACCEL_Z_COLOR);
-        pApplet.line(polarWindowX, polarWindowY, polarWindowX, polarWindowY+map(displayZ, -yMaxMin, yMaxMin, polarWindowWidth/2, -polarWindowWidth/2));
-        pApplet.strokeWeight(1);
+        MAIN.noFill();
+        MAIN.strokeWeight(3);
+        MAIN.stroke(CP.ACCEL_X_COLOR);
+        MAIN.line(polarWindowX, polarWindowY, polarWindowX+MAIN.map(displayX, -yMaxMin, yMaxMin, -polarWindowWidth/2, polarWindowWidth/2), polarWindowY);
+        MAIN.stroke(CP.ACCEL_Y_COLOR);
+        MAIN.line(polarWindowX, polarWindowY, polarWindowX+MAIN.map((MAIN.sqrt(2)*displayY/2), -yMaxMin, yMaxMin, -polarWindowWidth/2, polarWindowWidth/2), polarWindowY+MAIN.map((MAIN.sqrt(2)*displayY/2), -yMaxMin, yMaxMin, polarWindowWidth/2, -polarWindowWidth/2));
+        MAIN.stroke(CP.ACCEL_Z_COLOR);
+        MAIN.line(polarWindowX, polarWindowY, polarWindowX, polarWindowY+MAIN.map(displayZ, -yMaxMin, yMaxMin, polarWindowWidth/2, -polarWindowWidth/2));
+        MAIN.strokeWeight(1);
     }
 
     //This public method allows Analog, Digital, and Pulse Widgets to turn off Accelerometer display

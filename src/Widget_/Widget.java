@@ -11,11 +11,13 @@ import java.util.List;
 
 import static Containers_.GVI.container;
 import static GUI.GGVI.*;
-
-public class Widget extends GUIManager {
+import Globel.GUI;
+public class Widget{
 
 //    public ColorPalette CP;
 
+    protected PApplet pApplet;
+    GUI MAIN;
     public int x0;
     public int y0;
     public int w0;
@@ -43,10 +45,12 @@ public class Widget extends GUIManager {
     protected int dropdownWidth = 64;
     private boolean initialResize = false; //used to properly resize the widgetSelector when loading default settings
 
-    public Widget(PApplet _parent){
+    public Widget(GUI MAIN){
+        this.MAIN = MAIN;
+        this.pApplet = MAIN;
 //        super(_parent);
 
-        cp5_widget = new ControlP5(_parent);
+        cp5_widget = new ControlP5(MAIN);
         cp5_widget.setAutoDraw(false); //this prevents the cp5 object from drawing automatically (if it is set to true it will be drawn last, on top of all other GUI stuff... not good)
         dropdowns = new ArrayList<NavBarDropdown>();
         //setup dropdown menus
@@ -70,19 +74,19 @@ public class Widget extends GUIManager {
     }
 
     public void draw(){
-        pushStyle();
-        noStroke();
-        fill(255);
-        rect(x,y-1,w,h+1); //draw white widget background
-        popStyle();
+        MAIN.pushStyle();
+        MAIN.noStroke();
+        MAIN.fill(255);
+        MAIN.rect(x,y-1,w,h+1); //draw white widget background
+        MAIN.popStyle();
 
         //draw nav bars and button bars
-        pushStyle();
-        fill(150, 150, 150);
-        rect(x0, y0, w0, navH); //top bar
-        fill(200, 200, 200);
-        rect(x0, y0+navH, w0, navH); //button bar
-        popStyle();
+        MAIN.pushStyle();
+        MAIN.fill(150, 150, 150);
+        MAIN.rect(x0, y0, w0, navH); //top bar
+        MAIN.fill(200, 200, 200);
+        MAIN.rect(x0, y0+navH, w0, navH); //button bar
+        MAIN.popStyle();
     }
 
     public void addDropdown(String _id, String _title, List _items, int _defaultItem){
@@ -97,7 +101,7 @@ public class Widget extends GUIManager {
                 // .setFont(h2)
                 .setOpen(false)
                 .setColor(settings.dropdownColors)
-                .setOutlineColor(OBJECT_BORDER_GREY)
+                .setOutlineColor(MAIN.OBJECT_BORDER_GREY)
                 //.setSize(widgetSelectorWidth, int(h0 * widgetDropdownScaling) )// + maxFreqList.size())
                 //.setSize(widgetSelectorWidth, (NUM_WIDGETS_TO_SHOW+1)*(navH-4) )// + maxFreqList.size())
                 // .setScrollSensitivity(0.0)
@@ -136,7 +140,7 @@ public class Widget extends GUIManager {
                     .setFont(h5)
                     .setOpen(false)
                     .setColor(settings.dropdownColors)
-                    .setOutlineColor(OBJECT_BORDER_GREY)
+                    .setOutlineColor(MAIN.OBJECT_BORDER_GREY)
                     .setSize(dropdownWidth, (dropdowns.get(i).items.size()+1)*(navH-4) )// + maxFreqList.size())
                     .setBarHeight(navH-4)
                     .setItemHeight(navH-4)
@@ -194,19 +198,19 @@ public class Widget extends GUIManager {
         cp5_widget.draw(); //this draws all cp5 elements... in this case, the scrollable lists that populate our dropdowns<>
 
         //draw dropdown titles
-        pushStyle();
-        noStroke();
-        textFont(h5);
-        textSize(12);
-        textAlign(CENTER, BOTTOM);
-        fill(OPENBCI_DARKBLUE);
+        MAIN.pushStyle();
+        MAIN.noStroke();
+        MAIN.textFont(h5);
+        MAIN.textSize(12);
+        MAIN.textAlign(MAIN.CENTER, MAIN.BOTTOM);
+        MAIN.fill(MAIN.OPENBCI_DARKBLUE);
         for(int i = 0; i < dropdowns.size(); i++){
             int dropdownPos = dropdowns.size() - i;
             int _width = cp5_widget.getController(dropdowns.get(i).id).getWidth();
             int _x = (int)(cp5_widget.getController(dropdowns.get(i).id).getPosition()[0]);
-            text(dropdowns.get(i).title, _x+_width/2, y0+(navH-2));
+            MAIN.text(dropdowns.get(i).title, _x+_width/2, y0+(navH-2));
         }
-        popStyle();
+        MAIN.popStyle();
     }
 
     public void mouseDragged(){
@@ -261,7 +265,7 @@ public class Widget extends GUIManager {
         h = h0 - navH*2;
 
         //This line resets the origin for all cp5 elements under "cp5_widget" when the screen is resized, otherwise there will be drawing errors
-        cp5_widget.setGraphics(this, 0, 0);
+        cp5_widget.setGraphics(pApplet, 0, 0);
 
         if (cp5_widget.getController("WidgetSelector") != null) {
             resizeWidgetSelector();
@@ -280,8 +284,8 @@ public class Widget extends GUIManager {
 
     public boolean isMouseHere(){
         if(getIsActive()){
-            if(mouseX >= x0 && mouseX <= x0 + w0 && mouseY >= y0 && mouseY <= y0 + h0){
-                println("Your cursor is in " + widgetTitle);
+            if(MAIN.mouseX >= x0 && MAIN.mouseX <= x0 + w0 && MAIN.mouseY >= y0 && MAIN.mouseY <= y0 + h0){
+                MAIN.println("Your cursor is in " + widgetTitle);
                 return true;
             } else{
                 return false;

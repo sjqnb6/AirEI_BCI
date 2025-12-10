@@ -15,9 +15,10 @@ import java.util.Date;
 import java.util.List;
 
 import static GUI.GGVI.*;
-
+import Globel.GUI;
 //========================== PLAYBACKSLIDER ==========================
-class PlaybackScrollbar extends GUIManager {
+class PlaybackScrollbar  {
+    GUI MAIN;
     private final float ps_Padding = 50.0F; //used to make room for skip to start button
     private int x, y, w, h;
     private int swidth, sheight;    // width and height of bar
@@ -38,7 +39,8 @@ class PlaybackScrollbar extends GUIManager {
     private final DateFormat timeStampFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private PApplet applet;
-    public PlaybackScrollbar (PApplet _parent, int _x, int _y, int _w, int _h, float xp, float yp, int sw, int sh) {
+    public PlaybackScrollbar (GUI MAIN, int _x, int _y, int _w, int _h, float xp, float yp, int sw, int sh) {
+        this.MAIN = MAIN;
 //        super(_parent);
         x = _x;
         y = _y;
@@ -54,8 +56,8 @@ class PlaybackScrollbar extends GUIManager {
         sposMin = xpos;
         sposMax = xpos + swidth - sheight/2;
 
-        pbsb_cp5 = new ControlP5(_parent);
-        pbsb_cp5.setGraphics(_parent, 0,0);
+        pbsb_cp5 = new ControlP5(MAIN);
+        pbsb_cp5.setGraphics(MAIN, 0,0);
         pbsb_cp5.setAutoDraw(false);
 
         //Let's make a button to return to the start of playback!!
@@ -66,8 +68,8 @@ class PlaybackScrollbar extends GUIManager {
     }
 
     private void createSkipToStartButton(String name, String text, int _x, int _y, int _w, int _h) {
-        skipToStartButton = createButton(pbsb_cp5, name, text, _x, _y, _w, _h, 0, p5, 12, GREY_235, OPENBCI_DARKBLUE, BUTTON_HOVER, BUTTON_PRESSED, (Integer)null, 0);
-        PImage defaultImage = loadImage("skipToStart_default-30x26.png");
+        skipToStartButton = MAIN.createButton(pbsb_cp5, name, text, _x, _y, _w, _h, 0, p5, 12, MAIN.GREY_235, MAIN.OPENBCI_DARKBLUE, MAIN.BUTTON_HOVER, MAIN.BUTTON_PRESSED, (Integer)null, 0);
+        PImage defaultImage = MAIN.loadImage("skipToStart_default-30x26.png");
         skipToStartButton.setImage(defaultImage);
         skipToStartButton.setForceDrawBackground(true);
         skipToStartButton.onRelease(new CallbackListener() {
@@ -82,15 +84,15 @@ class PlaybackScrollbar extends GUIManager {
     void update() {
         checkMouseOver(); // check if mouse is over
 
-        if (mousePressed && over) {
+        if (MAIN.mousePressed && over) {
             locked = true;
         }
-        if (!mousePressed) {
+        if (!MAIN.mousePressed) {
             locked = false;
         }
         //if the slider is being used, update new position based on user mouseX
         if (locked) {
-            spos = constrain(mouseX-sheight/2, sposMin, sposMax);
+            spos = MAIN.constrain(MAIN.mouseX-sheight/2, sposMin, sposMax);
             scrubToPosition();
         }
         else {
@@ -110,12 +112,12 @@ class PlaybackScrollbar extends GUIManager {
         float totalSamples = (float)(fileBoard.getTotalSamples());
         float currentPlaybackPos = currentSample / totalSamples;
 
-        spos =  lerp(sposMin, sposMax, currentPlaybackPos);
+        spos =  MAIN.lerp(sposMin, sposMax, currentPlaybackPos);
     }
 
     void scrubToPosition() {
         int totalSamples = fileBoard.getTotalSamples();
-        int newSamplePos = floor(totalSamples * getCursorPercentage());
+        int newSamplePos = MAIN.floor(totalSamples * getCursorPercentage());
 
         fileBoard.goToIndex(newSamplePos);
     }
@@ -156,8 +158,8 @@ class PlaybackScrollbar extends GUIManager {
 
     //checks if mouse is over the playback scrollbar
     private void checkMouseOver() {
-        if (mouseX > xpos && mouseX < xpos+swidth &&
-                mouseY > ypos && mouseY < ypos+sheight) {
+        if (MAIN.mouseX > xpos && MAIN.mouseX < xpos+swidth &&
+                MAIN.mouseY > ypos && MAIN.mouseY < ypos+sheight) {
             if(!over) {
                 onMouseEnter();
             }
@@ -172,44 +174,44 @@ class PlaybackScrollbar extends GUIManager {
     // called when the mouse enters the playback scrollbar
     private void onMouseEnter() {
         over = true;
-        cursor(HAND); //changes cursor icon to a hand
+        MAIN.cursor(MAIN.HAND); //changes cursor icon to a hand
     }
 
     private void onMouseExit() {
         over = false;
-        cursor(ARROW);
+        MAIN.cursor(MAIN.ARROW);
     }
 
     public void draw() {
-        pushStyle();
+        MAIN.pushStyle();
 
-        fill(GREY_235);
-        stroke(OPENBCI_BLUE);
-        rect(x, y, w, h);
+        MAIN.fill(MAIN.GREY_235);
+        MAIN.stroke(MAIN.OPENBCI_BLUE);
+        MAIN.rect(x, y, w, h);
 
         //draw the playback slider inside the playback sub-widget
-        noStroke();
-        fill(GREY_200);
-        rect(xpos, ypos, swidth, sheight);
+        MAIN.noStroke();
+        MAIN.fill(MAIN.GREY_200);
+        MAIN.rect(xpos, ypos, swidth, sheight);
 
         //select color for playback indicator
         if (over || locked) {
-            fill(OPENBCI_DARKBLUE);
+            MAIN.fill(MAIN.OPENBCI_DARKBLUE);
         } else {
-            fill(102, 102, 102);
+            MAIN.fill(102, 102, 102);
         }
         //draws playback position indicator
-        rect(spos, ypos, sheight/2, sheight);
+        MAIN.rect(spos, ypos, sheight/2, sheight);
 
         //draw current timestamp and X of Y Seconds above scrollbar
         int fontSize = 17;
-        textFont(p2, fontSize);
-        fill(OPENBCI_DARKBLUE);
-        float tw = textWidth(currentAbsoluteTimeToDisplay);
-        text(currentAbsoluteTimeToDisplay, xpos + swidth - tw, ypos - fontSize - 4);
-        text(currentTimeInSecondsToDisplay, xpos, ypos - fontSize - 4);
+        MAIN.textFont(p2, fontSize);
+        MAIN.fill(MAIN.OPENBCI_DARKBLUE);
+        float tw = MAIN.textWidth(currentAbsoluteTimeToDisplay);
+        MAIN.text(currentAbsoluteTimeToDisplay, xpos + swidth - tw, ypos - fontSize - 4);
+        MAIN.text(currentTimeInSecondsToDisplay, xpos, ypos - fontSize - 4);
 
-        popStyle();
+        MAIN.popStyle();
 
         pbsb_cp5.draw();
     }

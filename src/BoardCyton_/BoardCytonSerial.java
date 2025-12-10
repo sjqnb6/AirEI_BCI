@@ -3,14 +3,14 @@ package BoardCyton_;
 import GUI.GUIManager;
 import PacketLossTracker_.PacketLossTracker;
 import brainflow.BoardIds;
-
-public class BoardCytonSerial extends BoardCytonSerialBase {
-    public BoardCytonSerial(GUIManager gui) {
-        super(gui);
+import Globel.GUI;
+    public class BoardCytonSerial extends BoardCytonSerialBase {
+    public BoardCytonSerial(GUI MAIN) {
+        super(MAIN);
     }
 
-    public BoardCytonSerial(GUIManager gui, String serialPort) {
-        super(gui);
+    public BoardCytonSerial(GUI MAIN, String serialPort) {
+        super(MAIN);
         this.serialPort = serialPort;
     }
 

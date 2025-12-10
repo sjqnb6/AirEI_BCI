@@ -8,18 +8,19 @@ import FileBoard_.FileBoard;
 import java.util.List;
 
 import static GUI.GGVI.nchan;
-
+import Globel.GUI;
 public class DataSourcePlaybackSynthetic extends DataSourcePlayback implements AccelerometerCapableBoard, FileBoard {
+    GUI MAIN;
+    public DataSourcePlaybackSynthetic(GUI MAIN, String filePath) {
 
-    public DataSourcePlaybackSynthetic(String filePath) {
-        super(filePath);
+        super(MAIN, filePath);
     }
 
     protected boolean instantiateUnderlyingBoard() {
         try {
             underlyingBoard = new BoardBrainFlowSynthetic(nchan);
         } catch (Exception e) {
-            println(e.getMessage());
+            MAIN.println(e.getMessage());
             e.printStackTrace();
             return false;
         }

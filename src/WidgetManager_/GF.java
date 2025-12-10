@@ -34,11 +34,11 @@ import java.util.ArrayList;
 import static GUI.GGVI.currentBoard;
 import static GUI.GGVI.nchan;
 import static WidgetManager_.GVI.*;
-
+import Globel.GUI;
 public class GF {
 
     //ADD YOUR WIDGET TO WIDGETS OF WIDGETMANAGER
-    public static void setupWidgets(PApplet _this, ArrayList<Widget> w){
+    public static void setupWidgets(GUI _this, ArrayList<Widget> w){
         // println("  setupWidgets start -- " + millis());
 
         //Widget_0 -- The Widget number helps when debugging GUI front-end

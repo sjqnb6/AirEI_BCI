@@ -29,7 +29,6 @@ public class GUI extends PApplet {
     public static Boolean guiIsUpToDate;
 
 
-
     //used to switch between application states
     public static final int SYSTEMMODE_INTROANIMATION = -10;
     public static final int SYSTEMMODE_PREINIT = 0;

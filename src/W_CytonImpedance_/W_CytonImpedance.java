@@ -8,6 +8,7 @@ import CytonImpedanceEnums_.CytonImpedanceInterval;
 import CytonImpedanceEnums_.CytonImpedanceLabels;
 import CytonImpedanceEnums_.CytonSignalCheckMode;
 import Extras_.RectDimensions;
+import Globel.GUI;
 import Grid_.Grid;
 import PopupMessage_.PopupMessage;
 import SignalCheckThresholds_.SignalCheckThresholdUI;
@@ -32,9 +33,9 @@ import static Debugging_.GF.outputSuccess;
 import static GUI.GGVI.*;
 import static SystemManager.GF.stopRunning;
 import static WidgetManager_.GVI.w_timeSeries;
-
+import Globel.GUI;
 public class W_CytonImpedance extends Widget {
-
+    GUI MAIN;
 
     private BoardCyton cytonBoard;
 
@@ -89,9 +90,9 @@ public class W_CytonImpedance extends Widget {
     private int thresholdTFWidth = 60; //Hard-code this value since there are deep errors with controlp5.textfield.setSize() and creating new graphics in this class - RW 12/13/2021
 
 
-    public W_CytonImpedance(PApplet pApplet){
-        super(pApplet); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
-
+    public W_CytonImpedance(GUI MAIN){
+        super(MAIN); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
+        this.MAIN = MAIN;
         cytonBoard = (BoardCyton) currentBoard;
 
         imp_buttons_cp5 = new ControlP5(pApplet);
@@ -117,7 +118,7 @@ public class W_CytonImpedance extends Widget {
         }
 
         //Create Table first!
-        dataGrid = new Grid(numTableRows, numTableColumns, cellHeight);
+        dataGrid = new Grid(MAIN, numTableRows, numTableColumns, cellHeight);
         dataGrid.setTableFontAndSize(p5, 12);
         dataGrid.setDrawTableBorder(true);
 
@@ -130,10 +131,10 @@ public class W_CytonImpedance extends Widget {
         //Init the electrode map and fill and create signal check buttons
         initCytonImpedanceMap();
 
-        cytonResetAllChannels = createCytonResetChannelsButton("cytonResetAllChannels", "Reset Channels", (int)(x0 + 1), (int)(y0 + navHeight + 1), 90, navHeight - 3, p5, 12, colorNotPressed, OPENBCI_DARKBLUE);
-        cytonImpedanceMasterCheck = createCytonImpMasterCheckButton("cytonImpedanceMasterCheck", "Check All Channels", (int)(x0 + 1 + padding_3 + 90), (int)(y0 + navHeight + 1), 120, navHeight - 3, p5, 12, colorNotPressed, OPENBCI_DARKBLUE);
-        errorThreshold = new SignalCheckThresholdUI(threshold_ui_cp5, "errorThreshold", x + tableWidth + padding, y + h - navH, thresholdTFWidth, thresholdTFHeight, SIGNAL_CHECK_RED, signalCheckMode);
-        warningThreshold = new SignalCheckThresholdUI(threshold_ui_cp5, "warningThreshold", x + tableWidth + padding, y + h - navH/2, thresholdTFWidth, thresholdTFHeight, SIGNAL_CHECK_YELLOW, signalCheckMode);
+        cytonResetAllChannels = createCytonResetChannelsButton("cytonResetAllChannels", "Reset Channels", (int)(x0 + 1), (int)(y0 + navHeight + 1), 90, navHeight - 3, p5, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
+        cytonImpedanceMasterCheck = createCytonImpMasterCheckButton("cytonImpedanceMasterCheck", "Check All Channels", (int)(x0 + 1 + padding_3 + 90), (int)(y0 + navHeight + 1), 120, navHeight - 3, p5, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
+        errorThreshold = new SignalCheckThresholdUI(threshold_ui_cp5, "errorThreshold", x + tableWidth + padding, y + h - navH, thresholdTFWidth, thresholdTFHeight, MAIN.SIGNAL_CHECK_RED, signalCheckMode);
+        warningThreshold = new SignalCheckThresholdUI(threshold_ui_cp5, "warningThreshold", x + tableWidth + padding, y + h - navH/2, thresholdTFWidth, thresholdTFHeight, MAIN.SIGNAL_CHECK_YELLOW, signalCheckMode);
     }
 
     public void update(){
@@ -295,7 +296,7 @@ public class W_CytonImpedance extends Widget {
         //Instantiate electrodeStatus for all electrodes!
         cytonElectrodeStatus = new CytonElectrodeStatus[nchan];
         for (int i = 0; i < cytonElectrodeStatus.length; i++) {
-            cytonElectrodeStatus[i] = new CytonElectrodeStatus(imp_buttons_cp5, CytonElectrodeLocations.getByIndex(i), cytonBoard, checkingImpedanceOnElectrodeGif);
+            cytonElectrodeStatus[i] = new CytonElectrodeStatus((GUI) pApplet,imp_buttons_cp5, CytonElectrodeLocations.getByIndex(i), cytonBoard, checkingImpedanceOnElectrodeGif);
             //println("CYTON ELECTRODE STATUS making electrode #", i);
         }
     }
@@ -357,13 +358,13 @@ public class W_CytonImpedance extends Widget {
 
     public void setMasterCheckInterval(int n) {
         masterCheckInterval = masterCheckInterval.values()[n];
-        println("MASTERCHECKINTERVAL_CHANGE", masterCheckInterval);
+        MAIN.println("MASTERCHECKINTERVAL_CHANGE", masterCheckInterval);
     }
 
     public void drawUserLeftRightLabels() {
         pApplet.pushStyle();
-        pApplet.fill(OPENBCI_DARKBLUE);
-        pApplet.textAlign(CENTER);
+        pApplet.fill(MAIN.OPENBCI_DARKBLUE);
+        pApplet.textAlign(MAIN.CENTER);
         pApplet.textFont(h4, 14);
         String s = "User Left";
         float _x = (float) (translate_facepadX + facepad_w * .2);
@@ -381,14 +382,14 @@ public class W_CytonImpedance extends Widget {
         int thresholdTextX = dim.x + dim.w / 2;
         pApplet.pushStyle();
         pApplet.textFont(p6, 10);
-        pApplet.textAlign(CENTER, TOP);
+        pApplet.textAlign(MAIN.CENTER, MAIN.TOP);
         pApplet.fill(ElectrodeState.GREYED_OUT.getColor());
         pApplet.text("Thresholds", thresholdTextX, dim.y + dim.h + padding);
         pApplet.popStyle();
 
         pApplet.pushStyle();
         pApplet.textFont(p5, 12);
-        pApplet.textAlign(CENTER);
+        pApplet.textAlign(MAIN.CENTER);
         String s;
         int c = ElectrodeState.GREYED_OUT.getColor();
         if (signalCheckMode == CytonSignalCheckMode.IMPEDANCE) {
@@ -460,16 +461,16 @@ public class W_CytonImpedance extends Widget {
     }
 
     private Button createCytonImpMasterCheckButton(String name, String text, int _x, int _y, int _w, int _h, PFont _font, int _fontSize, int _bg, int _textColor) {
-        final Button myButton = createButton(cp5_widget, name, text, _x, _y, _w, _h, _font, _fontSize, _bg, _textColor);
+        final Button myButton = MAIN.createButton(cp5_widget, name, text, _x, _y, _w, _h, _font, _fontSize, _bg, _textColor);
         myButton.setSwitch(true);
-        myButton.setBorderColor(OBJECT_BORDER_GREY);
+        myButton.setBorderColor(MAIN.OBJECT_BORDER_GREY);
         myButton.setVisible(signalCheckMode == CytonSignalCheckMode.IMPEDANCE);
         myButton.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 boolean isActive = myButton.getBooleanValue();
                 StringBuilder sb = new StringBuilder("Signal Quality Test: User toggled checking impedance on all channels to ");
                 sb.append(isActive);
-                println(sb.toString());
+                MAIN.println(sb.toString());
                 if (!isActive) {
                     Executors.newSingleThreadExecutor().execute(new Runnable() {
                         @Override
@@ -491,13 +492,13 @@ public class W_CytonImpedance extends Widget {
     }
 
     private Button createCytonResetChannelsButton(String name, String text, int _x, int _y, int _w, int _h, PFont _font, int _fontSize, int _bg, int _textColor) {
-        final Button myButton = createButton(cp5_widget, name, text, _x, _y, _w, _h, _font, _fontSize, _bg, _textColor);
+        final Button myButton = MAIN.createButton(cp5_widget, name, text, _x, _y, _w, _h, _font, _fontSize, _bg, _textColor);
         //myButton.setSwitch(true);
         myButton.setVisible(signalCheckMode == CytonSignalCheckMode.IMPEDANCE);
-        myButton.setBorderColor(OBJECT_BORDER_GREY);
+        myButton.setBorderColor(MAIN.OBJECT_BORDER_GREY);
         myButton.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
-                println("Cyton Impedance Check: User clicked reset all channel settings.");
+                MAIN.println("Cyton Impedance Check: User clicked reset all channel settings.");
                 Executors.newSingleThreadExecutor().execute(new Runnable() {
                     @Override
                     public void run() {
@@ -532,7 +533,7 @@ public class W_CytonImpedance extends Widget {
                             cytonBoard.stopStreaming();
                         }
 
-                        delay(100);
+                        MAIN.delay(100);
 
                         //Turn off impedance check on another electrode if checking there
                         Integer checkingOtherChan = cytonBoard.isCheckingImpedanceOnAnyChannelsNorP().getValue();
@@ -556,7 +557,7 @@ public class W_CytonImpedance extends Widget {
 
                                 //Add a small delay between turning off previous channel check and checking impedance on new channel
                                 //println("~*~*~* 150ms Delay");
-                                delay(150);
+                                MAIN.delay(150);
                             }
                         }
 
@@ -564,8 +565,8 @@ public class W_CytonImpedance extends Widget {
                         final Pair<Boolean, String> fullResponse = cytonBoard.setCheckingImpedanceCyton(checkingChanX, toggle, checkingChanX_isNpin);
                         boolean response = fullResponse.getKey().booleanValue();
                         if (!response) {
-                            println("Board Communication Error: Error sending impedance test commands. See additional info in Console Log. You may need to reset the hardware.");
-                            PopupMessage msg = new PopupMessage("Board Communication Error", "Error sending impedance test commands during Check All Channels. See additional info in Console Log. You may need to reset the hardware.");
+                            MAIN.println("Board Communication Error: Error sending impedance test commands. See additional info in Console Log. You may need to reset the hardware.");
+                            PopupMessage msg = new PopupMessage(MAIN, "Board Communication Error", "Error sending impedance test commands during Check All Channels. See additional info in Console Log. You may need to reset the hardware.");
                             cytonImpedanceMasterCheck.setOff();
                         } else {
                             //If successful, update the front end components to reflect the new state
@@ -607,9 +608,9 @@ public class W_CytonImpedance extends Widget {
                 }
             });
         } catch (RejectedExecutionException e) {
-            println("CytonImpedanceError::"+e.getMessage());
+            MAIN.println("CytonImpedanceError::"+e.getMessage());
             outputError("Cyton Signal Check Error: Please be patient when pressing \'Check All Channels\' button!");
-            PopupMessage msg = new PopupMessage("Cyton Signal Check Error", "Please be patient when pressing \'Check All Channels\' button! You will likely need to restart a GUI session and turn the Cyton off and on.");
+            PopupMessage msg = new PopupMessage(MAIN, "Cyton Signal Check Error", "Please be patient when pressing \'Check All Channels\' button! You will likely need to restart a GUI session and turn the Cyton off and on.");
         }
     }
 
@@ -618,7 +619,7 @@ public class W_CytonImpedance extends Widget {
     ////////////////////////////////////////////////////////////////
     private void doMasterImpedanceCheck() {
         setLockAllImpedanceTestingButtons(true);
-        final int curMillis = millis();
+        final int curMillis = MAIN.millis();
         final boolean iterateNow = prevMasterCheckCounter != masterCheckCounter && curMillis - prevMasterCheckMillis > masterCheckInterval.getValue();
         //println("MASTER_CHECK_TIMER==",curMillis - prevMasterCheckMillis);
 
@@ -676,13 +677,13 @@ public class W_CytonImpedance extends Widget {
         }
 
         //es.shutdown();
-        int timeElapsed = millis();
+        int timeElapsed = MAIN.millis();
         //println("______________________________AWAITING TERMINATION OF EXECUTOR SERVICE___");
         es.shutdown();
         try {
             if (!es.awaitTermination(10, TimeUnit.SECONDS)) {
                 es.shutdownNow();
-                println("ERROR: HAD TO FORCE EXECUTOR SERVICE SHUTDOWN");
+                MAIN.println("ERROR: HAD TO FORCE EXECUTOR SERVICE SHUTDOWN");
             }
         } catch (InterruptedException ex) {
             ex.printStackTrace();
@@ -706,7 +707,7 @@ public class W_CytonImpedance extends Widget {
         try {
             if (!es.awaitTermination(10, TimeUnit.SECONDS)) {
                 es.shutdownNow();
-                println("ERROR: HAD TO FORCE EXECUTOR SERVICE SHUTDOWN");
+                MAIN.println("ERROR: HAD TO FORCE EXECUTOR SERVICE SHUTDOWN");
             }
         } catch (InterruptedException ex) {
             ex.printStackTrace();
@@ -717,18 +718,18 @@ public class W_CytonImpedance extends Widget {
 
         // Send board reset twice to increase success rate
         cytonBoard.sendCommand("d");
-        delay(100);
+        MAIN.delay(100);
         cytonBoard.sendCommand("d");
 
         // Update ADS1299 settings to default but don't commit. Instead, sent "d" command twice.
         cytonBoard.getADS1299Settings().revertAllChannelsToDefaultValues();
         w_timeSeries.adsSettingsController.updateAllChanSettingsDropdowns();
 
-        timeElapsed = millis() - timeElapsed;
+        timeElapsed = MAIN.millis() - timeElapsed;
         StringBuilder sb = new StringBuilder("Cyton Impedance Check: Hard reset to default board mode took -- ");
         sb.append(timeElapsed);
         sb.append(" ms");
-        println(sb.toString());
+        MAIN.println(sb.toString());
 
         prevMasterCheckCounter--;
         setLockAllImpedanceTestingButtons(false);
@@ -741,7 +742,7 @@ public class W_CytonImpedance extends Widget {
         final Boolean checkingChanX_isNpin = cytonBoard.isCheckingImpedanceOnAnyChannelsNorP().getKey();
         if (checkingChanX != null) {
             //println("---------------------------TURN OFF IMPEDANCE CHECK ON ELECTRODE="+checkingChanX+" | IS_N_PIN="+checkingChanX_isNpin);
-            toggleImpedanceOnElectrode(false, checkingChanX, checkingChanX_isNpin, millis());
+            toggleImpedanceOnElectrode(false, checkingChanX, checkingChanX_isNpin, MAIN.millis());
         }
     }
 

@@ -21,18 +21,19 @@ import processing.core.PFont;
 import java.util.List;
 
 import static GUI.GGVI.*;
-
+import Globel.GUI;
 ///////////////////////////////////////////////////,
 
 
 public class W_GanglionImpedance extends Widget {
+    GUI MAIN;
     Button startStopCheck;
     int padding = 24;
 
-    public W_GanglionImpedance(PApplet _parent){
-        super(_parent); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
-
-        createStartStopCheck("startStopCheck", "Start Impedance Check", x + padding, y + padding, 200, navHeight, p4, 14, colorNotPressed, OPENBCI_DARKBLUE);
+    public W_GanglionImpedance(GUI MAIN){
+        super(MAIN); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
+        this.MAIN = MAIN;
+        createStartStopCheck("startStopCheck", "Start Impedance Check", x + padding, y + padding, 200, navHeight, p4, 14, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
     }
 
     public void update(){
@@ -43,11 +44,11 @@ public class W_GanglionImpedance extends Widget {
         super.draw(); //calls the parent draw() method of Widget (DON'T REMOVE)
 
         //remember to refer to x,y,w,h which are the positioning variables of the Widget class
-        pushStyle();
+        MAIN.pushStyle();
 
         //divide by 2 ... we do this assuming that the D_G (driven ground) electrode is "comprable in impedance" to the electrode being used.
-        fill(OPENBCI_DARKBLUE);
-        textFont(p4, 14);
+        MAIN.fill(MAIN.OPENBCI_DARKBLUE);
+        MAIN.textFont(p4, 14);
 
         BoardGanglion ganglion = (BoardGanglion)currentBoard;
         if (!ganglion.isCheckingImpedance()) {
@@ -66,31 +67,31 @@ public class W_GanglionImpedance extends Widget {
             } else {
                 toPrint = "Channel[" + i + "] Impedance \u2248 " + adjustedImpedance + " k\u2126";
             }
-            text(toPrint, x + padding + 40, y + padding*2 + 12 + startStopCheck.getHeight() + padding*(i));
+            MAIN.text(toPrint, x + padding + 40, y + padding*2 + 12 + startStopCheck.getHeight() + padding*(i));
 
-            pushStyle();
-            stroke(OPENBCI_DARKBLUE);
+            MAIN.pushStyle();
+            MAIN.stroke(MAIN.OPENBCI_DARKBLUE);
             //change the fill color based on the signal quality...
             if(adjustedImpedance <= 0){ //no data yet...
-                fill(255);
+                MAIN.fill(255);
             } else if(adjustedImpedance > 0 && adjustedImpedance <= 10){ //very good signal quality
-                fill(49, 113, 89); //dark green
+                MAIN.fill(49, 113, 89); //dark green
             } else if(adjustedImpedance > 10 && adjustedImpedance <= 50){ //good signal quality
-                fill(184, 220, 105); //yellow green
+                MAIN.fill(184, 220, 105); //yellow green
             } else if(adjustedImpedance > 50 && adjustedImpedance <= 100){ //acceptable signal quality
-                fill(221, 178, 13); //yellow
+                MAIN.fill(221, 178, 13); //yellow
             } else if(adjustedImpedance > 100 && adjustedImpedance <= 150){ //questionable signal quality
-                fill(253, 94, 52); //orange
+                MAIN.fill(253, 94, 52); //orange
             } else if(adjustedImpedance > 150){ //bad signal quality
-                fill(224, 56, 45); //red
+                MAIN.fill(224, 56, 45); //red
             }
 
-            ellipse(x + padding + 10, y + padding*2 + 7 + startStopCheck.getHeight() + padding*(i), padding/2, padding/2);
-            popStyle();
+            MAIN.ellipse(x + padding + 10, y + padding*2 + 7 + startStopCheck.getHeight() + padding*(i), padding/2, padding/2);
+            MAIN.popStyle();
         }
 
-        image(loadingGIF_blue, x + padding + startStopCheck.getWidth() + 15, y + padding - 8, 40, 40);
-        popStyle();
+        MAIN.image(loadingGIF_blue, x + padding + startStopCheck.getWidth() + 15, y + padding - 8, 40, 40);
+        MAIN.popStyle();
     }
 
     public void screenResized(){
@@ -107,7 +108,7 @@ public class W_GanglionImpedance extends Widget {
     }
 
     private void createStartStopCheck(String name, String text, int _x, int _y, int _w, int _h, PFont _font, int _fontSize, int _bg, int _textColor) {
-        startStopCheck = createButton(cp5_widget, name, text, _x, _y, _w, _h, _font, _fontSize, _bg, _textColor);
+        startStopCheck = MAIN.createButton(cp5_widget, name, text, _x, _y, _w, _h, _font, _fontSize, _bg, _textColor);
         startStopCheck.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 if (currentBoard instanceof BoardGanglion) {
@@ -117,7 +118,7 @@ public class W_GanglionImpedance extends Widget {
                     if (!ganglionBoard.isCheckingImpedance()) {
                         // We need to either stop the time series data, or allow it to scroll, like currently.
                         // the values in time series are not meaningful when Impedance check is active
-                        println("Starting Ganglion impedance check...");
+                        MAIN.println("Starting Ganglion impedance check...");
                         //Start impedance check
                         ganglionBoard.setCheckingImpedance(true);
                         startStopCheck.getCaptionLabel().setText("Stop Impedance Check");

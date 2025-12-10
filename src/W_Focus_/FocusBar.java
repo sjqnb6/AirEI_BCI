@@ -8,9 +8,11 @@ import processing.core.PApplet;
 import java.util.LinkedList;
 
 import static GUI.GGVI.*;
-
+import Globel.GUI;
 //This class contains the time series plot for the focus metric over time
-public class FocusBar extends GUIManager {
+import Globel.GUI;
+public class FocusBar{
+    GUI MAIN;
     int x, y, w, h;
     int focusBarPadding = 30;
     int xOffset;
@@ -23,8 +25,9 @@ public class FocusBar extends GUIManager {
     int numSeconds;
     int channelColor; //color of plot trace
 
-    FocusBar(PApplet _parent, int xLimit, float yLimit, int _x, int _y, int _w, int _h) {
+    FocusBar(GUI MAIN, int xLimit, float yLimit, int _x, int _y, int _w, int _h) {
 //        super(_parent); //channel number, x/y location, height, width
+        this.MAIN = MAIN;
         x = _x;
         y = _y;
         w = _w;
@@ -36,11 +39,11 @@ public class FocusBar extends GUIManager {
         }
         numSeconds = xLimit;
 
-        plot = new GPlot(_parent);
+        plot = new GPlot(MAIN);
         plot.setPos(x + 36 + 4 + xOffset, y); //match Accelerometer plot position with Time Series
         plot.setDim(w - 36 - 4 - xOffset, h);
         plot.setMar(0f, 0f, 0f, 0f);
-        plot.setLineColor((int)channelColors[(NUM_ACCEL_DIMS)%8]);
+        plot.setLineColor((int)MAIN.channelColors[(NUM_ACCEL_DIMS)%8]);
         plot.setXLim(-numSeconds,0); //set the horizontal scale
         plot.setYLim(0, yLimit); //change this to adjust vertical scale
         //plot.setPointSize(2);
@@ -50,12 +53,12 @@ public class FocusBar extends GUIManager {
         plot.setAllFontProperties("Arial", 0, 14);
         plot.getXAxis().getAxisLabel().setOffset((float)(22));
         plot.getYAxis().getAxisLabel().setOffset((float)(focusBarPadding));
-        plot.getXAxis().setFontColor(OPENBCI_DARKBLUE);
-        plot.getXAxis().setLineColor(OPENBCI_DARKBLUE);
-        plot.getXAxis().getAxisLabel().setFontColor(OPENBCI_DARKBLUE);
-        plot.getYAxis().setFontColor(OPENBCI_DARKBLUE);
-        plot.getYAxis().setLineColor(OPENBCI_DARKBLUE);
-        plot.getYAxis().getAxisLabel().setFontColor(OPENBCI_DARKBLUE);
+        plot.getXAxis().setFontColor(MAIN.OPENBCI_DARKBLUE);
+        plot.getXAxis().setLineColor(MAIN.OPENBCI_DARKBLUE);
+        plot.getXAxis().getAxisLabel().setFontColor(MAIN.OPENBCI_DARKBLUE);
+        plot.getYAxis().setFontColor(MAIN.OPENBCI_DARKBLUE);
+        plot.getYAxis().setLineColor(MAIN.OPENBCI_DARKBLUE);
+        plot.getYAxis().getAxisLabel().setFontColor(MAIN.OPENBCI_DARKBLUE);
 
         adjustTimeAxis(numSeconds);
 
@@ -63,7 +66,7 @@ public class FocusBar extends GUIManager {
 
         //set the plot points for X, Y, and Z axes
         plot.addLayer("layer 1", new GPointsArray(30));
-        plot.getLayer("layer 1").setLineColor(ACCEL_X_COLOR);
+        plot.getLayer("layer 1").setLineColor(MAIN.ACCEL_X_COLOR);
     }
 
     private void initArrays() {
@@ -105,7 +108,7 @@ public class FocusBar extends GUIManager {
 
     //Used to update the Points within the graph
     private void updateGPlotPoints(double val) {
-        float timerVal = (float) (millis() / 1000.0);
+        float timerVal = (float) (MAIN.millis() / 1000.0);
         fifoTimeList.removeFirst();
         fifoTimeList.addLast(timerVal);
         fifoList.removeFirst();

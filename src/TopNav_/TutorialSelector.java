@@ -11,9 +11,10 @@ import static Extras_.GF.isLinux;
 import static Extras_.GF.isMac;
 import static GUI.GGVI.*;
 import static Interactivity_.GF.openURLInBrowser;
+import Globel.GUI;
+public class TutorialSelector{
 
-public class TutorialSelector extends GUIManager {
-
+    GUI MAIN;
     private int x, y, w, h, margin, b_w, b_h;
     public boolean isVisible;
     private ControlP5 tutorial_cp5;
@@ -25,10 +26,11 @@ public class TutorialSelector extends GUIManager {
     private Button ftdiBufferFix;
     private final int NUM_TUTORIAL_BUTTONS = 6;
 
-    public TutorialSelector(PApplet pApplet) {
+    public TutorialSelector(GUI MAIN) {
+        this.MAIN = MAIN;
         w = 180;
         //account for consoleLog button, help button, and spacing
-        x = width - 33 - w - 3*2;
+        x = MAIN.width - 33 - w - 3*2;
         y = (navBarHeight) - 3;
         margin = 6;
         b_w = w - margin*2;
@@ -36,8 +38,8 @@ public class TutorialSelector extends GUIManager {
         h = margin*(NUM_TUTORIAL_BUTTONS+1) + b_h*NUM_TUTORIAL_BUTTONS;
 
         //Instantiate local cp5 for this box
-        tutorial_cp5 = new ControlP5(pApplet);
-        tutorial_cp5.setGraphics(pApplet, 0,0);
+        tutorial_cp5 = new ControlP5(MAIN);
+        tutorial_cp5.setGraphics(MAIN, 0,0);
         tutorial_cp5.setAutoDraw(false);
 
         isVisible = false;
@@ -67,20 +69,20 @@ public class TutorialSelector extends GUIManager {
 
     public void draw() {
         if (isVisible) { //only draw if visible
-            pushStyle();
+            MAIN.pushStyle();
 
-            stroke(OPENBCI_DARKBLUE);
+            MAIN.stroke(MAIN.OPENBCI_DARKBLUE);
             // fill(229); //bg
-            fill(OPENBCI_BLUE); //bg
-            rect(x, y, w, h);
+            MAIN.fill(MAIN.OPENBCI_BLUE); //bg
+            MAIN.rect(x, y, w, h);
 
 
             // fill(177, 184, 193);
-            noStroke();
+            MAIN.noStroke();
             //Draw a tiny rectangle to make it look like the box and button are connected
-            rect(x+w-(topNav.tutorialsButton.getWidth()-1), y, (topNav.tutorialsButton.getWidth()-1), 1);
+            MAIN.rect(x+w-(topNav.tutorialsButton.getWidth()-1), y, (topNav.tutorialsButton.getWidth()-1), 1);
 
-            popStyle();
+            MAIN.popStyle();
 
             tutorial_cp5.draw();
         }
@@ -95,7 +97,7 @@ public class TutorialSelector extends GUIManager {
     public void mouseReleased() {
         //only allow button interactivity if isVisible==true
         if (isVisible) {
-            if ((mouseX < x || mouseX > x + w || mouseY < y || mouseY > y + h) && !topNav.tutorialsButton.isInside()) {
+            if ((MAIN.mouseX < x || MAIN.mouseX > x + w || MAIN.mouseY < y || MAIN.mouseY > y + h) && !topNav.tutorialsButton.isInside()) {
                 toggleVisibility();
                 //topNav.configButton.setIgnoreHover(false);
             }
@@ -104,11 +106,11 @@ public class TutorialSelector extends GUIManager {
 
     void screenResized() {
 
-        tutorial_cp5.setGraphics(pApplet, 0,0);
+        tutorial_cp5.setGraphics(MAIN, 0,0);
 
         //update position of outer box and buttons. Y values do not change for this box.
         int oldX = x;
-        x = width - 33 - w - 3*2;
+        x = MAIN.width - 33 - w - 3*2;
         int dx = oldX - x;
 
         for (int j = 0; j < tutorial_cp5.getAll().size(); j++) {
@@ -140,7 +142,7 @@ public class TutorialSelector extends GUIManager {
     }
 
     private void createGettingStartedButton(String name, String text, int _x, int _y, int _w, int _h) {
-        gettingStarted = createButton(tutorial_cp5, name, text, _x, _y, _w, _h);
+        gettingStarted = MAIN.createButton(tutorial_cp5, name, text, _x, _y, _w, _h);
         gettingStarted.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 openURLInBrowser("https://docs.openbci.com/GettingStarted/GettingStartedLanding/");
@@ -151,7 +153,7 @@ public class TutorialSelector extends GUIManager {
     }
 
     private void createTestingImpedanceButton(String name, String text, int _x, int _y, int _w, int _h) {
-        testingImpedance = createButton(tutorial_cp5, name, text, _x, _y, _w, _h);
+        testingImpedance = MAIN.createButton(tutorial_cp5, name, text, _x, _y, _w, _h);
         testingImpedance.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 openURLInBrowser("https://docs.openbci.com/Software/OpenBCISoftware/GUIDocs/#impedance-testing");
@@ -162,7 +164,7 @@ public class TutorialSelector extends GUIManager {
     }
 
     private void createTroubleshootingGuideButton(String name, String text, int _x, int _y, int _w, int _h) {
-        troubleshootingGuide = createButton(tutorial_cp5, name, text, _x, _y, _w, _h);
+        troubleshootingGuide = MAIN.createButton(tutorial_cp5, name, text, _x, _y, _w, _h);
         troubleshootingGuide.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 openURLInBrowser("https://docs.openbci.com/Troubleshooting/GUI_Troubleshooting/");
@@ -173,7 +175,7 @@ public class TutorialSelector extends GUIManager {
     }
 
     private void createCustomWidgetsButton(String name, String text, int _x, int _y, int _w, int _h) {
-        customWidgets = createButton(tutorial_cp5, name, text, _x, _y, _w, _h);
+        customWidgets = MAIN.createButton(tutorial_cp5, name, text, _x, _y, _w, _h);
         customWidgets.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 openURLInBrowser("https://docs.openbci.com/Software/OpenBCISoftware/GUIWidgets/#custom-widget");
@@ -184,7 +186,7 @@ public class TutorialSelector extends GUIManager {
     }
 
     private void createOpenbciForumButton(String name, String text, int _x, int _y, int _w, int _h) {
-        openbciForum = createButton(tutorial_cp5, name, text, _x, _y, _w, _h);
+        openbciForum = MAIN.createButton(tutorial_cp5, name, text, _x, _y, _w, _h);
         openbciForum.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 openURLInBrowser("https://openbci.com/forum/");
@@ -195,7 +197,7 @@ public class TutorialSelector extends GUIManager {
     }
 
     private void createFtdiBufferFixButton(String name, String text, int _x, int _y, int _w, int _h) {
-        openbciForum = createButton(tutorial_cp5, name, text, _x, _y, _w, _h);
+        openbciForum = MAIN.createButton(tutorial_cp5, name, text, _x, _y, _w, _h);
         openbciForum.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 String ftdiDriverDocUrl;

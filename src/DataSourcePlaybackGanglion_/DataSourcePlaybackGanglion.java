@@ -5,11 +5,12 @@ import DataSourcePlayback_.DataSourcePlayback;
 import FileBoard_.FileBoard;
 
 import java.util.List;
-
+import Globel.GUI;
 public class DataSourcePlaybackGanglion extends DataSourcePlayback implements AccelerometerCapableBoard, FileBoard {
 
-    public DataSourcePlaybackGanglion(String filePath) {
-        super(filePath);
+    public DataSourcePlaybackGanglion(GUI MAIN, String filePath) {
+
+        super(MAIN, filePath);
     }
 
     @Override

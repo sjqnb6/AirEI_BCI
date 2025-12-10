@@ -7,16 +7,17 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 import static GUI.GGVI.*;
-
+import Globel.GUI;
 //========================== TimeDisplay ==========================
-public class TimeDisplay extends GUIManager {
+public class TimeDisplay{
     int swidth, sheight;    // width and height of bar
     float xpos, ypos;       // x and y position of bar
     String currentAbsoluteTimeToDisplay = "";
     Boolean updatePosition = false;
     LocalDateTime time;
-
-    TimeDisplay (PApplet pApplet,float xp, float yp, int sw, int sh) {
+    GUI MAIN;
+    TimeDisplay (GUI MAIN,float xp, float yp, int sw, int sh) {
+        this.MAIN = MAIN;
 //        super(pApplet);
         swidth = sw;
         sheight = sh;
@@ -32,7 +33,7 @@ public class TimeDisplay extends GUIManager {
             try {
                 currentAbsoluteTimeToDisplay = fetchCurrentTimeString();
             } catch (NullPointerException e) {
-                println("TimeDisplay: Timestamp error...");
+                MAIN.println("TimeDisplay: Timestamp error...");
                 e.printStackTrace();
             }
 
@@ -40,17 +41,17 @@ public class TimeDisplay extends GUIManager {
     } //end update loop for TimeDisplay
 
     public void draw() {
-        pushStyle();
+        MAIN.pushStyle();
         //draw current timestamp at the bottom of the Widget container
         if (!currentAbsoluteTimeToDisplay.equals(null)) {
             int fontSize = 17;
-            textFont(p2, fontSize);
-            fill(OPENBCI_DARKBLUE);
-            float tw = textWidth(currentAbsoluteTimeToDisplay);
-            text(currentAbsoluteTimeToDisplay, xpos + swidth - tw, ypos);
-            text(streamTimeElapsed.toString(), xpos + 10, ypos);
+            MAIN.textFont(p2, fontSize);
+            MAIN.fill(MAIN.OPENBCI_DARKBLUE);
+            float tw = MAIN.textWidth(currentAbsoluteTimeToDisplay);
+            MAIN.text(currentAbsoluteTimeToDisplay, xpos + swidth - tw, ypos);
+            MAIN.text(streamTimeElapsed.toString(), xpos + 10, ypos);
         }
-        popStyle();
+        MAIN.popStyle();
     }
 
     void screenResized(float _x, float _y, float _w, float _h) {

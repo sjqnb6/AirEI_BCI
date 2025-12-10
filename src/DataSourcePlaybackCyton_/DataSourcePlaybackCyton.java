@@ -7,11 +7,11 @@ import DigitalCapableBoard_.DigitalCapableBoard;
 import FileBoard_.FileBoard;
 
 import java.util.List;
-
+import Globel.GUI;
 public class DataSourcePlaybackCyton extends DataSourcePlayback implements AccelerometerCapableBoard, AnalogCapableBoard, DigitalCapableBoard, FileBoard {
 
-    public DataSourcePlaybackCyton(String filePath) {
-        super(filePath);
+    public DataSourcePlaybackCyton(GUI MAIN, String filePath) {
+        super(MAIN, filePath);
     }
 
     @Override

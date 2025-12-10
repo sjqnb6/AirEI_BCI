@@ -19,14 +19,14 @@ import static Extras_.GF.log10;
 import static GUI.GGVI.*;
 import static WidgetManager_.GVI.w_timeSeries;
 
-
+import Globel.GUI;
 //========================================================================================================================
 //                      CHANNEL BAR CLASS -- Implemented by Time Series Widget Class
 //========================================================================================================================
 //this class contains the plot and buttons for a single channel of the Time Series widget
 //one of these will be created for each channel (4, 8, or 16)
-class ChannelBar extends GUIManager {
-
+class ChannelBar {
+    GUI MAIN;
     int channelIndex; //duh
     String channelString;
     int x, y, w, h;
@@ -67,15 +67,14 @@ class ChannelBar extends GUIManager {
 
     boolean drawVoltageValue;
 
-    public ChannelBar(PApplet _parent, int _channelIndex, int _x, int _y, int _w, int _h, PImage expand_default, PImage expand_hover, PImage expand_active, PImage contract_default, PImage contract_hover, PImage contract_active) {
-//        super(_parent);
+    public ChannelBar(GUI MAIN, int _channelIndex, int _x, int _y, int _w, int _h, PImage expand_default, PImage expand_hover, PImage expand_active, PImage contract_default, PImage contract_hover, PImage contract_active) {
 
-        cbCp5 = new ControlP5(_parent);
-        cbCp5.setGraphics(_parent, x, y);
+        cbCp5 = new ControlP5(MAIN);
+        cbCp5.setGraphics(MAIN, x, y);
         cbCp5.setAutoDraw(false); //Setting this saves code as cp5 elements will only be drawn/visible when [cp5].draw() is called
 
         channelIndex = _channelIndex;
-        channelString = str(channelIndex + 1);
+        channelString = MAIN.str(channelIndex + 1);
 
         x = _x;
         y = _y;
@@ -91,19 +90,19 @@ class ChannelBar extends GUIManager {
         yAxisUpperLim = 200;
         yAxisLowerLim = -200;
         numSeconds = 5;
-        plot = new GPlot(_parent);
+        plot = new GPlot(MAIN);
         plot.setPos(x + uiSpaceWidth, y);
         plot.setDim(w - uiSpaceWidth, h);
         plot.setMar(0f, 0f, 0f, 0f);
-        plot.setLineColor((int)channelColors[channelIndex%8]);
+        plot.setLineColor((int)MAIN.channelColors[channelIndex%8]);
         plot.setXLim(-5,0);
         plot.setYLim(yAxisLowerLim, yAxisUpperLim);
         plot.setPointSize(2);
         plot.setPointColor(0);
         plot.setAllFontProperties("Arial", 0, 14);
-        plot.getXAxis().setFontColor(OPENBCI_DARKBLUE);
-        plot.getXAxis().setLineColor(OPENBCI_DARKBLUE);
-        plot.getXAxis().getAxisLabel().setFontColor(OPENBCI_DARKBLUE);
+        plot.getXAxis().setFontColor(MAIN.OPENBCI_DARKBLUE);
+        plot.getXAxis().setLineColor(MAIN.OPENBCI_DARKBLUE);
+        plot.getXAxis().getAxisLabel().setFontColor(MAIN.OPENBCI_DARKBLUE);
         if(channelIndex == nchan-1) {
             plot.getXAxis().setAxisLabelText("Time (s)");
             plot.getXAxis().getAxisLabel().setOffset(plotBottomWellH/2 + 5f);
@@ -127,16 +126,16 @@ class ChannelBar extends GUIManager {
         yScaleButton_h = 18;
         yAxisLabel_h = 12;
         int padding = 2;
-        yAxisMax = new TextBox(_parent, "+"+yAxisUpperLim+"uV", x + uiSpaceWidth + padding, y + (int)(padding*1.5), OPENBCI_DARKBLUE, color(255,255,255,175), LEFT, TOP);
-        yAxisMin = new TextBox(_parent, yAxisLowerLim+"uV", x + uiSpaceWidth + padding, y + h - yAxisLabel_h - padding_4, OPENBCI_DARKBLUE, color(255,255,255,175), LEFT, TOP);
+        yAxisMax = new TextBox(MAIN, "+"+yAxisUpperLim+"uV", x + uiSpaceWidth + padding, y + (int)(padding*1.5), MAIN.OPENBCI_DARKBLUE, MAIN.color(255,255,255,175), MAIN.LEFT, MAIN.TOP);
+        yAxisMin = new TextBox(MAIN, yAxisLowerLim+"uV", x + uiSpaceWidth + padding, y + h - yAxisLabel_h - padding_4, MAIN.OPENBCI_DARKBLUE, MAIN.color(255,255,255,175), MAIN.LEFT, MAIN.TOP);
         customYLim(yAxisMax, yAxisUpperLim);
         customYLim(yAxisMin, yAxisLowerLim);
         yScaleButton_neg = createYScaleButton(channelIndex, false, "decreaseYscale", "-T", x + uiSpaceWidth + padding, y + w/2 - yScaleButton_h/2, yScaleButton_w, yScaleButton_h, contract_default, contract_hover, contract_active);
         yScaleButton_pos = createYScaleButton(channelIndex, true, "increaseYscale", "+T", x + uiSpaceWidth + padding*2 + yScaleButton_w, y + w/2 - yScaleButton_h/2, yScaleButton_w, yScaleButton_h, expand_default, expand_hover, expand_active);
 
         //Create textBoxes to display the current values
-        impValue = new TextBox(_parent, "", x + uiSpaceWidth + (int)plot.getDim()[0], y + padding, OPENBCI_DARKBLUE, color(255,255,255,175), RIGHT, TOP);
-        voltageValue = new TextBox(_parent, "", x + uiSpaceWidth + (int)plot.getDim()[0] - padding, y + h, OPENBCI_DARKBLUE, color(255,255,255,175), RIGHT, BOTTOM);
+        impValue = new TextBox(MAIN, "", x + uiSpaceWidth + (int)plot.getDim()[0], y + padding, MAIN.OPENBCI_DARKBLUE, MAIN.color(255,255,255,175), MAIN.RIGHT, MAIN.TOP);
+        voltageValue = new TextBox(MAIN, "", x + uiSpaceWidth + (int)plot.getDim()[0] - padding, y + h, MAIN.OPENBCI_DARKBLUE, MAIN.color(255,255,255,175), MAIN.RIGHT, MAIN.BOTTOM);
         drawVoltageValue = true;
 
         //Establish a minimumChannelHeight
@@ -167,7 +166,7 @@ class ChannelBar extends GUIManager {
         updatePlotPoints();
 
         if(currentBoard.isEXGChannelActive(channelIndex)) {
-            onOffButton.setColorBackground(channelColors[channelIndex%8]); // power down == false, set color to vibrant
+            onOffButton.setColorBackground(MAIN.channelColors[channelIndex%8]); // power down == false, set color to vibrant
         }
         else {
             onOffButton.setColorBackground(50); // power down == true, set to grey
@@ -214,7 +213,7 @@ class ChannelBar extends GUIManager {
             plot.drawLines();
         } catch (NullPointerException e) {
             e.printStackTrace();
-            println("PLOT ERROR ON CHANNEL " + channelIndex);
+            MAIN.println("PLOT ERROR ON CHANNEL " + channelIndex);
 
         }
         //Draw the x axis label on the bottom channel bar, hide if hardware settings are open
@@ -225,20 +224,20 @@ class ChannelBar extends GUIManager {
         plot.endDraw();
 
         //draw channel holder background
-        pushStyle();
-        stroke(OPENBCI_BLUE_ALPHA50);
-        noFill();
-        rect(x,y,w,h);
-        popStyle();
+        MAIN.pushStyle();
+        MAIN.stroke(MAIN.OPENBCI_BLUE_ALPHA50);
+        MAIN.noFill();
+        MAIN.rect(x,y,w,h);
+        MAIN.popStyle();
 
         //draw channelBar separator line in the middle of interChannelBarSpace
         if (!isBottomChannel()) {
-            pushStyle();
-            stroke(OPENBCI_DARKBLUE);
-            strokeWeight(1);
+            MAIN.pushStyle();
+            MAIN.stroke(MAIN.OPENBCI_DARKBLUE);
+            MAIN.strokeWeight(1);
             int separator_y = y + h + (int)(w_timeSeries.interChannelBarSpace/2);
-            line(x, separator_y, x + w, separator_y);
-            popStyle();
+            MAIN.line(x, separator_y, x + w, separator_y);
+            MAIN.popStyle();
         }
 
         //draw impedance values in time series also for each channel
@@ -268,7 +267,7 @@ class ChannelBar extends GUIManager {
             cbCp5.draw();
         } catch (NullPointerException e) {
             e.printStackTrace();
-            println("CP5 ERROR ON CHANNEL " + channelIndex);
+            MAIN.println("CP5 ERROR ON CHANNEL " + channelIndex);
         }
     }
 
@@ -309,7 +308,7 @@ class ChannelBar extends GUIManager {
 
     public void applyAutoscale() {
         //Do this once a second for all TimeSeries ChannelBars to save on resources
-        int newMillis = millis();
+        int newMillis = MAIN.millis();
         boolean doAutoscale = newMillis > previousMillis + 1000;
         if (isAutoscale && currentBoard.isStreaming() && doAutoscale) {
             autoscaleMin = (int) Math.floor(autoscaleMin);
@@ -372,12 +371,12 @@ class ChannelBar extends GUIManager {
     }
 
     private void createOnOffButton(String name, String text, int _x, int _y, int _w, int _h) {
-        onOffButton = createButton(cbCp5, name, text, _x, _y, _w, _h, 0, h2, 16, channelColors[channelIndex%8], WHITE, BUTTON_HOVER, BUTTON_PRESSED, (Integer) null, -2);
+        onOffButton = MAIN.createButton(cbCp5, name, text, _x, _y, _w, _h, 0, h2, 16, MAIN.channelColors[channelIndex%8], MAIN.WHITE, MAIN.BUTTON_HOVER, MAIN.BUTTON_PRESSED, (Integer) null, -2);
         onOffButton.setCircularButton(true);
         onOffButton.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 boolean newState = !currentBoard.isEXGChannelActive(channelIndex);
-                println("[" + channelString + "] onOff released - " + (newState ? "On" : "Off"));
+                MAIN.println("[" + channelString + "] onOff released - " + (newState ? "On" : "Off"));
                 currentBoard.setEXGChannelActive(channelIndex, newState);
                 if (currentBoard instanceof ADS1299SettingsBoard) {
                     w_timeSeries.adsSettingsController.updateChanSettingsDropdowns(channelIndex, currentBoard.isEXGChannelActive(channelIndex));
@@ -396,9 +395,9 @@ class ChannelBar extends GUIManager {
         final Button myButton = cbCp5.addButton(bName)
                 .setPosition(_x, _y)
                 .setSize(_w, _h)
-                .setColorLabel(color(255))
-                .setColorForeground(OPENBCI_BLUE)
-                .setColorBackground(color(144, 100))
+                .setColorLabel(MAIN.color(255))
+                .setColorForeground(MAIN.OPENBCI_BLUE)
+                .setColorBackground(MAIN.color(144, 100))
                 .setImages(_default, _hover, _active)
                 ;
         myButton.onClick(new yScaleButtonCallbackListener(chan, shouldIncrease));
@@ -420,7 +419,7 @@ class ChannelBar extends GUIManager {
             verbosePrint("A button was pressed for channel " + (channel+1) + ". Should we increase (or decrease?): " + increase);
 
             int inc = increase ? 1 : -1;
-            int n = (int)(log10(abs(yAxisLowerLim))) * 25 * inc;
+            int n = (int)(log10(MAIN.abs(yAxisLowerLim))) * 25 * inc;
             yAxisLowerLim -= n;
             n = (int)(log10(yAxisUpperLim)) * 25 * inc;
             yAxisUpperLim += n;

@@ -11,7 +11,6 @@ import org.apache.commons.lang3.time.StopWatch;
 import processing.core.PFont;
 import processing.core.PImage;
 import processing.data.JSONObject;
-
 public class GGVI {
 
     //Used to check GUI version in TopNav.pde and displayed on the splash screen on startup
@@ -162,6 +161,48 @@ public class GGVI {
     public static PFont p6; //small Open Sans
 
     public static boolean setupComplete = false;
+
+    //Starting to collect the GUI-wide color pallet here. Rename constants all caps later...
+//    final color WHITE = color(255);
+//    final color BLACK = color(0);
+//    final color OPENBCI_DARKBLUE = color(1, 18, 41);
+//    final color OPENBCI_BLUE = color(31, 69, 110);
+//    final color OPENBCI_BLUE_ALPHA50 = color(31, 69, 110, 50);
+//    final color OPENBCI_BLUE_ALPHA100 = color(31, 69, 110, 100);
+//    final color boxColor = color(200);
+//    final color boxStrokeColor = OPENBCI_DARKBLUE;
+//    final color isSelected_color = color(184, 220, 105); //Used for textfield borders,
+//    final color colorNotPressed = WHITE;
+//    final color buttonsLightBlue = color(57,128,204);
+//    final color GREY_235 = color(235);
+//    final color GREY_200 = color(200);
+//    final color GREY_125 = color(125);
+//    final color GREY_100 = color(100);
+//    final color GREY_20 = color(20);
+//    final color TURN_ON_GREEN = color(195, 242, 181);
+//    final color TURN_OFF_RED = color(255, 210, 210);
+//    final color BOLD_RED = color(224, 56, 45);
+//    final color BUTTON_HOVER = color(177, 184, 193);//color(252, 221, 198);
+//    final color BUTTON_HOVER_LIGHT = color(211, 222, 232);
+//    final color BUTTON_PRESSED = color(150, 170, 200); //OPENBCI_DARKBLUE;
+//    final color BUTTON_PRESSED_LIGHT = color(179, 187, 199);
+//    final color BUTTON_LOCKED_GREY = color(128);
+//    final color BUTTON_PRESSED_DARKGREY = color(50);
+//    final color BUTTON_NOOBGREEN = color(114,204,171);
+//    final color BUTTON_EXPERTPURPLE = color(135,95,154);
+//    final color BUTTON_CAUTIONRED = color(214,100,100);
+//    final color OBJECT_BORDER_GREY = color(150);
+//    final color TOPNAV_DARKBLUE = OPENBCI_BLUE;
+//    final color SUBNAV_LIGHTBLUE = buttonsLightBlue;
+//    //Use the same colors for X,Y,Z throughout Accelerometer widget
+//    final color ACCEL_X_COLOR = BOLD_RED;
+//    final color ACCEL_Y_COLOR = color(49, 113, 89);
+//    final color ACCEL_Z_COLOR = color(54, 87, 158);
+//    //Signal check colors
+//    final color SIGNAL_CHECK_YELLOW = color(221, 178, 13); //Same color as yellow channel color found below
+//    final color SIGNAL_CHECK_YELLOW_LOWALPHA = color(221, 178, 13, 150);
+//    final color SIGNAL_CHECK_RED = BOLD_RED;
+//    final color SIGNAL_CHECK_RED_LOWALPHA = color(224, 56, 45, 150);
 
 
     public final static int COLOR_SCHEME_DEFAULT = 1;

@@ -23,12 +23,13 @@ import static Interactivity_.GF.openURLInBrowser;
 import static SystemManager.GF.startRunning;
 import static SystemManager.GF.stopRunning;
 import static WidgetManager_.GVI.w_cytonImpedance;
+import Globel.GUI;
+public class TopNav {
 
-public class TopNav extends GUIManager {
-
-    private final int TOPNAV_DARKBLUE = OPENBCI_BLUE;
-    private final int SUBNAV_LIGHTBLUE = buttonsLightBlue;
-    private int strokeColor = OPENBCI_DARKBLUE;
+    GUI MAIN;
+    private final int TOPNAV_DARKBLUE = MAIN.OPENBCI_BLUE;
+    private final int SUBNAV_LIGHTBLUE = MAIN.buttonsLightBlue;
+    private int strokeColor = MAIN.OPENBCI_DARKBLUE;
 
     private ControlP5 topNav_cp5;
 
@@ -66,30 +67,31 @@ public class TopNav extends GUIManager {
 
     private boolean topNavDropdownMenuIsOpen = false;
 
-    public TopNav(GUIManager pApplet) {
+    public TopNav(GUI MAIN) {
+        this.MAIN = MAIN;
         int controlPanel_W = 256;
 
         //Instantiate local cp5 for this box
-        topNav_cp5 = new ControlP5(pApplet);
-        topNav_cp5.setGraphics(pApplet, 0, 0);
+        topNav_cp5 = new ControlP5(MAIN);
+        topNav_cp5.setGraphics(MAIN, 0, 0);
         topNav_cp5.setAutoDraw(false);
 
         //TOP LEFT OF GUI
-        createControlPanelCollapser("System Control Panel", PAD_3, PAD_3, controlPanel_W, TOPNAV_BUT_H, h3, 16, TOPNAV_DARKBLUE, WHITE);
+        createControlPanelCollapser("System Control Panel", PAD_3, PAD_3, controlPanel_W, TOPNAV_BUT_H, h3, 16, TOPNAV_DARKBLUE, MAIN.WHITE);
 
         //TOP RIGHT OF GUI, FROM LEFT<---Right
-        createDebugButton(" ", width - DEBUG_BUT_W - PAD_3, PAD_3, DEBUG_BUT_W, TOPNAV_BUT_H, h3, 16, TOPNAV_DARKBLUE, WHITE);
-        createTutorialsButton("Help", (int)debugButton.getPosition()[0] - TOPRIGHT_BUT_W - PAD_3, PAD_3, TOPRIGHT_BUT_W, TOPNAV_BUT_H, h3, 16, TOPNAV_DARKBLUE, WHITE);
-        createIssuesButton("Issues", (int)tutorialsButton.getPosition()[0] - TOPRIGHT_BUT_W - PAD_3, PAD_3, TOPRIGHT_BUT_W, TOPNAV_BUT_H, h3, 16, TOPNAV_DARKBLUE, WHITE);
-        createShopButton("Shop", (int)issuesButton.getPosition()[0] - TOPRIGHT_BUT_W - PAD_3, PAD_3, TOPRIGHT_BUT_W, TOPNAV_BUT_H, h3, 16, TOPNAV_DARKBLUE, WHITE);
-        createUpdateGuiButton("Update", (int)shopButton.getPosition()[0] - TOPRIGHT_BUT_W - PAD_3, PAD_3, TOPRIGHT_BUT_W, TOPNAV_BUT_H, h3, 16, TOPNAV_DARKBLUE, WHITE);
+        createDebugButton(" ", MAIN.width - DEBUG_BUT_W - PAD_3, PAD_3, DEBUG_BUT_W, TOPNAV_BUT_H, h3, 16, TOPNAV_DARKBLUE, MAIN.WHITE);
+        createTutorialsButton("Help", (int)debugButton.getPosition()[0] - TOPRIGHT_BUT_W - PAD_3, PAD_3, TOPRIGHT_BUT_W, TOPNAV_BUT_H, h3, 16, TOPNAV_DARKBLUE, MAIN.WHITE);
+        createIssuesButton("Issues", (int)tutorialsButton.getPosition()[0] - TOPRIGHT_BUT_W - PAD_3, PAD_3, TOPRIGHT_BUT_W, TOPNAV_BUT_H, h3, 16, TOPNAV_DARKBLUE, MAIN.WHITE);
+        createShopButton("Shop", (int)issuesButton.getPosition()[0] - TOPRIGHT_BUT_W - PAD_3, PAD_3, TOPRIGHT_BUT_W, TOPNAV_BUT_H, h3, 16, TOPNAV_DARKBLUE, MAIN.WHITE);
+        createUpdateGuiButton("Update", (int)shopButton.getPosition()[0] - TOPRIGHT_BUT_W - PAD_3, PAD_3, TOPRIGHT_BUT_W, TOPNAV_BUT_H, h3, 16, TOPNAV_DARKBLUE, MAIN.WHITE);
 
         //SUBNAV TOP RIGHT
-        createTopNavSettingsButton("Settings", width - SUBNAV_BUT_W - PAD_3, SUBNAV_BUT_Y, SUBNAV_BUT_W, SUBNAV_BUT_H, h4, 14, SUBNAV_LIGHTBLUE, WHITE);
+        createTopNavSettingsButton("Settings", MAIN.width - SUBNAV_BUT_W - PAD_3, SUBNAV_BUT_Y, SUBNAV_BUT_W, SUBNAV_BUT_H, h4, 14, SUBNAV_LIGHTBLUE, MAIN.WHITE);
 
-        layoutSelector = new LayoutSelector(pApplet);
-        tutorialSelector = new TutorialSelector(pApplet);
-        configSelector = new ConfigSelector(pApplet);
+        layoutSelector = new LayoutSelector(MAIN);
+        tutorialSelector = new TutorialSelector(MAIN);
+        configSelector = new ConfigSelector(MAIN);
 
         //updateNavButtonsBasedOnColorScheme();
     }
@@ -100,18 +102,18 @@ public class TopNav extends GUIManager {
 
         if (!secondaryNavInit) {
             //Buttons on the left side of the GUI secondary nav bar
-            createToggleDataStreamButton(stopButton_pressToStart_txt, PAD_3, SUBNAV_BUT_Y, DATASTREAM_BUT_W, SUBNAV_BUT_H, h4, 14, TURN_ON_GREEN, OPENBCI_DARKBLUE);
-            createFiltersButton("Filters", PAD_3*2 + toggleDataStreamingButton.getWidth(), SUBNAV_BUT_Y, SUBNAV_BUT_W, SUBNAV_BUT_H, h4, 14, SUBNAV_LIGHTBLUE, WHITE);
+            createToggleDataStreamButton(stopButton_pressToStart_txt, PAD_3, SUBNAV_BUT_Y, DATASTREAM_BUT_W, SUBNAV_BUT_H, h4, 14, MAIN.TURN_ON_GREEN, MAIN.OPENBCI_DARKBLUE);
+            createFiltersButton("Filters", PAD_3*2 + toggleDataStreamingButton.getWidth(), SUBNAV_BUT_Y, SUBNAV_BUT_W, SUBNAV_BUT_H, h4, 14, SUBNAV_LIGHTBLUE, MAIN.WHITE);
 
             //Appears at Top Right SubNav while in a Session
-            createLayoutButton("Layout", width - 3 - 60, SUBNAV_BUT_Y, 60, SUBNAV_BUT_H, h4, 14, SUBNAV_LIGHTBLUE, WHITE);
+            createLayoutButton("Layout", MAIN.width - 3 - 60, SUBNAV_BUT_Y, 60, SUBNAV_BUT_H, h4, 14, SUBNAV_LIGHTBLUE, MAIN.WHITE);
             secondaryNavInit = true;
         }
 
         if (needToMakeSmoothingButton) {
             int pos_x = (int)filtersButton.getPosition()[0] + filtersButton.getWidth() + PAD_3;
             //Make smoothing button wider than most other topnav buttons to fit text comfortably
-            createSmoothingButton(getSmoothingString(), pos_x, SUBNAV_BUT_Y, SUBNAV_BUT_W + 48, SUBNAV_BUT_H, h4, 14, SUBNAV_LIGHTBLUE, WHITE);
+            createSmoothingButton(getSmoothingString(), pos_x, SUBNAV_BUT_Y, SUBNAV_BUT_W + 48, SUBNAV_BUT_H, h4, 14, SUBNAV_LIGHTBLUE, MAIN.WHITE);
         }
 
 
@@ -131,13 +133,13 @@ public class TopNav extends GUIManager {
             if (systemMode >= SYSTEMMODE_POSTINIT) {
                 layoutSelector.update();
                 tutorialSelector.update();
-                if ((int)(settingsButton.getPosition()[0]) != width - (SUBNAV_BUT_W*2) + 3) {
-                    settingsButton.setPosition(width - (SUBNAV_BUT_W*2) + 3, SUBNAV_BUT_Y);
+                if ((int)(settingsButton.getPosition()[0]) != MAIN.width - (SUBNAV_BUT_W*2) + 3) {
+                    settingsButton.setPosition(MAIN.width - (SUBNAV_BUT_W*2) + 3, SUBNAV_BUT_Y);
                     verbosePrint("TopNav: Updated Settings Button Position");
                 }
             } else {
-                if ((int)(settingsButton.getPosition()[0]) != width - 70 - 3) {
-                    settingsButton.setPosition(width - 70 - 3, SUBNAV_BUT_Y);
+                if ((int)(settingsButton.getPosition()[0]) != MAIN.width - 70 - 3) {
+                    settingsButton.setPosition(MAIN.width - 70 - 3, SUBNAV_BUT_Y);
                     verbosePrint("TopNav: Updated Settings Button Position");
                 }
             }
@@ -154,29 +156,29 @@ public class TopNav extends GUIManager {
         int topNavBg;
         int subNavBg;
         if (colorScheme == COLOR_SCHEME_ALTERNATIVE_A) {
-            topNavBg = OPENBCI_BLUE;
+            topNavBg = MAIN.OPENBCI_BLUE;
             subNavBg = SUBNAV_LIGHTBLUE;
             logo = logo_white;
         } else {
-            topNavBg = color(255);
-            subNavBg = color(229);
+            topNavBg = MAIN.color(255);
+            subNavBg = MAIN.color(229);
             logo = logo_black;
         }
 
-        pushStyle();
+        MAIN.pushStyle();
         //stroke(OPENBCI_DARKBLUE);
-        fill(topNavBg);
-        rect(0, 0, width, navBarHeight);
+        MAIN.fill(topNavBg);
+        MAIN.rect(0, 0, MAIN.width, navBarHeight);
         //noStroke();
-        stroke(strokeColor);
-        fill(subNavBg);
-        rect(-1, navBarHeight, width+2, navBarHeight);
-        popStyle();
+        MAIN.stroke(strokeColor);
+        MAIN.fill(subNavBg);
+        MAIN.rect(-1, navBarHeight, MAIN.width+2, navBarHeight);
+        MAIN.popStyle();
 
         //hide the center logo if buttons would overlap it
-        if (width > 860) {
+        if (MAIN.width > 860) {
             //this is the center logo
-            image(logo, width/2 - (128/2) - 2, 1, 128, 29);
+            MAIN.image(logo, MAIN.width/2 - (128/2) - 2, 1, 128, 29);
         }
 
         //Draw these buttons during a Session
@@ -201,26 +203,26 @@ public class TopNav extends GUIManager {
 
         //Draw Console Log Image on top of cp5 object
         PImage _logo = (colorScheme == COLOR_SCHEME_DEFAULT) ? consoleImgBlue : consoleImgWhite;
-        image(_logo, debugButton.getPosition()[0] + 6, debugButton.getPosition()[1] + 2, 22, 22);
+        MAIN.image(_logo, debugButton.getPosition()[0] + 6, debugButton.getPosition()[1] + 2, 22, 22);
 
 
     }
 
     public void screenHasBeenResized(int _x, int _y) {
-        topNav_cp5.setGraphics(pApplet, 0, 0); //Important!
-        debugButton.setPosition(width - debugButton.getWidth() - PAD_3, PAD_3);
+        topNav_cp5.setGraphics(MAIN, 0, 0); //Important!
+        debugButton.setPosition(MAIN.width - debugButton.getWidth() - PAD_3, PAD_3);
         tutorialsButton.setPosition((int)debugButton.getPosition()[0] - TOPRIGHT_BUT_W - PAD_3, PAD_3);
         issuesButton.setPosition(tutorialsButton.getPosition()[0] - tutorialsButton.getWidth() - PAD_3, PAD_3);
         shopButton.setPosition(issuesButton.getPosition()[0] - issuesButton.getWidth() - PAD_3, PAD_3);
         updateGuiVersionButton.setPosition(shopButton.getPosition()[0] - shopButton.getWidth() - PAD_3, PAD_3);
-        settingsButton.setPosition(width - settingsButton.getWidth() - PAD_3, SUBNAV_BUT_Y);
+        settingsButton.setPosition(MAIN.width - settingsButton.getWidth() - PAD_3, SUBNAV_BUT_Y);
 
         if (systemMode == SYSTEMMODE_POSTINIT) {
             toggleDataStreamingButton.setPosition(PAD_3, SUBNAV_BUT_Y);
             filtersButton.setPosition(PAD_3*2 + toggleDataStreamingButton.getWidth(), SUBNAV_BUT_Y);
 
-            layoutButton.setPosition(width - 3 - layoutButton.getWidth(), SUBNAV_BUT_Y);
-            settingsButton.setPosition(width - (settingsButton.getWidth()*2) + PAD_3, SUBNAV_BUT_Y);
+            layoutButton.setPosition(MAIN.width - 3 - layoutButton.getWidth(), SUBNAV_BUT_Y);
+            settingsButton.setPosition(MAIN.width - (settingsButton.getWidth()*2) + PAD_3, SUBNAV_BUT_Y);
             //Make sure to re-position UI in selector boxes
             layoutSelector.screenResized();
         }
@@ -249,25 +251,25 @@ public class TopNav extends GUIManager {
         boolean internetIsConnected = pingWebsite(guiLatestVersionGithubAPI);
 
         if (internetIsConnected) {
-            println("TopNav: Internet Connection Successful");
+            MAIN.println("TopNav: Internet Connection Successful");
             //Get the latest release version from Github
             String remoteVersionString = getGUIVersionFromInternet(guiLatestVersionGithubAPI);
             float remoteVersion = getVersionAsFloat(remoteVersionString);
 
-            println("Local Version: " + localGUIVersionString + ", Latest Version: " + remoteVersionString);
+            MAIN.println("Local Version: " + localGUIVersionString + ", Latest Version: " + remoteVersionString);
 
             if (localVersion < remoteVersion) {
-                println("GUI needs to be updated. Download at https://github.com/OpenBCI/OpenBCI_GUI/releases/latest");
+                MAIN.println("GUI needs to be updated. Download at https://github.com/OpenBCI/OpenBCI_GUI/releases/latest");
                 updateGuiVersionButton.setDescription("GUI needs to be updated. -- Local: " + localGUIVersionString +  " GitHub: " + remoteVersionString);
                 return false;
             } else {
-                println("GUI is up to date!");
+                MAIN.println("GUI is up to date!");
                 updateGuiVersionButton.setDescription("GUI is up to date! -- Local: " + localGUIVersionString +  " GitHub: " + remoteVersionString);
                 return true;
             }
         } else {
-            println("TopNav: Internet Connection Not Available");
-            println("Local GUI Version: " + localGUIVersionString);
+            MAIN.println("TopNav: Internet Connection Not Available");
+            MAIN.println("Local GUI Version: " + localGUIVersionString);
             updateGuiVersionButton.setDescription("Connect to internet to check GUI version. -- Local: " + localGUIVersionString);
             return null;
         }
@@ -278,7 +280,7 @@ public class TopNav extends GUIManager {
         try {
             GetRequest get = new GetRequest(_url);
             get.send(); // program will wait untill the request is completed
-            JSONObject response = parseJSONObject(get.getContent());
+            JSONObject response = MAIN.parseJSONObject(get.getContent());
             version = response.getString("name");
         } catch (Exception e) {
             outputError("Network Error: Unable to resolve host @ " + _url);
@@ -293,15 +295,15 @@ public class TopNav extends GUIManager {
 
         //Remove v
         if (s.charAt(0) == 'v') {
-            String[] tempArr = split(s, 'v');
+            String[] tempArr = MAIN.split(s, 'v');
             s = tempArr[1];
         }
 
         //Check for minor version
         if (s.length() > 5) {
-            String[] minorVersion = split(s, '-'); //separate the string at the dash between "5.0.0" and "alpha.2"
+            String[] minorVersion = MAIN.split(s, '-'); //separate the string at the dash between "5.0.0" and "alpha.2"
             s = minorVersion[0];
-            String[] mv = split(minorVersion[1], '.');
+            String[] mv = MAIN.split(minorVersion[1], '.');
             if (mv[0].equals("alpha")) {
                 val += .1;
             } else if (mv[0].equals("beta")) {
@@ -313,7 +315,7 @@ public class TopNav extends GUIManager {
         }
 
 
-        String[] strArray = split(s, '.');
+        String[] strArray = MAIN.split(s, '.');
 
 
         int[] webVersionCompareArray = new int[strArray.length];
@@ -340,7 +342,7 @@ public class TopNav extends GUIManager {
     }
 
     private Button createTNButton(String name, String text, int _x, int _y, int _w, int _h, PFont _font, int _fontSize, int _bg, int _textColor) {
-        return createButton(topNav_cp5, name, text, _x, _y, _w, _h, 0, _font, _fontSize, _bg, _textColor, BUTTON_HOVER, BUTTON_PRESSED, OPENBCI_DARKBLUE, -1);
+        return MAIN.createButton(topNav_cp5, name, text, _x, _y, _w, _h, 0, _font, _fontSize, _bg, _textColor, MAIN.BUTTON_HOVER, MAIN.BUTTON_PRESSED, MAIN.OPENBCI_DARKBLUE, -1);
     }
 
     private void createControlPanelCollapser(String text, int _x, int _y, int _w, int _h, PFont font, int _fontSize, int _bg, int _textColor) {
@@ -372,8 +374,8 @@ public class TopNav extends GUIManager {
         filtersButton = createTNButton("filtersButton", text, _x, _y, _w, _h, font, _fontSize, _bg, _textColor);
         filtersButton.onRelease(new CallbackListener() {
             public synchronized void controlEvent(CallbackEvent theEvent) {
-                if (!filterUIPopupIsOpen) {
-                    FilterUIPopup filtersUI = new FilterUIPopup();
+                if (!MAIN.filterUIPopupIsOpen) {
+                    FilterUIPopup filtersUI = new FilterUIPopup(MAIN);
                 }
             }
         });
@@ -382,14 +384,14 @@ public class TopNav extends GUIManager {
 
     private void createSmoothingButton(String text, int _x, int _y, int _w, int _h, PFont font, int _fontSize, final int _bg, int _textColor) {
         SmoothingCapableBoard smoothBoard = (SmoothingCapableBoard)currentBoard;
-        int bgColor = smoothBoard.getSmoothingActive() ? _bg : BUTTON_LOCKED_GREY;
+        int bgColor = smoothBoard.getSmoothingActive() ? _bg : MAIN.BUTTON_LOCKED_GREY;
         smoothingButton = createTNButton("smoothingButton", text, _x, _y, _w, _h, font, _fontSize, bgColor, _textColor);
         smoothingButton.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 SmoothingCapableBoard smoothBoard = (SmoothingCapableBoard)currentBoard;
                 smoothBoard.setSmoothingActive(!smoothBoard.getSmoothingActive());
                 smoothingButton.getCaptionLabel().setText(getSmoothingString());
-                int _bgColor = smoothBoard.getSmoothingActive() ? _bg : BUTTON_LOCKED_GREY;
+                int _bgColor = smoothBoard.getSmoothingActive() ? _bg : MAIN.BUTTON_LOCKED_GREY;
                 smoothingButton.setColorBackground(_bgColor);
             }
         });
@@ -507,8 +509,8 @@ public class TopNav extends GUIManager {
             Integer checkingImpOnChan = ((ImpedanceSettingsBoard)currentBoard).isCheckingImpedanceOnChannel();
             //println("isCheckingImpedanceOnAnythingEZCHECK==",w_cytonImpedance.isCheckingImpedanceOnAnything);
             if (checkingImpOnChan != null || w_cytonImpedance.cytonMasterImpedanceCheckIsActive() || w_cytonImpedance.isCheckingImpedanceOnAnything) {
-                PopupMessage msg = new PopupMessage("Busy Checking Impedance", "Please turn off impedance check to begin recording the data stream.");
-                println("OpenBCI_GUI::Cyton: Please turn off impedance check to begin recording the data stream.");
+                PopupMessage msg = new PopupMessage(MAIN, "Busy Checking Impedance", "Please turn off impedance check to begin recording the data stream.");
+                MAIN.println("OpenBCI_GUI::Cyton: Please turn off impedance check to begin recording the data stream.");
                 return;
             }
         }
@@ -519,15 +521,15 @@ public class TopNav extends GUIManager {
             stopRunning();
             if (!currentBoard.isStreaming()) {
                 toggleDataStreamingButton.getCaptionLabel().setText(stopButton_pressToStart_txt);
-                toggleDataStreamingButton.setColorBackground(TURN_ON_GREEN);
+                toggleDataStreamingButton.setColorBackground(MAIN.TURN_ON_GREEN);
             }
         } else { //not running
             output("openBCI_GUI: startButton was pressed. Starting data transfer, wait a few seconds.");
             startRunning();
             if (currentBoard.isStreaming()) {
                 toggleDataStreamingButton.getCaptionLabel().setText(stopButton_pressToStop_txt);
-                toggleDataStreamingButton.setColorBackground(TURN_OFF_RED);
-                nextPlayback_millis = millis();  //used for synthesizeData and readFromFile.  This restarts the clock that keeps the playback at the right pace.
+                toggleDataStreamingButton.setColorBackground(MAIN.TURN_OFF_RED);
+                nextPlayback_millis = MAIN.millis();  //used for synthesizeData and readFromFile.  This restarts the clock that keeps the playback at the right pace.
             }
         }
     }
@@ -539,7 +541,7 @@ public class TopNav extends GUIManager {
     public void resetStartStopButton() {
         if (toggleDataStreamingButton != null) {
             toggleDataStreamingButton.getCaptionLabel().setText(stopButton_pressToStart_txt);
-            toggleDataStreamingButton.setColorBackground(TURN_ON_GREEN);
+            toggleDataStreamingButton.setColorBackground(MAIN.TURN_ON_GREEN);
         }
     }
 

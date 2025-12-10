@@ -25,10 +25,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static GUI.GGVI.*;
-
+import Globel.GUI;
 ////////////////////////////////////////////////////////////////////////////////
 
 public class W_emg extends Widget {
+    GUI MAIN;
     PApplet parent;
 
     private ControlP5 emgCp5;
@@ -38,9 +39,10 @@ public class W_emg extends Widget {
 
     public ChannelSelect emgChannelSelect;
 
-    public W_emg(PApplet _parent) {
-        super(_parent); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
-        parent = _parent;
+    public W_emg(GUI MAIN) {
+        super(MAIN); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
+        this.MAIN = MAIN;
+        parent = MAIN;
 
         cp5ElementsToCheck = new ArrayList<Controller>();
 
@@ -107,7 +109,7 @@ public class W_emg extends Widget {
         float scaleFactor = 1.0F;
         float scaleFactorJaw = 1.5F;
         int rowCount = 4;
-        int columnCount = ceil(emgChannelSelect.activeChan.size() / (rowCount * 1f));
+        int columnCount = MAIN.ceil(emgChannelSelect.activeChan.size() / (rowCount * 1f));
         float rowOffset = rh / rowCount;
         float colOffset = rw / columnCount;
         float currentX, currentY;
@@ -135,18 +137,18 @@ public class W_emg extends Widget {
                 pApplet.translate(currentX, currentY);
 
                 //realtime
-                pApplet.fill(channelColors[colorIndex], 200);
+                pApplet.fill(MAIN.channelColors[colorIndex], 200);
                 pApplet.noStroke();
                 pApplet.circle(2*colOffset/8, rowOffset / 2, scaleFactor * emgSettingsValues.getAverageuV(channel));
 
                 //circle for outer threshold
                 pApplet.noFill();
                 pApplet.strokeWeight(1);
-                pApplet.stroke(OPENBCI_DARKBLUE, 150);
+                pApplet.stroke(MAIN.OPENBCI_DARKBLUE, 150);
                 pApplet.circle(2*colOffset/8, rowOffset / 2, scaleFactor * emgSettingsValues.getUpperThreshold(channel));
 
                 //circle for inner threshold
-                pApplet.stroke(OPENBCI_DARKBLUE, 150);
+                pApplet.stroke(MAIN.OPENBCI_DARKBLUE, 150);
                 pApplet.circle(2*colOffset/8, rowOffset / 2, scaleFactor * emgSettingsValues.getLowerThreshold(channel));
 
                 int _x = (int)(5*colOffset/8);
@@ -156,19 +158,19 @@ public class W_emg extends Widget {
 
                 //draw normalized bar graph of uV w/ matching channel color
                 pApplet.noStroke();
-                pApplet.fill(channelColors[colorIndex], 200);
+                pApplet.fill(MAIN.channelColors[colorIndex], 200);
                 pApplet.rect(_x, 3*_y + 1, _w, pApplet.map(emgSettingsValues.getOutputNormalized(channel), 0, 1, 0, (-1) * (int)((4*rowOffset/8))));
 
                 //draw background bar container for mapped uV value indication
                 pApplet.strokeWeight(1);
-                pApplet.stroke(OPENBCI_DARKBLUE, 150);
+                pApplet.stroke(MAIN.OPENBCI_DARKBLUE, 150);
                 pApplet.noFill();
                 pApplet.rect(_x, _y, _w, _h);
 
                 //draw channel number at upper left corner of row/column cell
                 pApplet.pushStyle();
-                pApplet.stroke(OPENBCI_DARKBLUE);
-                pApplet.fill(OPENBCI_DARKBLUE);
+                pApplet.stroke(MAIN.OPENBCI_DARKBLUE);
+                pApplet.fill(MAIN.OPENBCI_DARKBLUE);
                 pApplet.textFont(h4, 14);
                 pApplet.text((channel + 1), 10, 20);
                 pApplet.popStyle();
@@ -181,14 +183,14 @@ public class W_emg extends Widget {
     }
 
     private void createEmgSettingsButton() {
-        emgSettingsButton = createButton(emgCp5, "emgSettingsButton", "EMG Settings",
+        emgSettingsButton = MAIN.createButton(emgCp5, "emgSettingsButton", "EMG Settings",
                 (int) (x0 + w - EMG_SETTINGS_BUTTON_WIDTH - 1), (int) (y0 + navH + 1),
-                EMG_SETTINGS_BUTTON_WIDTH, navH - 3, p5, 12, colorNotPressed, OPENBCI_DARKBLUE);
-        emgSettingsButton.setBorderColor(OBJECT_BORDER_GREY);
+                EMG_SETTINGS_BUTTON_WIDTH, navH - 3, p5, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
+        emgSettingsButton.setBorderColor(MAIN.OBJECT_BORDER_GREY);
         emgSettingsButton.onRelease(new CallbackListener() {
             public synchronized void controlEvent(CallbackEvent theEvent) {
-                if (!emgSettingsPopupIsOpen) {
-                    EmgSettingsUI emgSettingsUI = new EmgSettingsUI();
+                if (!MAIN.emgSettingsPopupIsOpen) {
+                    EmgSettingsUI emgSettingsUI = new EmgSettingsUI(MAIN);
                 }
             }
         });

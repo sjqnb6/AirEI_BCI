@@ -24,11 +24,11 @@ import java.util.Map;
 
 import static Debugging_.GF.verbosePrint;
 import static GUI.GGVI.*;
-
+import Globel.GUI;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 public class W_EMGJoystick extends Widget {
-
+    GUI MAIN;
     private ControlP5 emgCp5;
     private Button emgSettingsButton;
     private List<Controller> cp5ElementsToCheck;
@@ -48,10 +48,10 @@ public class W_EMGJoystick extends Widget {
     private float polarWindowY;
     private int polarWindowDiameter;
     private int polarWindowHalfDiameter;
-    private int graphStroke = color(210);
-    private int graphBG = color(245);
-    private int textColor = OPENBCI_DARKBLUE;
-    private int strokeColor = color(138, 146, 153);
+    private int graphStroke = MAIN.color(210);
+    private int graphBG = MAIN.color(245);
+    private int textColor = MAIN.OPENBCI_DARKBLUE;
+    private int strokeColor = MAIN.color(138, 146, 153);
     private final int INDICATOR_DIAMETER = 15;
     private final int BAR_WIDTH = 10;
     private final int BAR_HEIGHT = 30;
@@ -84,16 +84,16 @@ public class W_EMGJoystick extends Widget {
     private TextBox yPositiveInputDropdownLabel;
     private TextBox yNegativeInputDropdownLabel;
 
-    private PImage xNegativeInputLabelImage = loadImage("LEFT_100x100.png");
-    private PImage xPositiveInputLabelImage = loadImage("RIGHT_100x100.png");
-    private PImage yPositiveInputLabelImage = loadImage("UP_100x100.png");
-    private PImage yNegativeInputLabelImage = loadImage("DOWN_100x100.png");
+    private PImage xNegativeInputLabelImage = MAIN.loadImage("LEFT_100x100.png");
+    private PImage xPositiveInputLabelImage = MAIN.loadImage("RIGHT_100x100.png");
+    private PImage yPositiveInputLabelImage = MAIN.loadImage("UP_100x100.png");
+    private PImage yNegativeInputLabelImage = MAIN.loadImage("DOWN_100x100.png");
 
-    public W_EMGJoystick(PApplet _parent){
-        super(_parent); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
-
-        emgCp5 = new ControlP5(_parent);
-        emgCp5.setGraphics(_parent, 0,0);
+    public W_EMGJoystick(GUI MAIN){
+        super(MAIN); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
+        this.MAIN = MAIN;
+        emgCp5 = new ControlP5(MAIN);
+        emgCp5.setGraphics(MAIN, 0,0);
         emgCp5.setAutoDraw(false);
 
         createEmgSettingsButton();
@@ -175,7 +175,7 @@ public class W_EMGJoystick extends Widget {
     }
 
     private void drawJoystickXYGraph() {
-        pushStyle();
+        MAIN.pushStyle();
 
         /*
         //X and Y axis labels
@@ -187,20 +187,20 @@ public class W_EMGJoystick extends Widget {
         */
 
         //Background for graph
-        fill(graphBG);
-        stroke(graphStroke);
-        circle(polarWindowX, polarWindowY, polarWindowDiameter);
+        MAIN.fill(graphBG);
+        MAIN.stroke(graphStroke);
+        MAIN.circle(polarWindowX, polarWindowY, polarWindowDiameter);
 
         //X and Y axis lines
-        stroke(180);
-        line(polarWindowX - polarWindowHalfDiameter, polarWindowY, polarWindowX + polarWindowHalfDiameter, polarWindowY);
-        line(polarWindowX, polarWindowY - polarWindowHalfDiameter, polarWindowX, polarWindowY + polarWindowHalfDiameter);
+        MAIN.stroke(180);
+        MAIN.line(polarWindowX - polarWindowHalfDiameter, polarWindowY, polarWindowX + polarWindowHalfDiameter, polarWindowY);
+        MAIN.line(polarWindowX, polarWindowY - polarWindowHalfDiameter, polarWindowX, polarWindowY + polarWindowHalfDiameter);
 
         //Keep the indicator circle inside the graph by accounting for the size of the indicator
         float min = -polarWindowHalfDiameter + (INDICATOR_DIAMETER * 2);
         float max = polarWindowHalfDiameter - (INDICATOR_DIAMETER  * 2);
-        float xMapped = polarWindowX + map(joystickRawX, -1, 1, min, max);
-        float yMapped = polarWindowY + map(joystickRawY, 1, -1, min, max); //Inverse drawn position of Y axis
+        float xMapped = polarWindowX + MAIN.map(joystickRawX, -1, 1, min, max);
+        float yMapped = polarWindowY + MAIN.map(joystickRawY, 1, -1, min, max); //Inverse drawn position of Y axis
 
         //Draw middle of graph for reference
         /*
@@ -210,14 +210,14 @@ public class W_EMGJoystick extends Widget {
         */
 
         //Draw indicator
-        noFill();
-        stroke(color(31,69,110));
-        strokeWeight(2);
-        circle(xMapped, yMapped, INDICATOR_DIAMETER);
-        line(xMapped-10, yMapped, xMapped+10, yMapped);
-        line(xMapped, yMapped-10, xMapped, yMapped+10);
+        MAIN.noFill();
+        MAIN.stroke(MAIN.color(31,69,110));
+        MAIN.strokeWeight(2);
+        MAIN.circle(xMapped, yMapped, INDICATOR_DIAMETER);
+        MAIN.line(xMapped-10, yMapped, xMapped+10, yMapped);
+        MAIN.line(xMapped, yMapped-10, xMapped, yMapped+10);
 
-        popStyle();
+        MAIN.popStyle();
     }
 
     //This is the core method that updates the joystick input
@@ -248,8 +248,8 @@ public class W_EMGJoystick extends Widget {
         joystickRawY = unitCircleXY[1];
         //Lerp the joystick values to smooth them out
         float amount = 1.0f - joystickSmoothing.getValue();
-        joystickRawX = lerp(previousJoystickRawX, joystickRawX, amount);
-        joystickRawY = lerp(previousJoystickRawY, joystickRawY, amount);
+        joystickRawX = MAIN.lerp(previousJoystickRawX, joystickRawX, amount);
+        joystickRawY = MAIN.lerp(previousJoystickRawY, joystickRawY, amount);
     }
 
     public float[] getJoystickXY() {
@@ -261,8 +261,8 @@ public class W_EMGJoystick extends Widget {
     }
 
     public float[] mapToUnitCircle(float _x, float _y) {
-        _x = _x * sqrt(1 - (_y * _y) / 2);
-        _y = _y * sqrt(1 - (_x * _x) / 2);
+        _x = _x * MAIN.sqrt(1 - (_y * _y) / 2);
+        _y = _y * MAIN.sqrt(1 - (_x * _x) / 2);
         return new float[] {_x, _y};
     }
 
@@ -278,54 +278,54 @@ public class W_EMGJoystick extends Widget {
         int circleY = (int)currentY;
 
 
-        pushStyle();
+        MAIN.pushStyle();
 
         //Realtime
-        fill(channelColors[colorIndex], 200);
-        noStroke();
-        circle(circleX, circleY, scaleFactor * emgSettingsValues.averageuV[channel]);
+        MAIN.fill(MAIN.channelColors[colorIndex], 200);
+        MAIN.noStroke();
+        MAIN.circle(circleX, circleY, scaleFactor * emgSettingsValues.averageuV[channel]);
 
         //Circle for outer threshold
-        noFill();
-        strokeWeight(1);
-        stroke(OPENBCI_DARKBLUE);
-        circle(circleX, circleY, scaleFactor * emgSettingsValues.upperThreshold[channel]);
+        MAIN.noFill();
+        MAIN.strokeWeight(1);
+        MAIN.stroke(MAIN.OPENBCI_DARKBLUE);
+        MAIN.circle(circleX, circleY, scaleFactor * emgSettingsValues.upperThreshold[channel]);
 
         //Circle for inner threshold
-        stroke(OPENBCI_DARKBLUE);
-        circle(circleX, circleY, scaleFactor * emgSettingsValues.lowerThreshold[channel]);
+        MAIN.stroke(MAIN.OPENBCI_DARKBLUE);
+        MAIN.circle(circleX, circleY, scaleFactor * emgSettingsValues.lowerThreshold[channel]);
 
         //Map value for height of bar graph
-        float normalizedBAR_HEIGHTeight = map(emgSettingsValues.outputNormalized[channel], 0, 1, 0, BAR_HEIGHT * -1);
+        float normalizedBAR_HEIGHTeight = MAIN.map(emgSettingsValues.outputNormalized[channel], 0, 1, 0, BAR_HEIGHT * -1);
 
         //Draw normalized bar graph of uV w/ matching channel color
-        noStroke();
-        fill(channelColors[colorIndex], 200);
-        rect(barX, barY, BAR_WIDTH, normalizedBAR_HEIGHTeight);
+        MAIN.noStroke();
+        MAIN.fill(MAIN.channelColors[colorIndex], 200);
+        MAIN.rect(barX, barY, BAR_WIDTH, normalizedBAR_HEIGHTeight);
 
         //Draw background bar container for mapped uV value indication
-        strokeWeight(1);
-        stroke(OPENBCI_DARKBLUE);
-        noFill();
-        rect(barX, barY, BAR_WIDTH, BAR_HEIGHT * -1);
+        MAIN.strokeWeight(1);
+        MAIN.stroke(MAIN.OPENBCI_DARKBLUE);
+        MAIN.noFill();
+        MAIN.rect(barX, barY, BAR_WIDTH, BAR_HEIGHT * -1);
 
-        popStyle();
+        MAIN.popStyle();
     }
 
     private void drawChannelLabels() {
-        pushStyle();
+        MAIN.pushStyle();
 
-        fill(OPENBCI_DARKBLUE);
-        textFont(p4, 14);
-        textLeading(14);
-        textAlign(CENTER,CENTER);
+        MAIN.fill(MAIN.OPENBCI_DARKBLUE);
+        MAIN.textFont(p4, 14);
+        MAIN.textLeading(14);
+        MAIN.textAlign(MAIN.CENTER,MAIN.CENTER);
 
-        text(plotChannelLabels[0], leftPolarX, leftPolarY - BAR_CIRCLE_SPACER * 2);
-        text(plotChannelLabels[1], rightPolarX, rightPolarY - BAR_CIRCLE_SPACER *2);
-        text(plotChannelLabels[2], topPolarX + BAR_CIRCLE_SPACER * 4, topPolarY);
-        text(plotChannelLabels[3], bottomPolarX + BAR_CIRCLE_SPACER * 4, bottomPolarY);
+        MAIN.text(plotChannelLabels[0], leftPolarX, leftPolarY - BAR_CIRCLE_SPACER * 2);
+        MAIN.text(plotChannelLabels[1], rightPolarX, rightPolarY - BAR_CIRCLE_SPACER *2);
+        MAIN.text(plotChannelLabels[2], topPolarX + BAR_CIRCLE_SPACER * 4, topPolarY);
+        MAIN.text(plotChannelLabels[3], bottomPolarX + BAR_CIRCLE_SPACER * 4, bottomPolarY);
 
-        popStyle();
+        MAIN.popStyle();
     }
 
     public void setJoystickSmoothing(int n) {
@@ -333,13 +333,13 @@ public class W_EMGJoystick extends Widget {
     }
 
     private void createEmgSettingsButton() {
-        emgSettingsButton = createButton(emgCp5, "emgSettingsButton", "EMG Settings", (int) (x0 + 1),
-                (int) (y0 + navH + 1), 125, navH - 3, p5, 12, colorNotPressed, OPENBCI_DARKBLUE);
-        emgSettingsButton.setBorderColor(OBJECT_BORDER_GREY);
+        emgSettingsButton = MAIN.createButton(emgCp5, "emgSettingsButton", "EMG Settings", (int) (x0 + 1),
+                (int) (y0 + navH + 1), 125, navH - 3, p5, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
+        emgSettingsButton.setBorderColor(MAIN.OBJECT_BORDER_GREY);
         emgSettingsButton.onRelease(new CallbackListener() {
             public synchronized void controlEvent(CallbackEvent theEvent) {
-                if (!emgSettingsPopupIsOpen) {
-                    EmgSettingsUI emgSettingsUI = new EmgSettingsUI();
+                if (!MAIN.emgSettingsPopupIsOpen) {
+                    EmgSettingsUI emgSettingsUI = new EmgSettingsUI(MAIN);
                 }
             }
         });
@@ -349,12 +349,12 @@ public class W_EMGJoystick extends Widget {
     private ScrollableList createEmgJoystickInputDropdown(String name, EmgJoystickInput joystickInput, int inputNumber) {
         ScrollableList list = emgCp5.addScrollableList(name)
                 .setOpen(false)
-                .setColorBackground(WHITE) // text field bg color
-                .setColorValueLabel(OPENBCI_DARKBLUE)       // text color
-                .setColorCaptionLabel(OPENBCI_DARKBLUE)
-                .setColorForeground(color(125))    // border color when not selected
-                .setColorActive(BUTTON_PRESSED)       // border color when selected
-                .setOutlineColor(OBJECT_BORDER_GREY)
+                .setColorBackground(MAIN.WHITE) // text field bg color
+                .setColorValueLabel(MAIN.OPENBCI_DARKBLUE)       // text color
+                .setColorCaptionLabel(MAIN.OPENBCI_DARKBLUE)
+                .setColorForeground(MAIN.color(125))    // border color when not selected
+                .setColorActive(MAIN.BUTTON_PRESSED)       // border color when selected
+                .setOutlineColor(MAIN.OBJECT_BORDER_GREY)
                 .setSize(DROPDOWN_WIDTH, DROPDOWN_HEIGHT * 6)//temporary size
                 .setBarHeight(DROPDOWN_HEIGHT) //height of top/primary bar
                 .setItemHeight(DROPDOWN_HEIGHT) //height of all item/dropdown bars
@@ -419,11 +419,11 @@ public class W_EMGJoystick extends Widget {
         cp5ElementsToCheck.add(yPositiveInputDropdown);
         cp5ElementsToCheck.add(yNegativeInputDropdown);
         //Create labels for the dropdowns
-        int labelBG = color(255,255,255,0);
-        xNegativeInputDropdownLabel = new TextBox(pApplet, "X-", x, y, OPENBCI_DARKBLUE, WHITE, 12, h3, LEFT, TOP);
-        xPositiveInputDropdownLabel = new TextBox(pApplet,"X+", x, y, OPENBCI_DARKBLUE, WHITE, 12, h3, LEFT, TOP);
-        yPositiveInputDropdownLabel = new TextBox(pApplet,"Y+", x, y, OPENBCI_DARKBLUE, WHITE, 12, h3, LEFT, TOP);
-        yNegativeInputDropdownLabel = new TextBox(pApplet,"Y-", x, y, OPENBCI_DARKBLUE, WHITE, 12, h3, LEFT, TOP);
+        int labelBG = MAIN.color(255,255,255,0);
+        xNegativeInputDropdownLabel = new TextBox(MAIN, "X-", x, y, MAIN.OPENBCI_DARKBLUE, MAIN.WHITE, 12, h3, MAIN.LEFT, MAIN.TOP);
+        xPositiveInputDropdownLabel = new TextBox(MAIN,"X+", x, y, MAIN.OPENBCI_DARKBLUE, MAIN.WHITE, 12, h3, MAIN.LEFT, MAIN.TOP);
+        yPositiveInputDropdownLabel = new TextBox(MAIN,"Y+", x, y, MAIN.OPENBCI_DARKBLUE, MAIN.WHITE, 12, h3, MAIN.LEFT, MAIN.TOP);
+        yNegativeInputDropdownLabel = new TextBox(MAIN,"Y-", x, y, MAIN.OPENBCI_DARKBLUE, MAIN.WHITE, 12, h3, MAIN.LEFT, MAIN.TOP);
     }
 
     private void updateInputDropdownPositions(){
@@ -444,12 +444,12 @@ public class W_EMGJoystick extends Widget {
         yPositiveInputDropdownLabel.draw();
         yNegativeInputDropdownLabel.draw();
 
-        pushStyle();
+        MAIN.pushStyle();
         final int X_OFFSET = DROPDOWN_WIDTH + DROPDOWN_SPACER;
-        image(xNegativeInputLabelImage, xNegativeInputDropdown.getPosition()[0] + X_OFFSET, xNegativeInputDropdown.getPosition()[1] + 2, DROPDOWN_HEIGHT, DROPDOWN_HEIGHT);
-        image(xPositiveInputLabelImage, xPositiveInputDropdown.getPosition()[0] + X_OFFSET, xPositiveInputDropdown.getPosition()[1] + 2, DROPDOWN_HEIGHT, DROPDOWN_HEIGHT);
-        image(yPositiveInputLabelImage, yPositiveInputDropdown.getPosition()[0] + X_OFFSET, yPositiveInputDropdown.getPosition()[1] + 2, DROPDOWN_HEIGHT, DROPDOWN_HEIGHT);
-        image(yNegativeInputLabelImage, yNegativeInputDropdown.getPosition()[0] + X_OFFSET, yNegativeInputDropdown.getPosition()[1] + 2, DROPDOWN_HEIGHT, DROPDOWN_HEIGHT);
+        MAIN.image(xNegativeInputLabelImage, xNegativeInputDropdown.getPosition()[0] + X_OFFSET, xNegativeInputDropdown.getPosition()[1] + 2, DROPDOWN_HEIGHT, DROPDOWN_HEIGHT);
+        MAIN.image(xPositiveInputLabelImage, xPositiveInputDropdown.getPosition()[0] + X_OFFSET, xPositiveInputDropdown.getPosition()[1] + 2, DROPDOWN_HEIGHT, DROPDOWN_HEIGHT);
+        MAIN.image(yPositiveInputLabelImage, yPositiveInputDropdown.getPosition()[0] + X_OFFSET, yPositiveInputDropdown.getPosition()[1] + 2, DROPDOWN_HEIGHT, DROPDOWN_HEIGHT);
+        MAIN.image(yNegativeInputLabelImage, yNegativeInputDropdown.getPosition()[0] + X_OFFSET, yNegativeInputDropdown.getPosition()[1] + 2, DROPDOWN_HEIGHT, DROPDOWN_HEIGHT);
     }
 
     public void updateJoystickInput(int inputNumber, Integer value) {

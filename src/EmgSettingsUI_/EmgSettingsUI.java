@@ -3,6 +3,7 @@ package EmgSettingsUI_;
 import EmgSettingsEnums_.*;
 import EmgSettingsValues_.EmgSettingsValues;
 import GUI.GUIManager;
+import Globel.GUI;
 import controlP5.*;
 import controlP5.Button;
 import processing.awt.PSurfaceAWT;
@@ -18,10 +19,10 @@ import static Debugging_.GF.verbosePrint;
 import static GUI.GGVI.*;
 
 
-public class EmgSettingsUI extends GUIManager implements Runnable {
+public class EmgSettingsUI extends PApplet implements Runnable {
 
 
-
+    private GUI MAIN;
     PApplet ourApplet;
     private final String HEADER_MESSAGE = "EMG Settings";
 
@@ -46,9 +47,9 @@ public class EmgSettingsUI extends GUIManager implements Runnable {
     private int footerObjY;
     private int[] footerObjX = new int[NUM_FOOTER_OBJECTS];
 
-    private final int HEADER_COLOR = OPENBCI_BLUE;
-    private final int BACKGROUND_COLOR = GREY_235;
-    private final int LABEL_COLOR = WHITE;
+    private final int HEADER_COLOR = MAIN.OPENBCI_BLUE;
+    private final int BACKGROUND_COLOR = MAIN.GREY_235;
+    private final int LABEL_COLOR = MAIN.WHITE;
 
     private final int defaultWidth = 600;
     private final int defaultHeight = 600;
@@ -83,9 +84,10 @@ public class EmgSettingsUI extends GUIManager implements Runnable {
         PApplet.runSketch(new String[] {HEADER_MESSAGE}, this);
     }
 
-    public EmgSettingsUI() {
+    public EmgSettingsUI(GUI MAIN) {
         super();
-        emgSettingsPopupIsOpen = true;
+        this.MAIN = MAIN;
+        MAIN.emgSettingsPopupIsOpen = true;
 
         Thread t = new Thread(this);
         t.start();
@@ -171,7 +173,7 @@ public class EmgSettingsUI extends GUIManager implements Runnable {
     @Override
     public void exit() {
         dispose();
-        emgSettingsPopupIsOpen = false;
+        MAIN.emgSettingsPopupIsOpen = false;
     }
 
     private void checkIfSessionWasClosed() {
@@ -201,7 +203,7 @@ public class EmgSettingsUI extends GUIManager implements Runnable {
 
         pushStyle();
 
-        fill(OPENBCI_DARKBLUE);
+        fill(MAIN.OPENBCI_DARKBLUE);
         textFont(p5, 12);
         textLeading(12);
         textAlign(CENTER, CENTER);
@@ -267,7 +269,7 @@ public class EmgSettingsUI extends GUIManager implements Runnable {
 
         //Create column labels
         int labelBG = color(255,255,255,0);
-        int labelTxt = WHITE;
+        int labelTxt = MAIN.WHITE;
         int colWidth = (w / NUM_COLUMNS);
         int colOffset = colWidth / 2;
         int labelY = y + HEADER_HEIGHT / 2;
@@ -315,11 +317,11 @@ public class EmgSettingsUI extends GUIManager implements Runnable {
         ScrollableList list = emgCp5.addScrollableList(name)
                 .setOpen(false)
                 .setColorBackground(_backgroundColor) // text field bg color
-                .setColorValueLabel(OPENBCI_DARKBLUE)       // text color
-                .setColorCaptionLabel(OPENBCI_DARKBLUE)
+                .setColorValueLabel(MAIN.OPENBCI_DARKBLUE)       // text color
+                .setColorCaptionLabel(MAIN.OPENBCI_DARKBLUE)
                 .setColorForeground(color(125))    // border color when not selected
-                .setColorActive(BUTTON_PRESSED)       // border color when selected
-                .setOutlineColor(OBJECT_BORDER_GREY)
+                .setColorActive(MAIN.BUTTON_PRESSED)       // border color when selected
+                .setOutlineColor(MAIN.OBJECT_BORDER_GREY)
                 .setSize(dropdownWidth, DROPDOWN_HEIGHT)//temporary size
                 .setBarHeight(DROPDOWN_HEIGHT) //height of top/primary bar
                 .setItemHeight(DROPDOWN_HEIGHT) //height of all item/dropdown bars
@@ -384,28 +386,28 @@ public class EmgSettingsUI extends GUIManager implements Runnable {
     }
 
     private void createEmgSettingsSaveButton(String name, String text, int _x, int _y, int _w, int _h) {
-        saveButton = createButton(emgCp5, name, text, _x, _y, _w, _h, h5, 12, colorNotPressed, OPENBCI_DARKBLUE);
-        saveButton.setBorderColor(OBJECT_BORDER_GREY);
+        saveButton = MAIN.createButton(emgCp5, name, text, _x, _y, _w, _h, h5, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
+        saveButton.setBorderColor(MAIN.OBJECT_BORDER_GREY);
         saveButton.onClick(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
-                dataProcessing.emgSettings.storeSettings(pApplet);
+                dataProcessing.emgSettings.storeSettings();
             }
         });
     }
 
     private void createEmgSettingsLoadButton(String name, String text, int _x, int _y, int _w, int _h) {
-        loadButton = createButton(emgCp5, name, text, _x, _y, _w, _h, h5, 12, colorNotPressed, OPENBCI_DARKBLUE);
-        loadButton.setBorderColor(OBJECT_BORDER_GREY);
+        loadButton = MAIN.createButton(emgCp5, name, text, _x, _y, _w, _h, h5, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
+        loadButton.setBorderColor(MAIN.OBJECT_BORDER_GREY);
         loadButton.onClick(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
-                dataProcessing.emgSettings.loadSettings(pApplet);
+                dataProcessing.emgSettings.loadSettings();
             }
         });
     }
 
     private void createEmgSettingsDefaultButton(String name, String text, int _x, int _y, int _w, int _h) {
-        defaultButton = createButton(emgCp5, name, text, _x, _y, _w, _h, h5, 12, colorNotPressed, OPENBCI_DARKBLUE);
-        defaultButton.setBorderColor(OBJECT_BORDER_GREY);
+        defaultButton = MAIN.createButton(emgCp5, name, text, _x, _y, _w, _h, h5, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
+        defaultButton.setBorderColor(MAIN.OBJECT_BORDER_GREY);
         defaultButton.onClick(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 dataProcessing.emgSettings.revertAllChannelsToDefaultValues();
@@ -449,7 +451,7 @@ public class EmgSettingsUI extends GUIManager implements Runnable {
 
         TextBox(String s, int x1, int y1) {
             string = s; x = x1; y = y1;
-            textColor = OPENBCI_DARKBLUE;
+            textColor = MAIN.OPENBCI_DARKBLUE;
             backgroundColor = color(255);
             fontSize = 12;
             font = p5;

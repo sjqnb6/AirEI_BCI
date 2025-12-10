@@ -15,8 +15,9 @@ import processing.core.PApplet;
 import java.util.Map;
 
 import static GUI.GGVI.*;
-
+import Globel.GUI;
 public class W_PacketLoss extends Widget {
+    GUI MAIN;
     private Grid dataGrid;
     private PacketLossTracker packetLossTracker;
 
@@ -32,10 +33,10 @@ public class W_PacketLoss extends Widget {
 
     private CalculationWindowSize tableWindowSize = CalculationWindowSize.SECONDS10;
 
-    public W_PacketLoss(PApplet _parent){
-        super(_parent); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
+    public W_PacketLoss(GUI MAIN){
+        super(MAIN); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
 
-        dataGrid = new Grid(5/*numRows*/, 4/*numCols*/, cellHeight);
+        dataGrid = new Grid(MAIN, 5/*numRows*/, 4/*numCols*/, cellHeight);
         packetLossTracker = ((Board)currentBoard).getPacketLossTracker();
         sessionPacketRecord = packetLossTracker.getSessionPacketRecord();
         streamPacketRecord = packetLossTracker.getStreamPacketRecord();
@@ -59,7 +60,7 @@ public class W_PacketLoss extends Widget {
                 .setDrawOutline(false)
                 .setOpen(false)
                 .setColor(settings.dropdownColors)
-                .setOutlineColor(OBJECT_BORDER_GREY)
+                .setOutlineColor(MAIN.OBJECT_BORDER_GREY)
                 .setBarHeight(cellHeight) //height of top/primary bar
                 .setItemHeight(cellHeight) //height of all item/dropdown bars
         ;
@@ -101,20 +102,20 @@ public class W_PacketLoss extends Widget {
 
         lastMillisPacketRecord = packetLossTracker.getCumulativePacketRecordForLast(tableWindowSize.getMilliseconds());
 
-        dataGrid.setString(nfc(sessionPacketRecord.numLost), 1, 1);
-        dataGrid.setString(nfc(sessionPacketRecord.numReceived), 2, 1);
-        dataGrid.setString(nfc(sessionPacketRecord.getNumExpected()), 3, 1);
-        dataGrid.setString(nf(sessionPacketRecord.getLostPercent(), 0, 4 /*decimals*/) + " %", 4, 1);
+        dataGrid.setString(MAIN.nfc(sessionPacketRecord.numLost), 1, 1);
+        dataGrid.setString(MAIN.nfc(sessionPacketRecord.numReceived), 2, 1);
+        dataGrid.setString(MAIN.nfc(sessionPacketRecord.getNumExpected()), 3, 1);
+        dataGrid.setString(MAIN.nf(sessionPacketRecord.getLostPercent(), 0, 4 /*decimals*/) + " %", 4, 1);
 
-        dataGrid.setString(nfc(streamPacketRecord.numLost), 1, 2);
-        dataGrid.setString(nfc(streamPacketRecord.numReceived), 2, 2);
-        dataGrid.setString(nfc(streamPacketRecord.getNumExpected()), 3, 2);
-        dataGrid.setString(nf(streamPacketRecord.getLostPercent(), 0, 4 /*decimals*/) + " %", 4, 2);
+        dataGrid.setString(MAIN.nfc(streamPacketRecord.numLost), 1, 2);
+        dataGrid.setString(MAIN.nfc(streamPacketRecord.numReceived), 2, 2);
+        dataGrid.setString(MAIN.nfc(streamPacketRecord.getNumExpected()), 3, 2);
+        dataGrid.setString(MAIN.nf(streamPacketRecord.getLostPercent(), 0, 4 /*decimals*/) + " %", 4, 2);
 
-        dataGrid.setString(nfc(lastMillisPacketRecord.numLost), 1, 3);
-        dataGrid.setString(nfc(lastMillisPacketRecord.numReceived), 2, 3);
-        dataGrid.setString(nfc(lastMillisPacketRecord.getNumExpected()), 3, 3);
-        dataGrid.setString(nf(lastMillisPacketRecord.getLostPercent(), 0, 4 /*decimals*/) + " %", 4, 3);
+        dataGrid.setString(MAIN.nfc(lastMillisPacketRecord.numLost), 1, 3);
+        dataGrid.setString(MAIN.nfc(lastMillisPacketRecord.numReceived), 2, 3);
+        dataGrid.setString(MAIN.nfc(lastMillisPacketRecord.getNumExpected()), 3, 3);
+        dataGrid.setString(MAIN.nf(lastMillisPacketRecord.getLostPercent(), 0, 4 /*decimals*/) + " %", 4, 3);
 
         // place dropdown on table
         RectDimensions cellDim = dataGrid.getCellDims(0, 3);
@@ -127,12 +128,12 @@ public class W_PacketLoss extends Widget {
     public void draw(){
         super.draw(); //calls the parent draw() method of Widget (DON'T REMOVE)
 
-        pushStyle();
-        fill(OPENBCI_DARKBLUE);
-        textFont(p5, 12);
-        text("Session length: " + sessionTimeElapsed.toString(), x + padding, y + 15);
-        text("Stream length: " + streamTimeElapsed.toString(), x + padding, y + 35);
-        popStyle();
+        MAIN.pushStyle();
+        MAIN.fill(MAIN.OPENBCI_DARKBLUE);
+        MAIN.textFont(p5, 12);
+        MAIN.text("Session length: " + sessionTimeElapsed.toString(), x + padding, y + 15);
+        MAIN.text("Stream length: " + streamTimeElapsed.toString(), x + padding, y + 35);
+        MAIN.popStyle();
 
         dataGrid.draw();
     }

@@ -27,11 +27,11 @@ import static Debugging_.GF.outputSuccess;
 import static Extras_.GF.dropNonPrintableChars;
 import static Extras_.GF.getIpAddrFromStr;
 import static GUI.GGVI.*;
-
+import Globel.GUI;
 //////////////////////////////////////////////////////
 
 public class W_Marker extends Widget {
-
+    GUI MAIN;
     private ControlP5 localCP5;
     private List<Controller> cp5ElementsToCheckForOverlap;
 
@@ -62,12 +62,12 @@ public class W_Marker extends Widget {
     private MarkerVertScale markerVertScale = MarkerVertScale.EIGHT;
     private MarkerWindow markerWindow = MarkerWindow.FIVE;
 
-    public W_Marker(PApplet _parent){
-        super(_parent); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
+    public W_Marker(GUI MAIN){
+        super(MAIN); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
 
         //Instantiate local cp5 for this box. This allows extra control of drawing cp5 elements specifically inside this class.
-        localCP5 = new ControlP5(_parent);
-        localCP5.setGraphics(_parent, 0,0);
+        localCP5 = new ControlP5(MAIN);
+        localCP5.setGraphics(MAIN, 0,0);
         localCP5.setAutoDraw(false);
 
         createMarkerButtons();
@@ -75,9 +75,9 @@ public class W_Marker extends Widget {
         updateGraphDims();
         addDropdown("markerVertScaleDropdown", "Vert Scale", markerVertScale.getEnumStringsAsList(), markerVertScale.getIndex());
         addDropdown("markerWindowDropdown", "Window", markerWindow.getEnumStringsAsList(), markerWindow.getIndex());
-        markerBar = new MarkerBar(_parent, MAX_NUMBER_OF_MARKER_BUTTONS, markerWindow.getValue(), markerVertScale.getValue(), graphX, graphY, graphW, graphH);
+        markerBar = new MarkerBar(MAIN, MAX_NUMBER_OF_MARKER_BUTTONS, markerWindow.getValue(), markerVertScale.getValue(), graphX, graphY, graphW, graphH);
 
-        markerUIGrid = new Grid(MARKER_UI_GRID_ROWS, MARKER_UI_GRID_COLUMNS, MARKER_UI_GRID_CELL_HEIGHT);
+        markerUIGrid = new Grid(MAIN, MARKER_UI_GRID_ROWS, MARKER_UI_GRID_COLUMNS, MARKER_UI_GRID_CELL_HEIGHT);
         markerUIGrid.setDrawTableBorder(false);
         markerUIGrid.setDrawTableInnerLines(false);
         markerUIGrid.setTableFontAndSize(p4, 14);
@@ -181,8 +181,8 @@ public class W_Marker extends Widget {
     }
 
     private Button createMarkerButton(final int markerNumber, int _x, int _y) {
-        Button newButton = createButton(localCP5, "markerButton" + markerNumber, "Insert " + markerNumber, _x, _y, MARKER_BUTTON_WIDTH, MARKER_BUTTON_HEIGHT, p5, 12, colorNotPressed, OPENBCI_DARKBLUE);
-        newButton.setBorderColor(OBJECT_BORDER_GREY);
+        Button newButton = MAIN.createButton(localCP5, "markerButton" + markerNumber, "Insert " + markerNumber, _x, _y, MARKER_BUTTON_WIDTH, MARKER_BUTTON_HEIGHT, p5, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
+        newButton.setBorderColor(MAIN.OBJECT_BORDER_GREY);
         newButton.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 insertMarker(markerNumber);
@@ -237,12 +237,12 @@ public class W_Marker extends Widget {
                 .setSize(MARKER_RECEIVE_TEXTFIELD_WIDTH, MARKER_RECEIVE_TEXTFIELD_HEIGHT) // Size of textfield
                 .setFont(f2)
                 .setFocus(false) // Deselects textfield
-                .setColor(OPENBCI_DARKBLUE)
-                .setColorBackground(color(255, 255, 255)) // text field bg color
-                .setColorValueLabel(OPENBCI_DARKBLUE) // text color
-                .setColorForeground(OPENBCI_DARKBLUE) // border color when not selected
-                .setColorActive(isSelected_color) // border color when selected
-                .setColorCursor(OPENBCI_DARKBLUE)
+                .setColor(MAIN.OPENBCI_DARKBLUE)
+                .setColorBackground(MAIN.color(255, 255, 255)) // text field bg color
+                .setColorValueLabel(MAIN.OPENBCI_DARKBLUE) // text color
+                .setColorForeground(MAIN.OPENBCI_DARKBLUE) // border color when not selected
+                .setColorActive(MAIN.isSelected_color) // border color when selected
+                .setColorCursor(MAIN.OPENBCI_DARKBLUE)
                 .setText(default_text) // Default text in the field
                 .setCaptionLabel("") // Remove caption label
                 .setVisible(true) // Initially visible

@@ -2,6 +2,7 @@ package FilterSettings_;
 
 import DataSource_.DataSource;
 import GUI.GUIManager;
+import Globel.GUI;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -12,7 +13,7 @@ import java.util.Scanner;
 
 import static GUI.GGVI.directoryManager;
 
-public class FilterSettings extends GUIManager {
+public class FilterSettings{
 
     public FilterSettingsValues values;
     //public FilterSettingsValues previousValues;
@@ -21,7 +22,9 @@ public class FilterSettings extends GUIManager {
     protected DataSource board;
     public int channelCount;
 
-    public FilterSettings(DataSource theBoard) {
+    private GUI MAIN;
+    public FilterSettings(GUI MAIN, DataSource theBoard) {
+        this.MAIN = MAIN;
         board = theBoard;
         channelCount = board.getNumEXGChannels();
 
@@ -45,9 +48,9 @@ public class FilterSettings extends GUIManager {
             File f = new File(filename);
             if (f.exists()) {
                 if (f.delete()) {
-                    println("FilterSettings: Could not load filter settings from disk. Deleting this file...");
+                    MAIN.println("FilterSettings: Could not load filter settings from disk. Deleting this file...");
                 } else {
-                    println("FilterSettings: Error deleting old/broken filter settings file! Please make sure the GUI has proper read/write permissions.");
+                    MAIN.println("FilterSettings: Error deleting old/broken filter settings file! Please make sure the GUI has proper read/write permissions.");
                 }
             }
             return false;
@@ -90,7 +93,7 @@ public class FilterSettings extends GUIManager {
         settingsFilename.append("Channels.json");
         String filename = settingsFilename.toString();
         File fileToSave = new File(filename);
-        selectOutput("Save filter settings to file", "storeFilterSettings", fileToSave);
+        MAIN.selectOutput("Save filter settings to file", "storeFilterSettings", fileToSave);
     }
     //Avoid error with popup being in another thread.
     public void loadSettings() {
@@ -101,6 +104,6 @@ public class FilterSettings extends GUIManager {
         settingsFilename.append("Channels.json");
         String filename = settingsFilename.toString();
         File fileToLoad = new File(filename);
-        selectInput("Select settings file to load", "loadFilterSettings", fileToLoad);
+        MAIN.selectInput("Select settings file to load", "loadFilterSettings", fileToLoad);
     }
 }

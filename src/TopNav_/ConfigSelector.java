@@ -12,8 +12,10 @@ import static Debugging_.GF.output;
 import static Extras_.GF.isLinux;
 import static GUI.GGVI.*;
 import static SystemManager.GF.haltSystem;
+import Globel.GUI;
+public class ConfigSelector {
 
-public class ConfigSelector extends GUIManager {
+    GUI MAIN;
     private int x, y, w, h, margin, b_w, b_h;
     private boolean clearAllSettingsPressed;
     public boolean isVisible;
@@ -32,10 +34,11 @@ public class ConfigSelector extends GUIManager {
     private int osPadding2 = 0;
     private int buttonSpacer = 0;
 
-    public ConfigSelector(PApplet pApplet) {
+    public ConfigSelector(GUI MAIN) {
+        this.MAIN = MAIN;
         int _padding = (systemMode == SYSTEMMODE_POSTINIT) ? -3 : 3;
         w = 140;
-        x = width - w - _padding;
+        x = MAIN.width - w - _padding;
         y = (navBarHeight * 2) - 3;
         margin = 6;
         b_w = w - margin*2;
@@ -46,8 +49,8 @@ public class ConfigSelector extends GUIManager {
         osPadding2 = isLinux() ? 5 : 0;
 
         //Instantiate local cp5 for this box
-        settings_cp5 = new ControlP5(pApplet);
-        settings_cp5.setGraphics(pApplet, 0,0);
+        settings_cp5 = new ControlP5(MAIN);
+        settings_cp5.setGraphics(MAIN, 0,0);
         settings_cp5.setAutoDraw(false);
 
         isVisible = false;
@@ -73,11 +76,11 @@ public class ConfigSelector extends GUIManager {
 
     public void draw() {
         if (isVisible) { //only draw if visible
-            pushStyle();
+            MAIN.pushStyle();
 
-            stroke(OPENBCI_DARKBLUE);
-            fill(57, 128, 204); //bg
-            rect(x, y, w, h);
+            MAIN.stroke(MAIN.OPENBCI_DARKBLUE);
+            MAIN.fill(57, 128, 204); //bg
+            MAIN.rect(x, y, w, h);
 
             boolean isSessionStarted = (systemMode == SYSTEMMODE_POSTINIT);
             saveSessionSettings.setVisible(isSessionStarted);
@@ -85,20 +88,20 @@ public class ConfigSelector extends GUIManager {
             defaultSessionSettings.setVisible(isSessionStarted);
 
             if (clearAllSettingsPressed) {
-                textFont(p2, 16);
-                fill(255);
-                textAlign(CENTER);
-                text("Are You Sure?", x + w/2, clearAllGUISettings.getPosition()[1] + b_h*2);
+                MAIN.textFont(p2, 16);
+                MAIN.fill(255);
+                MAIN.textAlign(MAIN.CENTER);
+                MAIN.text("Are You Sure?", x + w/2, clearAllGUISettings.getPosition()[1] + b_h*2);
             }
             clearAllSettingsYes.setVisible(clearAllSettingsPressed);
             clearAllSettingsNo.setVisible(clearAllSettingsPressed);
 
-            fill(57, 128, 204);
-            noStroke();
+            MAIN.fill(57, 128, 204);
+            MAIN.noStroke();
             //This makes the dropdown box look like it's apart of the button by drawing over the part that overlaps
-            rect(x+w-(topNav.settingsButton.getWidth()-1), y, (topNav.settingsButton.getWidth()-1), 1);
+            MAIN.rect(x+w-(topNav.settingsButton.getWidth()-1), y, (topNav.settingsButton.getWidth()-1), 1);
 
-            popStyle();
+            MAIN.popStyle();
 
             settings_cp5.draw();
         }
@@ -113,7 +116,7 @@ public class ConfigSelector extends GUIManager {
     public void mouseReleased() {
         //only allow button interactivity if isVisible==true
         if (isVisible) {
-            if ((mouseX < x || mouseX > x + w || mouseY < y || mouseY > y + h) && !topNav.settingsButton.isInside()) {
+            if ((MAIN.mouseX < x || MAIN.mouseX > x + w || MAIN.mouseY < y || MAIN.mouseY > y + h) && !topNav.settingsButton.isInside()) {
                 toggleVisibility();
                 clearAllSettingsPressed = false;
             }
@@ -121,7 +124,7 @@ public class ConfigSelector extends GUIManager {
     }
 
     public void screenResized() {
-        settings_cp5.setGraphics(pApplet, 0,0);
+        settings_cp5.setGraphics(MAIN, 0,0);
         updateConfigButtonPositions();
     }
 
@@ -131,7 +134,7 @@ public class ConfigSelector extends GUIManager {
         int oldX = x;
         int multiplier = isSessionStarted ? 3 : 2;
         int _padding = isSessionStarted ? -3 : 3;
-        x = width - 70*multiplier - _padding;
+        x = MAIN.width - 70*multiplier - _padding;
         int dx = oldX - x;
 
         h = !isSessionStarted ? margin*3 + b_h*2 : margin*6 + b_h*5;
@@ -186,7 +189,7 @@ public class ConfigSelector extends GUIManager {
     }
 
     private void createExpertModeButton(String name, String text, int _x, int _y, int _w, int _h) {
-        expertMode = createButton(settings_cp5, name, text, _x, _y, _w, _h, p5, 12, BUTTON_NOOBGREEN, WHITE);
+        expertMode = MAIN.createButton(settings_cp5, name, text, _x, _y, _w, _h, p5, 12, MAIN.BUTTON_NOOBGREEN, MAIN.WHITE);
         expertMode.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 toggleVisibility();
@@ -203,7 +206,7 @@ public class ConfigSelector extends GUIManager {
     }
 
     private void createSaveSettingsButton(String name, String text, int _x, int _y, int _w, int _h) {
-        saveSessionSettings = createButton(settings_cp5, name, text, _x, _y, _w, _h);
+        saveSessionSettings = MAIN.createButton(settings_cp5, name, text, _x, _y, _w, _h);
         saveSessionSettings.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 toggleVisibility();
@@ -214,7 +217,7 @@ public class ConfigSelector extends GUIManager {
     }
 
     private void createLoadSettingsButton(String name, String text, int _x, int _y, int _w, int _h) {
-        loadSessionSettings = createButton(settings_cp5, name, text, _x, _y, _w, _h);
+        loadSessionSettings = MAIN.createButton(settings_cp5, name, text, _x, _y, _w, _h);
         loadSessionSettings.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 toggleVisibility();
@@ -225,7 +228,7 @@ public class ConfigSelector extends GUIManager {
     }
 
     private void createDefaultSettingsButton(String name, String text, int _x, int _y, int _w, int _h) {
-        defaultSessionSettings = createButton(settings_cp5, name, text, _x, _y, _w, _h);
+        defaultSessionSettings = MAIN.createButton(settings_cp5, name, text, _x, _y, _w, _h);
         defaultSessionSettings.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 toggleVisibility();
@@ -236,7 +239,7 @@ public class ConfigSelector extends GUIManager {
     }
 
     private void createClearAllSettingsButton(String name, String text, int _x, int _y, int _w, int _h) {
-        clearAllGUISettings = createButton(settings_cp5, name, text, _x, _y, _w, _h, p5, 12, BUTTON_CAUTIONRED, WHITE);
+        clearAllGUISettings = MAIN.createButton(settings_cp5, name, text, _x, _y, _w, _h, p5, 12, MAIN.BUTTON_CAUTIONRED, MAIN.WHITE);
         clearAllGUISettings.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 //Leave box open if this button was pressed and toggle flag
@@ -250,7 +253,7 @@ public class ConfigSelector extends GUIManager {
     }
 
     private void createClearSettingsNoButton(String name, String text, int _x, int _y, int _w, int _h) {
-        clearAllSettingsNo = createButton(settings_cp5, name, text, _x, _y, _w, _h);
+        clearAllSettingsNo = MAIN.createButton(settings_cp5, name, text, _x, _y, _w, _h);
         clearAllSettingsNo.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 toggleVisibility();
@@ -263,7 +266,7 @@ public class ConfigSelector extends GUIManager {
     }
 
     private void createClearSettingsYesButton(String name, String text, int _x, int _y, int _w, int _h) {
-        clearAllSettingsYes = createButton(settings_cp5, name, text, _x, _y, _w, _h);
+        clearAllSettingsYes = MAIN.createButton(settings_cp5, name, text, _x, _y, _w, _h);
         clearAllSettingsYes.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 toggleVisibility();
@@ -284,10 +287,10 @@ public class ConfigSelector extends GUIManager {
     public void toggleExpertModeFrontEnd(boolean b) {
         if (b) {
             expertMode.getCaptionLabel().setText("Turn Expert Mode Off");
-            expertMode.setColorBackground(BUTTON_EXPERTPURPLE);
+            expertMode.setColorBackground(MAIN.BUTTON_EXPERTPURPLE);
         } else {
             expertMode.getCaptionLabel().setText("Turn Expert Mode On");
-            expertMode.setColorBackground(BUTTON_NOOBGREEN);
+            expertMode.setColorBackground(MAIN.BUTTON_NOOBGREEN);
         }
     }
 }

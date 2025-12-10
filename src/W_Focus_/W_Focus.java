@@ -30,9 +30,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static GUI.GGVI.*;
-
+import Globel.GUI;
 public class W_Focus extends Widget {
-
+    GUI MAIN;
     //to see all core variables/methods of the Widget class, refer to Widget.pde
     //put your custom variables here...
     //private ControlP5 focus_cp5;
@@ -78,15 +78,15 @@ public class W_Focus extends Widget {
 
     List<Controller> cp5ElementsToCheck = new ArrayList<Controller>();
 
-    public W_Focus(PApplet _parent) {
-        super(_parent); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
-
+    public W_Focus(GUI MAIN) {
+        super(MAIN); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
+        this.MAIN = MAIN;
         //Add channel select dropdown to this widget
         focusChanSelect = new ChannelSelect(pApplet, this, x, y, w, navH, "FocusChannelSelect");
         focusChanSelect.activateAllButtons();
         cp5ElementsToCheck.addAll(focusChanSelect.getCp5ElementsForOverlapCheck());
 
-        auditoryNeurofeedback = new AuditoryNeurofeedback(pApplet, x + PAD_FIVE, y + PAD_FIVE, w/2 - PAD_FIVE*2, navBarHeight/2);
+        auditoryNeurofeedback = new AuditoryNeurofeedback(MAIN, x + PAD_FIVE, y + PAD_FIVE, w/2 - PAD_FIVE*2, navBarHeight/2);
         cp5ElementsToCheck.add((Controller)auditoryNeurofeedback.startStopButton);
         cp5ElementsToCheck.add((Controller)auditoryNeurofeedback.modeButton);
 
@@ -106,7 +106,7 @@ public class W_Focus extends Widget {
 
 
         //Create data table
-        dataGrid = new Grid(NUM_TABLE_ROWS, NUM_TABLE_COLUMNS, cellHeight);
+        dataGrid = new Grid(MAIN, NUM_TABLE_ROWS, NUM_TABLE_COLUMNS, cellHeight);
         dataGrid.setTableFontAndSize(p5, 12);
         dataGrid.setDrawTableBorder(true);
         dataGrid.setString("Metric Value", 0, 0);
@@ -123,7 +123,7 @@ public class W_Focus extends Widget {
 
         //create our focus graph
         updateGraphDims();
-        focusBar = new FocusBar(_parent, xLimit.getValue(), focusBarHardYAxisLimit, graphX, graphY, graphW, graphH);
+        focusBar = new FocusBar(MAIN, xLimit.getValue(), focusBarHardYAxisLimit, graphX, graphY, graphW, graphH);
 
         initBrainFlowMetric();
     }
@@ -159,15 +159,15 @@ public class W_Focus extends Widget {
 
         if (false) {
             //Draw some guides to help develop this widget faster
-            pushStyle();
-            stroke(OPENBCI_DARKBLUE);
+            MAIN.pushStyle();
+            MAIN.stroke(MAIN.OPENBCI_DARKBLUE);
             //Main guides
-            line(x, y+(h/2), x+w, y+(h/2));
-            line(x+(w/2), y, x+(w/2), y+(h/2));
+            MAIN.line(x, y+(h/2), x+w, y+(h/2));
+            MAIN.line(x+(w/2), y, x+(w/2), y+(h/2));
             //Top left container center
-            line(x+(w/4), y, x+(w/4), y+(h/2));
-            line(x, y+(h/4), x+(w/2), y+(h/4));
-            popStyle();
+            MAIN.line(x+(w/4), y, x+(w/4), y+(h/2));
+            MAIN.line(x, y+(h/4), x+(w/2), y+(h/4));
+            MAIN.popStyle();
         }
 
         //This draws all cp5 objects in the local instance
@@ -240,7 +240,7 @@ public class W_Focus extends Widget {
     private void updateStatusCircle() {
         float upperLeftContainerW = w/2;
         float upperLeftContainerH = h/2;
-        float min = min(upperLeftContainerW, upperLeftContainerH);
+        float min = MAIN.min(upperLeftContainerW, upperLeftContainerH);
         xc = x + w/4;
         yc = y + h/4 - navHeight;
         wc = min * (3f/5);
@@ -296,7 +296,7 @@ public class W_Focus extends Widget {
 
         } catch (BrainFlowError e) {
             e.printStackTrace();
-            println("Error updating focus state!");
+            MAIN.println("Error updating focus state!");
             return -1d;
         }
     }
@@ -321,16 +321,16 @@ public class W_Focus extends Widget {
         }
         sb.append(focusMetric.getIdealStateString());
         //Draw status graphic
-        pushStyle();
-        noStroke();
-        fill(fillColor);
-        stroke(strokeColor);
-        ellipseMode(CENTER);
-        ellipse(xc, yc, wc, hc);
-        noStroke();
-        textAlign(CENTER);
-        text(sb.toString(), xc, yc + hc/2 + 16);
-        popStyle();
+        MAIN.pushStyle();
+        MAIN.noStroke();
+        MAIN.fill(fillColor);
+        MAIN.stroke(strokeColor);
+        MAIN.ellipseMode(MAIN.CENTER);
+        MAIN.ellipse(xc, yc, wc, hc);
+        MAIN.noStroke();
+        MAIN.textAlign(MAIN.CENTER);
+        MAIN.text(sb.toString(), xc, yc + hc/2 + 16);
+        MAIN.popStyle();
     }
 
     private void initBrainFlowMetric() {

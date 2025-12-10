@@ -26,9 +26,9 @@ import static Debugging_.GF.output;
 import static Extras_.GF.shortenString;
 import static GUI.GGVI.*;
 import static W_Playback_.GF.userSelectedPlaybackMenuList;
-
+import Globel.GUI;
 public class W_playback extends Widget {
-
+    GUI MAIN;
     protected PApplet pApplet;
 
     public ColorPalette CP;
@@ -45,12 +45,12 @@ public class W_playback extends Widget {
 
     private boolean menuHasUpdated = false;
 
-    public W_playback(PApplet _parent) {
-        super(_parent); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
+    public W_playback(GUI MAIN) {
+        super(MAIN); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
 
-        CP = new ColorPalette(_parent);
+        CP = new ColorPalette(MAIN);
 
-        pApplet = _parent;
+        pApplet = MAIN;
 
         cp5_playback = new ControlP5(pApplet);
         cp5_playback.setGraphics(pApplet, 0,0);
@@ -123,7 +123,7 @@ public class W_playback extends Widget {
 
         File f = new File(userPlaybackHistoryFile);
         if (!f.exists()) {
-            println("OpenBCI_GUI::RefreshPlaybackList: Playback history file not found.");
+            MAIN.println("OpenBCI_GUI::RefreshPlaybackList: Playback history file not found.");
             return;
         }
 
@@ -140,19 +140,19 @@ public class W_playback extends Widget {
                 String longFilePath = loadRecentPlaybackFile.getString("filePath");
 
                 int totalPadding = padding + playbackMenuList.padding;
-                shortFileName = shortenString(pApplet, shortFileName, w-totalPadding*2.f, p4);
+                shortFileName = shortenString(MAIN, shortFileName, w-totalPadding*2.f, p4);
                 //add as an item in the MenuList
                 playbackMenuList.addItem(shortFileName, Integer.toString(fileNumber), longFilePath);
                 currentFileNameToDraw++;
             }
             playbackMenuList.updateMenu();
         } catch (NullPointerException e) {
-            println("PlaybackWidget: Playback history file not found.");
+           MAIN.println("PlaybackWidget: Playback history file not found.");
         }
     }
 
     private void createSelectPlaybackFileButton(String name, String text, int _x, int _y, int _w, int _h) {
-        selectPlaybackFileButton = createButton(cp5_playback, name, text, _x, _y, _w, _h);
+        selectPlaybackFileButton = MAIN.createButton(cp5_playback, name, text, _x, _y, _w, _h);
         selectPlaybackFileButton.setBorderColor(CP.OBJECT_BORDER_GREY);
         selectPlaybackFileButton.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
@@ -165,7 +165,7 @@ public class W_playback extends Widget {
     }
 
     private void createPlaybackMenuList(ControlP5 _cp5, String name, int _x, int _y, int _w, int _h, PFont font) {
-        playbackMenuList = new MenuList(_cp5, name, _w, _h, font, this);
+        playbackMenuList = new MenuList(_cp5, name, _w, _h, font, MAIN);
         playbackMenuList.setPosition(_x, _y);
         playbackMenuList.addCallback(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {

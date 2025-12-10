@@ -1,5 +1,6 @@
 package WidgetManager_;
 
+import Globel.GUI;
 import Widget_.Widget;
 import processing.core.PApplet;
 
@@ -26,7 +27,7 @@ public class WidgetManager{
     public boolean isWMInitialized = false;
     private boolean visible = true;
 
-    public WidgetManager(PApplet _this){
+    public WidgetManager(GUI _this){
         widgets = new ArrayList<Widget>();
         widgetOptions = new ArrayList<String>();
         isWMInitialized = false;

@@ -9,9 +9,9 @@ import brainflow.BoardIds;
 import brainflow.BrainFlowInputParams;
 
 import static Debugging_.GF.output;
-
+import Globel.GUI;
 public class BoardGanglionNative extends BoardGanglion {
-
+    GUI MAIN;
     private PacketLossTrackerGanglionBLE packetLossTrackerGanglionNative;
     private String boardName;
     private int firmwareVersion = 0;
@@ -20,8 +20,9 @@ public class BoardGanglionNative extends BoardGanglion {
         super();
     }
 
-    public BoardGanglionNative(String name, boolean showUpgradePopup) {
+    public BoardGanglionNative(GUI MAIN, String name, boolean showUpgradePopup) {
         super();
+        this.MAIN = MAIN;
         this.boardName = name;
 
         if (name.indexOf("Ganglion 1.3") != -1) {
@@ -32,7 +33,7 @@ public class BoardGanglionNative extends BoardGanglion {
             this.firmwareVersion = 2;
             output("Detected Ganglion firmware version 2");
             if (showUpgradePopup) {
-                PopupMessage msg = new PopupMessage("Warning", "Ganglion firmware version 2 detected. Please update to version 3 for better performance. \n\nhttps://docs.openbci.com/Ganglion/GanglionProgram");
+                PopupMessage msg = new PopupMessage(MAIN, "Warning", "Ganglion firmware version 2 detected. Please update to version 3 for better performance. \n\nhttps://docs.openbci.com/Ganglion/GanglionProgram");
             }
         }
     }

@@ -24,11 +24,12 @@ import java.util.List;
 import static Debugging_.GF.output;
 import static GUI.GGVI.*;
 import static WidgetManager_.GVI.*;
-
+import Globel.GUI;
 
 ///////////////////////////////////////////////////,
 
 public class W_DigitalRead extends Widget {
+    GUI MAIN;
     private int numDigitalReadDots;
     float xF, yF, wF, hF;
     int dot_padding;
@@ -44,8 +45,8 @@ public class W_DigitalRead extends Widget {
 
     private DigitalCapableBoard digitalBoard;
 
-    public W_DigitalRead(PApplet _parent) {
-        super(_parent); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
+    public W_DigitalRead(GUI MAIN) {
+        super(MAIN); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
 
         digitalBoard = (DigitalCapableBoard)currentBoard;
 
@@ -90,11 +91,11 @@ public class W_DigitalRead extends Widget {
             } else {
                 digitalPin = 18;
             }
-            DigitalReadDot tempDot = new DigitalReadDot(_parent, digitalPin, digitalReaddotX, digitalReaddotY, (int)(dot_w), digitalReaddotHeight, dot_padding);
+            DigitalReadDot tempDot = new DigitalReadDot(MAIN, digitalPin, digitalReaddotX, digitalReaddotY, (int)(dot_w), digitalReaddotHeight, dot_padding);
             digitalReadDots[i] = tempDot;
         }
 
-        createDigitalModeButton("digitalModeButton", "Turn Digital Read On", (int)(x0 + 1), (int)(y0 + navHeight + 1), 128, navHeight - 3, p5, 12, buttonsLightBlue, WHITE);
+        createDigitalModeButton("digitalModeButton", "Turn Digital Read On", (int)(x0 + 1), (int)(y0 + navHeight + 1), 128, navHeight - 3, p5, 12, MAIN.buttonsLightBlue, MAIN.WHITE);
     }
 
     public int getNumDigitalReads() {
@@ -124,7 +125,7 @@ public class W_DigitalRead extends Widget {
         if (!digitalBoard.canDeactivateDigital()) {
             digitalModeButton.setLock(true);
             digitalModeButton.getCaptionLabel().setText("Digital Read On");
-            digitalModeButton.setColorBackground(BUTTON_LOCKED_GREY);
+            digitalModeButton.setColorBackground(MAIN.BUTTON_LOCKED_GREY);
         }
     }
 
@@ -179,7 +180,7 @@ public class W_DigitalRead extends Widget {
     }
 
     private void createDigitalModeButton(String name, String text, int _x, int _y, int _w, int _h, PFont _font, int _fontSize, int _bg, int _textColor) {
-        digitalModeButton = createButton(cp5_widget, name, text, _x, _y, _w, _h, 0, _font, _fontSize, _bg, _textColor, BUTTON_HOVER, BUTTON_PRESSED, OBJECT_BORDER_GREY, 0);
+        digitalModeButton = MAIN.createButton(cp5_widget, name, text, _x, _y, _w, _h, 0, _font, _fontSize, _bg, _textColor, MAIN.BUTTON_HOVER, MAIN.BUTTON_PRESSED, MAIN.OBJECT_BORDER_GREY, 0);
         digitalModeButton.setSwitch(true);
         digitalModeButton.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {

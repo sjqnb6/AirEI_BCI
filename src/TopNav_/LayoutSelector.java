@@ -11,7 +11,7 @@ import java.util.ArrayList;
 
 import static Debugging_.GF.output;
 import static GUI.GGVI.*;
-
+import Globel.GUI;
 public class LayoutSelector{
 
     public int x, y, w, h, margin, b_w, b_h;
@@ -19,14 +19,14 @@ public class LayoutSelector{
     private ControlP5 layout_cp5;
     public ArrayList<Button> layoutOptions;
 
-    private GUIManager gui;
+    GUI MAIN;
 
-    public LayoutSelector(GUIManager gui) {
-        this.gui = gui;
+    public LayoutSelector(GUI MAIN) {
+        this.MAIN = MAIN;
 
 
         w = 180;
-        x = gui.width - w - 3;
+        x = MAIN.width - w - 3;
         y = (navBarHeight * 2) - 3;
         margin = 6;
         b_w = (w - 5*margin)/4;
@@ -36,8 +36,8 @@ public class LayoutSelector{
         isVisible = false;
 
         //Instantiate local cp5 for this box
-        layout_cp5 = new ControlP5(gui);
-        layout_cp5.setGraphics(gui, 0,0);
+        layout_cp5 = new ControlP5(MAIN);
+        layout_cp5.setGraphics(MAIN, 0,0);
         layout_cp5.setAutoDraw(false);
 
         layoutOptions = new ArrayList<Button>();
@@ -53,24 +53,24 @@ public class LayoutSelector{
         }
 
         //Update the X position of this box on every update
-        x = gui.width - w - 3;
+        x = MAIN.width - w - 3;
     }
 
     public void draw() {
         if (isVisible) { //only draw if visible
-            gui.pushStyle();
+            MAIN.pushStyle();
 
-            gui.stroke(gui.OPENBCI_DARKBLUE);
+            MAIN.stroke(MAIN.OPENBCI_DARKBLUE);
             // fill(229); //bg
-            gui.fill(57, 128, 204); //bg
-            gui.rect(x, y, w, h);
+            MAIN.fill(57, 128, 204); //bg
+            MAIN.rect(x, y, w, h);
 
-            gui.fill(57, 128, 204);
+            MAIN.fill(57, 128, 204);
             // fill(177, 184, 193);
-            gui.noStroke();
-            gui.rect(x+w-(topNav.layoutButton.getWidth()-1), y, (topNav.layoutButton.getWidth()-1), 1);
+            MAIN.noStroke();
+            MAIN.rect(x+w-(topNav.layoutButton.getWidth()-1), y, (topNav.layoutButton.getWidth()-1), 1);
 
-            gui.popStyle();
+            MAIN.popStyle();
 
             layout_cp5.draw();
         }
@@ -85,7 +85,7 @@ public class LayoutSelector{
     public void mouseReleased() {
         //only allow button interactivity if isVisible==true
         if (isVisible) {
-            if ((gui.mouseX < x || gui.mouseX > x + w || gui.mouseY < y || gui.mouseY > y + h) && !topNav.layoutButton.isInside()) {
+            if ((MAIN.mouseX < x || MAIN.mouseX > x + w || MAIN.mouseY < y || MAIN.mouseY > y + h) && !topNav.layoutButton.isInside()) {
                 toggleVisibility();
             }
 
@@ -95,9 +95,9 @@ public class LayoutSelector{
     void screenResized() {
         //update position of outer box and buttons
         //int oldX = x;
-        x = gui.width - w - 3;
+        x = MAIN.width - w - 3;
         //int dx = oldX - x;
-        layout_cp5.setGraphics(gui, 0,0);
+        layout_cp5.setGraphics(MAIN, 0,0);
 
         for (int i = 0; i < layoutOptions.size(); i++) {
             int row = (i/4)%4;
@@ -131,8 +131,8 @@ public class LayoutSelector{
             int row = (i/4)%4;
             int column = i%4;
             final int layoutNumber = i;
-            Button tempLayoutButton = gui.createButton(layout_cp5, "layoutButton"+i, "", x + (column+1)*margin + (b_w*column), y + (row+1)*margin + (row*b_h), b_w, b_h);
-            PImage tempBackgroundImage = gui.loadImage("layout_buttons/layout_"+(i+1)+".png");
+            Button tempLayoutButton = MAIN.createButton(layout_cp5, "layoutButton"+i, "", x + (column+1)*margin + (b_w*column), y + (row+1)*margin + (row*b_h), b_w, b_h);
+            PImage tempBackgroundImage = MAIN.loadImage("layout_buttons/layout_"+(i+1)+".png");
             tempBackgroundImage.resize(b_w, b_h);
             tempLayoutButton.setImage(tempBackgroundImage);
             tempLayoutButton.setForceDrawBackground(true);

@@ -21,8 +21,9 @@ import static GUI.GGVI.*;
 import static WidgetManager_.GVI.*;
 import static processing.core.PApplet.println;
 import static processing.core.PApplet.str;
-
+import Globel.GUI;
 public class NetworkStreamOut extends Thread {
+    GUI MAIN;
     private String protocol;
     private int streamNumber;
     private String dataType;
@@ -44,7 +45,7 @@ public class NetworkStreamOut extends Thread {
     private int sampleRateClock = 0;
     private int sampleRateClockInterval = 10000;
     private boolean debugSamplingRate = false;
-
+    private PApplet pApplet;
     // OSC Objects
     private OscP5 osc;
     private NetAddress oscNetAddress;
@@ -61,12 +62,11 @@ public class NetworkStreamOut extends Thread {
     private int baudRate;
     private String serialMessage = "";
 
-    private PApplet pApplet;
+    //private PApplet pApplet;
 
     // OSC Stream
-    public NetworkStreamOut(PApplet pApplet, String dataType, String ip, int port, String baseAddress, int _streamNumber) {
-        this.pApplet = pApplet;
-
+    public NetworkStreamOut(GUI MAIN, String dataType, String ip, int port, String baseAddress, int _streamNumber) {
+        this.MAIN = MAIN;
         this.protocol = "OSC";
         this.streamNumber = _streamNumber;
         this.dataType = dataType;
@@ -83,8 +83,8 @@ public class NetworkStreamOut extends Thread {
     }
 
     // UDP Stream
-    public NetworkStreamOut(PApplet pApplet, String dataType, String ip, int port, int _streamNumber) {
-        this.pApplet = pApplet;
+    public NetworkStreamOut(GUI MAIN, String dataType, String ip, int port, int _streamNumber) {
+        this.MAIN = MAIN;
 
         this.protocol = "UDP";
         this.streamNumber = _streamNumber;
@@ -110,8 +110,8 @@ public class NetworkStreamOut extends Thread {
     }
 
     // LSL Stream
-    public NetworkStreamOut(PApplet pApplet, String dataType, String streamName, String streamType, int numLslDataPoints, int _streamNumber) {
-        this.pApplet = pApplet;
+    public NetworkStreamOut(GUI MAIN, String dataType, String streamName, String streamType, int numLslDataPoints, int _streamNumber) {
+        this.MAIN = MAIN;
 
         this.protocol = "LSL";
         this.streamNumber = _streamNumber;
@@ -129,8 +129,8 @@ public class NetworkStreamOut extends Thread {
     }
 
     // Serial Stream
-    public NetworkStreamOut(PApplet pApplet, String dataType, String portName, int baudRate, PApplet _this) {
-        this.pApplet = pApplet;
+    public NetworkStreamOut(GUI MAIN, String dataType, String portName, int baudRate) {
+        this.MAIN = MAIN;
 
         this.protocol = "Serial";
         this.streamNumber = 0;
@@ -138,7 +138,7 @@ public class NetworkStreamOut extends Thread {
         this.portName = portName;
         this.baudRate = baudRate;
         this.isStreaming = false;
-        this.pApplet = _this;
+        this.pApplet = MAIN;
         updateNumChan();
 
         // Force decimal formatting for all Locales

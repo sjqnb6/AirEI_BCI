@@ -11,9 +11,10 @@ import org.apache.commons.lang3.math.NumberUtils;
 import static Debugging_.GF.output;
 import static GUI.GGVI.*;
 import static WidgetManager_.GVI.w_cytonImpedance;
+import Globel.GUI;
+public class SignalCheckThresholdUI {
 
-public class SignalCheckThresholdUI extends GUIManager {
-
+    GUI MAIN;
     private Textfield thresholdTF;
     private String name;
     private final int textfieldHeight = 14;
@@ -22,7 +23,7 @@ public class SignalCheckThresholdUI extends GUIManager {
     private int valuePercentage;
     private int valuekOhms;
     private CytonSignalCheckMode signalCheckMode;
-    private int textColor = OPENBCI_DARKBLUE;
+    private int textColor = MAIN.OPENBCI_DARKBLUE;
     private boolean hasUpdatedTextColor = false;
 
     public SignalCheckThresholdUI(ControlP5 _cp5, String _name, int _x, int _y, int _w, int _h, int _textColor, CytonSignalCheckMode _mode) {
@@ -61,12 +62,12 @@ public class SignalCheckThresholdUI extends GUIManager {
                 .setSize(_w, _h)
                 .setFont(f5)
                 .setFocus(false)
-                .setColor(color(26, 26, 26))
-                .setColorBackground(color(255, 255, 255)) // text field bg color
+                .setColor(MAIN.color(26, 26, 26))
+                .setColorBackground(MAIN.color(255, 255, 255)) // text field bg color
                 .setColorValueLabel(_textColor)  // text color
-                .setColorForeground(color(210))  // border color when not selected - grey
-                .setColorActive(isSelected_color)  // border color when selected - green
-                .setColorCursor(color(26, 26, 26))
+                .setColorForeground(MAIN.color(210))  // border color when not selected - grey
+                .setColorActive(MAIN.isSelected_color)  // border color when selected - green
+                .setColorCursor(MAIN.color(26, 26, 26))
                 .setText("%") //set the text
                 .align(5, 10, 20, 40)
                 .setAutoClear(false)

@@ -8,14 +8,14 @@ import processing.core.PApplet;
 import java.util.List;
 
 import static GUI.GGVI.currentBoard;
-
+import Globel.GUI;
 //========================================================================================================================
 //                      Analog Voltage BAR CLASS -- Implemented by Analog Read Widget Class
 //========================================================================================================================
 //this class contains the plot and buttons for a single channel of the Time Series widget
 //one of these will be created for each channel (4, 8, or 16)
 class DigitalReadDot extends Widget {
-
+    GUI MAIN;
     private int digitalInputPin;
     private int digitalInputVal;
     String digitalInputString;
@@ -29,8 +29,8 @@ class DigitalReadDot extends Widget {
     int dotStroke = 0xd2d2d2;
     int dot0Fill = 0xf5f5f5;
     int dot1Fill = 0xf5f5f5;
-    int val0Fill = OPENBCI_DARKBLUE;
-    int val1Fill = WHITE;
+    int val0Fill = MAIN.OPENBCI_DARKBLUE;
+    int val1Fill = MAIN.WHITE;
 
     int dotX;
     int dotY;
@@ -40,25 +40,25 @@ class DigitalReadDot extends Widget {
 
     DigitalCapableBoard digitalBoard;
 
-    public DigitalReadDot(PApplet _parent, int _digitalInputPin, int _x, int _y, int _w, int _h, int _padding) {
-        super(_parent); // channel number, x/y location, height, width
-
+    public DigitalReadDot(GUI MAIN, int _digitalInputPin, int _x, int _y, int _w, int _h, int _padding) {
+        super(MAIN); // channel number, x/y location, height, width
+        this.MAIN = MAIN;
         digitalBoard = (DigitalCapableBoard)currentBoard;
 
         digitalInputPin = _digitalInputPin;
-        digitalInputString = str(digitalInputPin);
+        digitalInputString = MAIN.str(digitalInputPin);
         digitalInputVal = 0;
 
         if (digitalInputPin == 11) {
-            dot1Fill = channelColors[0];
+            dot1Fill = MAIN.channelColors[0];
         } else if (digitalInputPin == 12) {
-            dot1Fill = channelColors[1];
+            dot1Fill = MAIN.channelColors[1];
         } else if (digitalInputPin == 13) {
-            dot1Fill = channelColors[2];
+            dot1Fill = MAIN.channelColors[2];
         } else if (digitalInputPin == 17) {
-            dot1Fill = channelColors[3];
+            dot1Fill = MAIN.channelColors[3];
         } else { // 18
-            dot1Fill = channelColors[4];
+            dot1Fill = MAIN.channelColors[4];
         }
 
         dotX = _x;
@@ -67,15 +67,15 @@ class DigitalReadDot extends Widget {
         dotHeight = _h;
         padding = _padding;
 
-        digitalValue = new TextBox(pApplet, "", dotX, dotY);
+        digitalValue = new TextBox(MAIN, "", dotX, dotY);
         digitalValue.setTextColor(val0Fill);
-        digitalValue.alignH = CENTER;
-        digitalValue.alignV = CENTER;
+        digitalValue.alignH = MAIN.CENTER;
+        digitalValue.alignV = MAIN.CENTER;
         drawDigitalValue = true;
 
-        digitalPin = new TextBox(pApplet, "D" + digitalInputString, dotX, dotY - dotWidth);
-        digitalPin.setTextColor(OPENBCI_DARKBLUE);
-        digitalPin.alignH = CENTER;
+        digitalPin = new TextBox(MAIN, "D" + digitalInputString, dotX, dotY - dotWidth);
+        digitalPin.setTextColor(MAIN.OPENBCI_DARKBLUE);
+        digitalPin.alignH = MAIN.CENTER;
     }
 
     public void update() {
@@ -130,7 +130,7 @@ class DigitalReadDot extends Widget {
         dotY = _y;
         dotWidth = _w;
         dotHeight = _h;
-        dotCorner = (sqrt(2)*dotWidth/2)/2;
+        dotCorner = (MAIN.sqrt(2)*dotWidth/2)/2;
 
         digitalPin.x = dotX;
         digitalPin.y = dotY - (int)(dotWidth/2.0);

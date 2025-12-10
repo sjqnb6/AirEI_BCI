@@ -25,14 +25,14 @@ import java.util.List;
 import static Debugging_.GF.output;
 import static GUI.GGVI.*;
 import static WidgetManager_.GVI.*;
-
+import Globel.GUI;
 ///////////////////////////////////////////////////,
 
 public class W_AnalogRead extends Widget {
 
     //to see all core variables/methods of the Widget class, refer to Widget.pde
     //put your custom variables here...
-
+    GUI MAIN;
     public int numAnalogReadBars;
     float xF, yF, wF, hF;
     float arPadding;
@@ -56,9 +56,9 @@ public class W_AnalogRead extends Widget {
 
     private AnalogCapableBoard analogBoard;
 
-    public W_AnalogRead(PApplet _parent) {
-        super(_parent); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
-
+    public W_AnalogRead(GUI MAIN) {
+        super(MAIN); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
+        this.MAIN = MAIN;
         analogBoard = (AnalogCapableBoard)currentBoard;
 
         //Analog Read settings
@@ -97,14 +97,14 @@ public class W_AnalogRead extends Widget {
         //create our channel bars and populate our analogReadBars array!
         for(int i = 0; i < numAnalogReadBars; i++) {
             int analogReadBarY = (int)(ar_y) + i*(analogReadBarHeight); //iterate through bar locations
-            AnalogReadBar tempBar = new AnalogReadBar(_parent, i+5, (int)(ar_x), analogReadBarY, (int)(ar_w), analogReadBarHeight); //int _channelNumber, int _x, int _y, int _w, int _h
+            AnalogReadBar tempBar = new AnalogReadBar(MAIN, i+5, (int)(ar_x), analogReadBarY, (int)(ar_w), analogReadBarHeight); //int _channelNumber, int _x, int _y, int _w, int _h
             analogReadBars[i] = tempBar;
             analogReadBars[i].adjustVertScale(yLimOptions[arInitialVertScaleIndex]);
             //sync horiz axis to Time Series by default
             analogReadBars[i].adjustTimeAxis(w_timeSeries.getTSHorizScale().getValue());
         }
 
-        createAnalogModeButton("analogModeButton", "Turn Analog Read On", (int)(x0 + 1), (int)(y0 + navHeight + 1), 128, navHeight - 3, p5, 12, colorNotPressed, OPENBCI_DARKBLUE);
+        createAnalogModeButton("analogModeButton", "Turn Analog Read On", (int)(x0 + 1), (int)(y0 + navHeight + 1), 128, navHeight - 3, p5, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
     }
 
     public int getNumAnalogReads() {
@@ -134,7 +134,7 @@ public class W_AnalogRead extends Widget {
         if (!analogBoard.canDeactivateAnalog()) {
             analogModeButton.setLock(true);
             analogModeButton.getCaptionLabel().setText("Analog Read On");
-            analogModeButton.setColorBackground(BUTTON_LOCKED_GREY);
+            analogModeButton.setColorBackground(MAIN.BUTTON_LOCKED_GREY);
         }
     }
 
@@ -180,7 +180,7 @@ public class W_AnalogRead extends Widget {
     }
 
     private void createAnalogModeButton(String name, String text, int _x, int _y, int _w, int _h, PFont _font, int _fontSize, int _bg, int _textColor) {
-        analogModeButton = createButton(cp5_widget, name, text, _x, _y, _w, _h, 0, _font, _fontSize, _bg, _textColor, BUTTON_HOVER, BUTTON_PRESSED, OBJECT_BORDER_GREY, 0);
+        analogModeButton = MAIN.createButton(cp5_widget, name, text, _x, _y, _w, _h, 0, _font, _fontSize, _bg, _textColor, MAIN.BUTTON_HOVER, MAIN.BUTTON_PRESSED, MAIN.OBJECT_BORDER_GREY, 0);
         analogModeButton.setSwitch(true);
         analogModeButton.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {

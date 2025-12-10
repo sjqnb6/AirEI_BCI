@@ -8,17 +8,17 @@ import grafica.GPointsArray;
 import processing.core.PApplet;
 
 import java.util.List;
-
+import static GUI.GGVI.*;
 import static GUI.GGVI.currentBoard;
 import static GUI.GGVI.selectedProtocol;
-
+import Globel.GUI;
 //========================================================================================================================
 //                      Analog Voltage BAR CLASS -- Implemented by Analog Read Widget Class
 //========================================================================================================================
 //this class contains the plot and buttons for a single channel of the Time Series widget
 //one of these will be created for each channel (4, 8, or 16)
 public class AnalogReadBar extends Widget {
-
+    GUI MAIN;
     private int analogInputPin;
     private int auxValuesPosition;
     private String analogInputString;
@@ -44,9 +44,9 @@ public class AnalogReadBar extends Widget {
 
     private AnalogCapableBoard analogBoard;
 
-    public AnalogReadBar(PApplet _parent, int _analogInputPin, int _x, int _y, int _w, int _h) {
-        super(_parent); // channel number, x/y location, height, width
-
+    public AnalogReadBar(GUI MAIN, int _analogInputPin, int _x, int _y, int _w, int _h) {
+        super(MAIN); // channel number, x/y location, height, width
+        this.MAIN = MAIN;
         analogInputPin = _analogInputPin;
         int digitalPinNum = 0;
         if (analogInputPin == 7) {
@@ -61,7 +61,7 @@ public class AnalogReadBar extends Widget {
             digitalPinNum = 11;
         }
 
-        analogInputString = str(analogInputPin);
+        analogInputString = MAIN.str(analogInputPin);
 
         x = _x;
         y = _y;
@@ -69,20 +69,20 @@ public class AnalogReadBar extends Widget {
         h = _h;
 
         numSeconds = 20;
-        plot = new GPlot(_parent);
+        plot = new GPlot(MAIN);
         plot.setPos(x + 36 + 4, y);
         plot.setDim(w - 36 - 4, h);
         plot.setMar(0f, 0f, 0f, 0f);
-        plot.setLineColor((int)channelColors[(auxValuesPosition)%8]);
+        plot.setLineColor((int)MAIN.channelColors[(auxValuesPosition)%8]);
         plot.setXLim((float) -3.2, (float) -2.9);
         plot.setYLim(-200,200);
         plot.setPointSize(2);
         plot.setPointColor(0);
         plot.setAllFontProperties("Arial", 0, 14);
-        plot.getXAxis().setFontColor(OPENBCI_DARKBLUE);
-        plot.getXAxis().setLineColor(OPENBCI_DARKBLUE);
-        plot.getXAxis().getAxisLabel().setFontColor(OPENBCI_DARKBLUE);
-        if (selectedProtocol == GGVI.BoardProtocol.WIFI) {
+        plot.getXAxis().setFontColor(MAIN.OPENBCI_DARKBLUE);
+        plot.getXAxis().setLineColor(MAIN.OPENBCI_DARKBLUE);
+        plot.getXAxis().getAxisLabel().setFontColor(MAIN.OPENBCI_DARKBLUE);
+        if (selectedProtocol == BoardProtocol.WIFI) {
             if(auxValuesPosition == 1) {
                 plot.getXAxis().setAxisLabelText("Time (s)");
             }
@@ -95,19 +95,19 @@ public class AnalogReadBar extends Widget {
         initArrays();
 
 
-        analogValue = new TextBox(_parent, "t", x + 36 + 4 + (w - 36 - 4) - 2, y + h);
-        analogValue.setTextColor(OPENBCI_DARKBLUE);
-        analogValue.alignH = RIGHT;
-        analogValue.alignV = BOTTOM;
+        analogValue = new TextBox(MAIN, "t", x + 36 + 4 + (w - 36 - 4) - 2, y + h);
+        analogValue.setTextColor(MAIN.OPENBCI_DARKBLUE);
+        analogValue.alignH = MAIN.RIGHT;
+        analogValue.alignV = MAIN.BOTTOM;
         analogValue.drawBackground = true;
         analogValue.setBackgroundColor(pApplet.color(255, 255, 255, 125));
 
-        analogPin = new TextBox(pApplet, "A" + analogInputString, x+3, y + h);
-        analogPin.setTextColor(OPENBCI_DARKBLUE);
-        analogPin.alignH = CENTER;
-        digitalPin = new TextBox(pApplet, "(D" + digitalPinNum + ")", x+3, y + h + 12);
-        digitalPin.setTextColor(OPENBCI_DARKBLUE);
-        digitalPin.alignH = CENTER;
+        analogPin = new TextBox(MAIN, "A" + analogInputString, x+3, y + h);
+        analogPin.setTextColor(MAIN.OPENBCI_DARKBLUE);
+        analogPin.alignH = MAIN.CENTER;
+        digitalPin = new TextBox(MAIN, "(D" + digitalPinNum + ")", x+3, y + h + 12);
+        digitalPin.setTextColor(MAIN.OPENBCI_DARKBLUE);
+        digitalPin.alignH = MAIN.CENTER;
 
         drawAnalogValue = true;
         analogBoard = (AnalogCapableBoard) currentBoard;
@@ -182,7 +182,7 @@ public class AnalogReadBar extends Widget {
         pApplet.pushStyle();
 
         //draw plot
-        pApplet.stroke(OPENBCI_BLUE_ALPHA50);
+        pApplet.stroke(MAIN.OPENBCI_BLUE_ALPHA50);
         pApplet.fill(pApplet.color(125,30,12,30));
 
         pApplet.rect(x + 36 + 4, y, w - 36 - 4, h);
@@ -191,7 +191,7 @@ public class AnalogReadBar extends Widget {
         plot.drawBox(); // we won't draw this eventually ...
         plot.drawGridLines(GPlot.VERTICAL);
         plot.drawLines();
-        if (selectedProtocol == GGVI.BoardProtocol.WIFI) {
+        if (selectedProtocol == BoardProtocol.WIFI) {
             if(auxValuesPosition == 1) { //only draw the x axis label on the bottom channel bar
                 plot.drawXAxis();
                 plot.getXAxis().draw();
@@ -248,8 +248,8 @@ public class AnalogReadBar extends Widget {
     public void autoScale() {
         autoScaleYLim = 0;
         for(int i = 0; i < nPoints; i++) {
-            if((int)(abs(analogReadPoints.getY(i))) > autoScaleYLim) {
-                autoScaleYLim = (int)(abs(analogReadPoints.getY(i)));
+            if((int)(MAIN.abs(analogReadPoints.getY(i))) > autoScaleYLim) {
+                autoScaleYLim = (int)(MAIN.abs(analogReadPoints.getY(i)));
             }
         }
         plot.setYLim(-autoScaleYLim, autoScaleYLim);

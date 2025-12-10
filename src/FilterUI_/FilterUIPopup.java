@@ -18,11 +18,11 @@ import java.util.Map;
 import static Debugging_.GF.output;
 import static Debugging_.GF.outputError;
 import static GUI.GGVI.*;
-
+import Globel.GUI;
 // Instantiate this class to show a popup message
-public class FilterUIPopup extends GUIManager implements Runnable {
+public class FilterUIPopup extends PApplet implements Runnable {
     public boolean filterUIPopupIsOpen = false;
-
+    GUI MAIN;
     private final boolean EXPANDER_IS_USED = false;
 
     private int fixedWidth;
@@ -54,9 +54,9 @@ public class FilterUIPopup extends GUIManager implements Runnable {
     private String buttonMessage = "OK";
     private String buttonLink = null;
 
-    private int headerColor = OPENBCI_BLUE;
-    private int buttonColor = OPENBCI_BLUE;
-    private int backgroundColor = GREY_235;
+    private int headerColor = MAIN.OPENBCI_BLUE;
+    private int buttonColor = MAIN.OPENBCI_BLUE;
+    private int backgroundColor = MAIN.GREY_235;
 
     private ControlP5 cp5;
 
@@ -113,8 +113,9 @@ public class FilterUIPopup extends GUIManager implements Runnable {
 
     DecimalFormat df = new DecimalFormat("#.0");
 
-    public FilterUIPopup() {
+    public FilterUIPopup(GUI MAIN) {
         super();
+        this.MAIN = MAIN;
         filterUIPopupIsOpen = true;
 
         Thread t = new Thread(this);
@@ -240,7 +241,7 @@ public class FilterUIPopup extends GUIManager implements Runnable {
         textFont(p3, 16);
         textAlign(RIGHT, TOP);
         // Header labels
-        fill(WHITE);
+        fill(MAIN.WHITE);
         text("Filter", headerObjX[0], HEADER_OBJ_Y, HEADER_OBJ_WIDTH, uiObjectHeight);
         text("Notch", headerObjX[2], HEADER_OBJ_Y, HEADER_OBJ_WIDTH, uiObjectHeight);
         // Column labels
@@ -303,7 +304,7 @@ public class FilterUIPopup extends GUIManager implements Runnable {
     }
 
     private void checkIfSettingsWereLoaded() {
-        if (filterSettingsWereLoadedFromFile) {
+        if (MAIN.filterSettingsWereLoadedFromFile) {
             try {
                 updateHeaderCp5Objects();
                 updateChannelCp5Objects();
@@ -312,7 +313,7 @@ public class FilterUIPopup extends GUIManager implements Runnable {
                 println(e.getMessage());
                 outputError("Filter Settings: Unable to apply settings. Please save Filter Settings to a new file.");
             }
-            filterSettingsWereLoadedFromFile = false;
+            MAIN.filterSettingsWereLoadedFromFile = false;
         }
     }
 
@@ -420,8 +421,8 @@ public class FilterUIPopup extends GUIManager implements Runnable {
     private void updateChannelCp5Objects() {
 
         //Reusable variables to update UI objects
-        int onColor = SUBNAV_LIGHTBLUE;
-        int offColor = BUTTON_PRESSED_DARKGREY;
+        int onColor = MAIN.SUBNAV_LIGHTBLUE;
+        int offColor = MAIN.BUTTON_PRESSED_DARKGREY;
         int updateColor = offColor;
         String firstColumnTFValue = "";
         String secondColumnTFValue = "";
@@ -458,7 +459,7 @@ public class FilterUIPopup extends GUIManager implements Runnable {
         // Update UI objects for all channels
         for (int chan = 0; chan < filterSettings.getChannelCount(); chan++) {
             //Use same channel colors as the rest of the GUI for onOff buttons
-            onColor = channelColors[chan%8];
+            onColor = MAIN.channelColors[chan%8];
             switch (filterSettings.values.brainFlowFilter) {
                 case BANDSTOP:
                     //Fetch on/off button color
@@ -509,7 +510,7 @@ public class FilterUIPopup extends GUIManager implements Runnable {
     }
 
     private void createOnOffButton(String name, final String text, final int chan, int _x, int _y, int _w, int _h) {
-        onOffButtons[chan] = createButton(cp5, name, text, _x, _y, _w, _h, 0, h2, 16, channelColors[chan%8], WHITE, BUTTON_HOVER, BUTTON_PRESSED, (Integer) null, -2);
+        onOffButtons[chan] = MAIN.createButton(cp5, name, text, _x, _y, _w, _h, 0, h2, 16, MAIN.channelColors[chan%8], MAIN.WHITE, MAIN.BUTTON_HOVER, MAIN.BUTTON_PRESSED, (Integer) null, -2);
         onOffButtons[chan].setCircularButton(true);
         onOffButtons[chan].onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
@@ -518,19 +519,19 @@ public class FilterUIPopup extends GUIManager implements Runnable {
                     case BANDSTOP:
                         if (filterSettings.values.bandStopFilterActive[chan].isActive()) {
                             filterSettings.values.bandStopFilterActive[chan] = FilterActiveOnChannel.OFF;
-                            onOffButtons[chan].setColorBackground(BUTTON_PRESSED_DARKGREY);
+                            onOffButtons[chan].setColorBackground(MAIN.BUTTON_PRESSED_DARKGREY);
                         } else {
                             filterSettings.values.bandStopFilterActive[chan] = FilterActiveOnChannel.ON;
-                            onOffButtons[chan].setColorBackground(channelColors[chan%8]);
+                            onOffButtons[chan].setColorBackground(MAIN.channelColors[chan%8]);
                         }
                         break;
                     case BANDPASS:
                         if (filterSettings.values.bandPassFilterActive[chan].isActive()) {
                             filterSettings.values.bandPassFilterActive[chan] = FilterActiveOnChannel.OFF;
-                            onOffButtons[chan].setColorBackground(BUTTON_PRESSED_DARKGREY);
+                            onOffButtons[chan].setColorBackground(MAIN.BUTTON_PRESSED_DARKGREY);
                         } else {
                             filterSettings.values.bandPassFilterActive[chan] = FilterActiveOnChannel.ON;
-                            onOffButtons[chan].setColorBackground(channelColors[chan%8]);
+                            onOffButtons[chan].setColorBackground(MAIN.channelColors[chan%8]);
                         }
                         break;
                 }
@@ -560,9 +561,9 @@ public class FilterUIPopup extends GUIManager implements Runnable {
                 .setFocus(false)
                 .setColor(color(26, 26, 26))
                 .setColorBackground(color(255, 255, 255)) // text field bg color
-                .setColorValueLabel(OPENBCI_DARKBLUE)  // text color
+                .setColorValueLabel(MAIN.OPENBCI_DARKBLUE)  // text color
                 .setColorForeground(color(210))  // border color when not selected - grey
-                .setColorActive(isSelected_color)  // border color when selected - green
+                .setColorActive(MAIN.isSelected_color)  // border color when selected - green
                 .setColorCursor(color(26, 26, 26))
                 .setText(Integer.toString(intValue)) //set the text
                 .align(5, 10, 20, 40)
@@ -804,12 +805,12 @@ public class FilterUIPopup extends GUIManager implements Runnable {
         ScrollableList list = cp5.addScrollableList(name)
                 .setPosition(_x, _y)
                 .setOpen(false)
-                .setColorBackground(WHITE) // text field bg color
-                .setColorValueLabel(OPENBCI_DARKBLUE)       // text color
-                .setColorCaptionLabel(OPENBCI_DARKBLUE)
+                .setColorBackground(MAIN.WHITE) // text field bg color
+                .setColorValueLabel(MAIN.OPENBCI_DARKBLUE)       // text color
+                .setColorCaptionLabel(MAIN.OPENBCI_DARKBLUE)
                 .setColorForeground(color(125))    // border color when not selected
-                .setColorActive(BUTTON_PRESSED)       // border color when selected
-                .setOutlineColor(OBJECT_BORDER_GREY)
+                .setColorActive(MAIN.BUTTON_PRESSED)       // border color when selected
+                .setOutlineColor(MAIN.OBJECT_BORDER_GREY)
                 .setSize(_w, dropdownH * (eValues.length + 1))//temporary size
                 .setBarHeight(dropdownH) //height of top/primary bar
                 .setItemHeight(dropdownH) //height of all item/dropdown bars
@@ -931,8 +932,8 @@ public class FilterUIPopup extends GUIManager implements Runnable {
     }
 
     private void createFilterSettingsSaveButton(String name, String text, int _x, int _y, int _w, int _h) {
-        saveButton = createButton(cp5, name, text, _x, _y, _w, _h, h5, 12, colorNotPressed, OPENBCI_DARKBLUE);
-        saveButton.setBorderColor(OBJECT_BORDER_GREY);
+        saveButton = MAIN.createButton(cp5, name, text, _x, _y, _w, _h, h5, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
+        saveButton.setBorderColor(MAIN.OBJECT_BORDER_GREY);
         saveButton.onClick(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 filterSettings.storeSettings();
@@ -941,8 +942,8 @@ public class FilterUIPopup extends GUIManager implements Runnable {
     }
 
     private void createFilterSettingsLoadButton(String name, String text, int _x, int _y, int _w, int _h) {
-        loadButton = createButton(cp5, name, text, _x, _y, _w, _h, h5, 12, colorNotPressed, OPENBCI_DARKBLUE);
-        loadButton.setBorderColor(OBJECT_BORDER_GREY);
+        loadButton = MAIN.createButton(cp5, name, text, _x, _y, _w, _h, h5, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
+        loadButton.setBorderColor(MAIN.OBJECT_BORDER_GREY);
         loadButton.onClick(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 filterSettings.loadSettings();
@@ -951,18 +952,18 @@ public class FilterUIPopup extends GUIManager implements Runnable {
     }
 
     private void createFilterSettingsDefaultButton(String name, String text, int _x, int _y, int _w, int _h) {
-        defaultButton = createButton(cp5, name, text, _x, _y, _w, _h, h5, 12, colorNotPressed, OPENBCI_DARKBLUE);
-        defaultButton.setBorderColor(OBJECT_BORDER_GREY);
+        defaultButton = MAIN.createButton(cp5, name, text, _x, _y, _w, _h, h5, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
+        defaultButton.setBorderColor(MAIN.OBJECT_BORDER_GREY);
         defaultButton.onClick(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 filterSettings.revertAllChannelsToDefaultValues();
-                filterSettingsWereLoadedFromFile = true;
+                MAIN.filterSettingsWereLoadedFromFile = true;
             }
         });
     }
 
     private void createMasterOnOffButton(String name, final String text, int _x, int _y, int _w, int _h) {
-        masterOnOffButton = createButton(cp5, name, text, _x, _y, _w, _h, 0, h2, 16, SUBNAV_LIGHTBLUE, WHITE, BUTTON_HOVER, BUTTON_PRESSED, (Integer) null, -2);
+        masterOnOffButton = MAIN.createButton(cp5, name, text, _x, _y, _w, _h, 0, h2, 16, MAIN.SUBNAV_LIGHTBLUE, MAIN.WHITE, MAIN.BUTTON_HOVER, MAIN.BUTTON_PRESSED, (Integer) null, -2);
         masterOnOffButton.setCircularButton(true);
         masterOnOffButton.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
@@ -1075,7 +1076,7 @@ public class FilterUIPopup extends GUIManager implements Runnable {
                 && mouseY < expanderY + EXPANDER_HEIGHT/2
                 && mouseX > expanderX
                 && !ignoreExpanderInteraction;
-        int expanderColor = expanderIsHover ? OPENBCI_BLUE : color(102);
+        int expanderColor = expanderIsHover ? MAIN.OPENBCI_BLUE : color(102);
         int[] triXY = filterSettings.values.filterChannelSelect == FilterChannelSelect.ALL_CHANNELS ?
                 expanderTriangleXYCollapsed :
                 expanderTriangleXYExpanded;

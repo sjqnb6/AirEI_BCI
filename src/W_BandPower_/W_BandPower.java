@@ -25,11 +25,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import static GUI.GGVI.*;
-
+import Globel.GUI;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 public class W_BandPower extends Widget {
-
+    GUI MAIN;
     // indexes
     private final int DELTA = 0; // 1-4 Hz
     private final int THETA = 1; // 4-8 Hz
@@ -47,20 +47,20 @@ public class W_BandPower extends Widget {
 
     private List<Controller> cp5ElementsToCheck = new ArrayList<Controller>();
 
-    public W_BandPower(PApplet _parent) {
-        super(_parent); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
-
+    public W_BandPower(GUI MAIN) {
+        super(MAIN); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
+        this.MAIN = MAIN;
         //Add channel select dropdown to this widget
         bpChanSelect = new ChannelSelect(pApplet, this, x, y, w, navH, "BP_Channels");
         bpChanSelect.activateAllButtons();
         cp5ElementsToCheck.addAll(bpChanSelect.getCp5ElementsForOverlapCheck());
 
         //Add settings dropdowns
-        addDropdown("Smoothing", "Smooth", Arrays.asList(settings.fftSmoothingArray), smoothFac_ind); //smoothFac_ind is a global variable at the top of W_HeadPlot.pde
+        addDropdown("Smoothing", "Smooth", Arrays.asList(settings.fftSmoothingArray), MAIN.smoothFac_ind); //smoothFac_ind is a global variable at the top of W_HeadPlot.pde
         addDropdown("UnfiltFilt", "Filters?", Arrays.asList(settings.fftFilterArray), settings.fftFilterSave);
 
         // Setup for the BandPower plot
-        bp_plot = new GPlot(_parent, x, y-navHeight, w, h+navHeight);
+        bp_plot = new GPlot(MAIN, x, y-navHeight, w, h+navHeight);
         // bp_plot.setPos(x, y+navHeight);
         bp_plot.setDim(w, h);
         bp_plot.setLogScale("y");
@@ -68,7 +68,7 @@ public class W_BandPower extends Widget {
         bp_plot.setXLim(0, 5);
         bp_plot.getYAxis().setNTicks(9);
         bp_plot.getXAxis().setNTicks(0);
-        bp_plot.getTitle().setTextAlignment(LEFT);
+        bp_plot.getTitle().setTextAlignment(MAIN.LEFT);
         bp_plot.getTitle().setRelativePos(0);
         bp_plot.setAllFontProperties("Arial", 0, 14);
         bp_plot.getYAxis().getAxisLabel().setText("Power — (uV)^2 / Hz");
@@ -76,12 +76,12 @@ public class W_BandPower extends Widget {
         bp_plot.getXAxis().getAxisLabel().setOffset(42f);
         bp_plot.startHistograms(GPlot.VERTICAL);
         bp_plot.getHistogram().setDrawLabels(true);
-        bp_plot.getXAxis().setFontColor(OPENBCI_DARKBLUE);
-        bp_plot.getXAxis().setLineColor(OPENBCI_DARKBLUE);
-        bp_plot.getXAxis().getAxisLabel().setFontColor(OPENBCI_DARKBLUE);
-        bp_plot.getYAxis().setFontColor(OPENBCI_DARKBLUE);
-        bp_plot.getYAxis().setLineColor(OPENBCI_DARKBLUE);
-        bp_plot.getYAxis().getAxisLabel().setFontColor(OPENBCI_DARKBLUE);
+        bp_plot.getXAxis().setFontColor(MAIN.OPENBCI_DARKBLUE);
+        bp_plot.getXAxis().setLineColor(MAIN.OPENBCI_DARKBLUE);
+        bp_plot.getXAxis().getAxisLabel().setFontColor(MAIN.OPENBCI_DARKBLUE);
+        bp_plot.getYAxis().setFontColor(MAIN.OPENBCI_DARKBLUE);
+        bp_plot.getYAxis().setLineColor(MAIN.OPENBCI_DARKBLUE);
+        bp_plot.getYAxis().getAxisLabel().setFontColor(MAIN.OPENBCI_DARKBLUE);
 
         //setting border of histograms to match BG
         bp_plot.getHistogram().setLineColors(new int[]{
@@ -90,15 +90,15 @@ public class W_BandPower extends Widget {
         );
         //setting bg colors of histogram bars to match the color scheme of the channel colors w/ an opacity of 150/255
         bp_plot.getHistogram().setBgColors(new int[] {
-                        pApplet.color((int)channelColors[6], 200),
-                        pApplet.color((int)channelColors[4], 200),
-                        pApplet.color((int)channelColors[3], 200),
-                        pApplet.color((int)channelColors[2], 200),
-                        pApplet.color((int)channelColors[1], 200),
+                        pApplet.color((int)MAIN.channelColors[6], 200),
+                        pApplet.color((int)MAIN.channelColors[4], 200),
+                        pApplet.color((int)MAIN.channelColors[3], 200),
+                        pApplet.color((int)MAIN.channelColors[2], 200),
+                        pApplet.color((int)MAIN.channelColors[1], 200),
                 }
         );
         //setting color of text label for each histogram bar on the x axis
-        bp_plot.getHistogram().setFontColor(OPENBCI_DARKBLUE);
+        bp_plot.getHistogram().setFontColor(MAIN.OPENBCI_DARKBLUE);
     }
 
     public void update() {

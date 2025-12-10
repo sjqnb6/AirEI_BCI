@@ -1,6 +1,7 @@
 package EmgSettings_;
 
 import EmgSettingsValues_.EmgSettingsValues;
+import Globel.GUI;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import processing.core.PApplet;
@@ -16,13 +17,15 @@ import static GUI.GGVI.directoryManager;
 
 public class EmgSettings {
 
+    GUI MAIN;
     public EmgSettingsValues values;
 
     private int channelCount;
 
     private boolean settingsWereLoaded = false;
 
-    public EmgSettings() {
+    public EmgSettings(GUI MAIN) {
+        this.MAIN = MAIN;
         channelCount = currentBoard.getNumEXGChannels();
         values = new EmgSettingsValues();
     }
@@ -93,7 +96,7 @@ public class EmgSettings {
     }
 
     //Avoid error with popup being in another thread.
-    public void storeSettings(PApplet pApplet) {
+    public void storeSettings() {
         StringBuilder settingsFilename = new StringBuilder(directoryManager.getSettingsPath());
         settingsFilename.append("EmgSettings");
         settingsFilename.append("_");
@@ -101,11 +104,11 @@ public class EmgSettings {
         settingsFilename.append("Channels.json");
         String filename = settingsFilename.toString();
         File fileToSave = new File(filename);
-        pApplet.selectOutput("Save EMG settings to file", "storeEmgSettings", fileToSave);
+        MAIN.selectOutput("Save EMG settings to file", "storeEmgSettings", fileToSave);
     }
 
     //Avoid error with popup being in another thread.
-    public void loadSettings(PApplet pApplet) {
+    public void loadSettings() {
         StringBuilder settingsFilename = new StringBuilder(directoryManager.getSettingsPath());
         settingsFilename.append("EmgSettings");
         settingsFilename.append("_");
@@ -113,7 +116,7 @@ public class EmgSettings {
         settingsFilename.append("Channels.json");
         String filename = settingsFilename.toString();
         File fileToLoad = new File(filename);
-        pApplet.selectInput("Select EMG settings file to load", "loadEmgSettings", fileToLoad);
+        MAIN.selectInput("Select EMG settings file to load", "loadEmgSettings", fileToLoad);
     }
 
     public boolean getSettingsWereLoaded() {

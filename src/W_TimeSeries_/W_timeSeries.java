@@ -16,12 +16,11 @@ import java.util.Collections;
 import java.util.List;
 
 import static GUI.GGVI.*;
-
+import Globel.GUI;
 public class W_timeSeries extends Widget {
     //to see all core variables/methods of the Widget class, refer to Widget.pde
     //put your custom variables here...
-
-    protected PApplet pApplet;
+    GUI MAIN;
 
     public ColorPalette CP;
 
@@ -61,15 +60,14 @@ public class W_timeSeries extends Widget {
 
     List<Controller> cp5ElementsToCheck = new ArrayList<Controller>();
 
-    public W_timeSeries(PApplet _parent) {
-        super(_parent); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
+    public W_timeSeries(GUI MAIN) {
+        super(MAIN); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
 
-        CP = new ColorPalette(_parent);
+        CP = new ColorPalette(MAIN);
 
-        pApplet = _parent;
 
-        tscp5 = new ControlP5(_parent);
-        tscp5.setGraphics(_parent, 0,0);
+        tscp5 = new ControlP5(MAIN);
+        tscp5.setGraphics(MAIN, 0,0);
         tscp5.setAutoDraw(false);
 
         tsChanSelect = new ChannelSelect(pApplet, this, x, y, w, navH, "TS_Channels");
@@ -101,15 +99,15 @@ public class W_timeSeries extends Widget {
             pb_y = ts_y + ts_h + playbackWidgetHeight + (ts_padding * 3);
             pb_w = ts_w - ts_padding*4;
             pb_h = playbackWidgetHeight/2;
-            int _x = floor(xF) - 1;
+            int _x = MAIN.floor(xF) - 1;
             int _y = (int)(ts_y + ts_h + playbackWidgetHeight + 5);
             int _w = (int)(wF) + 1;
             int _h = (int)(playbackWidgetHeight);
             //Make a new scrollbar
-            scrollbar = new PlaybackScrollbar(this, _x, _y, _w, _h, (int)(pb_x), (int)(pb_y), (int)(pb_w), (int)(pb_h));
+            scrollbar = new PlaybackScrollbar(MAIN, _x, _y, _w, _h, (int)(pb_x), (int)(pb_y), (int)(pb_w), (int)(pb_h));
         } else {
             int td_h = 18;
-            timeDisplay = new TimeDisplay(pApplet, (int)(ts_x), (int)(ts_y + hF - td_h), (int)(ts_w), td_h);
+            timeDisplay = new TimeDisplay(MAIN, (int)(ts_x), (int)(ts_y + hF - td_h), (int)(ts_w), td_h);
             playbackWidgetHeight = 0.0F;
         }
 
@@ -125,7 +123,7 @@ public class W_timeSeries extends Widget {
         //create our channel bars and populate our channelBars array!
         for(int i = 0; i < numChannelBars; i++) {
             int channelBarY = (int)(ts_y) + i*(channelBarHeight); //iterate through bar locations
-            ChannelBar tempBar = new ChannelBar(pApplet, i, (int)(ts_x), channelBarY, (int)(ts_w), channelBarHeight, expand_default, expand_hover, expand_active, contract_default, contract_hover, contract_active);
+            ChannelBar tempBar = new ChannelBar(MAIN, i, (int)(ts_x), channelBarY, (int)(ts_w), channelBarHeight, expand_default, expand_hover, expand_active, contract_default, contract_hover, contract_active);
             channelBars[i] = tempBar;
         }
 
@@ -137,7 +135,7 @@ public class W_timeSeries extends Widget {
         if (currentBoard instanceof ADS1299SettingsBoard) {
             hwSettingsButton = createHSCButton("HardwareSettings", "Hardware Settings", (int)(x0 + 80), (int)(y0 + navHeight + 1), 120, navHeight - 3);
             cp5ElementsToCheck.add((Controller)hwSettingsButton);
-            adsSettingsController = new ADS1299SettingsController(_parent, tsChanSelect.activeChan, x_hsc, y_hsc, w_hsc, h_hsc, channelBarHeight);
+            adsSettingsController = new ADS1299SettingsController(MAIN, tsChanSelect.activeChan, x_hsc, y_hsc, w_hsc, h_hsc, channelBarHeight);
         }
     }
 
@@ -233,7 +231,7 @@ public class W_timeSeries extends Widget {
 
         ////Resize the playback slider if using playback mode, or resize timeDisplay div at the bottom of timeSeries
         if((currentBoard instanceof FileBoard) && hasScrollbar) {
-            int _x = floor(xF) - 1;
+            int _x = MAIN.floor(xF) - 1;
             int _y = (int)(ts_y + ts_h + playbackWidgetHeight + 5);
             int _w = (int)(wF) + 1;
             int _h = (int)(playbackWidgetHeight);
@@ -296,7 +294,7 @@ public class W_timeSeries extends Widget {
         String buttonText = "Time Series";
 
         if (visible && currentBoard.isStreaming()) {
-            PopupMessage msg = new PopupMessage("Info", "Streaming needs to be stopped before accessing Hardware Settings");
+            PopupMessage msg = new PopupMessage(MAIN, "Info", "Streaming needs to be stopped before accessing Hardware Settings");
             return;
         }
 
@@ -317,11 +315,11 @@ public class W_timeSeries extends Widget {
     }
 
     private Button createHSCButton(String name, String text, int _x, int _y, int _w, int _h) {
-        final Button myButton = createButton(tscp5, name, text, _x, _y, _w, _h);
+        final Button myButton = MAIN.createButton(tscp5, name, text, _x, _y, _w, _h);
         myButton.setBorderColor(CP.OBJECT_BORDER_GREY);
         myButton.onClick(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
-                println("HardwareSettings Toggle: " + !adsSettingsController.getIsVisible());
+                MAIN.println("HardwareSettings Toggle: " + !adsSettingsController.getIsVisible());
                 setAdsSettingsVisible(!adsSettingsController.getIsVisible());
             }
         });
