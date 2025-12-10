@@ -1,12 +1,27 @@
 package Globel;
 
+import BoardNull_.BoardNull;
 import ConsoleLog_.CustomOutputStream;
+import ControlPanel_.ControlPanel;
+import CustomCp5Classes_.ButtonHelpText;
 import CustomCp5Classes_.CopyPaste;
+import CustomCp5Classes_.TextFieldUpdateHelper;
+import DataLogger_.DataLogger;
+import DataProcessing_.DataProcessing;
+import DataSource_.DataSource;
+import Debugging_.HelpWidget;
 import DirectoryManager_.DirectoryManager;
+import Extras_.DataStatus;
+import Extras_.PlotFontInfo;
+import FilterSettings_.FilterSettings;
+import GuiSettings_.GuiSettings;
 import SessionSettings_.SessionSettings;
+import TopNav_.TopNav;
+import WidgetManager_.WidgetManager;
 import brainflow.BoardShim;
 import brainflow.BrainFlowError;
 import controlP5.*;
+import ddf.minim.AudioOutput;
 import ddf.minim.Minim;
 import ddf.minim.ugens.FilePlayer;
 import gifAnimation.Gif;
@@ -17,8 +32,8 @@ import processing.core.PFont;
 import processing.core.PImage;
 import processing.data.JSONObject;
 
-import static GUI.GGVI.buttonHelpText;
-import static GUI.GGVI.p5;
+//import static GUI.GGVI.buttonHelpText;
+//import static GUI.GGVI.p5;
 
 public class GUI extends PApplet {
     //Used to check GUI version in TopNav.pde and displayed on the splash screen on startup
@@ -195,9 +210,6 @@ public class GUI extends PApplet {
     public static StringBuilder globalScreenResolution;
     public static StringBuilder globalScreenDPI;
 
-
-
-
     //Starting to collect the GUI-wide color pallet here. Rename constants all caps later...
     public final int WHITE = color(255);
     public final int BLACK = color(0);
@@ -294,46 +306,55 @@ public class GUI extends PApplet {
 
     public static boolean filterSettingsWereLoadedFromFile = false;
 
-//    public static ButtonHelpText buttonHelpText;
+    public static ButtonHelpText buttonHelpText;
 //
-//    public static TextFieldUpdateHelper textfieldUpdateHelper;
+    public static TextFieldUpdateHelper textfieldUpdateHelper;
 
     public static CustomOutputStream outputStream;
 
 
     public static DirectoryManager directoryManager;
     public SessionSettings settings;
-//    public static GuiSettings guiSettings;
-//    public static DataProcessing dataProcessing;
-//    public static FilterSettings filterSettings;
+    public static GuiSettings guiSettings;
+    public static DataProcessing dataProcessing;
+    public static FilterSettings filterSettings;
 
 
     public static CopyPaste copyPaste;
+
+    public HelpWidget helpWidget;
+
 //
 //    // Initialize board
-//    public static DataSource currentBoard = new BoardNull();
+    public static DataSource currentBoard = new BoardNull();
 //
-//    public static DataLogger dataLogger = new DataLogger();
+    public static DataLogger dataLogger = new DataLogger();
 //
 //    // Intialize interface protocols
 //    public static InterfaceSerial iSerial = new InterfaceSerial(); //This is messy, half-deprecated code. See comments in InterfaceSerial.pde - Nov. 2020
 //
 //    //define variables related to warnings to the user about whether the EEG data is nearly railed (and, therefore, of dubious quality)
-//    public static DataStatus[] is_railed;
+    public static DataStatus[] is_railed;
 //
 //    //Cyton SD Card setting
 //    public static CytonSDMode cyton_sdSetting = CytonSDMode.NO_WRITE;
 //
-//    public static ControlPanel controlPanel;
+    public static ControlPanel controlPanel;
 //
 //    //Control Panel for (re)configuring system settings
-//    public static PlotFontInfo fontInfo;
+    public static PlotFontInfo fontInfo;
 //
-//    public static WidgetManager wm;
+    public static WidgetManager wm;
 //
 
 //
-//    public static TopNav topNav;
+    public static TopNav topNav;
+
+    public static Minim minim;
+    public static FilePlayer[] auditoryNfbFilePlayers;
+    public static ddf.minim.ugens.Gain[] auditoryNfbGains;
+    public static AudioOutput audioOutput;
+    public static boolean audioOutputIsAvailable;
 //
 //    // MAKE YOUR WIDGET GLOBALLY
 //    public static W_timeSeries w_timeSeries;

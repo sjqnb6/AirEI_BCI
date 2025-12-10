@@ -1,13 +1,14 @@
 package BoardCyton_;
 
+import Globel.GUI;
 import brainflow.BoardIds;
 
 public class BoardCytonWifi extends BoardCytonWifiBase {
-    public BoardCytonWifi() {
-        super();
+    public BoardCytonWifi(GUI MAIN) {
+        super(MAIN);
     }
-    public BoardCytonWifi(String ipAddress, int samplingRate) {
-        super(samplingRate);
+    public BoardCytonWifi(GUI MAIN, String ipAddress, int samplingRate) {
+        super(MAIN, samplingRate);
         this.ipAddress = ipAddress;
     }
 

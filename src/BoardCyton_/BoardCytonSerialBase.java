@@ -13,7 +13,7 @@ public abstract class BoardCytonSerialBase extends BoardCyton implements Smoothi
     private GUI MAIN;
 
     public BoardCytonSerialBase(GUI MAIN) {
-        super();
+        super(MAIN);
         setSmoothingActive(true);
         this.MAIN = MAIN;
     }

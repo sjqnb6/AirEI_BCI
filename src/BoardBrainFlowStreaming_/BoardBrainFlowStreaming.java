@@ -1,6 +1,7 @@
 package BoardBrainFlowStreaming_;
 
 import BoardBrainflow_.BoardBrainFlow;
+import Globel.GUI;
 import PacketLossTracker_.PacketLossTracker;
 import PacketLossTracker_.PacketLossTrackerCytonSerialDaisy;
 import brainflow.BoardIds;
@@ -18,8 +19,8 @@ public class BoardBrainFlowStreaming extends BoardBrainFlow {
     private String ipAddress;
     private int ipPort;
 
-    public BoardBrainFlowStreaming(BoardIds masterBoardId, String ipAddress, int ipPort) {
-        super();
+    public BoardBrainFlowStreaming(GUI MAIN, BoardIds masterBoardId, String ipAddress, int ipPort) {
+        super(MAIN);
         this.masterBoardId = masterBoardId;
         this.ipAddress = ipAddress;
         this.ipPort = ipPort;

@@ -3,6 +3,7 @@ package DataSourcePlayback_;
 import DataSourcePlaybackCyton_.DataSourcePlaybackCyton;
 import DataSourcePlaybackGanglion_.DataSourcePlaybackGanglion;
 import DataSourcePlaybackSynthetic_.DataSourcePlaybackSynthetic;
+import Globel.GUI;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,7 +14,7 @@ import static processing.core.PApplet.split;
 
 public class GF {
 
-    public static DataSourcePlayback getDataSourcePlaybackClassFromFile(String path) {
+    public static DataSourcePlayback getDataSourcePlaybackClassFromFile(GUI MAIN, String path) {
         verbosePrint("Checking " + path + " for underlying board class.");
         String strCurrentLine;
         int lineCounter = 0;
@@ -48,13 +49,13 @@ public class GF {
             case ("BoardCytonSerialDaisy"):
             case ("BoardCytonWifi"):
             case ("BoardCytonWifiDaisy"):
-                return new DataSourcePlaybackCyton(path);
+                return new DataSourcePlaybackCyton(MAIN,path);
             case ("BoardGanglionBLE"):
             case ("BoardGanglionNative"):
             case ("BoardGanglionWifi"):
-                return new DataSourcePlaybackGanglion(path);
+                return new DataSourcePlaybackGanglion(MAIN,path);
             case ("BoardBrainFlowSynthetic"):
-                return new DataSourcePlaybackSynthetic(path);
+                return new DataSourcePlaybackSynthetic(MAIN,path);
             default:
                 return null;
         }

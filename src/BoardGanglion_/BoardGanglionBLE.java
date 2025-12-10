@@ -15,13 +15,13 @@ public class BoardGanglionBLE extends BoardGanglion {
     private PacketLossTrackerGanglionBLE packetLossTrackerGanglionBLE;
     GUI MAIN;
     public BoardGanglionBLE(GUI MAIN) {
-        super();
+        super(MAIN);
         this.MAIN = MAIN;
 
     }
 
-    public BoardGanglionBLE(String deviceName, String serialPort, String macAddress, boolean showUpgradePopup) {
-        super();
+    public BoardGanglionBLE(GUI MAIN, String deviceName, String serialPort, String macAddress, boolean showUpgradePopup) {
+        super(MAIN);
         this.serialPort = serialPort;
         this.macAddress = macAddress;
 

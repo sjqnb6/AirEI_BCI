@@ -2,6 +2,7 @@ package BoardGanglion_;
 
 import AccelerometerCapableBoard_.AccelerometerCapableBoard;
 import BoardBrainflow_.BoardBrainFlow;
+import Globel.GUI;
 import brainflow.BoardShim;
 import brainflow.BrainFlowError;
 import brainflow.BrainFlowInputParams;
@@ -29,6 +30,10 @@ public abstract class BoardGanglion extends BoardBrainFlow implements Accelerome
 
     private boolean isCheckingImpedance = false;
     private boolean isGettingAccel = false;
+
+    public BoardGanglion(GUI MAIN) {
+        super(MAIN);
+    }
 
     // implement mandatory abstract functions
     @Override

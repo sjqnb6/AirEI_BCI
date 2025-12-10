@@ -16,12 +16,12 @@ public class BoardGanglionNative extends BoardGanglion {
     private String boardName;
     private int firmwareVersion = 0;
 
-    public BoardGanglionNative() {
-        super();
+    public BoardGanglionNative(GUI MAIN) {
+        super(MAIN);
     }
 
     public BoardGanglionNative(GUI MAIN, String name, boolean showUpgradePopup) {
-        super();
+        super(MAIN);
         this.MAIN = MAIN;
         this.boardName = name;
 

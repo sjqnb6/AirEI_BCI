@@ -1,15 +1,57 @@
 
 //import CustomCp5Classes_.CopyPaste;
+import BoardBrainFlowStreaming_.BoardBrainFlowStreaming;
+import BoardBrainFlowSynthetic_.BoardBrainFlowSynthetic;
+import BoardBrainflow_.BoardBrainFlow;
+import BoardCyton_.BoardCytonSerial;
+import BoardCyton_.BoardCytonSerialDaisy;
+import BoardCyton_.BoardCytonWifi;
+import BoardCyton_.BoardCytonWifiDaisy;
+import BoardGanglion_.BoardGanglionBLE;
+import BoardGanglion_.BoardGanglionNative;
+import BoardGanglion_.BoardGanglionWifi;
 import ConsoleLog_.CustomOutputStream;
+import ControlPanel_.ControlPanel;
+import CustomCp5Classes_.ButtonHelpText;
 import CustomCp5Classes_.CopyPaste;
+import CustomCp5Classes_.TextFieldUpdateHelper;
+import DataProcessing_.DataProcessing;
+import DataSourceSDCard_.DataSourceSDCard;
+import DataSource_.DataSource;
+import Debugging_.HelpWidget;
 import DirectoryManager_.DirectoryManager;
+import Extras_.DataStatus;
+import Extras_.PlotFontInfo;
+import FilterSettings_.FilterSettings;
 import Globel.GGVI;
 import Globel.GUI;
+import GuiSettings_.GuiSettings;
+import PopupMessage_.PopupMessage;
+import SessionSettings_.SessionSettings;
+import TopNav_.TopNav;
+import WidgetManager_.WidgetManager;
+import brainflow.BoardShim;
+import brainflow.BrainFlowError;
+import ddf.minim.Minim;
+import ddf.minim.ugens.FilePlayer;
+import gifAnimation.Gif;
+import org.apache.commons.lang3.time.StopWatch;
+import org.apache.commons.lang3.tuple.Pair;
 import processing.core.PApplet;
 
 import java.io.File;
 
-import static Globel.GF.isMac;
+import static AuditoryNeurofeedback_.GVI.*;
+import static Containers_.GF.drawContainers;
+import static Containers_.GF.setupContainers;
+import static DataProcessing_.GF.initializeFFTObjects;
+import static DataProcessing_.GF.processNewData;
+import static DataSourcePlayback_.GF.getDataSourcePlaybackClassFromFile;
+import static Debugging_.GF.outputError;
+import static Debugging_.GF.verbosePrint;
+import static Globel.GF.*;
+import static SystemManager.GF.*;
+import static WidgetManager_.GVI.w_networking;
 
 public class Main extends GUI {
 
@@ -34,6 +76,16 @@ public class Main extends GUI {
             win_h = 580;
         }
         size(win_w, win_h);
+
+
+        globalScreenResolution = new StringBuilder("Screen Resolution: ");
+        globalScreenResolution.append(displayWidth);
+        globalScreenResolution.append(" X ");
+        globalScreenResolution.append(displayHeight);
+        //Account for high-dpi displays on Mac, Windows, and Linux Machines Fixes #968
+        pixelDensity(displayDensity());
+        globalScreenDPI = new StringBuilder("High-DPI Screen Detected: ");
+        globalScreenDPI.append(displayDensity() == 2);
 
     }
 
@@ -92,44 +144,85 @@ public class Main extends GUI {
         // redirect all output to a custom stream that will intercept all prints
         // write them to file and display them in the GUI's console window
         outputStream = new CustomOutputStream(System.out);
-//        System.setOut(outputStream);
-//        System.setErr(outputStream);
+        System.setOut(outputStream);
+        System.setErr(outputStream);
 
+        StringBuilder osName = new StringBuilder("Operating System and Version: ");
+
+        if (isLinux()) {
+            osName.append("Linux");
+            osName.append(" - ");
+            osName.append(getOperatingSystemVersion());
+        } else if (isWindows()) {
+            osName.append(getOperatingSystemName());
+            //Throw a popup if we detect an incompatible version of Windows. Fixes #964. Found in Extras.pde.
+            checkIsOldVersionOfWindowsOS();
+            //This is an edge case when using 32-bit Processing Java on Windows. Throw a popup if detected.
+            checkIs64BitJava();
+        } else if (isMac()) {
+            osName.append("Mac");
+            osName.append(" - ");
+            osName.append(getOperatingSystemVersion());
+        }
+
+
+        println("Console Log Started at Local Time: " + directoryManager.getFileNameDateTime());
+        println(globalScreenResolution.toString());
+        println(globalScreenDPI.toString());
+        println(osName.toString());
+        if (isMac()) {
+            checkIsMacFullDetail();
+        }
+        println("JVM Version: " + System.getProperty("java.version"));
+        println("Welcome to the Processing-based OpenBCI GUI!"); //Welcome line.
+        println("For more information, please visit: https://docs.openbci.com/Software/OpenBCISoftware/GUIDocs/");
+
+
+        // Copy sample data to the Users' Documents folder +  create Recordings folder
+        directoryManager.init();
+        settings = new SessionSettings(this);
+        guiSettings = new GuiSettings(directoryManager.getSettingsPath());
+        userPlaybackHistoryFile = directoryManager.getSettingsPath()+"UserPlaybackHistory.json";
+
+        //open window
+//        ourApplet = this;
+
+        // Bug #426: If setup takes too long, JOGL will time out waiting for the GUI to draw something.
+        // moving the setup to a separate thread solves this. We just have to make sure not to
+        // start drawing until delayed setup is done.
+        thread("delayedSetup");
     }
 
     public synchronized void draw() {
         super.draw();
 
-//        if (showStartupError) {
-//            drawStartupError();
-//            return;
-//        }
-//
-//        if (setupComplete && systemMode != SYSTEMMODE_INTROANIMATION) {
-//            systemUpdate();
-//            systemDraw();
-//
-//            if (midInit) {
-//                systemInitSession();
-//            }
-//
-//            if (reinitRequested) {
-//                haltSystem();
-//                initSystem();
-//                reinitRequested = false;
-//            }
-//
-//            if (systemMode == SYSTEMMODE_POSTINIT) {
-//                w_networking.compareAndSetNetworkingFrameLocks();
-//            }
-//
-//        } else if (systemMode == SYSTEMMODE_INTROANIMATION) {
-//            if (settings.introAnimationInit == 0) {
-//                settings.introAnimationInit = millis();
-//            } else {
-//                introAnimation();
-//            }
-//        }
+        if (showStartupError) {
+            drawStartupError();
+        }
+        else if (setupComplete && systemMode != SYSTEMMODE_INTROANIMATION) {
+            systemUpdate(); //signPost("20");
+            systemDraw();   //signPost("30");
+            if (midInit) {
+                //If Start Session was clicked, wait 2 draw cycles to show overlay, then init session.
+                //When Init session is started, the screen will seem to hang.
+                systemInitSession();
+            }
+            if(reinitRequested) {
+                haltSystem();
+                initSystem();
+                reinitRequested = false;
+            }
+            if (systemMode == SYSTEMMODE_POSTINIT) {
+                w_networking.compareAndSetNetworkingFrameLocks();
+            }
+        }
+        else if (systemMode == SYSTEMMODE_INTROANIMATION) {
+            if (settings.introAnimationInit == 0) {
+                settings.introAnimationInit = millis();
+            } else {
+                introAnimation();
+            }
+        }
 
 
         introAnimation();
@@ -137,6 +230,70 @@ public class Main extends GUI {
 
 
     }
+
+    void delayedSetup() {
+        smooth(); //turn this off if it's too slow
+
+        surface.setResizable(true);  //updated from frame.setResizable in Processing 2
+        settings.widthOfLastScreen = width; //for screen resizing (Thank's Tao)
+        settings.heightOfLastScreen = height;
+
+        setupContainers(this);
+
+        fontInfo = new PlotFontInfo();
+        helpWidget = new HelpWidget(this,0, win_h - 30, win_w, 30);
+        //Instantiate buttonHelpText before any buttons have been made
+        buttonHelpText = new ButtonHelpText(this);
+        textfieldUpdateHelper = new TextFieldUpdateHelper();
+
+        //setup topNav
+        topNav = new TopNav(this);
+
+        //Print BrainFlow version
+        StringBuilder brainflowVersion = new StringBuilder("BrainFlow Version: ");
+        try {
+            brainflowVersion.append(BoardShim.get_version());
+        } catch (BrainFlowError e) {
+            e.printStackTrace();
+        }
+        println(brainflowVersion);
+
+
+        logo_black = loadImage("obci-logo-blk.png");
+        logo_blue = loadImage("obci-logo-blu.png");
+        logo_white = loadImage("obci-logo-wht.png");
+        consoleImgBlue = loadImage("console-45x45-dots_blue.png");
+        consoleImgWhite = loadImage("console-45x45-dots_white.png");
+        loadingGIF = new Gif(this, "ajax_loader_gray_512.gif");
+        loadingGIF.loop();
+        loadingGIF_blue = new Gif(this, "obci_cog_anim-normalblue.gif");
+        loadingGIF_blue.loop();
+
+        prepareExitHandler();
+
+        sessionTimeElapsed = new StopWatch();
+        streamTimeElapsed = new StopWatch();
+
+        asyncLoadAudioFiles();
+
+        synchronized(this) {
+            // Instantiate ControlPanel in the synchronized block.
+            // It's important to avoid instantiating a ControlP5 during a draw() call
+            // Otherwise we get a crash on launch 10% of the time
+            controlPanel = new ControlPanel(this);
+
+            setupComplete = true; // signal that the setup thread has finished
+            println("OpenBCI_GUI::Setup: Setup is complete!");
+        }
+
+        //Apply GUI-wide settings to front end at the end of setup
+        guiSettings.applySettings();
+
+        if (!isAdminUser() || isElevationNeeded()) {
+            outputError("OpenBCI_GUI: This application is not being run with Administrator access. This could limit the ability to connect to devices or read/write files.");
+        }
+    }
+
 
     void drawStartupError() {
         final int w = 600;
@@ -163,110 +320,118 @@ public class Main extends GUI {
         popStyle();
     }
 
-//    void systemUpdate() { // for updating data values and variables
-//        //prepare for updating the GUI
-//        win_w = width;
-//        win_h = height;
-//
-//        textfieldUpdateHelper.resetTextFieldIsActive();
-//
-//        currentBoard.update();
-//
-//        dataLogger.update();
-//
-//        helpWidget.update();
-//        topNav.update();
-//        if (systemMode == SYSTEMMODE_PREINIT) {
-//            //updates while in system control panel before START SYSTEM
-//            controlPanel.update();
-//
-//            if (settings.widthOfLastScreen != width || settings.heightOfLastScreen != height) {
-//                topNav.screenHasBeenResized(width, height);
-//                settings.widthOfLastScreen = width;
-//                settings.heightOfLastScreen = height;
-//                //println("W = " + width + " || H = " + height);
-//            }
-//        }
-//        if (systemMode == SYSTEMMODE_POSTINIT) {
-//            processNewData();
-//
-//            //alternative component listener function (line 177 mouseReleased- 187 frame.addComponentListener) for processing 3,
-//            //Component listener doesn't seem to work, so staying with this method for now
-//            if (settings.widthOfLastScreen != width || settings.heightOfLastScreen != height) {
-//                settings.screenHasBeenResized = true;
-//                settings.timeOfLastScreenResize = millis();
-//                settings.widthOfLastScreen = width;
-//                settings.heightOfLastScreen = height;
-//            }
-//
-//            //re-initialize GUI if screen has been resized and it's been more than 1/2 seccond (to prevent reinitialization of GUI from happening too often)
-//            if (settings.screenHasBeenResized && settings.timeOfLastScreenResize + 500 > millis()) {
+    void systemUpdate() { // for updating data values and variables
+        //prepare for updating the GUI
+        win_w = width;
+        win_h = height;
+
+        textfieldUpdateHelper.resetTextFieldIsActive();
+
+        currentBoard.update();
+
+        dataLogger.update(this);
+
+        helpWidget.update();
+        topNav.update();
+        if (systemMode == SYSTEMMODE_PREINIT) {
+            //updates while in system control panel before START SYSTEM
+            controlPanel.update();
+
+            if (settings.widthOfLastScreen != width || settings.heightOfLastScreen != height) {
+                topNav.screenHasBeenResized(width, height);
+                settings.widthOfLastScreen = width;
+                settings.heightOfLastScreen = height;
+                //println("W = " + width + " || H = " + height);
+            }
+        }
+        if (systemMode == SYSTEMMODE_POSTINIT) {
+            processNewData();
+
+            //alternative component listener function (line 177 mouseReleased- 187 frame.addComponentListener) for processing 3,
+            //Component listener doesn't seem to work, so staying with this method for now
+            if (settings.widthOfLastScreen != width || settings.heightOfLastScreen != height) {
+                settings.screenHasBeenResized = true;
+                settings.timeOfLastScreenResize = millis();
+                settings.widthOfLastScreen = width;
+                settings.heightOfLastScreen = height;
+            }
+
+            //re-initialize GUI if screen has been resized and it's been more than 1/2 seccond (to prevent reinitialization of GUI from happening too often)
+            if (settings.screenHasBeenResized && settings.timeOfLastScreenResize + 500 > millis()) {
 //                ourApplet = this; //reset PApplet...
-//                topNav.screenHasBeenResized(width, height);
-//                wm.screenResized();
-//                settings.screenHasBeenResized = false;
-//            }
+                topNav.screenHasBeenResized(width, height);
+                wm.screenResized();
+                settings.screenHasBeenResized = false;
+            }
+
+            if (wm.isWMInitialized) {
+                wm.update();
+            }
+        }
+    }
 //
-//            if (wm.isWMInitialized) {
-//                wm.update();
-//            }
-//        }
-//    }
 //
-//
-//    void systemDraw() { //for drawing to the screen
-//        //redraw the screen...not every time, get paced by when data is being plotted
-//        background(OPENBCI_DARKBLUE);  //clear the screen
-//        noStroke();
-//        //background(255);  //clear the screen
-//
-//        if (systemMode >= SYSTEMMODE_POSTINIT) {
-//            wm.draw();
-//            drawContainers();
-//        }
-//
-//        if (systemMode >= SYSTEMMODE_PREINIT) {
-//            topNav.draw();
-//
-//            //control panel
-//            if (controlPanel.isOpen) {
-//                controlPanel.draw();
-//            }
-//
-//            //Draw output window at the bottom of the GUI
-//            helpWidget.draw();
-//        }
-//
-//        //Draw button help text close to the top
-//        buttonHelpText.draw();
-//
-//        //Draw Session Start overlay on top of everything
-//        if (midInit) {
-//            drawOverlay("Starting Session...");
-//        } else if (controlPanel.comPortBox.isAutoScanningForCytonSerial()) {
-//            drawOverlay("Auto-Scanning for Cyton...");
-//        }
-//
-//        //Display GUI version and FPS in the title bar of the app
-//        surface.setTitle("OpenBCI GUI " + localGUIVersionString + " - " + localGUIVersionDate + " - " + int(frameRate) + " fps");
-//    }
+    void systemDraw() { //for drawing to the screen
+        //redraw the screen...not every time, get paced by when data is being plotted
+        background(OPENBCI_DARKBLUE);  //clear the screen
+        noStroke();
+        //background(255);  //clear the screen
+
+        if (systemMode >= SYSTEMMODE_POSTINIT) {
+            wm.draw();
+            drawContainers(this);
+        }
+
+        if (systemMode >= SYSTEMMODE_PREINIT) {
+            topNav.draw();
+
+            //control panel
+            if (controlPanel.isOpen) {
+                controlPanel.draw();
+            }
+
+            //Draw output window at the bottom of the GUI
+            helpWidget.draw();
+        }
+
+        //Draw button help text close to the top
+        buttonHelpText.draw();
+
+        //Draw Session Start overlay on top of everything
+        if (midInit) {
+            drawOverlay("Starting Session...");
+        } else if (controlPanel.comPortBox.isAutoScanningForCytonSerial()) {
+            drawOverlay("Auto-Scanning for Cyton...");
+        }
+
+        //Display GUI version and FPS in the title bar of the app
+        surface.setTitle(
+                "OpenBCI GUI "
+                        + localGUIVersionString
+                        + " - "
+                        + localGUIVersionDate
+                        + " - "
+                        + (int) frameRate
+                        + " fps"
+        );
+    }
 //
 //    //Always Called after systemDraw()
-//    void systemInitSession() {
-//        if (midInitCheck2) {
-//            println("OpenBCI_GUI: Start session. Calling initSystem().");
-//            try {
-//                initSystem(); //found in OpenBCI_GUI.pde
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//                haltSystem();
-//            }
-//            midInitCheck2 = false;
-//            midInit = false;
-//        } else {
-//            midInitCheck2 = true;
-//        }
-//    }
+    void systemInitSession() {
+        if (midInitCheck2) {
+            println("OpenBCI_GUI: Start session. Calling initSystem().");
+            try {
+                initSystem(); //found in OpenBCI_GUI.pde
+            } catch (Exception e) {
+                e.printStackTrace();
+                haltSystem();
+            }
+            midInitCheck2 = false;
+            midInit = false;
+        } else {
+            midInitCheck2 = true;
+        }
+    }
 //
 //
 //    //halt the data collection
@@ -320,191 +485,191 @@ public class Main extends GUI {
 //
 //
 //    //Init system based on default settings. Called from the "START SESSION" button in the GUI's ControlPanel.
-//    void initSystem() {
-//        println("");
-//        println("");
-//        println("=================================================");
-//        println("||             INITIALIZING SYSTEM             ||");
-//        println("=================================================");
-//        println("");
-//
-//        verbosePrint("OpenBCI_GUI: initSystem: -- Init 0 -- ");
-//
-//        //reset init variables
-//        systemHasHalted = false;
-//        boolean abandonInit = false;
-//
-//        sessionTimeElapsed.reset();
-//        sessionTimeElapsed.start();
-//        sessionTimeElapsed.suspend();
-//
-//        //prepare the source of the input data
-//        switch (eegDataSource) {
-//            case DATASOURCE_CYTON:
-//                if (selectedProtocol == BoardProtocol.SERIAL) {
-//                    if(nchan == 16) {
-//                        currentBoard = new BoardCytonSerialDaisy(openBCI_portName);
-//                    }
-//                    else {
-//                        currentBoard = new BoardCytonSerial(openBCI_portName);
-//                    }
-//                }
-//                else if (selectedProtocol == BoardProtocol.WIFI) {
-//                    if(nchan == 16) {
-//                        currentBoard = new BoardCytonWifiDaisy(wifi_ipAddress, selectedSamplingRate);
-//                    }
-//                    else {
-//                        currentBoard = new BoardCytonWifi(wifi_ipAddress, selectedSamplingRate);
-//                    }
-//                }
-//                break;
-//            case DATASOURCE_SYNTHETIC:
-//                currentBoard = new BoardBrainFlowSynthetic(nchan);
-//                println("OpenBCI_GUI: Init session using Synthetic data source");
-//                break;
-//            case DATASOURCE_PLAYBACKFILE:
-//                if (!playbackData_fname.equals("N/A")) {
-//                    currentBoard = getDataSourcePlaybackClassFromFile(playbackData_fname);
-//                    println("OpenBCI_GUI: Init session using Playback data source");
-//                } else {
-//                    if (!sdData_fname.equals("N/A")) {
-//                        currentBoard = new DataSourceSDCard(sdData_fname);
-//                        println("OpenBCI_GUI: Init session using Playback data source");
-//                    }
-//                    else {
-//                        // no code path to it
-//                        println("No playback or SD file selected.");
-//                    }
-//                }
-//                break;
-//            case DATASOURCE_GANGLION:
-//                boolean showUpgradePopup = false;
-//                if (guiSettings.getShowGanglionUpgradePopup())
-//                {
-//                    showUpgradePopup = true;
-//                    guiSettings.setShowGanglionUpgradePopup(false);
-//                }
-//
-//                if (selectedProtocol == BoardProtocol.WIFI) {
-//                    currentBoard = new BoardGanglionWifi(wifi_ipAddress, selectedSamplingRate);
-//                } else if (selectedProtocol == BoardProtocol.BLED112) {
-//                    String ganglionName = (String)(controlPanel.bleBox.bleList.getItem(controlPanel.bleBox.bleList.activeItem).get("headline"));
-//                    String ganglionPort = (String)(controlPanel.bleBox.bleList.getItem(controlPanel.bleBox.bleList.activeItem).get("subline"));
-//                    String ganglionMac = controlPanel.bleBox.bleMACAddrMap.get(ganglionName);
-//                    println("MAC address for Ganglion is " + ganglionMac);
-//                    currentBoard = new BoardGanglionBLE(ganglionName, ganglionPort, ganglionMac, showUpgradePopup);
-//                } else if (selectedProtocol == BoardProtocol.NATIVE_BLE) {
-//                    String ganglionName = (String)(controlPanel.bleBox.bleList.getItem(controlPanel.bleBox.bleList.activeItem).get("headline"));
-//                    String ganglionMac = controlPanel.bleBox.bleMACAddrMap.get(ganglionName);
-//                    println("MAC address for Ganglion is " + ganglionMac);
-//                    currentBoard = new BoardGanglionNative(ganglionName, showUpgradePopup);
-//                }
-//                break;
-//            case DATASOURCE_STREAMING:
-//                currentBoard = new BoardBrainFlowStreaming(
-//                        controlPanel.streamingBoardBox.getBoard().getBoardId(),
-//                        controlPanel.streamingBoardBox.getIP(),
-//                        controlPanel.streamingBoardBox.getPort()
-//                );
-//                println("OpenBCI_GUI: Init session using Streaming data source");
-//            default:
-//                break;
-//        }
-//
-//        // initialize the chosen board
-//        boolean success = currentBoard.initialize();
-//        abandonInit = !success; // abandon if init fails
-//
-//        //Handle edge cases for Cyton and Cyton+Daisy users immediately after board is initialized. Fixes #954
-//        if (eegDataSource == DATASOURCE_CYTON) {
-//            println("OpenBCI_GUI: Configuring Cyton Channel Count...");
-//            if (currentBoard instanceof BoardCytonSerial) {
-//                Pair<Boolean, String> res = ((BoardBrainFlow)currentBoard).sendCommand("c");
-//                //println(res.getKey().booleanValue(), res.getValue());guiSettings
-//                if (res.getValue().startsWith("daisy removed")) {
-//                    println("OpenBCI_GUI: Daisy is physically attached, using Cyton 8 Channels instead.");
-//                }
-//            } else if (currentBoard instanceof BoardCytonSerialDaisy) {
-//                Pair<Boolean, String> res = ((BoardBrainFlow)currentBoard).sendCommand("C");
-//                //println(res.getKey().booleanValue(), res.getValue());
-//                if (res.getValue().startsWith("no daisy to attach")) {
-//                    haltSystem();
-//                    outputError("User selected Cyton+Daisy, but no Daisy is attached. Please change Channel Count to 8 Channels.");
-//                    controlPanel.open();
-//                    return;
-//                }
-//            }
-//
-//            //Show a popup to inform first-time Cyton users about the FTDI buffer fix and Cyton Smoothing feature. Fixes #1026
-//            //Windows Users: Latest BrainFlow will automatically fix this in the background on Session Start! Fixed in #1039
-//            if (guiSettings.getShowCytonSmoothingPopup()) {
-//                println("OpenBCI_GUI: Showing Cyton FTDI Buffer Fix Popup");
-//                String popupTitle = "Cyton FTDI Buffer Fix Info";
-//                String popupString = "The default settings for the Cyton Dongle driver can make data appear \"choppy.\" Visit the OpenBCI Docs to learn how to fix this. For now, the GUI will \"smooth\" the data for you.";
-//                String popupButtonText = "View Fix";
-//                String popupButtonURL;
-//                if (isMac()) {
-//                    popupButtonURL = "https://docs.openbci.com/Troubleshooting/FTDI_Fix_Mac/";
-//                    PopupMessage msg = new PopupMessage(popupTitle, popupString, popupButtonText, popupButtonURL);
-//                } else if (isLinux()){
-//                    popupButtonURL = "https://docs.openbci.com/Troubleshooting/FTDI_Fix_Linux/";
-//                    PopupMessage msg = new PopupMessage(popupTitle, popupString, popupButtonText, popupButtonURL);
-//                }
-//                guiSettings.setShowCytonSmoothingPopup(false);
-//            }
-//        }
-//
-//        updateToNChan(currentBoard.getNumEXGChannels());
-//
-//        dataLogger.initialize();
-//
-//        verbosePrint("OpenBCI_GUI: initSystem: Initializing core data objects");
-//        initCoreDataObjects();
-//
-//        verbosePrint("OpenBCI_GUI: initSystem: -- Init 1 -- " + millis());
-//        verbosePrint("OpenBCI_GUI: initSystem: Initializing FFT data objects");
-//        initFFTObjectsAndBuffer();
-//
-//        verbosePrint("OpenBCI_GUI: initSystem: -- Init 2 -- " + millis());
-//        verbosePrint("OpenBCI_GUI: initSystem: Closing ControlPanel...");
-//
-//        controlPanel.close();
-//        topNav.controlPanelCollapser.setOff();
-//
-//        verbosePrint("OpenBCI_GUI: initSystem: -- Init 3 -- " + millis());
-//
-//        if (abandonInit) {
-//            haltSystem();
-//            outputError("Failed to initialize board. Please check that the board is on and has power. See Console Log for more details.");
-//            controlPanel.open();
-//            return;
-//        } else {
-//            //initilize the secondary topnav and all applicable widgets
-//            topNav.initSecondaryNav();
-//            wm = new WidgetManager(this);
-//            nextPlayback_millis = millis(); //used for synthesizeData and readFromFile.  This restarts the clock that keeps the playback at the right pace.
-//            systemMode = SYSTEMMODE_POSTINIT; //tell system it's ok to leave control panel and start interfacing GUI
-//        }
-//
-//        verbosePrint("OpenBCI_GUI: initSystem: -- Init 4 -- " + millis());
-//
-//        //don't save default session settings StreamingBoard
-//        if (eegDataSource != DATASOURCE_STREAMING) {
-//            //Init software settings: create default settings file that is datasource unique
-//            settings.init();
-//            settings.initCheckPointFive();
-//        }
-//
-//        //Make sure topNav buttons draw in the correct spot
-//        topNav.screenHasBeenResized(width, height);
-//
-//        //Instantiate Global Filter Settings Class
-//        filterSettings = new FilterSettings(((DataSource)currentBoard));
-//
-//        verbosePrint("OpenBCI_GUI: initSystem: -- Init 5 -- " + millis());
-//
-//        midInit = false;
-//    } //end initSystem
+    void initSystem() {
+        println("");
+        println("");
+        println("=================================================");
+        println("||             INITIALIZING SYSTEM             ||");
+        println("=================================================");
+        println("");
+
+        verbosePrint("OpenBCI_GUI: initSystem: -- Init 0 -- ");
+
+        //reset init variables
+        systemHasHalted = false;
+        boolean abandonInit = false;
+
+        sessionTimeElapsed.reset();
+        sessionTimeElapsed.start();
+        sessionTimeElapsed.suspend();
+
+        //prepare the source of the input data
+        switch (eegDataSource) {
+            case DATASOURCE_CYTON:
+                if (selectedProtocol == BoardProtocol.SERIAL) {
+                    if(nchan == 16) {
+                        currentBoard = new BoardCytonSerialDaisy(this, openBCI_portName);
+                    }
+                    else {
+                        currentBoard = new BoardCytonSerial(this, openBCI_portName);
+                    }
+                }
+                else if (selectedProtocol == BoardProtocol.WIFI) {
+                    if(nchan == 16) {
+                        currentBoard = new BoardCytonWifiDaisy(this, wifi_ipAddress, selectedSamplingRate);
+                    }
+                    else {
+                        currentBoard = new BoardCytonWifi(this, wifi_ipAddress, selectedSamplingRate);
+                    }
+                }
+                break;
+            case DATASOURCE_SYNTHETIC:
+                currentBoard = new BoardBrainFlowSynthetic(this, nchan);
+                println("OpenBCI_GUI: Init session using Synthetic data source");
+                break;
+            case DATASOURCE_PLAYBACKFILE:
+                if (!playbackData_fname.equals("N/A")) {
+                    currentBoard = getDataSourcePlaybackClassFromFile(this, playbackData_fname);
+                    println("OpenBCI_GUI: Init session using Playback data source");
+                } else {
+                    if (!sdData_fname.equals("N/A")) {
+                        currentBoard = new DataSourceSDCard(this, sdData_fname);
+                        println("OpenBCI_GUI: Init session using Playback data source");
+                    }
+                    else {
+                        // no code path to it
+                        println("No playback or SD file selected.");
+                    }
+                }
+                break;
+            case DATASOURCE_GANGLION:
+                boolean showUpgradePopup = false;
+                if (guiSettings.getShowGanglionUpgradePopup())
+                {
+                    showUpgradePopup = true;
+                    guiSettings.setShowGanglionUpgradePopup(false);
+                }
+
+                if (selectedProtocol == BoardProtocol.WIFI) {
+                    currentBoard = new BoardGanglionWifi(this, wifi_ipAddress, selectedSamplingRate);
+                } else if (selectedProtocol == BoardProtocol.BLED112) {
+                    String ganglionName = (String)(controlPanel.bleBox.bleList.getItem(controlPanel.bleBox.bleList.activeItem).get("headline"));
+                    String ganglionPort = (String)(controlPanel.bleBox.bleList.getItem(controlPanel.bleBox.bleList.activeItem).get("subline"));
+                    String ganglionMac = controlPanel.bleBox.bleMACAddrMap.get(ganglionName);
+                    println("MAC address for Ganglion is " + ganglionMac);
+                    currentBoard = new BoardGanglionBLE(this, ganglionName, ganglionPort, ganglionMac, showUpgradePopup);
+                } else if (selectedProtocol == BoardProtocol.NATIVE_BLE) {
+                    String ganglionName = (String)(controlPanel.bleBox.bleList.getItem(controlPanel.bleBox.bleList.activeItem).get("headline"));
+                    String ganglionMac = controlPanel.bleBox.bleMACAddrMap.get(ganglionName);
+                    println("MAC address for Ganglion is " + ganglionMac);
+                    currentBoard = new BoardGanglionNative(this, ganglionName, showUpgradePopup);
+                }
+                break;
+            case DATASOURCE_STREAMING:
+                currentBoard = new BoardBrainFlowStreaming(this,
+                        controlPanel.streamingBoardBox.getBoard().getBoardId(),
+                        controlPanel.streamingBoardBox.getIP(),
+                        controlPanel.streamingBoardBox.getPort()
+                );
+                println("OpenBCI_GUI: Init session using Streaming data source");
+            default:
+                break;
+        }
+
+        // initialize the chosen board
+        boolean success = currentBoard.initialize();
+        abandonInit = !success; // abandon if init fails
+
+        //Handle edge cases for Cyton and Cyton+Daisy users immediately after board is initialized. Fixes #954
+        if (eegDataSource == DATASOURCE_CYTON) {
+            println("OpenBCI_GUI: Configuring Cyton Channel Count...");
+            if (currentBoard instanceof BoardCytonSerial) {
+                Pair<Boolean, String> res = ((BoardBrainFlow)currentBoard).sendCommand("c");
+                //println(res.getKey().booleanValue(), res.getValue());guiSettings
+                if (res.getValue().startsWith("daisy removed")) {
+                    println("OpenBCI_GUI: Daisy is physically attached, using Cyton 8 Channels instead.");
+                }
+            } else if (currentBoard instanceof BoardCytonSerialDaisy) {
+                Pair<Boolean, String> res = ((BoardBrainFlow)currentBoard).sendCommand("C");
+                //println(res.getKey().booleanValue(), res.getValue());
+                if (res.getValue().startsWith("no daisy to attach")) {
+                    haltSystem();
+                    outputError("User selected Cyton+Daisy, but no Daisy is attached. Please change Channel Count to 8 Channels.");
+                    controlPanel.open();
+                    return;
+                }
+            }
+
+            //Show a popup to inform first-time Cyton users about the FTDI buffer fix and Cyton Smoothing feature. Fixes #1026
+            //Windows Users: Latest BrainFlow will automatically fix this in the background on Session Start! Fixed in #1039
+            if (guiSettings.getShowCytonSmoothingPopup()) {
+                println("OpenBCI_GUI: Showing Cyton FTDI Buffer Fix Popup");
+                String popupTitle = "Cyton FTDI Buffer Fix Info";
+                String popupString = "The default settings for the Cyton Dongle driver can make data appear \"choppy.\" Visit the OpenBCI Docs to learn how to fix this. For now, the GUI will \"smooth\" the data for you.";
+                String popupButtonText = "View Fix";
+                String popupButtonURL;
+                if (isMac()) {
+                    popupButtonURL = "https://docs.openbci.com/Troubleshooting/FTDI_Fix_Mac/";
+                    PopupMessage msg = new PopupMessage(popupTitle, popupString, popupButtonText, popupButtonURL);
+                } else if (isLinux()){
+                    popupButtonURL = "https://docs.openbci.com/Troubleshooting/FTDI_Fix_Linux/";
+                    PopupMessage msg = new PopupMessage(popupTitle, popupString, popupButtonText, popupButtonURL);
+                }
+                guiSettings.setShowCytonSmoothingPopup(false);
+            }
+        }
+
+        updateToNChan(currentBoard.getNumEXGChannels());
+
+        dataLogger.initialize();
+
+        verbosePrint("OpenBCI_GUI: initSystem: Initializing core data objects");
+        initCoreDataObjects();
+
+        verbosePrint("OpenBCI_GUI: initSystem: -- Init 1 -- " + millis());
+        verbosePrint("OpenBCI_GUI: initSystem: Initializing FFT data objects");
+        initFFTObjectsAndBuffer();
+
+        verbosePrint("OpenBCI_GUI: initSystem: -- Init 2 -- " + millis());
+        verbosePrint("OpenBCI_GUI: initSystem: Closing ControlPanel...");
+
+        controlPanel.close();
+        topNav.controlPanelCollapser.setOff();
+
+        verbosePrint("OpenBCI_GUI: initSystem: -- Init 3 -- " + millis());
+
+        if (abandonInit) {
+            haltSystem();
+            outputError("Failed to initialize board. Please check that the board is on and has power. See Console Log for more details.");
+            controlPanel.open();
+            return;
+        } else {
+            //initilize the secondary topnav and all applicable widgets
+            topNav.initSecondaryNav();
+            wm = new WidgetManager(this);
+            nextPlayback_millis = millis(); //used for synthesizeData and readFromFile.  This restarts the clock that keeps the playback at the right pace.
+            systemMode = SYSTEMMODE_POSTINIT; //tell system it's ok to leave control panel and start interfacing GUI
+        }
+
+        verbosePrint("OpenBCI_GUI: initSystem: -- Init 4 -- " + millis());
+
+        //don't save default session settings StreamingBoard
+        if (eegDataSource != DATASOURCE_STREAMING) {
+            //Init software settings: create default settings file that is datasource unique
+            settings.init();
+            settings.initCheckPointFive();
+        }
+
+        //Make sure topNav buttons draw in the correct spot
+        topNav.screenHasBeenResized(width, height);
+
+        //Instantiate Global Filter Settings Class
+        filterSettings = new FilterSettings(this, ((DataSource)currentBoard));
+
+        verbosePrint("OpenBCI_GUI: initSystem: -- Init 5 -- " + millis());
+
+        midInit = false;
+    } //end initSystem
 
 
     void introAnimation() {
@@ -515,5 +680,95 @@ public class Main extends GUI {
         image(cog, width / 2, height / 2, width / 6, width / 6);
 
         popStyle();
+    }
+
+
+    //====================== END-OF-DRAW ==========================//
+
+    private void prepareExitHandler () {
+        // This callback will run when the GUI quits
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+            public void run () {
+                System.out.println("SHUTDOWN HOOK");
+
+                haltSystem();
+            }
+        }
+        ));
+    }
+
+    //Pre-load audio files into memory in delayedSetup for best app performance and no waiting
+    void asyncLoadAudioFiles() {
+        final int _numSoundFiles = 5;
+        minim = new Minim(this);
+        auditoryNfbFilePlayers = new FilePlayer[_numSoundFiles];
+        auditoryNfbGains = new ddf.minim.ugens.Gain[_numSoundFiles];
+        audioOutput = minim.getLineOut();
+        println("OpenBCI_GUI: AuditoryFeedback: Loading Audio...");
+        for (int i = 0; i < _numSoundFiles; i++) {
+            //Use large buffer size and cache files in memory
+            try {
+                auditoryNfbFilePlayers[i] = new FilePlayer( minim.loadFileStream("bp" + (i+1) + ".mp3", 2048, true) );
+                auditoryNfbGains[i] = new ddf.minim.ugens.Gain(-15.0f);
+                auditoryNfbFilePlayers[i].patch(auditoryNfbGains[i]).patch(audioOutput);
+            } catch (Exception e) {
+                outputError("AuditoryFeedback: Unable to load audio files. To enable this feature, please connect or turn on an audio device and restart the GUI.");
+                audioOutputIsAvailable = false;
+                return;
+            }
+        }
+        println("OpenBCI_GUI: AuditoryFeedback: Done Loading Audio!");
+        audioOutputIsAvailable = true;
+    }
+
+    void drawOverlay(String text) {
+        //Draw a gray overlay when the Start Session button is pressed
+        pushStyle();
+        //imageMode(CENTER);
+        fill(124, 142);
+        rect(0, 0, width, height);
+        popStyle();
+
+        pushStyle();
+        textFont(p0, 24);
+        fill(boxColor, 255);
+        stroke(OPENBCI_DARKBLUE, 200);
+        rect(width/2 - (textWidth(text)+20)/2, height/2 - 80/2, textWidth(text) + 20, 80);
+        fill(OPENBCI_DARKBLUE, 255);
+        text(text, width/2 - textWidth(text)/2, height/2 + 8);
+        popStyle();
+    }
+
+    void initCoreDataObjects() {
+//        nPointsPerUpdate = int(round(float(UPDATE_MILLIS) * currentBoard.getSampleRate()/ 1000.f));
+        nPointsPerUpdate = Math.round(((float) UPDATE_MILLIS) * currentBoard.getSampleRate() / 1000f);
+        dataProcessingRawBuffer = new float[nchan][getCurrentBoardBufferSize()];
+        dataProcessingFilteredBuffer = new float[nchan][getCurrentBoardBufferSize()];
+
+        data_elec_imp_ohm = new float[nchan];
+        is_railed = new DataStatus[nchan];
+        for (int i=0; i<nchan; i++) {
+            is_railed[i] = new DataStatus(this);
+        }
+
+        dataProcessing = new DataProcessing(this, nchan, currentBoard.getSampleRate());
+    }
+
+    void initFFTObjectsAndBuffer() {
+        //initialize the FFT objects
+        for (int Ichan=0; Ichan < nchan; Ichan++) {
+            // verbosePrint("Init FFT Buff – " + Ichan);
+            fftBuff[Ichan] = new ddf.minim.analysis.FFT(getNfftSafe(), currentBoard.getSampleRate());
+        }  //make the FFT objects
+
+        //Attempt initialization. If error, print to console and exit function.
+        //Fixes GUI crash when trying to load outdated recordings
+        try {
+            initializeFFTObjects(fftBuff, dataProcessingRawBuffer, getNfftSafe(), currentBoard.getSampleRate());
+        } catch (ArrayIndexOutOfBoundsException e) {
+            //e.printStackTrace();
+            outputError("Playback file load error. Try using a more recent recording.");
+            return;
+        }
     }
 }

@@ -253,7 +253,7 @@ public class ADS1299SettingsController{
             }
 
             if (!allChannelsInSync) {
-                PopupMessage msg = new PopupMessage("Info", "Highlighted channels have unapplied Hardware Settings. Please press \"Send\" button to sync with board or revert settings.");
+                PopupMessage msg = new PopupMessage(MAIN,"Info", "Highlighted channels have unapplied Hardware Settings. Please press \"Send\" button to sync with board or revert settings.");
                 return false;
             }
         }
@@ -273,7 +273,7 @@ public class ADS1299SettingsController{
         loadButton.onClick(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 if (currentBoard.isStreaming()) {
-                    PopupMessage msg = new PopupMessage("Info", "Streaming needs to be stopped before loading hardware settings.");
+                    PopupMessage msg = new PopupMessage(MAIN, "Info", "Streaming needs to be stopped before loading hardware settings.");
                 } else {
                     MAIN.selectInput("Select settings file to load", "loadHardwareSettings");
                 }
@@ -320,7 +320,7 @@ public class ADS1299SettingsController{
                 } else if (noErrors) {
                     outputSuccess("Hardware Settings sent to board!");
                 } else {
-                    PopupMessage msg = new PopupMessage("Error", "Failed to send one or more Hardware Settings to board. Check hardware and battery level. Cyton users, check that your dongle is connected with blue light shining.");
+                    PopupMessage msg = new PopupMessage(MAIN,"Error", "Failed to send one or more Hardware Settings to board. Check hardware and battery level. Cyton users, check that your dongle is connected with blue light shining.");
                 }
             }
         });

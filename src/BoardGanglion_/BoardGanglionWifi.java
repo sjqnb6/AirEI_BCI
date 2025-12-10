@@ -1,5 +1,6 @@
 package BoardGanglion_;
 
+import Globel.GUI;
 import PacketLossTracker_.PacketLossTracker;
 import brainflow.BoardIds;
 
@@ -19,8 +20,8 @@ public class BoardGanglionWifi extends BoardGanglion {
         put(200, "~7");
     }};
 
-    public BoardGanglionWifi(String ipAddress, int samplingRate) {
-        super();
+    public BoardGanglionWifi(GUI MAIN, String ipAddress, int samplingRate) {
+        super(MAIN);
         this.ipAddress = ipAddress;
         samplingRateCache = samplingRate;
     }

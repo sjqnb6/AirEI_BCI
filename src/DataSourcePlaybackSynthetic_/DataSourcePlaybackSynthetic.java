@@ -16,9 +16,9 @@ public class DataSourcePlaybackSynthetic extends DataSourcePlayback implements A
         super(MAIN, filePath);
     }
 
-    protected boolean instantiateUnderlyingBoard() {
+    protected boolean instantiateUnderlyingBoard(GUI MAIN) {
         try {
-            underlyingBoard = new BoardBrainFlowSynthetic(nchan);
+            underlyingBoard = new BoardBrainFlowSynthetic(MAIN, nchan);
         } catch (Exception e) {
             MAIN.println(e.getMessage());
             e.printStackTrace();

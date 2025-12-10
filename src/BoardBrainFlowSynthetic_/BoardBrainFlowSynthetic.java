@@ -2,6 +2,7 @@ package BoardBrainFlowSynthetic_;
 
 import AccelerometerCapableBoard_.AccelerometerCapableBoard;
 import BoardBrainflow_.BoardBrainFlow;
+import Globel.GUI;
 import PacketLossTracker_.PacketLossTracker;
 import brainflow.BoardIds;
 import brainflow.BoardShim;
@@ -18,8 +19,8 @@ public class BoardBrainFlowSynthetic extends BoardBrainFlow implements Accelerom
     private int numChannels = 0;
     private volatile boolean[] activeChannels = null;
 
-    public BoardBrainFlowSynthetic(int numChannels) {
-        super();
+    public BoardBrainFlowSynthetic(GUI MAIN, int numChannels) {
+        super(MAIN);
         this.numChannels = numChannels;
         activeChannels = new boolean[numChannels];
         for (int i = 0; i < numChannels; i++) {

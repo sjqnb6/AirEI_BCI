@@ -1,5 +1,6 @@
 package BoardCyton_;
 
+import Globel.GUI;
 import PacketLossTracker_.PacketLossTracker;
 
 import java.util.HashMap;
@@ -17,12 +18,12 @@ public abstract class BoardCytonWifiBase extends BoardCyton {
         put(250, "~6");
     }};
 
-    public BoardCytonWifiBase() {
-        super();
+    public BoardCytonWifiBase(GUI MAIN) {
+        super(MAIN);
     }
 
-    public BoardCytonWifiBase(int samplingRate) {
-        super();
+    public BoardCytonWifiBase(GUI MAIN, int samplingRate) {
+        super(MAIN);
         samplingRateCache = samplingRate;
     }
 

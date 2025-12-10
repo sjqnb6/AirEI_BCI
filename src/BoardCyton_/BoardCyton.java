@@ -5,6 +5,7 @@ import AccelerometerCapableBoard_.AccelerometerCapableBoard;
 import AnalogCapableBoard_.AnalogCapableBoard;
 import BoardBrainflow_.BoardBrainFlow;
 import DigitalCapableBoard_.DigitalCapableBoard;
+import Globel.GUI;
 import ImpedanceSettingsBoard_.ImpedanceSettingsBoard;
 import brainflow.BoardShim;
 import brainflow.BrainFlowError;
@@ -37,8 +38,8 @@ public abstract class BoardCyton extends BoardBrainFlow
     protected String ipAddress = "";
     private CytonBoardMode currentBoardMode = CytonBoardMode.DEFAULT;
 
-    public BoardCyton() {
-        super();
+    public BoardCyton(GUI MAIN) {
+        super(MAIN);
 
         isCheckingImpedance = new boolean[getNumEXGChannels()];
         Arrays.fill(isCheckingImpedance, false);

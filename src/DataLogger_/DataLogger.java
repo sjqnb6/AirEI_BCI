@@ -5,6 +5,7 @@ import DataWriterAuxODF_.DataWriterAuxODF;
 import DataWriterBDF_.DataWriterBDF;
 import DataWriterBF_.DataWriterBF;
 import DataWriterODF_.DataWriterODF;
+import Globel.GUI;
 import processing.core.PApplet;
 
 import static GUI.GGVI.*;
@@ -37,14 +38,14 @@ public class DataLogger {
         fileWriterBF.resetBrainFlowStreamer();
     }
 
-    public void update(PApplet pApplet) {
+    public void update(GUI MAIN) {
         limitRecordingFileDuration();
 
-        saveNewData(pApplet);
+        saveNewData(MAIN);
     }
 
 
-    private void saveNewData(PApplet pApplet) {
+    private void saveNewData(GUI MAIN) {
         //If data is available, save to playback file...
         if(!settings.isLogFileOpen()) {
             return;
@@ -59,7 +60,7 @@ public class DataLogger {
                     fileWriterAuxODF.append(((AuxDataBoard)currentBoard).getAuxFrameData());
                 break;
             case OUTPUT_SOURCE_BDF:
-                fileWriterBDF.writeRawData_dataPacket(pApplet, newData);
+                fileWriterBDF.writeRawData_dataPacket(MAIN, newData);
                 break;
             case OUTPUT_SOURCE_NONE:
             default:

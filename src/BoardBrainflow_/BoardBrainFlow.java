@@ -1,6 +1,7 @@
 package BoardBrainflow_;
 
 import Board_.Board;
+import Globel.GUI;
 import PopupMessage_.PopupMessage;
 import brainflow.BoardIds;
 import brainflow.BoardShim;
@@ -21,7 +22,7 @@ import static SystemManager.GF.stopRunning;
 import static processing.core.PApplet.println;
 
 public abstract class BoardBrainFlow extends Board {
-
+    GUI MAIN;
     protected BoardShim boardShim = null;
     protected int samplingRateCache = -1;
     protected int sampleIndexChannelCache = -1;
@@ -42,6 +43,10 @@ public abstract class BoardBrainFlow extends Board {
      */
     abstract protected BrainFlowInputParams getParams();
     abstract public BoardIds getBoardId();
+
+    public BoardBrainFlow(GUI MAIN) {
+        this.MAIN = MAIN;
+    }
 
     @Override
     public boolean initializeInternal() {
@@ -279,7 +284,7 @@ public abstract class BoardBrainFlow extends Board {
                     double timeout = 5.0;
                     if (cur_time - time_last_datapoint > timeout) {
                         if (data_popup_displayed == false) {
-                            PopupMessage msg = new PopupMessage("Data Streaming Error",
+                            PopupMessage msg = new PopupMessage(MAIN,"Data Streaming Error",
                                     "No new data received in " + timeout + " seconds. Please check your device and restart a GUI session.");
                         }
                         outputError("Data Streaming Error: No new data received in " + timeout + " seconds. Please check your device and restart a GUI session.");

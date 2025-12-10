@@ -1,6 +1,7 @@
 package DataWriterBDF_;
 
 import AccelerometerCapableBoard_.AccelerometerCapableBoard;
+import Globel.GUI;
 import processing.core.PApplet;
 
 import java.io.*;
@@ -216,13 +217,13 @@ public class DataWriterBDF {
      *  the start time, or the first time a packet is recieved.
      * @param `data` double[][] - A data packet
      */
-    public void writeRawData_dataPacket(PApplet pApplet, double[][] data) {
+    public void writeRawData_dataPacket(GUI MAIN, double[][] data) {
         for (int i=0; i<data[0].length; i++) {
 
             if (!startTimeCaptured) {
                 startTime = new Date();
                 startTimeCaptured = true;
-                timeDataRecordStart = pApplet.millis();
+                timeDataRecordStart = MAIN.millis();
             }
 
             writeChannelDataValues(data, i);
@@ -238,12 +239,12 @@ public class DataWriterBDF {
                 }
 
                 samplesInDataRecord = 0;
-                writeDataOut(pApplet);
+                writeDataOut(MAIN);
             }
         }
     }
 
-    private void writeDataOut(PApplet pApplet) {
+    private void writeDataOut(GUI MAIN) {
         try {
             for (int i = 0; i < nbChan; i++) {
                 for (int j = 0; j < fs_Hz; j++) {
@@ -264,7 +265,7 @@ public class DataWriterBDF {
 
             // Write the annotations
             dstream.write('+');
-            String _t = Integer.toString((pApplet.millis() - timeDataRecordStart) / 1000);
+            String _t = Integer.toString((MAIN.millis() - timeDataRecordStart) / 1000);
             int strLen = _t.length();
             for (int i = 0; i < strLen; i++) {
                 dstream.write(_t.charAt(i));
