@@ -198,7 +198,7 @@ public class Main extends GUI {
     }
     int n = 0;
     public synchronized void draw() {
-        super.draw();
+        //super.draw();
         if (showStartupError) {
             drawStartupError();
         }
