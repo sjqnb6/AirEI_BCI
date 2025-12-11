@@ -196,14 +196,13 @@ public class Main extends GUI {
         // start drawing until delayed setup is done.
         thread("delayedSetup");
     }
-
+    int n = 0;
     public synchronized void draw() {
         super.draw();
-
         if (showStartupError) {
             drawStartupError();
         }
-        else if (setupComplete && systemMode != SYSTEMMODE_INTROANIMATION) {
+        else if (setupComplete && (systemMode == SYSTEMMODE_PREINIT || systemMode == SYSTEMMODE_POSTINIT)) {
             systemUpdate(); //signPost("20");
             systemDraw();   //signPost("30");
             if (midInit) {
@@ -317,6 +316,10 @@ public class Main extends GUI {
         //Apply GUI-wide settings to front end at the end of setup
         println("Applying GUI settings...");
         guiSettings.applySettings();
+
+        // Transition from intro animation to pre-init system mode
+        systemMode = SYSTEMMODE_PREINIT;
+        println("systemMode changed to SYSTEMMODE_PREINIT");
 
         if (!isAdminUser() || isElevationNeeded()) {
             outputError("OpenBCI_GUI: This application is not being run with Administrator access. This could limit the ability to connect to devices or read/write files.");
