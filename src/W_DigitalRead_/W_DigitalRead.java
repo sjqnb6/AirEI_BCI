@@ -22,7 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static Debugging_.GF.output;
-import static GUI.GGVI.*;
+import static Globel.GUI.navHeight;
+import static Globel.GUI.p5;
 import static WidgetManager_.GVI.*;
 import Globel.GUI;
 
@@ -47,11 +48,11 @@ public class W_DigitalRead extends Widget {
 
     public W_DigitalRead(GUI MAIN) {
         super(MAIN); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
-
-        digitalBoard = (DigitalCapableBoard)currentBoard;
+        this.MAIN = MAIN;
+        digitalBoard = (DigitalCapableBoard)MAIN.currentBoard;
 
         //set number of digital reads
-        if (selectedProtocol == BoardProtocol.WIFI) {
+        if (MAIN.selectedProtocol == GUI.BoardProtocol.WIFI) {
             numDigitalReadDots = 3;
         } else {
             numDigitalReadDots = 5;
@@ -81,7 +82,7 @@ public class W_DigitalRead extends Widget {
             } else if (i == 1) {
                 digitalPin = 12;
             } else if (i == 2) {
-                if (selectedProtocol == BoardProtocol.WIFI) {
+                if (MAIN.selectedProtocol == GUI.BoardProtocol.WIFI) {
                     digitalPin = 17;
                 } else {
                     digitalPin = 13;
@@ -105,9 +106,9 @@ public class W_DigitalRead extends Widget {
     public void update() {
         super.update(); //calls the parent update() method of Widget (DON'T REMOVE)
 
-        if (currentBoard instanceof DataSourcePlayback) {
-            if (((DataSourcePlayback)currentBoard) instanceof DigitalCapableBoard
-                    && (!((DigitalCapableBoard)currentBoard).isDigitalActive())) {
+        if (MAIN.currentBoard instanceof DataSourcePlayback) {
+            if (((DataSourcePlayback)MAIN.currentBoard) instanceof DigitalCapableBoard
+                    && (!((DigitalCapableBoard)MAIN.currentBoard).isDigitalActive())) {
                 return;
             }
         }
@@ -187,7 +188,7 @@ public class W_DigitalRead extends Widget {
                 if (!digitalBoard.isDigitalActive()) {
                     digitalBoard.setDigitalActive(true);
                     digitalModeButton.getCaptionLabel().setText("Turn Digital Read Off");
-                    if (selectedProtocol == BoardProtocol.WIFI) {
+                    if (MAIN.selectedProtocol == GUI.BoardProtocol.WIFI) {
                         output("Starting to read digital inputs on pin marked D11, D12 and D17");
                     } else {
                         output("Starting to read digital inputs on pin marked D11, D12, D13, D17 and D18");
@@ -205,7 +206,7 @@ public class W_DigitalRead extends Widget {
                 }
             }
         });
-        String _helpText = (selectedProtocol == BoardProtocol.WIFI) ?
+        String _helpText = (MAIN.selectedProtocol == GUI.BoardProtocol.WIFI) ?
                 "Click this button to activate/deactivate digital read on Cyton pins D11, D12, and D17." :
                 "Click this button to activate/deactivate digital read on Cyton pins D11, D12, D13, D17 and D18."
                 ;

@@ -12,8 +12,6 @@ import java.io.IOException;
 import java.util.Scanner;
 
 import static Debugging_.GF.outputError;
-import static GUI.GGVI.currentBoard;
-import static GUI.GGVI.directoryManager;
 
 public class EmgSettings {
 
@@ -26,8 +24,8 @@ public class EmgSettings {
 
     public EmgSettings(GUI MAIN) {
         this.MAIN = MAIN;
-        channelCount = currentBoard.getNumEXGChannels();
-        values = new EmgSettingsValues();
+        channelCount = MAIN.currentBoard.getNumEXGChannels();
+        values = new EmgSettingsValues(MAIN);
     }
 
     public boolean loadSettingsValues(String filename) {
@@ -86,7 +84,7 @@ public class EmgSettings {
     }
 
     public void revertAllChannelsToDefaultValues() {
-        values = new EmgSettingsValues();
+        values = new EmgSettingsValues(MAIN);
         settingsWereLoaded = true;
     }
 
@@ -97,7 +95,7 @@ public class EmgSettings {
 
     //Avoid error with popup being in another thread.
     public void storeSettings() {
-        StringBuilder settingsFilename = new StringBuilder(directoryManager.getSettingsPath());
+        StringBuilder settingsFilename = new StringBuilder(MAIN.directoryManager.getSettingsPath());
         settingsFilename.append("EmgSettings");
         settingsFilename.append("_");
         settingsFilename.append(getChannelCount());
@@ -109,7 +107,7 @@ public class EmgSettings {
 
     //Avoid error with popup being in another thread.
     public void loadSettings() {
-        StringBuilder settingsFilename = new StringBuilder(directoryManager.getSettingsPath());
+        StringBuilder settingsFilename = new StringBuilder(MAIN.directoryManager.getSettingsPath());
         settingsFilename.append("EmgSettings");
         settingsFilename.append("_");
         settingsFilename.append(getChannelCount());

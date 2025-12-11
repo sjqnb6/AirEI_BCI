@@ -7,11 +7,12 @@ import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import static GUI.GGVI.*;
+import static Globel.GUI.directoryManager;
+import static Globel.GUI.nchan;
 import static processing.core.PApplet.createWriter;
-
+import Globel.GUI;
 public class DataWriterODF {
+    GUI MAIN;
     private PrintWriter output;
     public String fname;
     private int rowsWritten;
@@ -20,9 +21,10 @@ public class DataWriterODF {
     protected String headerFirstLineString = "%OpenBCI Raw EXG Data";
 
     //variation on constructor to have custom name
-    public DataWriterODF(String _sessionName, String _fileName) {
-        settings.setSessionPath(directoryManager.getRecordingsPath() + "OpenBCISession_" + _sessionName + File.separator);
-        fname = settings.getSessionPath();
+    public DataWriterODF(GUI MAIN, String _sessionName, String _fileName) {
+        this.MAIN = MAIN;
+        MAIN.settings.setSessionPath(directoryManager.getRecordingsPath() + "OpenBCISession_" + _sessionName + File.separator);
+        fname = MAIN.settings.getSessionPath();
         fname += fileNamePrependString;
         fname += _fileName;
         fname += ".txt";
@@ -80,23 +82,23 @@ public class DataWriterODF {
     }
 
     protected int getSamplingRate() {
-        return ((Board)currentBoard).getSampleRate();
+        return ((Board)MAIN.currentBoard).getSampleRate();
     }
 
     protected String getUnderlyingBoardClass() {
-        return ((Board)currentBoard).getClass().getName();
+        return ((Board)MAIN.currentBoard).getClass().getName();
     }
 
     protected String[] getChannelNames() {
-        return ((Board)currentBoard).getChannelNames();
+        return ((Board)MAIN.currentBoard).getChannelNames();
     }
 
     protected int getTimestampChannel() {
-        return ((Board)currentBoard).getTimestampChannel();
+        return ((Board)MAIN.currentBoard).getTimestampChannel();
     }
 
     protected int getMarkerChannel() {
-        return ((Board)currentBoard).getMarkerChannel();
+        return ((Board)MAIN.currentBoard).getMarkerChannel();
     }
 
 };

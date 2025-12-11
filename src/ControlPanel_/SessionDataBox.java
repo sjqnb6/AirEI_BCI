@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static Debugging_.GF.output;
-import static GUI.GGVI.*;
+import static Globel.GUI.*;
 import static processing.core.PApplet.println;
 import static processing.core.PConstants.LEFT;
 import static processing.core.PConstants.TOP;
@@ -55,7 +55,7 @@ public class SessionDataBox{
         createODFButton("odfButton", "OpenBCI", dataLogger.getDataLoggerOutputFormat(), x + padding, y + padding*2 + 18 + 58, (w-padding*3)/2, 24);
         createBDFButton("bdfButton", "BDF+", dataLogger.getDataLoggerOutputFormat(), x + padding*2 + (w-padding*3)/2, y + padding*2 + 18 + 58, (w-padding*3)/2, 24);
 
-        createMaxDurationDropdown("maxFileDuration", Arrays.asList(settings.fileDurations));
+        createMaxDurationDropdown("maxFileDuration", Arrays.asList(MAIN.settings.fileDurations));
 
     }
 
@@ -148,7 +148,7 @@ public class SessionDataBox{
     private void createMaxDurationDropdown(String name, List<String> _items){
         maxDurationDropdown = sessionData_cp5.addScrollableList(name)
                 .setOpen(false)
-                .setColor(settings.dropdownColors)
+                .setColor(MAIN.settings.dropdownColors)
                 .setOutlineColor(150)
                 //.setColorBackground(OPENBCI_BLUE) // text field bg color
                 .setColorValueLabel(MAIN.OPENBCI_DARKBLUE)       // text color
@@ -166,7 +166,7 @@ public class SessionDataBox{
         maxDurationDropdown
                 .getCaptionLabel() //the caption label is the text object in the primary bar
                 .toUpperCase(false) //DO NOT AUTOSET TO UPPERCASE!!!
-                .setText(settings.fileDurations[settings.defaultOBCIMaxFileSize])
+                .setText(MAIN.settings.fileDurations[MAIN.settings.defaultOBCIMaxFileSize])
                 .setFont(p4)
                 .setSize(14)
                 .getStyle() //need to grab style before affecting the paddingTop
@@ -175,7 +175,7 @@ public class SessionDataBox{
         maxDurationDropdown
                 .getValueLabel() //the value label is connected to the text objects in the dropdown item bars
                 .toUpperCase(false) //DO NOT AUTOSET TO UPPERCASE!!!
-                .setText(settings.fileDurations[settings.defaultOBCIMaxFileSize])
+                .setText(MAIN.settings.fileDurations[MAIN.settings.defaultOBCIMaxFileSize])
                 .setFont(h5)
                 .setSize(12) //set the font size of the item bars to 14pt
                 .getStyle() //need to grab style before affecting the paddingTop
@@ -185,7 +185,7 @@ public class SessionDataBox{
             public void controlEvent(CallbackEvent theEvent) {
                 if (theEvent.getAction() == ControlP5.ACTION_BROADCAST) {
                     int n = (int)(theEvent.getController()).getValue();
-                    settings.setLogFileDurationChoice(n);
+                    MAIN.settings.setLogFileDurationChoice(n);
                     println("ControlPanel: Chosen Recording Duration: " + n);
                 } else if (theEvent.getAction() == ControlP5.ACTION_ENTER) {
                     lockOutsideElements(true);

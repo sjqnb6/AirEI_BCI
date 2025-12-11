@@ -5,7 +5,8 @@ import processing.core.PApplet;
 
 import java.util.Arrays;
 
-import static GUI.GGVI.*;
+import static Globel.GUI.*;
+
 import Globel.GUI;
 public class W_HeadPlot extends Widget {
     public HeadPlot headPlot;
@@ -14,18 +15,18 @@ public class W_HeadPlot extends Widget {
         super(MAIN); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
         this.MAIN = MAIN;
         //Headplot settings
-        settings.hpIntensitySave = 2;
-        settings.hpPolaritySave = 0;
-        settings.hpContoursSave = 0;
-        settings.hpSmoothingSave = 3;
+        MAIN.settings.hpIntensitySave = 2;
+        MAIN.settings.hpPolaritySave = 0;
+        MAIN.settings.hpContoursSave = 0;
+        MAIN.settings.hpSmoothingSave = 3;
         //This is the protocol for setting up dropdowns.
         //Note that these 3 dropdowns correspond to the 3 global functions below
         //You just need to make sure the "id" (the 1st String) has the same name as the corresponding function
         // addDropdown("Ten20", "Layout", Arrays.asList("10-20", "5-10"), 0);
         // addDropdown("Headset", "Headset", Arrays.asList("None", "Mark II", "Mark III", "Mark IV "), 0);
         addDropdown("Intensity", "Intensity", Arrays.asList("4x", "2x", "1x", "0.5x", "0.2x", "0.02x"), MAIN.vertScaleFactor_ind);
-        addDropdown("Polarity", "Polarity", Arrays.asList("+/-", " + "), settings.hpPolaritySave);
-        addDropdown("ShowContours", "Contours", Arrays.asList("ON", "OFF"), settings.hpContoursSave);
+        addDropdown("Polarity", "Polarity", Arrays.asList("+/-", " + "), MAIN.settings.hpPolaritySave);
+        addDropdown("ShowContours", "Contours", Arrays.asList("ON", "OFF"), MAIN.settings.hpContoursSave);
         addDropdown("SmoothingHeadPlot", "Smooth", Arrays.asList("0.0", "0.5", "0.75", "0.9", "0.95", "0.98"), MAIN.smoothFac_ind);
         //Initialize the headplot
         updateHeadPlot(nchan);

@@ -110,7 +110,7 @@ public class SessionSettings {
     public String nwSerialPort;
     public int nwProtocolSave;
     //Used to check if a playback file has data
-    int minNumRowsPlaybackFile = (int)(currentBoard.getSampleRate());
+    int minNumRowsPlaybackFile;
     //Spectrogram Widget settings
     public int spectMaxFrqSave;
     public int spectSampleRateSave;
@@ -267,6 +267,7 @@ public class SessionSettings {
 
     public SessionSettings(GUI MAIN) {
         this.MAIN = MAIN;
+        minNumRowsPlaybackFile =  (int)(MAIN.currentBoard.getSampleRate());
         //Instantiated on app start in OpenBCI_GUI.pde
         dropdownColors.setActive((int)MAIN.BUTTON_PRESSED); //bg color of box when pressed
         dropdownColors.setForeground((int)MAIN.BUTTON_HOVER); //when hovering over any box (primary or dropdown)
@@ -374,8 +375,8 @@ public class SessionSettings {
         saveGlobalSettings.setInt("Current Layout", currentLayout);
         saveGlobalSettings.setInt("Analog Read Vert Scale", arVertScaleSave);
         saveGlobalSettings.setInt("Analog Read Horiz Scale", arHorizScaleSave);
-        if (currentBoard instanceof SmoothingCapableBoard) {
-            saveGlobalSettings.setBoolean("Data Smoothing", ((SmoothingCapableBoard)currentBoard).getSmoothingActive());
+        if (MAIN.currentBoard instanceof SmoothingCapableBoard) {
+            saveGlobalSettings.setBoolean("Data Smoothing", ((SmoothingCapableBoard)MAIN.currentBoard).getSmoothingActive());
         }
         saveSettingsJSONData.setJSONObject(kJSONKeySettings, saveGlobalSettings);
 
@@ -598,7 +599,7 @@ public class SessionSettings {
         loadAnalogReadVertScale = loadGlobalSettings.getInt("Analog Read Vert Scale");
         loadAnalogReadHorizScale = loadGlobalSettings.getInt("Analog Read Horiz Scale");
         //Load more global settings after this line, if needed
-        Boolean loadDataSmoothingSetting = (currentBoard instanceof SmoothingCapableBoard) ? loadGlobalSettings.getBoolean("Data Smoothing") : null;
+        Boolean loadDataSmoothingSetting = (MAIN.currentBoard instanceof SmoothingCapableBoard) ? loadGlobalSettings.getBoolean("Data Smoothing") : null;
 
         //get the FFT settings
         JSONObject loadFFTSettings = loadSettingsJSONData.getJSONObject(kJSONKeyFFT);
@@ -761,8 +762,8 @@ public class SessionSettings {
         /////////////////////////////////////////////////////////////
 
         //Apply Data Smoothing for capable boards
-        if (currentBoard instanceof SmoothingCapableBoard) {
-            ((SmoothingCapableBoard)currentBoard).setSmoothingActive(loadDataSmoothingSetting);
+        if (MAIN.currentBoard instanceof SmoothingCapableBoard) {
+            ((SmoothingCapableBoard)MAIN.currentBoard).setSmoothingActive(loadDataSmoothingSetting);
             topNav.updateSmoothingButtonText();
         }
 
@@ -792,49 +793,49 @@ public class SessionSettings {
         ////////Apply Time Series dropdown settings in loadApplyTimeSeriesSettings() instead of here
 
         ////////Apply FFT settings
-        MaxFreq(fftMaxFrqLoad); //This changes the back-end
+        MaxFreq(MAIN, fftMaxFrqLoad); //This changes the back-end
         w_fft.cp5_widget.getController("MaxFreq").getCaptionLabel().setText(fftMaxFrqArray[fftMaxFrqLoad]); //This changes front-end... etc.
 
-        VertScale(fftMaxuVLoad);
+        VertScale(MAIN, fftMaxuVLoad);
         w_fft.cp5_widget.getController("VertScale").getCaptionLabel().setText(fftVertScaleArray[fftMaxuVLoad]);
 
-        LogLin(fftLogLinLoad);
+        LogLin(MAIN, fftLogLinLoad);
         w_fft.cp5_widget.getController("LogLin").getCaptionLabel().setText(fftLogLinArray[fftLogLinLoad]);
 
-        Smoothing(fftSmoothingLoad);
+        Smoothing(MAIN, fftSmoothingLoad);
         w_fft.cp5_widget.getController("Smoothing").getCaptionLabel().setText(fftSmoothingArray[fftSmoothingLoad]);
 
-        UnfiltFilt(fftFilterLoad);
+        UnfiltFilt(MAIN, fftFilterLoad);
         w_fft.cp5_widget.getController("UnfiltFilt").getCaptionLabel().setText(fftFilterArray[fftFilterLoad]);
 
         ////////Apply Accelerometer settings;
-        accelVertScale(loadAccelVertScale);
+        accelVertScale(MAIN, loadAccelVertScale);
         w_accelerometer.cp5_widget.getController("accelVertScale").getCaptionLabel().setText(accVertScaleArray[loadAccelVertScale]);
 
-        accelDuration(loadAccelHorizScale);
+        accelDuration(MAIN, loadAccelHorizScale);
         w_accelerometer.cp5_widget.getController("accelDuration").getCaptionLabel().setText(accHorizScaleArray[loadAccelHorizScale]);
 
         ////////Apply Anolog Read dropdowns to Live Cyton Only
         if (eegDataSource == DATASOURCE_CYTON) {
             ////////Apply Analog Read settings
-            VertScale_AR(loadAnalogReadVertScale);
+            VertScale_AR(MAIN, loadAnalogReadVertScale);
             w_analogRead.cp5_widget.getController("VertScale_AR").getCaptionLabel().setText(arVertScaleArray[loadAnalogReadVertScale]);
 
-            Duration_AR(loadAnalogReadHorizScale);
+            Duration_AR(MAIN, loadAnalogReadHorizScale);
             w_analogRead.cp5_widget.getController("Duration_AR").getCaptionLabel().setText(arHorizScaleArray[loadAnalogReadHorizScale]);
         }
 
         ////////////////////////////Apply Headplot settings
-        Intensity(hpIntensityLoad);
+        Intensity(MAIN, hpIntensityLoad);
         w_headPlot.cp5_widget.getController("Intensity").getCaptionLabel().setText(hpIntensityArray[hpIntensityLoad]);
 
-        Polarity(hpPolarityLoad);
+        Polarity(MAIN, hpPolarityLoad);
         w_headPlot.cp5_widget.getController("Polarity").getCaptionLabel().setText(hpPolarityArray[hpPolarityLoad]);
 
-        ShowContours(hpContoursLoad);
+        ShowContours(MAIN, hpContoursLoad);
         w_headPlot.cp5_widget.getController("ShowContours").getCaptionLabel().setText(hpContoursArray[hpContoursLoad]);
 
-        SmoothingHeadPlot(hpSmoothingLoad);
+        SmoothingHeadPlot(MAIN, hpSmoothingLoad);
         w_headPlot.cp5_widget.getController("SmoothingHeadPlot").getCaptionLabel().setText(hpSmoothingArray[hpSmoothingLoad]);
 
         //Force redraw headplot on load. Fixes issue where heaplot draws outside of the widget.
@@ -858,7 +859,7 @@ public class SessionSettings {
         w_spectrogram.cp5_widget.getController("SpectrogramMaxFreq").getCaptionLabel().setText(spectMaxFrqArray[spectMaxFrqLoad]);
         SpectrogramSampleRate(MAIN, spectSampleRateLoad);
         w_spectrogram.cp5_widget.getController("SpectrogramSampleRate").getCaptionLabel().setText(spectSampleRateArray[spectSampleRateLoad]);
-        SpectrogramLogLin(spectLogLinLoad);
+        SpectrogramLogLin(MAIN, spectLogLinLoad);
         w_spectrogram.cp5_widget.getController("SpectrogramLogLin").getCaptionLabel().setText(fftLogLinArray[spectLogLinLoad]);
         try {
             //apply channel checkbox settings
@@ -877,7 +878,7 @@ public class SessionSettings {
 
         ///////////Apply Networking Settings
         //Update protocol with loaded value
-        Protocol(nwProtocolLoad);
+        Protocol(MAIN, nwProtocolLoad);
         //Update dropdowns and textfields in the Networking widget with loaded values
         w_networking.cp5_widget.getController("Protocol").getCaptionLabel().setText(w_networking.protocols.get(nwProtocolLoad)); //Reference the dropdown from the appropriate widget
         switch (nwProtocolLoad) {
@@ -1043,7 +1044,7 @@ public class SessionSettings {
         }
         if (!filePath.equals("Error")) {
             if (dataSource == DATASOURCE_CYTON) {
-                filePath += (_nchan == NCHAN_CYTON) ?
+                filePath += (_nchan == MAIN.NCHAN_CYTON) ?
                         fileNames[0] :
                         fileNames[1];
             } else if (dataSource == DATASOURCE_GANGLION) {
@@ -1051,7 +1052,7 @@ public class SessionSettings {
             } else if (dataSource ==  DATASOURCE_PLAYBACKFILE) {
                 filePath += fileNames[3];
             } else if (dataSource == DATASOURCE_SYNTHETIC) {
-                if (_nchan == NCHAN_GANGLION) {
+                if (_nchan == MAIN.NCHAN_GANGLION) {
                     filePath += fileNames[4];
                 } else if (_nchan == NCHAN_CYTON) {
                     filePath += fileNames[5];
@@ -1109,7 +1110,7 @@ public class SessionSettings {
         if (saveDialogName == null) {
             MAIN.selectOutput("Save a custom settings file as JSON:",
                     "saveConfigFile",
-                    MAIN.dataFile(settings.getPath("User", eegDataSource, nchan)));
+                    MAIN.dataFile(MAIN.settings.getPath("User", eegDataSource, nchan)));
         } else {
             MAIN.println("saveSettingsFileName = " + saveDialogName);
             saveDialogName = null;

@@ -5,8 +5,6 @@ import BoardCyton_.BoardCytonConstants;
 import DataSource_.DataSource;
 import FileBoard_.FileBoard;
 import processing.core.PApplet;
-
-import java.applet.Applet;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -14,7 +12,7 @@ import java.util.List;
 import java.util.Scanner;
 
 import static Debugging_.GF.outputWarn;
-import static GUI.GGVI.topNav;
+import static Globel.GUI.topNav;
 
 public class DataSourceSDCard implements DataSource, FileBoard, AccelerometerCapableBoard {
 

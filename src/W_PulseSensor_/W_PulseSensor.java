@@ -22,13 +22,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static Debugging_.GF.output;
-import static GUI.GGVI.*;
+import static Globel.GUI.*;
 import static WidgetManager_.GVI.*;
 import Globel.GUI;
 ////////////////////////////////////////////////////
 
 public class W_PulseSensor extends Widget {
-
+    GUI MAIN;
     //to see all core variables/methods of the Widget class, refer to Widget.pde
     //put your custom variables here...
     private int graphStroke = 0xd2d2d2;
@@ -38,7 +38,7 @@ public class W_PulseSensor extends Widget {
     // Pulse Sensor Visualizer Stuff
     private int count = 0;
     private int heart = 0;
-    private final int PULSE_BUFFER_SIZE = 3*currentBoard.getSampleRate(); // Originally 400
+    private final int PULSE_BUFFER_SIZE = 3*MAIN.currentBoard.getSampleRate(); // Originally 400
     private final int BPM_BUFFER_SIZE = 100;
 
     private int pulseWindowWidth;
@@ -80,11 +80,10 @@ public class W_PulseSensor extends Widget {
     private int ibiValue = 600;             // int that holds the time interval between beats! Must be seeded!
 
     private AnalogCapableBoard analogBoard;
-    GUI MAIN;
     public W_PulseSensor(GUI MAIN){
         super(MAIN); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
         this.MAIN = MAIN;
-        analogBoard = (AnalogCapableBoard)currentBoard;
+        analogBoard = (AnalogCapableBoard)MAIN.currentBoard;
 
         eggshell = MAIN.color(255, 253, 248);
         pulseWave = MAIN.BOLD_RED;
@@ -101,9 +100,9 @@ public class W_PulseSensor extends Widget {
     public void update(){
         super.update(); //calls the parent update() method of Widget (DON'T REMOVE)
 
-        if(currentBoard instanceof DataSourcePlayback) {
-            if (((DataSourcePlayback)currentBoard) instanceof AnalogCapableBoard
-                    && (!((AnalogCapableBoard)currentBoard).isAnalogActive())) {
+        if(MAIN.currentBoard instanceof DataSourcePlayback) {
+            if (((DataSourcePlayback)MAIN.currentBoard) instanceof AnalogCapableBoard
+                    && (!((AnalogCapableBoard)MAIN.currentBoard).isAnalogActive())) {
                 return;
             }
         }
@@ -175,7 +174,7 @@ public class W_PulseSensor extends Widget {
                 }
             }
         });
-        String _helpText = (selectedProtocol == BoardProtocol.WIFI) ?
+        String _helpText = (MAIN.selectedProtocol == GUI.BoardProtocol.WIFI) ?
                 "Click this button to activate/deactivate analog read on Cyton pins A5(D11) and A6(D12)." :
                 "Click this button to activate/deactivate analog read on Cyton pins A5(D11), A6(D12) and A7(D13)."
                 ;
@@ -343,7 +342,7 @@ public class W_PulseSensor extends Widget {
     }// end processSignal
 
     private void updateGraphPointsArray() {
-        List<double[]> allData = currentBoard.getData(PULSE_BUFFER_SIZE);
+        List<double[]> allData = MAIN.currentBoard.getData(PULSE_BUFFER_SIZE);
         int[] analogChannels = analogBoard.getAnalogChannels();
         //Update array that holds points to draw pulse wave
         for (int i=0; i < PULSE_BUFFER_SIZE; i++ ) {
@@ -354,7 +353,7 @@ public class W_PulseSensor extends Widget {
 
     public void updatePulseSensorWidgetData() {
         int[] analogChannels = analogBoard.getAnalogChannels();
-        double[][] frameData = currentBoard.getFrameData();
+        double[][] frameData = MAIN.currentBoard.getFrameData();
         for (int i = 0; i < frameData[0].length; i++)
         {
             int signal = (int)(frameData[analogChannels[0]][i]);

@@ -20,8 +20,9 @@ import processing.core.PFont;
 
 import java.util.List;
 
-import static GUI.GGVI.*;
 import Globel.GUI;
+
+import static Globel.GUI.*;
 ///////////////////////////////////////////////////,
 
 
@@ -50,7 +51,7 @@ public class W_GanglionImpedance extends Widget {
         MAIN.fill(MAIN.OPENBCI_DARKBLUE);
         MAIN.textFont(p4, 14);
 
-        BoardGanglion ganglion = (BoardGanglion)currentBoard;
+        BoardGanglion ganglion = (BoardGanglion)MAIN.currentBoard;
         if (!ganglion.isCheckingImpedance()) {
             return;
         }
@@ -111,10 +112,10 @@ public class W_GanglionImpedance extends Widget {
         startStopCheck = MAIN.createButton(cp5_widget, name, text, _x, _y, _w, _h, _font, _fontSize, _bg, _textColor);
         startStopCheck.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
-                if (currentBoard instanceof BoardGanglion) {
+                if (MAIN.currentBoard instanceof BoardGanglion) {
                     // ganglion is the only board which can check impedance, so we don't have an interface for it.
                     // if that changes in the future, consider making an interface.
-                    BoardGanglion ganglionBoard = (BoardGanglion)currentBoard;
+                    BoardGanglion ganglionBoard = (BoardGanglion)MAIN.currentBoard;
                     if (!ganglionBoard.isCheckingImpedance()) {
                         // We need to either stop the time series data, or allow it to scroll, like currently.
                         // the values in time series are not meaningful when Impedance check is active

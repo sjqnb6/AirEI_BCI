@@ -24,7 +24,7 @@ import java.util.Map;
 
 import static Debugging_.GF.output;
 import static Extras_.GF.shortenString;
-import static GUI.GGVI.*;
+import static Globel.GUI.*;
 import static W_Playback_.GF.userSelectedPlaybackMenuList;
 import Globel.GUI;
 public class W_playback extends Widget {

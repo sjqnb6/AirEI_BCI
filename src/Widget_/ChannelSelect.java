@@ -11,12 +11,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static GUI.GGVI.*;
+import static Globel.GUI.nchan;
+import static Globel.GUI.p5;
 import static processing.core.PConstants.CENTER;
 import static processing.core.PConstants.TOP;
-
+import Globel.GUI;
 // This is a helpful class that will add a channel select feature to a Widget
 public class ChannelSelect {
+    GUI MAIN;
     public PApplet applet;
     public ColorPalette CP;
 
@@ -45,6 +47,7 @@ public class ChannelSelect {
 
     public ChannelSelect(PApplet _parent, Widget _widget, int _x, int _y, int _w, int _navH, String checkBoxName) {
         applet = _parent;
+        this.MAIN = (GUI) _parent;
         CP = new ColorPalette(_parent);
 
         widget = _widget;
@@ -123,7 +126,7 @@ public class ChannelSelect {
             applet.strokeWeight(weight);
             applet.noFill();
             for (int i = 0; i < nchan; i++) {
-                int c = currentBoard.isEXGChannelActive(i) ? applet.color(0,255,0,255) : applet.color(255,0,0,255);
+                int c = MAIN.currentBoard.isEXGChannelActive(i) ? applet.color(0,255,0,255) : applet.color(255,0,0,255);
                 applet.stroke(c);
                 applet.rect(x + labelWidth + labelSpacer + (button_spacer*(i+1)) + (buttonW*i) - weight, y + offset - weight, channelButtons.get(i).getWidth() + weight, channelButtons.get(i).getHeight() + weight);
             }

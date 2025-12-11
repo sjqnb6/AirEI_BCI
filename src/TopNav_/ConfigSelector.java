@@ -278,7 +278,7 @@ public class ConfigSelector {
                 clearAllSettingsPressed = false;
                 //Stop the system if the user clears all settings
                 if (systemMode == SYSTEMMODE_POSTINIT) {
-                    haltSystem();
+                    haltSystem(MAIN);
                 }
             }
         });

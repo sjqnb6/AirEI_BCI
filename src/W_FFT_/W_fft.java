@@ -23,9 +23,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static GUI.GGVI.*;
+import static GUI.GUIManager.smoothFac_ind;
+import static Globel.GUI.*;
 import static SystemManager.GF.getNfftSafe;
 import static W_HeadPlot_.GVI.*;
+import static WidgetManager_.GVI.w_bandPower;
+import static WidgetManager_.GVI.w_fft;
+
 import Globel.GUI;
 ///////////////////////////////////////////////////
 
@@ -46,7 +50,7 @@ public class W_fft extends Widget {
 
     int xLim = xLimOptions[2];  //maximum value of x axis ... in this case 20 Hz, 40 Hz, 60 Hz, 120 Hz
     int xMax = xLimOptions[xLimOptions.length-1];   //maximum possible frequency in FFT
-    int FFT_indexLim = (int)(1.0*xMax*(getNfftSafe()/currentBoard.getSampleRate()));   // maxim value of FFT index
+    int FFT_indexLim = (int)(1.0*xMax*(getNfftSafe(MAIN)/MAIN.currentBoard.getSampleRate()));   // maxim value of FFT index
     int yLim = yLimOptions[2];  //maximum value of y axis ... 100 uV
 
     List<Controller> cp5ElementsToCheck = new ArrayList<Controller>();
@@ -62,20 +66,20 @@ public class W_fft extends Widget {
         cp5ElementsToCheck.addAll(fftChanSelect.getCp5ElementsForOverlapCheck());
 
         //Default FFT plot settings
-        settings.fftMaxFrqSave = 2;
-        settings.fftMaxuVSave = 2;
-        settings.fftLogLinSave = 0;
-        settings.fftSmoothingSave = 3;
-        settings.fftFilterSave = 0;
+        MAIN.settings.fftMaxFrqSave = 2;
+        MAIN.settings.fftMaxuVSave = 2;
+        MAIN.settings.fftLogLinSave = 0;
+        MAIN.settings.fftSmoothingSave = 3;
+        MAIN.settings.fftFilterSave = 0;
 
         //This is the protocol for setting up dropdowns.
         //Note that these 3 dropdowns correspond to the 3 global functions below
         //You just need to make sure the "id" (the 1st String) has the same name as the corresponding function
-        addDropdown("MaxFreq", "Max Freq", Arrays.asList(settings.fftMaxFrqArray), settings.fftMaxFrqSave);
-        addDropdown("VertScale", "Max uV", Arrays.asList(settings.fftVertScaleArray), settings.fftMaxuVSave);
-        addDropdown("LogLin", "Log/Lin", Arrays.asList(settings.fftLogLinArray), settings.fftLogLinSave);
-        addDropdown("Smoothing", "Smooth", Arrays.asList(settings.fftSmoothingArray), smoothFac_ind); //smoothFac_ind is a global variable at the top of W_HeadPlot.pde
-        addDropdown("UnfiltFilt", "Filters?", Arrays.asList(settings.fftFilterArray), settings.fftFilterSave);
+        addDropdown("MaxFreq", "Max Freq", Arrays.asList(MAIN.settings.fftMaxFrqArray), MAIN.settings.fftMaxFrqSave);
+        addDropdown("VertScale", "Max uV", Arrays.asList(MAIN.settings.fftVertScaleArray), MAIN.settings.fftMaxuVSave);
+        addDropdown("LogLin", "Log/Lin", Arrays.asList(MAIN.settings.fftLogLinArray), MAIN.settings.fftLogLinSave);
+        addDropdown("Smoothing", "Smooth", Arrays.asList(MAIN.settings.fftSmoothingArray), smoothFac_ind); //smoothFac_ind is a global variable at the top of W_HeadPlot.pde
+        addDropdown("UnfiltFilt", "Filters?", Arrays.asList(MAIN.settings.fftFilterArray), MAIN.settings.fftFilterSave);
 
         fft_points = new GPointsArray[nchan];
         // println("fft_points.length: " + fft_points.length);
@@ -126,8 +130,8 @@ public class W_fft extends Widget {
     public void update(){
 
         super.update(); //calls the parent update() method of Widget (DON'T REMOVE)
-        float sr = currentBoard.getSampleRate();
-        int nfft = getNfftSafe();
+        float sr = MAIN.currentBoard.getSampleRate();
+        int nfft = getNfftSafe(MAIN);
 
         //update the points of the FFT channel arrays for all channels
         for (int i = 0; i < fft_points.length; i++) {
@@ -211,5 +215,55 @@ public class W_fft extends Widget {
             fft_plot.setPos(x, y - navHeight);
             fft_plot.setOuterDim(w, h + navHeight);
         }
+    }
+    public void MaxFreq(int n) {
+        /* request the selected item based on index n */
+        w_fft.fft_plot.setXLim(0.1F, w_fft.xLimOptions[n]); //update the xLim of the FFT_Plot
+        MAIN.settings.fftMaxFrqSave = n; //save the xLim to variable for save/load settings
+    }
+
+    //triggered when there is an event in the VertScale Dropdown
+    public void VertScale(int n) {
+
+        w_fft.fft_plot.setYLim(0.1F, w_fft.yLimOptions[n]); //update the yLim of the FFT_Plot
+        MAIN.settings.fftMaxuVSave = n; //save the yLim to variable for save/load settings
+    }
+
+    //triggered when there is an event in the LogLin Dropdown
+    public void LogLin(int n) {
+        if (n==0) {
+            w_fft.fft_plot.setLogScale("y");
+            //store the current setting to save
+            MAIN.settings.fftLogLinSave = 0;
+        } else {
+            w_fft.fft_plot.setLogScale("");
+            //store the current setting to save
+            MAIN.settings.fftLogLinSave = 1;
+        }
+    }
+
+    //triggered when there is an event in the Smoothing Dropdown
+    public void Smoothing(int n) {
+        smoothFac_ind = n;
+        MAIN.settings.fftSmoothingSave = n;
+        //since this function is called by both the BandPower and FFT Widgets the dropdown needs to be updated in both
+        w_fft.cp5_widget.getController("Smoothing").getCaptionLabel().setText(MAIN.settings.fftSmoothingArray[n]);
+        w_bandPower.cp5_widget.getController("Smoothing").getCaptionLabel().setText(MAIN.settings.fftSmoothingArray[n]);
+
+    }
+
+    //triggered when there is an event in the UnfiltFilt Dropdown
+    public void UnfiltFilt(int n) {
+        MAIN.settings.fftFilterSave = n;
+        if (n==0) {
+            //have FFT use filtered data -- default
+            isFFTFiltered = true;
+        } else {
+            //have FFT use unfiltered data
+            isFFTFiltered = false;
+        }
+        //since this function is called by both the BandPower and FFT Widgets the dropdown needs to be updated in both
+        w_fft.cp5_widget.getController("UnfiltFilt").getCaptionLabel().setText(MAIN.settings.fftFilterArray[n]);
+        w_bandPower.cp5_widget.getController("UnfiltFilt").getCaptionLabel().setText(MAIN.settings.fftFilterArray[n]);
     }
 };

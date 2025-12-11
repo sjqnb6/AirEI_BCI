@@ -9,7 +9,7 @@ import processing.core.PApplet;
 
 import static Extras_.GF.isLinux;
 import static Extras_.GF.isMac;
-import static GUI.GGVI.*;
+import static Globel.GUI.*;
 import static Interactivity_.GF.openURLInBrowser;
 import Globel.GUI;
 public class TutorialSelector{
@@ -31,7 +31,7 @@ public class TutorialSelector{
         w = 180;
         //account for consoleLog button, help button, and spacing
         x = MAIN.width - 33 - w - 3*2;
-        y = (navBarHeight) - 3;
+        y = (MAIN.navBarHeight) - 3;
         margin = 6;
         b_w = w - margin*2;
         b_h = 22;

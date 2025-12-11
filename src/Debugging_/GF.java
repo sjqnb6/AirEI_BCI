@@ -3,8 +3,10 @@ package Debugging_;
 import processing.core.PApplet;
 
 import static Debugging_.GVI.*;
+import static Globel.GUI.helpWidget;
+//import static Debugging_.GVI.*;
 import static processing.core.PApplet.println;
-
+import Globel.GUI;
 public class GF {
 
     public static void verbosePrint(String _string) {

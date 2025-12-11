@@ -66,7 +66,7 @@ class PlaybackScrollbar  {
         skipToStart_diameter = 30;
         createSkipToStartButton("skipToStartButton", "", (int)(xp) + (int)(skipToStart_diameter*.5), (int)(yp) + (int)(sh/2) - skipToStart_diameter, skipToStart_diameter, skipToStart_diameter);
 
-        fileBoard = (FileBoard)currentBoard;
+        fileBoard = (FileBoard)MAIN.currentBoard;
     }
 
     private void createSkipToStartButton(String name, String text, int _x, int _y, int _w, int _h) {
@@ -129,8 +129,8 @@ class PlaybackScrollbar  {
     }
 
     String getAbsoluteTimeToDisplay() {
-        List<double[]> currentData = currentBoard.getData(1);
-        int timeStampChan = currentBoard.getTimestampChannel();
+        List<double[]> currentData = MAIN.currentBoard.getData(1);
+        int timeStampChan = MAIN.currentBoard.getTimestampChannel();
         long timestampMS = (long)(currentData.get(0)[timeStampChan] * 1000.0);
         if(timestampMS == 0) {
             return "";

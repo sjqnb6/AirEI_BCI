@@ -1,11 +1,11 @@
 package InterfaceSerial_;
 
-import static GUI.GGVI.board_message;
-import static GUI.GGVI.iSerial;
+import static Globel.GUI.board_message;
+import static Globel.GUI.iSerial;
 import static InterfaceSerial_.GVI.*;
 import static processing.core.PApplet.print;
 import static processing.core.PApplet.println;
-
+import Globel.GUI;
 public class GF {
 
     void serialEvent(processing.serial.Serial port){

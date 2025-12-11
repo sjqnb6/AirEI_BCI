@@ -2,6 +2,8 @@ package W_TimeSeries_;
 
 import ADS1299SettingsBoard_.ADS1299SettingsBoard;
 import ADS1299SettingsController_.ADS1299SettingsController;
+import AccelerometerCapableBoard_.AccelerometerCapableBoard;
+import AnalogCapableBoard_.AnalogCapableBoard;
 import FileBoard_.FileBoard;
 import GUI.ColorPalette;
 import PopupMessage_.PopupMessage;
@@ -15,8 +17,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static GUI.GGVI.*;
 import Globel.GUI;
+
+import static Globel.GUI.navHeight;
+import static Globel.GUI.nchan;
+import static WidgetManager_.GVI.*;
+import static WidgetManager_.GVI.w_analogRead;
+
 public class W_timeSeries extends Widget {
     //to see all core variables/methods of the Widget class, refer to Widget.pde
     //put your custom variables here...
@@ -62,7 +69,7 @@ public class W_timeSeries extends Widget {
 
     public W_timeSeries(GUI MAIN) {
         super(MAIN); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
-
+        this.MAIN = MAIN;
         CP = new ColorPalette(MAIN);
 
 
@@ -93,7 +100,7 @@ public class W_timeSeries extends Widget {
         addDropdown("Duration", "Window", Collections.singletonList(xLimit.getEnumStringsAsList()), xLimit.getIndex());
 
         //Instantiate scrollbar if using playback mode and scrollbar feature in use
-        if((currentBoard instanceof FileBoard) && hasScrollbar) {
+        if((MAIN.currentBoard instanceof FileBoard) && hasScrollbar) {
             playbackWidgetHeight = 50.0F;
             pb_x = ts_x - ts_padding/2;
             pb_y = ts_y + ts_h + playbackWidgetHeight + (ts_padding * 3);
@@ -132,7 +139,7 @@ public class W_timeSeries extends Widget {
         int w_hsc = (int)(channelBars[0].plot.getOuterDim()[0]);
         int h_hsc = channelBarHeight * numChannelBars;
 
-        if (currentBoard instanceof ADS1299SettingsBoard) {
+        if (MAIN.currentBoard instanceof ADS1299SettingsBoard) {
             hwSettingsButton = createHSCButton("HardwareSettings", "Hardware Settings", (int)(x0 + 80), (int)(y0 + navHeight + 1), 120, navHeight - 3);
             cp5ElementsToCheck.add((Controller)hwSettingsButton);
             adsSettingsController = new ADS1299SettingsController(MAIN, tsChanSelect.activeChan, x_hsc, y_hsc, w_hsc, h_hsc, channelBarHeight);
@@ -144,7 +151,7 @@ public class W_timeSeries extends Widget {
 
         // offset based on whether channel select or hardware settings are open or not
         int chanSelectOffset = tsChanSelect.isVisible() ? navHeight : 0;
-        if (currentBoard instanceof ADS1299SettingsBoard) {
+        if (MAIN.currentBoard instanceof ADS1299SettingsBoard) {
             chanSelectOffset += adsSettingsController.getIsVisible() ? navHeight : 0;
         }
 
@@ -165,7 +172,7 @@ public class W_timeSeries extends Widget {
         }
 
         //Responsively size and update the HardwareSettingsController
-        if (currentBoard instanceof ADS1299SettingsBoard) {
+        if (MAIN.currentBoard instanceof ADS1299SettingsBoard) {
             int cb_h = channelBarHeight + interChannelBarSpace - 2;
             int h_hsc = channelBarHeight * tsChanSelect.activeChan.size();
             adsSettingsController.resize((int)channelBars[0].plot.getPos()[0], (int)channelBars[0].plot.getPos()[1], (int)channelBars[0].plot.getOuterDim()[0], h_hsc, cb_h);
@@ -173,7 +180,7 @@ public class W_timeSeries extends Widget {
         }
 
         //Update Playback scrollbar and/or display time
-        if((currentBoard instanceof FileBoard) && hasScrollbar) {
+        if((MAIN.currentBoard instanceof FileBoard) && hasScrollbar) {
             //scrub playback file
             scrollbar.update();
         } else {
@@ -194,9 +201,9 @@ public class W_timeSeries extends Widget {
         }
 
         //Display playback scrollbar, timeDisplay, or ADSSettingsController depending on data source
-        if ((currentBoard instanceof FileBoard) && hasScrollbar) { //you will only ever see the playback widget in Playback Mode ... otherwise not visible
+        if ((MAIN.currentBoard instanceof FileBoard) && hasScrollbar) { //you will only ever see the playback widget in Playback Mode ... otherwise not visible
             scrollbar.draw();
-        } else if (currentBoard instanceof ADS1299SettingsBoard) {
+        } else if (MAIN.currentBoard instanceof ADS1299SettingsBoard) {
             //Hide time display when ADSSettingsController is open for compatible boards
             if (!getAdsSettingsVisible()) {
                 timeDisplay.draw();
@@ -230,7 +237,7 @@ public class W_timeSeries extends Widget {
         ts_h = hF - playbackWidgetHeight - plotBottomWell - (ts_padding*2);
 
         ////Resize the playback slider if using playback mode, or resize timeDisplay div at the bottom of timeSeries
-        if((currentBoard instanceof FileBoard) && hasScrollbar) {
+        if((MAIN.currentBoard instanceof FileBoard) && hasScrollbar) {
             int _x = MAIN.floor(xF) - 1;
             int _y = (int)(ts_y + ts_h + playbackWidgetHeight + 5);
             int _w = (int)(wF) + 1;
@@ -261,7 +268,7 @@ public class W_timeSeries extends Widget {
             channelBars[activeChan].resize((int)(ts_x), channelBarY, (int)(ts_w), channelBarHeight); //bar x, bar y, bar w, bar h
         }
 
-        if (currentBoard instanceof ADS1299SettingsBoard) {
+        if (MAIN.currentBoard instanceof ADS1299SettingsBoard) {
             hwSettingsButton.setPosition(x0 + 80, (int)(y0 + navHeight + 1));
         }
 
@@ -287,13 +294,13 @@ public class W_timeSeries extends Widget {
     }
 
     private void setAdsSettingsVisible(boolean visible) {
-        if(!(currentBoard instanceof ADS1299SettingsBoard)) {
+        if(!(MAIN.currentBoard instanceof ADS1299SettingsBoard)) {
             return;
         }
 
         String buttonText = "Time Series";
 
-        if (visible && currentBoard.isStreaming()) {
+        if (visible && MAIN.currentBoard.isStreaming()) {
             PopupMessage msg = new PopupMessage(MAIN, "Info", "Streaming needs to be stopped before accessing Hardware Settings");
             return;
         }
@@ -345,6 +352,31 @@ public class W_timeSeries extends Widget {
         xLimit = xLimit.values()[n];
         for (int i = 0; i < numChannelBars; i++) {
             channelBars[i].adjustTimeAxis(xLimit.getValue());
+        }
+    }
+    void VertScale_TS(int n) {
+        w_timeSeries.setTSVertScale(n);
+    }
+
+    //triggered when there is an event in the Duration Dropdown
+    void Duration(int n) {
+        w_timeSeries.setTSHorizScale(n);
+
+        int newDuration = w_timeSeries.getTSHorizScale().getValue();
+        //If selected by user, sync the duration of Time Series, Accelerometer, and Analog Read(Cyton Only)
+        if (MAIN.currentBoard instanceof AccelerometerCapableBoard) {
+            if (MAIN.settings.accHorizScaleSave == 0) {
+                //set accelerometer x axis to the duration selected from dropdown
+                w_accelerometer.accelerometerBar.adjustTimeAxis(newDuration);
+            }
+        }
+        if (MAIN.currentBoard instanceof AnalogCapableBoard) {
+            if (MAIN.settings.arHorizScaleSave == 0) {
+                //set analog read x axis to the duration selected from dropdown
+                for(int i = 0; i < w_analogRead.numAnalogReadBars; i++) {
+                    w_analogRead.analogReadBars[i].adjustTimeAxis(newDuration);
+                }
+            }
         }
     }
 };

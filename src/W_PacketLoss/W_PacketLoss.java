@@ -13,9 +13,10 @@ import controlP5.ScrollableList;
 import processing.core.PApplet;
 
 import java.util.Map;
-
-import static GUI.GGVI.*;
 import Globel.GUI;
+
+import static Globel.GUI.*;
+
 public class W_PacketLoss extends Widget {
     GUI MAIN;
     private Grid dataGrid;
@@ -35,9 +36,9 @@ public class W_PacketLoss extends Widget {
 
     public W_PacketLoss(GUI MAIN){
         super(MAIN); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
-
+        this.MAIN = MAIN;
         dataGrid = new Grid(MAIN, 5/*numRows*/, 4/*numCols*/, cellHeight);
-        packetLossTracker = ((Board)currentBoard).getPacketLossTracker();
+        packetLossTracker = ((Board)MAIN.currentBoard).getPacketLossTracker();
         sessionPacketRecord = packetLossTracker.getSessionPacketRecord();
         streamPacketRecord = packetLossTracker.getStreamPacketRecord();
 
@@ -59,7 +60,7 @@ public class W_PacketLoss extends Widget {
         tableDropdown = cp5_widget.addScrollableList("TableTimeWindow")
                 .setDrawOutline(false)
                 .setOpen(false)
-                .setColor(settings.dropdownColors)
+                .setColor(MAIN.settings.dropdownColors)
                 .setOutlineColor(MAIN.OBJECT_BORDER_GREY)
                 .setBarHeight(cellHeight) //height of top/primary bar
                 .setItemHeight(cellHeight) //height of all item/dropdown bars

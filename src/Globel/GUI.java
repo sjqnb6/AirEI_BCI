@@ -1,5 +1,6 @@
 package Globel;
 
+import BoardCyton_.CytonSDMode;
 import BoardNull_.BoardNull;
 import ConsoleLog_.CustomOutputStream;
 import ControlPanel_.ControlPanel;
@@ -15,6 +16,7 @@ import Extras_.DataStatus;
 import Extras_.PlotFontInfo;
 import FilterSettings_.FilterSettings;
 import GuiSettings_.GuiSettings;
+import InterfaceSerial_.InterfaceSerial;
 import SessionSettings_.SessionSettings;
 import TopNav_.TopNav;
 import WidgetManager_.WidgetManager;
@@ -61,9 +63,9 @@ public class GUI extends PApplet {
     public static boolean systemHasHalted = true;
     public static boolean reinitRequested = false;
 
-    static final int NCHAN_CYTON = 8;
-    final int NCHAN_CYTON_DAISY = 16;
-    final int NCHAN_GANGLION = 4;
+    public static final int NCHAN_CYTON = 8;
+    public final int NCHAN_CYTON_DAISY = 16;
+    public final int NCHAN_GANGLION = 4;
 
     //choose where to get the EEG data
     public static final int DATASOURCE_CYTON = 0; // new default, data from serial with Accel data CHIP 2014-11-03
@@ -313,7 +315,7 @@ public class GUI extends PApplet {
     public static CustomOutputStream outputStream;
 
 
-    public DirectoryManager directoryManager;
+    public static DirectoryManager directoryManager;
     public SessionSettings settings;
     public static GuiSettings guiSettings;
     public static DataProcessing dataProcessing;
@@ -322,22 +324,22 @@ public class GUI extends PApplet {
 
     public static CopyPaste copyPaste;
 
-    public HelpWidget helpWidget;
+    public static HelpWidget helpWidget;
 
 //
 //    // Initialize board
     public DataSource currentBoard = new BoardNull();
 //
-    public static DataLogger dataLogger = new DataLogger();
+    public static DataLogger dataLogger;
 //
 //    // Intialize interface protocols
-//    public static InterfaceSerial iSerial = new InterfaceSerial(); //This is messy, half-deprecated code. See comments in InterfaceSerial.pde - Nov. 2020
+    public static InterfaceSerial iSerial; //This is messy, half-deprecated code. See comments in InterfaceSerial.pde - Nov. 2020
 //
 //    //define variables related to warnings to the user about whether the EEG data is nearly railed (and, therefore, of dubious quality)
     public static DataStatus[] is_railed;
 //
 //    //Cyton SD Card setting
-//    public static CytonSDMode cyton_sdSetting = CytonSDMode.NO_WRITE;
+    public static CytonSDMode cyton_sdSetting = CytonSDMode.NO_WRITE;
 //
     public static ControlPanel controlPanel;
 //

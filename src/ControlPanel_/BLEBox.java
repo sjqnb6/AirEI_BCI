@@ -21,7 +21,7 @@ import static Debugging_.GF.output;
 import static Debugging_.GF.outputError;
 import static Extras_.GF.isLinux;
 import static Extras_.GF.isMac;
-import static GUI.GGVI.*;
+import static Globel.GUI.*;
 
 public class BLEBox{
     public int x, y, w, h, padding; //size and position
@@ -171,7 +171,7 @@ public class BLEBox{
         refreshBLE = MAIN.createButton(bleBox_cp5, name, text, _x, _y, _w, _h);
         refreshBLE.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
-                if (selectedProtocol == BoardProtocol.BLED112) {
+                if (MAIN.selectedProtocol == BoardProtocol.BLED112) {
                     refreshGanglionBLEList();
                 } else {
                     refreshGanglionNativeList();

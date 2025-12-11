@@ -8,7 +8,7 @@ import controlP5.CallbackListener;
 import controlP5.ControlP5;
 import processing.core.PApplet;
 
-import static GUI.GGVI.*;
+import static Globel.GUI.*;
 import static processing.core.PConstants.LEFT;
 import static processing.core.PConstants.TOP;
 
@@ -49,7 +49,7 @@ class SerialBox{
         MAIN.text("SERIAL CONNECT", x + padding, y + padding);
         MAIN.popStyle();
 
-        if (selectedProtocol == BoardProtocol.SERIAL) {
+        if (MAIN.selectedProtocol == GUI.BoardProtocol.SERIAL) {
             cytonsb_cp5.draw();
         }
     }
@@ -73,7 +73,7 @@ class SerialBox{
         popOutRadioConfigButton = createSBButton(name, text, _x, _y, _w, _h);
         popOutRadioConfigButton.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
-                if (selectedProtocol == BoardProtocol.SERIAL) {
+                if (MAIN.selectedProtocol == GUI.BoardProtocol.SERIAL) {
                     if (controlPanel.rcBox.isShowing) {
                         controlPanel.hideRadioPopoutBox();
                     } else {

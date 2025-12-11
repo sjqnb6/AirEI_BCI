@@ -26,7 +26,8 @@ import static Debugging_.GF.output;
 import static Debugging_.GF.outputSuccess;
 import static Extras_.GF.dropNonPrintableChars;
 import static Extras_.GF.getIpAddrFromStr;
-import static GUI.GGVI.*;
+import static Globel.GUI.*;
+
 import Globel.GUI;
 //////////////////////////////////////////////////////
 
@@ -64,7 +65,7 @@ public class W_Marker extends Widget {
 
     public W_Marker(GUI MAIN){
         super(MAIN); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
-
+        this.MAIN = MAIN;
         //Instantiate local cp5 for this box. This allows extra control of drawing cp5 elements specifically inside this class.
         localCP5 = new ControlP5(MAIN);
         localCP5.setGraphics(MAIN, 0,0);
@@ -105,7 +106,7 @@ public class W_Marker extends Widget {
 
         lockElementsOnOverlapCheck(cp5ElementsToCheckForOverlap);
 
-        if (currentBoard.isStreaming()) {
+        if (MAIN.currentBoard.isStreaming()) {
             markerBar.update();
         }
 
@@ -306,21 +307,21 @@ public class W_Marker extends Widget {
     }
 
     private void insertMarker(int markerNumber) {
-        int markerChannel = ((DataSource)currentBoard).getMarkerChannel();
+        int markerChannel = ((DataSource)MAIN.currentBoard).getMarkerChannel();
 
-        if (currentBoard instanceof BoardBrainFlow) {
+        if (MAIN.currentBoard instanceof BoardBrainFlow) {
             if (markerChannel != -1) {
-                ((Board)currentBoard).insertMarker(markerNumber);
+                ((Board)MAIN.currentBoard).insertMarker(markerNumber);
             }
         }
     }
 
     public void insertMarkerFromExternal(float markerValue) {
-        int markerChannel = ((DataSource)currentBoard).getMarkerChannel();
+        int markerChannel = ((DataSource)MAIN.currentBoard).getMarkerChannel();
 
-        if (currentBoard instanceof BoardBrainFlow) {
+        if (MAIN.currentBoard instanceof BoardBrainFlow) {
             if (markerChannel != -1) {
-                ((Board)currentBoard).insertMarker(markerValue);
+                ((Board)MAIN.currentBoard).insertMarker(markerValue);
             }
         }
     }

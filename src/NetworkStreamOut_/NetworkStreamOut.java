@@ -17,6 +17,7 @@ import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 
 import static Debugging_.GF.*;
+import static Globel.GUI.*;
 import static WidgetManager_.GVI.*;
 import static processing.core.PApplet.println;
 import static processing.core.PApplet.str;
@@ -211,7 +212,7 @@ public class NetworkStreamOut extends Thread {
     }
 
     private void updateNumChan() {
-        numExgChannels = currentBoard.getNumEXGChannels();
+        numExgChannels = MAIN.currentBoard.getNumEXGChannels();
         // Bug #638: ArrayOutOfBoundsException was thrown if
         // nPointsPerUpdate was larger than 10, as start was
         // set to dataProcessingFilteredBuffer[0].length - 10.
@@ -233,20 +234,20 @@ public class NetworkStreamOut extends Thread {
         }
 
         if (this.dataType.equals("Accel/Aux")) {
-            if (currentBoard instanceof AccelerometerCapableBoard) {
-                AccelerometerCapableBoard accelBoard = (AccelerometerCapableBoard) currentBoard;
+            if (MAIN.currentBoard instanceof AccelerometerCapableBoard) {
+                AccelerometerCapableBoard accelBoard = (AccelerometerCapableBoard) MAIN.currentBoard;
                 if (accelBoard.isAccelerometerActive()) {
                     return w_networking.newAccelDataToSend.compareAndSet(true, false);
                 }
             }
-            if (currentBoard instanceof AnalogCapableBoard) {
-                AnalogCapableBoard analogBoard = (AnalogCapableBoard) currentBoard;
+            if (MAIN.currentBoard instanceof AnalogCapableBoard) {
+                AnalogCapableBoard analogBoard = (AnalogCapableBoard) MAIN.currentBoard;
                 if (analogBoard.isAnalogActive()) {
                     return w_networking.newAnalogDataToSend.compareAndSet(true, false);
                 }
             }
-            if (currentBoard instanceof DigitalCapableBoard) {
-                DigitalCapableBoard digitalBoard = (DigitalCapableBoard) currentBoard;
+            if (MAIN.currentBoard instanceof DigitalCapableBoard) {
+                DigitalCapableBoard digitalBoard = (DigitalCapableBoard) MAIN.currentBoard;
                 if (digitalBoard.isDigitalActive()) {
                     return w_networking.newDigitalDataToSend.compareAndSet(true, false);
                 }
@@ -270,7 +271,7 @@ public class NetworkStreamOut extends Thread {
             println("\nNumber of samples collected = " + samplesSent);
             println("Time Interval (Desired) = " + (sampleRateClockInterval / 1000));
             println("Time Interval (Actual) = " + timeDelta);
-            println("Sample Rate (Desired) = " + currentBoard.getSampleRate());
+            println("Sample Rate (Desired) = " + MAIN.currentBoard.getSampleRate());
             println("Sample Rate (Actual) = " + sampleRateCheck);
             sampleRateClock = 0;
             samplesSent = 0;
@@ -299,20 +300,20 @@ public class NetworkStreamOut extends Thread {
                 sendPowerBandData();
                 break;
             case "Accel/Aux":
-                if (currentBoard instanceof AccelerometerCapableBoard) {
-                    AccelerometerCapableBoard accelBoard = (AccelerometerCapableBoard) currentBoard;
+                if (MAIN.currentBoard instanceof AccelerometerCapableBoard) {
+                    AccelerometerCapableBoard accelBoard = (AccelerometerCapableBoard) MAIN.currentBoard;
                     if (accelBoard.isAccelerometerActive()) {
                         sendAccelerometerData();
                     }
                 }
-                if (currentBoard instanceof AnalogCapableBoard) {
-                    AnalogCapableBoard analogBoard = (AnalogCapableBoard) currentBoard;
+                if (MAIN.currentBoard instanceof AnalogCapableBoard) {
+                    AnalogCapableBoard analogBoard = (AnalogCapableBoard) MAIN.currentBoard;
                     if (analogBoard.isAnalogActive()) {
                         sendAnalogReadData();
                     }
                 }
-                if (currentBoard instanceof DigitalCapableBoard) {
-                    DigitalCapableBoard digitalBoard = (DigitalCapableBoard) currentBoard;
+                if (MAIN.currentBoard instanceof DigitalCapableBoard) {
+                    DigitalCapableBoard digitalBoard = (DigitalCapableBoard) MAIN.currentBoard;
                     if (digitalBoard.isDigitalActive()) {
                         sendDigitalReadData();
                     }
@@ -332,7 +333,7 @@ public class NetworkStreamOut extends Thread {
 
     private void sendTimeSeriesData() {
 
-        float[][] newDataFromBuffer = new float[currentBoard.getNumEXGChannels()][nPointsPerUpdate];
+        float[][] newDataFromBuffer = new float[MAIN.currentBoard.getNumEXGChannels()][nPointsPerUpdate];
         String udpDataTypeName = "timeSeriesRaw";
         String oscDataTypeName = "time-series-raw";
 
@@ -840,7 +841,7 @@ public class NetworkStreamOut extends Thread {
 
     private void sendAnalogReadData() {
 
-        final int NUM_ANALOG_READS = ((AnalogCapableBoard)currentBoard).getAnalogChannels().length;
+        final int NUM_ANALOG_READS = ((AnalogCapableBoard)MAIN.currentBoard).getAnalogChannels().length;
 
         if (this.protocol.equals("OSC")) {
 
@@ -1260,7 +1261,7 @@ public class NetworkStreamOut extends Thread {
         } else if (this.protocol.equals("LSL")) {
             String stream_id = "openbcigui";
             info_data = new LSL.StreamInfo(this.streamName, this.streamType, this.numLslDataPoints,
-                    currentBoard.getSampleRate(), LSL.ChannelFormat.float32, stream_id);
+                    MAIN.currentBoard.getSampleRate(), LSL.ChannelFormat.float32, stream_id);
             outlet_data = new LSL.StreamOutlet(info_data);
         } else if (this.protocol.equals("Serial")) {
             try {

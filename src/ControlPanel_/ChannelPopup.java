@@ -8,7 +8,7 @@ import controlP5.CallbackListener;
 import controlP5.ControlP5;
 import processing.core.PApplet;
 
-import static GUI.GGVI.*;
+import static Globel.GUI.*;
 import static processing.core.PConstants.LEFT;
 import static processing.core.PConstants.TOP;
 

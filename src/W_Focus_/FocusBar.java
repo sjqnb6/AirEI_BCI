@@ -7,7 +7,8 @@ import processing.core.PApplet;
 
 import java.util.LinkedList;
 
-import static GUI.GGVI.*;
+import static Globel.GUI.*;
+
 import Globel.GUI;
 //This class contains the time series plot for the focus metric over time
 import Globel.GUI;

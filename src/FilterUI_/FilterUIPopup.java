@@ -17,7 +17,8 @@ import java.util.Map;
 
 import static Debugging_.GF.output;
 import static Debugging_.GF.outputError;
-import static GUI.GGVI.*;
+import static Globel.GUI.*;
+
 import Globel.GUI;
 // Instantiate this class to show a popup message
 public class FilterUIPopup extends PApplet implements Runnable {

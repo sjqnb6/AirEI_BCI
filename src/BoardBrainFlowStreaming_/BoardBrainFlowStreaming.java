@@ -10,7 +10,7 @@ import brainflow.BrainFlowError;
 import brainflow.BrainFlowInputParams;
 
 import static Debugging_.GF.outputError;
-import static GUI.GGVI.directoryManager;
+import static Globel.GUI.directoryManager;
 
 
 public class BoardBrainFlowStreaming extends BoardBrainFlow {

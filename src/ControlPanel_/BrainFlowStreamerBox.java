@@ -11,7 +11,7 @@ import java.io.File;
 import java.util.Map;
 
 import static Debugging_.GF.output;
-import static GUI.GGVI.*;
+import static Globel.GUI.*;
 
 public class BrainFlowStreamerBox{
     public int x, y, w, h, padding; //size and position
@@ -198,7 +198,7 @@ public class BrainFlowStreamerBox{
     private void createDropdown(String name){
         bfFileSaveOption = bfStreamerCp5.addScrollableList(name)
                 .setOpen(false)
-                .setColor(settings.dropdownColors)
+                .setColor(MAIN.settings.dropdownColors)
                 .setOutlineColor(150)
                 .setSize(167, (dataWriterBfEnum.values().length + 1) * 24)
                 .setBarHeight(24) //height of top/primary bar

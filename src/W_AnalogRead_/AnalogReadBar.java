@@ -8,9 +8,6 @@ import grafica.GPointsArray;
 import processing.core.PApplet;
 
 import java.util.List;
-import static GUI.GGVI.*;
-import static GUI.GGVI.currentBoard;
-import static GUI.GGVI.selectedProtocol;
 import Globel.GUI;
 //========================================================================================================================
 //                      Analog Voltage BAR CLASS -- Implemented by Analog Read Widget Class
@@ -82,7 +79,7 @@ public class AnalogReadBar extends Widget {
         plot.getXAxis().setFontColor(MAIN.OPENBCI_DARKBLUE);
         plot.getXAxis().setLineColor(MAIN.OPENBCI_DARKBLUE);
         plot.getXAxis().getAxisLabel().setFontColor(MAIN.OPENBCI_DARKBLUE);
-        if (selectedProtocol == BoardProtocol.WIFI) {
+        if (MAIN.selectedProtocol == GUI.BoardProtocol.WIFI) {
             if(auxValuesPosition == 1) {
                 plot.getXAxis().setAxisLabelText("Time (s)");
             }
@@ -110,7 +107,7 @@ public class AnalogReadBar extends Widget {
         digitalPin.alignH = MAIN.CENTER;
 
         drawAnalogValue = true;
-        analogBoard = (AnalogCapableBoard) currentBoard;
+        analogBoard = (AnalogCapableBoard) MAIN.currentBoard;
     }
 
     public void initArrays() {
@@ -191,7 +188,7 @@ public class AnalogReadBar extends Widget {
         plot.drawBox(); // we won't draw this eventually ...
         plot.drawGridLines(GPlot.VERTICAL);
         plot.drawLines();
-        if (selectedProtocol == BoardProtocol.WIFI) {
+        if (MAIN.selectedProtocol == GUI.BoardProtocol.WIFI) {
             if(auxValuesPosition == 1) { //only draw the x axis label on the bottom channel bar
                 plot.drawXAxis();
                 plot.getXAxis().draw();
@@ -216,7 +213,7 @@ public class AnalogReadBar extends Widget {
     }
 
     public int nPointsBasedOnDataSource() {
-        return numSeconds * ((AnalogCapableBoard)currentBoard).getAnalogSampleRate();
+        return numSeconds * ((AnalogCapableBoard)MAIN.currentBoard).getAnalogSampleRate();
     }
 
     public void adjustTimeAxis(int _newTimeSize) {

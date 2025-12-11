@@ -8,7 +8,9 @@ import processing.core.PApplet;
 
 import java.util.List;
 
-import static GUI.GGVI.*;
+import Globel.GUI;
+
+import static Globel.GUI.NUM_ACCEL_DIMS;
 import static processing.core.PApplet.max;
 import static processing.core.PApplet.min;
 
@@ -17,7 +19,7 @@ import static processing.core.PApplet.min;
 //========================================================================================================================
 public class AccelerometerBar {
 
-    protected PApplet pApplet;
+    GUI MAIN;
 
     public ColorPalette CP;
 
@@ -49,24 +51,24 @@ public class AccelerometerBar {
 
     private AccelerometerCapableBoard accelBoard;
 
-    AccelerometerBar(PApplet _parent, float accelXyzLimit, int _x, int _y, int _w, int _h) { //channel number, x/y location, height, width
-        CP = new ColorPalette(_parent);
+    AccelerometerBar(GUI MAIN, float accelXyzLimit, int _x, int _y, int _w, int _h) { //channel number, x/y location, height, width
+        CP = new ColorPalette(MAIN);
 
-        pApplet = _parent;
+        this.MAIN = MAIN;
         // This widget is only instantiated when the board is accel capable, so we don't need to check
-        accelBoard = (AccelerometerCapableBoard)currentBoard;
+        accelBoard = (AccelerometerCapableBoard)MAIN.currentBoard;
 
         x = _x;
         y = _y;
         w = _w;
         h = _h;
-        if (eegDataSource == DATASOURCE_CYTON) {
+        if (MAIN.eegDataSource == MAIN.DATASOURCE_CYTON) {
             xOffset = 22;
         } else {
             xOffset = 0;
         }
 
-        plot = new GPlot(_parent);
+        plot = new GPlot(MAIN);
         plot.setPos(x + 36 + 4 + xOffset, y); //match Accelerometer plot position with Time Series
         plot.setDim(w - 36 - 4 - xOffset, h);
         plot.setMar(0f, 0f, 0f, 0f);
@@ -128,7 +130,7 @@ public class AccelerometerBar {
     }
 
     void draw() {
-        pApplet.pushStyle();
+        MAIN.pushStyle();
         plot.beginDraw();
         plot.drawBox(); //we won't draw this eventually ...
         plot.drawGridLines(GPlot.BOTH);
@@ -137,11 +139,11 @@ public class AccelerometerBar {
         plot.drawYAxis();
         plot.drawXAxis();
         plot.endDraw();
-        pApplet.popStyle();
+        MAIN.popStyle();
     }
 
     int nPointsBasedOnDataSource() {
-        return numSeconds * currentBoard.getSampleRate();
+        return numSeconds * MAIN.currentBoard.getSampleRate();
     }
 
     public void adjustTimeAxis(int _newTimeSize) {

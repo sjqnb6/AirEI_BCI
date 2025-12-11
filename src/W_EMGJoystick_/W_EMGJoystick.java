@@ -23,7 +23,8 @@ import java.util.List;
 import java.util.Map;
 
 import static Debugging_.GF.verbosePrint;
-import static GUI.GGVI.*;
+import static Globel.GUI.*;
+
 import Globel.GUI;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -362,7 +363,7 @@ public class W_EMGJoystick extends Widget {
                 ;
         // this will store the *actual* enum object inside the dropdown!
         for (EmgJoystickInput input : EmgJoystickInput.values()) {
-            if (input.getIndex() >= currentBoard.getNumEXGChannels()) {
+            if (input.getIndex() >= MAIN.currentBoard.getNumEXGChannels()) {
                 continue;
             }
             list.addItem(input.getString(), input);

@@ -90,7 +90,7 @@ public class DataSourceBox{
                         controlPanel.interfaceBoxCyton.resetCytonSelectedProtocol();
                         controlPanel.wifiBox.setDefaultToDynamicIP();
                     } else if (eegDataSource == DATASOURCE_GANGLION) {
-                        updateToNChan(4);
+                        updateToNChan(MAIN, 4);
                         controlPanel.interfaceBoxGanglion.resetGanglionSelectedProtocol();
                         controlPanel.wifiBox.setDefaultToDynamicIP();
                     } else if (eegDataSource == DATASOURCE_PLAYBACKFILE) {

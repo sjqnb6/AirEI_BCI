@@ -6,8 +6,10 @@ import processing.core.PApplet;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-import static GUI.GGVI.*;
 import Globel.GUI;
+
+import static Globel.GUI.streamTimeElapsed;
+
 //========================== TimeDisplay ==========================
 public class TimeDisplay{
     int swidth, sheight;    // width and height of bar
@@ -28,7 +30,7 @@ public class TimeDisplay{
 
     /////////////// Update loop for TimeDisplay when data stream is running
     void update() {
-        if (currentBoard.isStreaming()) {
+        if (MAIN.currentBoard.isStreaming()) {
             //Fetch Local time
             try {
                 currentAbsoluteTimeToDisplay = fetchCurrentTimeString();
@@ -45,7 +47,7 @@ public class TimeDisplay{
         //draw current timestamp at the bottom of the Widget container
         if (!currentAbsoluteTimeToDisplay.equals(null)) {
             int fontSize = 17;
-            MAIN.textFont(p2, fontSize);
+            MAIN.textFont(MAIN.p2, fontSize);
             MAIN.fill(MAIN.OPENBCI_DARKBLUE);
             float tw = MAIN.textWidth(currentAbsoluteTimeToDisplay);
             MAIN.text(currentAbsoluteTimeToDisplay, xpos + swidth - tw, ypos);

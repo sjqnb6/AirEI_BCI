@@ -29,7 +29,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static Debugging_.GF.output;
-import static GUI.GGVI.*;
+import static Globel.GUI.*;
 import static WidgetManager_.GVI.*;
 import Globel.GUI;
 ////////////////////////////////////////////////////
@@ -76,15 +76,15 @@ public class W_Accelerometer extends Widget {
 
         pApplet = MAIN;
 
-        accelBoard = (AccelerometerCapableBoard)currentBoard;
+        accelBoard = (AccelerometerCapableBoard)MAIN.currentBoard;
 
         //Default dropdown settings
-        settings.accVertScaleSave = 0;
-        settings.accHorizScaleSave = 3;
+        MAIN.settings.accVertScaleSave = 0;
+        MAIN.settings.accHorizScaleSave = 3;
 
         //Make dropdowns
-        addDropdown("accelVertScale", "Vert Scale", Arrays.asList(settings.accVertScaleArray), settings.accVertScaleSave);
-        addDropdown("accelDuration", "Window", Arrays.asList(settings.accHorizScaleArray), settings.accHorizScaleSave);
+        addDropdown("accelVertScale", "Vert Scale", Arrays.asList(MAIN.settings.accVertScaleArray), MAIN.settings.accVertScaleSave);
+        addDropdown("accelDuration", "Window", Arrays.asList(MAIN.settings.accHorizScaleArray), MAIN.settings.accHorizScaleSave);
 
         setGraphDimensions();
         yMaxMin = adjustYMaxMinBasedOnSource();
@@ -94,8 +94,8 @@ public class W_Accelerometer extends Widget {
 
         //create our channel bar and populate our accelerometerBar array!
         accelerometerBar = new AccelerometerBar(MAIN, accelXyzLimit, accelGraphX, accelGraphY, accelGraphWidth, accelGraphHeight);
-        accelerometerBar.adjustTimeAxis(xLimOptions[settings.accHorizScaleSave]);
-        accelerometerBar.adjustVertScale(yLimOptions[settings.accVertScaleSave]);
+        accelerometerBar.adjustTimeAxis(xLimOptions[MAIN.settings.accHorizScaleSave]);
+        accelerometerBar.adjustVertScale(yLimOptions[MAIN.settings.accVertScaleSave]);
 
         createAccelModeButton("accelModeButton", "Turn Accel. Off", (int)(x + 1), (int)(y0 + navHeight + 1), 120, navHeight - 3, p5, 12, CP.colorNotPressed, CP.OPENBCI_DARKBLUE);
     }
@@ -114,7 +114,7 @@ public class W_Accelerometer extends Widget {
     }
 
     int nPointsBasedOnDataSource() {
-        return accelHorizLimit * ((AccelerometerCapableBoard)currentBoard).getAccelSampleRate();
+        return accelHorizLimit * ((AccelerometerCapableBoard)MAIN.currentBoard).getAccelSampleRate();
     }
 
     public void update() {
@@ -133,7 +133,7 @@ public class W_Accelerometer extends Widget {
         cp5ElementsToCheck.add((Controller)accelModeButton);
         lockElementsOnOverlapCheck(cp5ElementsToCheck);
 
-        if(!accelBoard.canDeactivateAccelerometer() && !(currentBoard instanceof BoardCyton)) {
+        if(!accelBoard.canDeactivateAccelerometer() && !(MAIN.currentBoard instanceof BoardCyton)) {
             accelModeButton.getCaptionLabel().setText("Accel. On");
             accelModeButton.setColorBackground(CP.BUTTON_LOCKED_GREY);
             accelModeButton.setLock(true);
@@ -220,15 +220,15 @@ public class W_Accelerometer extends Widget {
                     accelBoard.setAccelerometerActive(true);
                     output("Starting to read accelerometer");
                     accelModeButton.getCaptionLabel().setText("Turn Accel. Off");
-                    if (currentBoard instanceof DigitalCapableBoard) {
+                    if (MAIN.currentBoard instanceof DigitalCapableBoard) {
                         w_digitalRead.toggleDigitalReadButton(false);
                     }
-                    if (currentBoard instanceof AnalogCapableBoard) {
+                    if (MAIN.currentBoard instanceof AnalogCapableBoard) {
                         w_pulsesensor.toggleAnalogReadButton(false);
                         w_analogRead.toggleAnalogReadButton(false);
                     }
                     ///Hide button when set On for Cyton board only. This is a special case for Cyton board Aux mode behavior. See BoardCyton.pde for more info.
-                    if ((currentBoard instanceof BoardCyton)) {
+                    if ((MAIN.currentBoard instanceof BoardCyton)) {
                         accelModeButton.setVisible(false);
                     }
                 } else {
@@ -242,11 +242,11 @@ public class W_Accelerometer extends Widget {
             }
         });
         accelModeButton.setDescription("Click to activate/deactivate the accelerometer for capable boards.");
-        if (accelBoard.canDeactivateAccelerometer() || (currentBoard instanceof BoardCyton)) {
+        if (accelBoard.canDeactivateAccelerometer() || (MAIN.currentBoard instanceof BoardCyton)) {
             //Set button switch to On of it can be toggled
             accelModeButton.setOn();
             //Hide button when set On for Cyton board only. This is a special case for Cyton board Aux mode behavior. See BoardCyton.pde for more info.
-            if ((currentBoard instanceof BoardCyton)) {
+            if ((MAIN.currentBoard instanceof BoardCyton)) {
                 accelModeButton.setVisible(false);
             }
         }
@@ -296,7 +296,7 @@ public class W_Accelerometer extends Widget {
             accelModeButton.setOff();
         }
         //Hide button when set On for Cyton board only. This is a special case for Cyton board Aux mode behavior. See BoardCyton.pde for more info.
-        if ((currentBoard instanceof BoardCyton)) {
+        if ((MAIN.currentBoard instanceof BoardCyton)) {
             accelModeButton.setVisible(!_value);
         }
     }

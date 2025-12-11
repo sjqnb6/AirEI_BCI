@@ -15,7 +15,7 @@ import static processing.core.PApplet.println;
 import static processing.core.PApplet.str;
 
 public abstract class BoardGanglion extends BoardBrainFlow implements AccelerometerCapableBoard {
-
+    GUI MAIN;
     private final char[] deactivateChannelChars = {'1', '2', '3', '4', '5', '6', '7', '8', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i'};
     private final char[] activateChannelChars =  {'!', '@', '#', '$', '%', '^', '&', '*', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I'};
 
@@ -33,6 +33,7 @@ public abstract class BoardGanglion extends BoardBrainFlow implements Accelerome
 
     public BoardGanglion(GUI MAIN) {
         super(MAIN);
+        this.MAIN = MAIN;
     }
 
     // implement mandatory abstract functions
@@ -119,7 +120,7 @@ public abstract class BoardGanglion extends BoardBrainFlow implements Accelerome
                 return;
             }
             if (streaming) {
-                stopRunning();
+                stopRunning(MAIN);
             }
             sendCommand("z");
             startStreaming();

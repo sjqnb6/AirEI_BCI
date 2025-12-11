@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static Debugging_.GF.*;
 import static Extras_.GF.isLinux;
 import static Extras_.GF.isMac;
-import static GUI.GGVI.*;
+import static Globel.GUI.*;
 import static Interactivity_.GF.openURLInBrowser;
 import static WidgetManager_.GVI.w_networking;
 import Globel.GUI;
@@ -130,7 +130,7 @@ public class W_Networking extends Widget {
     public W_Networking(GUI MAIN) {
         super(MAIN);
         // ourApplet = _parent;
-
+        this.MAIN = MAIN;
         networkActive = false;
         stream1 = null;
         stream2 = null;
@@ -143,12 +143,12 @@ public class W_Networking extends Widget {
         networkingFrameLocks[3] = new AtomicBoolean(false);
 
         // default data types for streams 1-4 in Networking widget
-        settings.nwDataType1 = 0;
-        settings.nwDataType2 = 0;
-        settings.nwDataType3 = 0;
-        settings.nwDataType4 = 0;
-        settings.nwSerialPort = "None";
-        settings.nwProtocolSave = protocolIndex;
+        MAIN.settings.nwDataType1 = 0;
+        MAIN.settings.nwDataType2 = 0;
+        MAIN.settings.nwDataType3 = 0;
+        MAIN.settings.nwDataType4 = 0;
+        MAIN.settings.nwSerialPort = "None";
+        MAIN.settings.nwProtocolSave = protocolIndex;
 
         // Only show pulse data type when using Cyton in Live
         if (eegDataSource != DATASOURCE_CYTON) {
@@ -167,24 +167,24 @@ public class W_Networking extends Widget {
 
         putCP5DataIntoMap();
 
-        dataBufferToSend = new float[currentBoard.getNumEXGChannels()][nPointsPerUpdate];
+        dataBufferToSend = new float[MAIN.currentBoard.getNumEXGChannels()][nPointsPerUpdate];
         dataAccumulationQueue = new LinkedList<double[]>();
-        dataBufferToSend_Filtered = new float[currentBoard.getNumEXGChannels()][nPointsPerUpdate];
+        dataBufferToSend_Filtered = new float[MAIN.currentBoard.getNumEXGChannels()][nPointsPerUpdate];
         dataAccumulationQueueFiltered = new LinkedList<float[]>();
         markerDataBufferToSend = new float[nPointsPerUpdate];
         markerDataAccumulationQueue = new LinkedList<Double>();
-        if (currentBoard instanceof AccelerometerCapableBoard) {
-            AccelerometerCapableBoard accelBoard = (AccelerometerCapableBoard)currentBoard;
+        if (MAIN.currentBoard instanceof AccelerometerCapableBoard) {
+            AccelerometerCapableBoard accelBoard = (AccelerometerCapableBoard)MAIN.currentBoard;
             accelDataBufferToSend = new float[accelBoard.getAccelerometerChannels().length][nPointsPerUpdate];
             accelDataAccumulationQueue = new LinkedList<double[]>();
         }
-        if (currentBoard instanceof DigitalCapableBoard) {
-            DigitalCapableBoard digitalBoard = (DigitalCapableBoard)currentBoard;
+        if (MAIN.currentBoard instanceof DigitalCapableBoard) {
+            DigitalCapableBoard digitalBoard = (DigitalCapableBoard)MAIN.currentBoard;
             digitalDataBufferToSend = new int[digitalBoard.getDigitalChannels().length][nPointsPerUpdate];
             digitalDataAccumulationQueue = new LinkedList<double[]>();
         }
-        if (currentBoard instanceof AnalogCapableBoard) {
-            AnalogCapableBoard analogBoard = (AnalogCapableBoard)currentBoard;
+        if (MAIN.currentBoard instanceof AnalogCapableBoard) {
+            AnalogCapableBoard analogBoard = (AnalogCapableBoard)MAIN.currentBoard;
             analogDataBufferToSend = new float[analogBoard.getAnalogChannels().length][nPointsPerUpdate];
             analogDataAccumulationQueue = new LinkedList<double[]>();
         }
@@ -301,7 +301,7 @@ public class W_Networking extends Widget {
 
     // Call this function in DataProcessing.pde to update the data buffers even if the widget is not visible
     public void updateNetworkingWidgetData() {
-        if (!currentBoard.isStreaming()) {
+        if (!MAIN.currentBoard.isStreaming()) {
             return;
         }
 
@@ -310,9 +310,9 @@ public class W_Networking extends Widget {
     }
 
     private void accumulateNewData() {
-        double[][] newData = currentBoard.getFrameData();
-        int[] exgChannels = currentBoard.getEXGChannels();
-        int markerChannel = currentBoard.getMarkerChannel();
+        double[][] newData = MAIN.currentBoard.getFrameData();
+        int[] exgChannels = MAIN.currentBoard.getEXGChannels();
+        int markerChannel = MAIN.currentBoard.getMarkerChannel();
 
         if (newData[exgChannels[0]].length == 0) {
             return;
@@ -334,8 +334,8 @@ public class W_Networking extends Widget {
             dataAccumulationQueueFiltered.add(sample_filtered);
             markerDataAccumulationQueue.add(newData[markerChannel][iSample]);
 
-            if (currentBoard instanceof AccelerometerCapableBoard) {
-                AccelerometerCapableBoard accelBoard = (AccelerometerCapableBoard) currentBoard;
+            if (MAIN.currentBoard instanceof AccelerometerCapableBoard) {
+                AccelerometerCapableBoard accelBoard = (AccelerometerCapableBoard) MAIN.currentBoard;
                 int[] accelChannels = accelBoard.getAccelerometerChannels();
                 double[] accelSample = new double[accelChannels.length];
                 for (int iChan = 0; iChan < accelChannels.length; iChan++) {
@@ -344,8 +344,8 @@ public class W_Networking extends Widget {
                 accelDataAccumulationQueue.add(accelSample);
             }
 
-            if (currentBoard instanceof DigitalCapableBoard) {
-                DigitalCapableBoard digitalBoard = (DigitalCapableBoard) currentBoard;
+            if (MAIN.currentBoard instanceof DigitalCapableBoard) {
+                DigitalCapableBoard digitalBoard = (DigitalCapableBoard) MAIN.currentBoard;
                 if (digitalBoard.isDigitalActive()) {
                     int[] digitalChannels = digitalBoard.getDigitalChannels();
                     double[] digitalSample = new double[digitalChannels.length];
@@ -356,8 +356,8 @@ public class W_Networking extends Widget {
                 }
             }
 
-            if (currentBoard instanceof AnalogCapableBoard) {
-                AnalogCapableBoard analogBoard = (AnalogCapableBoard) currentBoard;
+            if (MAIN.currentBoard instanceof AnalogCapableBoard) {
+                AnalogCapableBoard analogBoard = (AnalogCapableBoard) MAIN.currentBoard;
                 if (analogBoard.isAnalogActive()) {
                     int[] analogChannels = analogBoard.getAnalogChannels();
                     double[] analogSample = new double[analogChannels.length];
@@ -402,7 +402,7 @@ public class W_Networking extends Widget {
             }
         }
 
-        if (currentBoard instanceof AccelerometerCapableBoard) {
+        if (MAIN.currentBoard instanceof AccelerometerCapableBoard) {
             newAccelDataToSend.set(accelDataAccumulationQueue.size() >= nPointsPerUpdate);
             if (newAccelDataToSend.get()) {
                 for (int iSample = 0; iSample < nPointsPerUpdate; iSample++) {
@@ -415,7 +415,7 @@ public class W_Networking extends Widget {
             }
         }
 
-        if (currentBoard instanceof BoardCyton) {
+        if (MAIN.currentBoard instanceof BoardCyton) {
             newDigitalDataToSend.set(digitalDataAccumulationQueue.size() >= nPointsPerUpdate);
             if (newDigitalDataToSend.get()) {
                 for (int iSample = 0; iSample < nPointsPerUpdate; iSample++) {
@@ -1092,13 +1092,13 @@ public class W_Networking extends Widget {
     // account for this here
     private int getDataTypeNumChanLSL(String dataType) {
         if (dataType.equals("TimeSeriesFilt") || dataType.equals("TimeSeriesRaw")) {
-            return currentBoard.getNumEXGChannels();
+            return MAIN.currentBoard.getNumEXGChannels();
         } else if (dataType.equals("Focus")) {
             return 1;
         } else if (dataType.equals("FFT")) {
             return 125;
         } else if (dataType.equals("EMG")) {
-            return currentBoard.getNumEXGChannels();
+            return MAIN.currentBoard.getNumEXGChannels();
         } else if (dataType.equals("AvgBandPower")) {
             return 5;
         } else if (dataType.equals("BandPower")) {
@@ -1108,20 +1108,20 @@ public class W_Networking extends Widget {
         } else if (dataType.equals("Pulse")) {
             return 2;
         } else if (dataType.equals("Accel/Aux")) {
-            if (currentBoard instanceof AccelerometerCapableBoard) {
-                AccelerometerCapableBoard accelBoard = (AccelerometerCapableBoard) currentBoard;
+            if (MAIN.currentBoard instanceof AccelerometerCapableBoard) {
+                AccelerometerCapableBoard accelBoard = (AccelerometerCapableBoard) MAIN.currentBoard;
                 if (accelBoard.isAccelerometerActive()) {
                     return accelBoard.getAccelerometerChannels().length;
                 }
             }
-            if (currentBoard instanceof AnalogCapableBoard) {
-                AnalogCapableBoard analogBoard = (AnalogCapableBoard) currentBoard;
+            if (MAIN.currentBoard instanceof AnalogCapableBoard) {
+                AnalogCapableBoard analogBoard = (AnalogCapableBoard) MAIN.currentBoard;
                 if (analogBoard.isAnalogActive()) {
                     return analogBoard.getAnalogChannels().length;
                 }
             }
-            if (currentBoard instanceof DigitalCapableBoard) {
-                DigitalCapableBoard digitalBoard = (DigitalCapableBoard) currentBoard;
+            if (MAIN.currentBoard instanceof DigitalCapableBoard) {
+                DigitalCapableBoard digitalBoard = (DigitalCapableBoard) MAIN.currentBoard;
                 if (digitalBoard.isDigitalActive()) {
                     return digitalBoard.getDigitalChannels().length;
                 }

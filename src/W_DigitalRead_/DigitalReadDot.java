@@ -7,7 +7,6 @@ import processing.core.PApplet;
 
 import java.util.List;
 
-import static GUI.GGVI.currentBoard;
 import Globel.GUI;
 //========================================================================================================================
 //                      Analog Voltage BAR CLASS -- Implemented by Analog Read Widget Class
@@ -43,7 +42,7 @@ class DigitalReadDot extends Widget {
     public DigitalReadDot(GUI MAIN, int _digitalInputPin, int _x, int _y, int _w, int _h, int _padding) {
         super(MAIN); // channel number, x/y location, height, width
         this.MAIN = MAIN;
-        digitalBoard = (DigitalCapableBoard)currentBoard;
+        digitalBoard = (DigitalCapableBoard)MAIN.currentBoard;
 
         digitalInputPin = _digitalInputPin;
         digitalInputString = MAIN.str(digitalInputPin);

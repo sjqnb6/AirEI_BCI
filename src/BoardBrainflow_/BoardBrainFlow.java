@@ -17,7 +17,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import static Debugging_.GF.outputError;
-import static GUI.GGVI.*;
+import static Globel.GUI.topNav;
 import static SystemManager.GF.stopRunning;
 import static processing.core.PApplet.println;
 
@@ -45,6 +45,7 @@ public abstract class BoardBrainFlow extends Board {
     abstract public BoardIds getBoardId();
 
     public BoardBrainFlow(GUI MAIN) {
+        super(MAIN);
         this.MAIN = MAIN;
     }
 
@@ -54,8 +55,8 @@ public abstract class BoardBrainFlow extends Board {
             boardShim = new BoardShim (getBoardIdInt(), getParams());
             try {
                 BoardShim.enable_dev_board_logger();
-                BoardShim.set_log_file(directoryManager.getConsoleDataPath() + "Brainflow_" +
-                        directoryManager.getFileNameDateTime() + ".txt");
+                BoardShim.set_log_file(MAIN.directoryManager.getConsoleDataPath() + "Brainflow_" +
+                        MAIN.directoryManager.getFileNameDateTime() + ".txt");
             } catch (BrainFlowError e) {
                 e.printStackTrace();
             }
@@ -104,7 +105,7 @@ public abstract class BoardBrainFlow extends Board {
         }
 
         try {
-            boardShim.start_stream (450000, brainflowStreamer);
+            boardShim.start_stream (450000, MAIN.brainflowStreamer);
             streaming = true;
         }
         catch (BrainFlowError e) {
@@ -138,8 +139,8 @@ public abstract class BoardBrainFlow extends Board {
             }
         }
 
-        if (eegDataSource != DATASOURCE_PLAYBACKFILE && eegDataSource != DATASOURCE_STREAMING) {
-            dataLogger.fileWriterBF.incrementBrainFlowStreamerFileNumber();
+        if (MAIN.eegDataSource != MAIN.DATASOURCE_PLAYBACKFILE && MAIN.eegDataSource != MAIN.DATASOURCE_STREAMING) {
+            MAIN.dataLogger.fileWriterBF.incrementBrainFlowStreamerFileNumber();
         }
     }
 
@@ -289,7 +290,7 @@ public abstract class BoardBrainFlow extends Board {
                         }
                         outputError("Data Streaming Error: No new data received in " + timeout + " seconds. Please check your device and restart a GUI session.");
                         data_popup_displayed = true;
-                        stopRunning();
+                        stopRunning(MAIN);
                         topNav.resetStartStopButton();
                     }
                 } else {

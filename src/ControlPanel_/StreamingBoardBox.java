@@ -8,7 +8,7 @@ import processing.core.PApplet;
 
 import java.util.Map;
 
-import static GUI.GGVI.*;
+import static Globel.GUI.*;
 import static processing.core.PConstants.LEFT;
 import static processing.core.PConstants.TOP;
 

@@ -8,9 +8,11 @@ import DataWriterODF_.DataWriterODF;
 import Globel.GUI;
 import processing.core.PApplet;
 
+import static Globel.GUI.*;
 import static processing.core.PApplet.println;
-
+import Globel.GUI;
 public class DataLogger {
+    GUI MAIN;
     //variables for writing EEG data out to a file
     private DataWriterODF fileWriterODF;
     private DataWriterAuxODF fileWriterAuxODF;
@@ -22,10 +24,10 @@ public class DataLogger {
     public final int OUTPUT_SOURCE_BDF = 2; // The BDF data format http://www.biosemi.com/faq/file_format.htm
     private int outputDataSource;
 
-    public DataLogger() {
+    public DataLogger(GUI MAIN) {
         //Default to OpenBCI CSV Data Format
         outputDataSource = OUTPUT_SOURCE_ODF;
-        fileWriterBF = new DataWriterBF();
+        fileWriterBF = new DataWriterBF(MAIN);
     }
 
     public void initialize() {
@@ -37,14 +39,14 @@ public class DataLogger {
         fileWriterBF.resetBrainFlowStreamer();
     }
 
-    public void update(GUI MAIN) {
+    public void update() {
         limitRecordingFileDuration();
 
-        saveNewData(MAIN);
+        saveNewData();
     }
 
 
-    private void saveNewData(GUI MAIN) {
+    private void saveNewData() {
         //If data is available, save to playback file...
         if(!MAIN.settings.isLogFileOpen()) {
             return;
@@ -68,11 +70,11 @@ public class DataLogger {
         }
     }
 
-    public void limitRecordingFileDuration(GUI MAIN) {
-        if (MAIN.settings.isLogFileOpen() && outputDataSource == OUTPUT_SOURCE_ODF && settings.maxLogTimeReached()) {
+    public void limitRecordingFileDuration() {
+        if (MAIN.settings.isLogFileOpen() && outputDataSource == OUTPUT_SOURCE_ODF && MAIN.settings.maxLogTimeReached()) {
             println("DataLogging: Max recording duration reached for OpenBCI data format. Creating a new recording file in the session folder.");
             closeLogFile();
-            openNewLogFile(MAIN.directoryManager.getFileNameDateTime());
+            openNewLogFile(directoryManager.getFileNameDateTime());
             MAIN.settings.setLogFileStartTime(System.nanoTime());
         }
     }
@@ -80,10 +82,10 @@ public class DataLogger {
     public void onStartStreaming() {
         if (outputDataSource > OUTPUT_SOURCE_NONE && eegDataSource != DATASOURCE_PLAYBACKFILE) {
             //open data file if it has not already been opened
-            if (!settings.isLogFileOpen()) {
+            if (!MAIN.settings.isLogFileOpen()) {
                 openNewLogFile(directoryManager.getFileNameDateTime());
             }
-            settings.setLogFileStartTime(System.nanoTime());
+            MAIN.settings.setLogFileStartTime(System.nanoTime());
         }
 
         //Print BrainFlow Streamer Info here after ODF and BDF println
@@ -102,7 +104,7 @@ public class DataLogger {
 
     public float getSecondsWritten() {
         if (outputDataSource == OUTPUT_SOURCE_ODF && fileWriterODF != null) {
-            return (float)(fileWriterODF.getRowsWritten())/currentBoard.getSampleRate();
+            return (float)(fileWriterODF.getRowsWritten())/MAIN.currentBoard.getSampleRate();
         }
 
         if (outputDataSource == OUTPUT_SOURCE_BDF && fileWriterBDF != null) {
@@ -126,7 +128,7 @@ public class DataLogger {
                 // Do nothing...
                 break;
         }
-        settings.setLogFileIsOpen(true);
+        MAIN.settings.setLogFileIsOpen(true);
     }
 
     /**
@@ -157,11 +159,11 @@ public class DataLogger {
             closeLogFile();
         }
         //open the new file
-        fileWriterODF = new DataWriterODF(sessionName, _fileName);
-        if (currentBoard instanceof AuxDataBoard) {
+        fileWriterODF = new DataWriterODF(MAIN, sessionName, _fileName);
+        if (MAIN.currentBoard instanceof AuxDataBoard) {
             if (fileWriterAuxODF != null)
                 fileWriterAuxODF.closeFile();
-            fileWriterAuxODF = new DataWriterAuxODF(sessionName, _fileName);
+            fileWriterAuxODF = new DataWriterAuxODF(MAIN, sessionName, _fileName);
         }
 
         output_fname = fileWriterODF.fname;
@@ -181,7 +183,7 @@ public class DataLogger {
                 // Do nothing...
                 break;
         }
-        settings.setLogFileIsOpen(false);
+        MAIN.settings.setLogFileIsOpen(false);
     }
 
     /**
@@ -230,10 +232,10 @@ public class DataLogger {
     }
 
     public void setBfWriterDefaultFolder() {
-        if (settings.getSessionPath() != "") {
-            settings.setSessionPath(directoryManager.getRecordingsPath() + "OpenBCISession_" + sessionName);
+        if (MAIN.settings.getSessionPath() != "") {
+            MAIN.settings.setSessionPath(directoryManager.getRecordingsPath() + "OpenBCISession_" + sessionName);
         }
-        fileWriterBF.setBrainFlowStreamerFolderName(sessionName, settings.getSessionPath());
+        fileWriterBF.setBrainFlowStreamerFolderName(sessionName, MAIN.settings.getSessionPath());
     }
 
     public String getBfWriterFilePath() {

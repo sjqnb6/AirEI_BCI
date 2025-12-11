@@ -13,15 +13,15 @@ import static processing.core.PApplet.str;
 
 public class GF {
     //Global function to update the number of channels
-    public static void updateToNChan(int _nchan) {
+    public static void updateToNChan(GUI MAIN, int _nchan) {
         nchan = _nchan;
-        settings.slnchan = _nchan; //used in SoftwareSettings.pde only
+        MAIN.settings.slnchan = _nchan; //used in SoftwareSettings.pde only
         fftBuff = new ddf.minim.analysis.FFT[nchan];  //reinitialize the FFT buffer
         println("OpenBCI_GUI: Channel count set to " + str(nchan));
     }
 
     //halt the data collection
-    public static void haltSystem() {
+    public static void haltSystem(GUI MAIN) {
         if (!systemHasHalted) { //prevents system from halting more than once
             println("openBCI_GUI: haltSystem: Halting system for reconfiguration of settings...");
 
@@ -39,7 +39,7 @@ public class GF {
                 w_focus.endSession();
             }
 
-            stopRunning();  //stop data transfer
+            stopRunning(MAIN);  //stop data transfer
 
             topNav.resetStartStopButton();
             topNav.destroySmoothingButton(); //Destroy this button if exists and make null, will be re-init if needed next time session starts
@@ -60,8 +60,8 @@ public class GF {
 
             dataLogger.uninitialize();
 
-            currentBoard.uninitialize();
-            currentBoard = new BoardNull(); // back to null
+            MAIN.currentBoard.uninitialize();
+            MAIN.currentBoard = new BoardNull(); // back to null
 
             sessionTimeElapsed.stop();
 
@@ -70,11 +70,11 @@ public class GF {
     } //end of halt system
 
 
-    public static void stopRunning() {
+    public static void stopRunning(GUI MAIN) {
         //Check again if board is streaming to avoid IllegalStateException
-        if (currentBoard.isStreaming() && topNav.dataStreamingButtonIsActive()) {
+        if (MAIN.currentBoard.isStreaming() && topNav.dataStreamingButtonIsActive()) {
             //If streaming, attempt to stop stream
-            currentBoard.stopStreaming();
+            MAIN.currentBoard.stopStreaming();
             output("Data stream stopped.");
             try {
                 streamTimeElapsed.stop();
@@ -89,11 +89,11 @@ public class GF {
         }
     }
 
-    public static void startRunning() {
+    public static void startRunning(GUI MAIN) {
         // start streaming on the chosen board
         dataLogger.onStartStreaming();
-        currentBoard.startStreaming();
-        if (currentBoard.isStreaming()) {
+        MAIN.currentBoard.startStreaming();
+        if (MAIN.currentBoard.isStreaming()) {
             output("Data stream started.");
             // todo: this should really be some sort of signal that listeners can register for "OnStreamStarted"
             // close hardware settings if user starts streaming
@@ -116,8 +116,8 @@ public class GF {
      * @description Get the correct points of FFT based on sampling rate
      * @returns `int` - Points of FFT. 125Hz, 200Hz, 250Hz -> 256points. 1000Hz -> 1024points. 1600Hz -> 2048 points.
      */
-    public static int getNfftSafe() {
-        int sampleRate = currentBoard.getSampleRate();
+    public static int getNfftSafe(GUI MAIN) {
+        int sampleRate = MAIN.currentBoard.getSampleRate();
         switch (sampleRate) {
             case 500:
                 return 512;
@@ -133,7 +133,7 @@ public class GF {
         }
     }
 
-    public static int getCurrentBoardBufferSize() {
-        return dataBuff_len_sec * currentBoard.getSampleRate();
+    public static int getCurrentBoardBufferSize(GUI MAIN) {
+        return dataBuff_len_sec * MAIN.currentBoard.getSampleRate();
     }
 }

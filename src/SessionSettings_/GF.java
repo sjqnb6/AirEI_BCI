@@ -74,52 +74,52 @@ public class GF {
     }
 
     //triggered when there is an event in the LogLin Dropdown
-    public static void LogLin(int n) {
+    public static void LogLin(GUI MAIN, int n) {
         if (n==0) {
             w_fft.fft_plot.setLogScale("y");
             //store the current setting to save
-            settings.fftLogLinSave = 0;
+            MAIN.settings.fftLogLinSave = 0;
         } else {
             w_fft.fft_plot.setLogScale("");
             //store the current setting to save
-            settings.fftLogLinSave = 1;
+            MAIN.settings.fftLogLinSave = 1;
         }
     }
 
     //triggered when there is an event in the Smoothing Dropdown
-    public static void Smoothing(int n) {
+    public static void Smoothing(GUI MAIN, int n) {
         W_HeadPlot_.GVI.smoothFac_ind = n;
-        settings.fftSmoothingSave = n;
+        MAIN.settings.fftSmoothingSave = n;
         //since this function is called by both the BandPower and FFT Widgets the dropdown needs to be updated in both
-        w_fft.cp5_widget.getController("Smoothing").getCaptionLabel().setText(settings.fftSmoothingArray[n]);
-        w_bandPower.cp5_widget.getController("Smoothing").getCaptionLabel().setText(settings.fftSmoothingArray[n]);
+        w_fft.cp5_widget.getController("Smoothing").getCaptionLabel().setText(MAIN.settings.fftSmoothingArray[n]);
+        w_bandPower.cp5_widget.getController("Smoothing").getCaptionLabel().setText(MAIN.settings.fftSmoothingArray[n]);
 
     }
 
     //triggered when there is an event in the UnfiltFilt Dropdown
-    public static void UnfiltFilt(int n) {
-        settings.fftFilterSave = n;
+    public static void UnfiltFilt(GUI MAIN, int n) {
+        MAIN.settings.fftFilterSave = n;
         if (n==0) {
             //have FFT use filtered data -- default
-            GGVI.isFFTFiltered = true;
+            MAIN.isFFTFiltered = true;
         } else {
             //have FFT use unfiltered data
-            GGVI.isFFTFiltered = false;
+            MAIN.isFFTFiltered = false;
         }
         //since this function is called by both the BandPower and FFT Widgets the dropdown needs to be updated in both
-        w_fft.cp5_widget.getController("UnfiltFilt").getCaptionLabel().setText(settings.fftFilterArray[n]);
-        w_bandPower.cp5_widget.getController("UnfiltFilt").getCaptionLabel().setText(settings.fftFilterArray[n]);
+        w_fft.cp5_widget.getController("UnfiltFilt").getCaptionLabel().setText(MAIN.settings.fftFilterArray[n]);
+        w_bandPower.cp5_widget.getController("UnfiltFilt").getCaptionLabel().setText(MAIN.settings.fftFilterArray[n]);
     }
 
     //These functions are activated when an item from the corresponding dropdown is selected
-    public static void accelVertScale(int n) {
-        settings.accVertScaleSave = n;
+    public static void accelVertScale(GUI MAIN, int n) {
+        MAIN.settings.accVertScaleSave = n;
         w_accelerometer.accelerometerBar.adjustVertScale(w_accelerometer.yLimOptions[n]);
     }
 
     //triggered when there is an event in the Duration Dropdown
-    public static void accelDuration(int n) {
-        settings.accHorizScaleSave = n;
+    public static void accelDuration(GUI MAIN, int n) {
+        MAIN.settings.accHorizScaleSave = n;
 
         //Sync the duration of Time Series, Accelerometer, and Analog Read(Cyton Only)
         if (n == 0) {

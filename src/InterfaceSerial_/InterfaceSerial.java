@@ -7,14 +7,13 @@ import java.io.OutputStream;
 
 import static Debugging_.GF.output;
 import static Debugging_.GF.verbosePrint;
-import static GUI.GGVI.currentBoard;
-import static GUI.GGVI.openBCI_portName;
+import static Globel.GUI.openBCI_portName;
 import static InterfaceSerial_.GVI.currentlySyncing;
 import static InterfaceSerial_.GVI.timeSinceStopRunning;
 import static processing.core.PApplet.*;
-
+import Globel.GUI;
 public class InterfaceSerial {
-
+    GUI MAIN;
     //here is the serial port for this OpenBCI board
     private processing.serial.Serial serial_openBCI = null;
     private boolean portIsOpen = false;
@@ -95,7 +94,8 @@ public class InterfaceSerial {
 
     private PApplet pApplet;
     //constructors
-    public InterfaceSerial() {
+    public InterfaceSerial(GUI MAIN) {
+        this.MAIN = MAIN;
     };  //only use this if you simply want access to some of the constants
     InterfaceSerial(String comPort, int baud, int nEEGValuesPerOpenBCI, boolean useAux, int nAuxValuesPerOpenBCI) {
         //choose data mode
@@ -250,7 +250,7 @@ public class InterfaceSerial {
             // print("hardwareSyncStep: "); println(hardwareSyncStep);
             // print(".");
             char inASCII = (char)(inByte);
-            if (currentBoard.isStreaming() == false && (pApplet.millis() - timeSinceStopRunning) > 500) {
+            if (MAIN.currentBoard.isStreaming() == false && (pApplet.millis() - timeSinceStopRunning) > 500) {
                 print((char)(inByte));
             }
 

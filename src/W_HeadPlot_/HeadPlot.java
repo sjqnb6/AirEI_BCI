@@ -21,7 +21,7 @@ import processing.core.PImage;
 import processing.data.Table;
 
 import static Extras_.GF.log10;
-import static GUI.GGVI.*;
+import static Globel.GUI.*;
 import static org.apache.commons.math3.util.FastMath.round;
 import static processing.core.PApplet.*;
 import static processing.core.PConstants.ARGB;

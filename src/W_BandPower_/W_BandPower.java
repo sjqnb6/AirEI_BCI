@@ -24,7 +24,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static GUI.GGVI.*;
+import static Globel.GUI.dataProcessing;
+import static Globel.GUI.navHeight;
+
 import Globel.GUI;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -56,8 +58,8 @@ public class W_BandPower extends Widget {
         cp5ElementsToCheck.addAll(bpChanSelect.getCp5ElementsForOverlapCheck());
 
         //Add settings dropdowns
-        addDropdown("Smoothing", "Smooth", Arrays.asList(settings.fftSmoothingArray), MAIN.smoothFac_ind); //smoothFac_ind is a global variable at the top of W_HeadPlot.pde
-        addDropdown("UnfiltFilt", "Filters?", Arrays.asList(settings.fftFilterArray), settings.fftFilterSave);
+        addDropdown("Smoothing", "Smooth", Arrays.asList(MAIN.settings.fftSmoothingArray), MAIN.smoothFac_ind); //smoothFac_ind is a global variable at the top of W_HeadPlot.pde
+        addDropdown("UnfiltFilt", "Filters?", Arrays.asList(MAIN.settings.fftFilterArray), MAIN.settings.fftFilterSave);
 
         // Setup for the BandPower plot
         bp_plot = new GPlot(MAIN, x, y-navHeight, w, h+navHeight);

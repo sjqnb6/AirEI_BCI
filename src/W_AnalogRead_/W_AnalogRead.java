@@ -23,7 +23,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import static Debugging_.GF.output;
-import static GUI.GGVI.*;
+import static Globel.GUI.navHeight;
+import static Globel.GUI.p5;
 import static WidgetManager_.GVI.*;
 import Globel.GUI;
 ///////////////////////////////////////////////////,
@@ -59,21 +60,21 @@ public class W_AnalogRead extends Widget {
     public W_AnalogRead(GUI MAIN) {
         super(MAIN); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
         this.MAIN = MAIN;
-        analogBoard = (AnalogCapableBoard)currentBoard;
+        analogBoard = (AnalogCapableBoard)MAIN.currentBoard;
 
         //Analog Read settings
-        settings.arVertScaleSave = 5; //updates in VertScale_AR()
-        settings.arHorizScaleSave = 0; //updates in Duration_AR()
+        MAIN.settings.arVertScaleSave = 5; //updates in VertScale_AR()
+        MAIN.settings.arHorizScaleSave = 0; //updates in Duration_AR()
 
         //This is the protocol for setting up dropdowns.
         //Note that these 3 dropdowns correspond to the 3 global functions below
         //You just need to make sure the "id" (the 1st String) has the same name as the corresponding function
-        addDropdown("VertScale_AR", "Vert Scale", Arrays.asList(settings.arVertScaleArray), arInitialVertScaleIndex);
-        addDropdown("Duration_AR", "Window", Arrays.asList(settings.arHorizScaleArray), arInitialHorizScaleIndex);
+        addDropdown("VertScale_AR", "Vert Scale", Arrays.asList(MAIN.settings.arVertScaleArray), arInitialVertScaleIndex);
+        addDropdown("Duration_AR", "Window", Arrays.asList(MAIN.settings.arHorizScaleArray), arInitialHorizScaleIndex);
         // addDropdown("Spillover", "Spillover", Arrays.asList("False", "True"), 0);
 
         //set number of analog reads
-        if (selectedProtocol == BoardProtocol.WIFI) {
+        if (MAIN.selectedProtocol == GUI.BoardProtocol.WIFI) {
             numAnalogReadBars = 2;
         } else {
             numAnalogReadBars = 3;
@@ -114,9 +115,9 @@ public class W_AnalogRead extends Widget {
     public void update() {
         super.update(); //calls the parent update() method of Widget (DON'T REMOVE)
 
-        if (currentBoard instanceof DataSourcePlayback) {
-            if (((DataSourcePlayback)currentBoard) instanceof AnalogCapableBoard
-                    && (!((AnalogCapableBoard)currentBoard).isAnalogActive())) {
+        if (MAIN.currentBoard instanceof DataSourcePlayback) {
+            if (((DataSourcePlayback)MAIN.currentBoard) instanceof AnalogCapableBoard
+                    && (!((AnalogCapableBoard)MAIN.currentBoard).isAnalogActive())) {
                 return;
             }
         }
@@ -187,7 +188,7 @@ public class W_AnalogRead extends Widget {
                 if (!analogBoard.isAnalogActive()) {
                     analogBoard.setAnalogActive(true);
                     analogModeButton.getCaptionLabel().setText("Turn Analog Read Off");
-                    if (selectedProtocol == BoardProtocol.WIFI) {
+                    if (MAIN.selectedProtocol == GUI.BoardProtocol.WIFI) {
                         output("Starting to read analog inputs on pin marked A5 (D11) and A6 (D12)");
                     } else {
                         output("Starting to read analog inputs on pin marked A5 (D11), A6 (D12) and A7 (D13)");
@@ -205,7 +206,7 @@ public class W_AnalogRead extends Widget {
                 }
             }
         });
-        String _helpText = (selectedProtocol == BoardProtocol.WIFI) ?
+        String _helpText = (MAIN.selectedProtocol == GUI.BoardProtocol.WIFI) ?
                 "Click this button to activate/deactivate analog read on Cyton pins A5(D11) and A6(D12)." :
                 "Click this button to activate/deactivate analog read on Cyton pins A5(D11), A6(D12) and A7(D13)."
                 ;

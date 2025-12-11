@@ -19,7 +19,7 @@ import processing.core.PApplet;
 
 import java.util.Arrays;
 
-import static GUI.GGVI.*;
+import static Globel.GUI.*;
 import static Interactivity_.GF.openURLInBrowser;
 import Globel.GUI;
 ///////////////////////////////////////////////////,
@@ -33,6 +33,7 @@ public class W_template extends Widget {
 
     public W_template(GUI MAIN){
         super(MAIN); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
+        this.MAIN = MAIN;
         //This is the protocol for setting up dropdowns.
         //Note that these 3 dropdowns correspond to the 3 global functions below
         //You just need to make sure the "id" (the 1st String) has the same name as the corresponding function

@@ -10,22 +10,27 @@ import java.util.List;
 
 import static SystemManager.GF.getCurrentBoardBufferSize;
 import static processing.core.PApplet.max;
-
+import Globel.GUI;
 public abstract class Board implements DataSource {
-
+    GUI MAIN;
     private FixedStack<double[]> accumulatedData = new FixedStack<double[]>();
     private double[][] dataThisFrame;
     protected PacketLossTracker packetLossTracker;
 
     // accessible by all boards, can be returned as valid empty data
     protected double[][] emptyData;
+    public Board(GUI MAIN){
+        this.MAIN = MAIN;
+    }
+    public Board(){
 
+    }
     @Override
     public boolean initialize() {
         boolean res = initializeInternal();
 
         double[] fillData = new double[getTotalChannelCount()];
-        accumulatedData.setSize(getCurrentBoardBufferSize());
+        accumulatedData.setSize(getCurrentBoardBufferSize(MAIN));
         accumulatedData.fill(fillData);
 
         emptyData = new double[getTotalChannelCount()][0];

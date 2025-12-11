@@ -15,6 +15,7 @@ import ControlPanel_.ControlPanel;
 import CustomCp5Classes_.ButtonHelpText;
 import CustomCp5Classes_.CopyPaste;
 import CustomCp5Classes_.TextFieldUpdateHelper;
+import DataLogger_.DataLogger;
 import DataProcessing_.DataProcessing;
 import DataSourceSDCard_.DataSourceSDCard;
 import DataSource_.DataSource;
@@ -25,6 +26,7 @@ import Extras_.PlotFontInfo;
 import FilterSettings_.FilterSettings;
 import Globel.GUI;
 import GuiSettings_.GuiSettings;
+import InterfaceSerial_.InterfaceSerial;
 import PopupMessage_.PopupMessage;
 import SessionSettings_.SessionSettings;
 import TopNav_.TopNav;
@@ -84,12 +86,15 @@ public class Main extends GUI {
         pixelDensity(displayDensity());
         globalScreenDPI = new StringBuilder("High-DPI Screen Detected: ");
         globalScreenDPI.append(displayDensity() == 2);
+        dataLogger = new DataLogger(this);
+        iSerial = new InterfaceSerial(this);
 
     }
 
 
     public void setup() {
         super.setup();
+        println("=== OpenBCI GUI Setup Started ===");
         frameRate(120);  // 设置draw函数执行频率
         surface.setResizable(true);         // ✅ 允许最大化        frameRate(90);  // 设置draw函数执行频率
         surface.setLocation(100, 50);  // 将窗口左上角设置在屏幕坐标 (100, 50)
@@ -97,6 +102,7 @@ public class Main extends GUI {
         copyPaste = new CopyPaste(this);
 
         //V1 FONTS
+        println("Loading fonts...");
         f1 = createFont("fonts/Raleway-SemiBold.otf", 16);
         //Account for Macs with Retina Display and textfield text being too large
         int f2FontSize = isMac() && (displayDensity() > 1) ? 8 : 15;
@@ -206,7 +212,7 @@ public class Main extends GUI {
                 systemInitSession();
             }
             if(reinitRequested) {
-                haltSystem();
+                haltSystem(this);
                 initSystem();
                 reinitRequested = false;
             }
@@ -215,10 +221,19 @@ public class Main extends GUI {
             }
         }
         else if (systemMode == SYSTEMMODE_INTROANIMATION) {
-            if (settings.introAnimationInit == 0) {
-                settings.introAnimationInit = millis();
+            if (settings != null) {
+                if (settings.introAnimationInit == 0) {
+                    settings.introAnimationInit = millis();
+                } else {
+                    introAnimation();
+                }
             } else {
-                introAnimation();
+                // Settings not yet initialized, draw a simple loading screen
+                background(OPENBCI_DARKBLUE);
+                fill(255);
+                textAlign(CENTER, CENTER);
+                textSize(20);
+                text("Initializing OpenBCI GUI...", width/2, height/2);
             }
         }
 
@@ -256,16 +271,27 @@ public class Main extends GUI {
         }
         println(brainflowVersion);
 
-
-        logo_black = loadImage("obci-logo-blk.png");
-        logo_blue = loadImage("obci-logo-blu.png");
-        logo_white = loadImage("obci-logo-wht.png");
-        consoleImgBlue = loadImage("console-45x45-dots_blue.png");
-        consoleImgWhite = loadImage("console-45x45-dots_white.png");
-        loadingGIF = new Gif(this, "ajax_loader_gray_512.gif");
-        loadingGIF.loop();
-        loadingGIF_blue = new Gif(this, "obci_cog_anim-normalblue.gif");
-        loadingGIF_blue.loop();
+        println("Loading UI images...");
+        try {
+            logo_black = loadImage("obci-logo-blk.png");
+            if (logo_black == null) println("WARNING: Failed to load obci-logo-blk.png");
+            logo_blue = loadImage("obci-logo-blu.png");
+            if (logo_blue == null) println("WARNING: Failed to load obci-logo-blu.png");
+            logo_white = loadImage("obci-logo-wht.png");
+            if (logo_white == null) println("WARNING: Failed to load obci-logo-wht.png");
+            consoleImgBlue = loadImage("console-45x45-dots_blue.png");
+            if (consoleImgBlue == null) println("WARNING: Failed to load console-45x45-dots_blue.png");
+            consoleImgWhite = loadImage("console-45x45-dots_white.png");
+            if (consoleImgWhite == null) println("WARNING: Failed to load console-45x45-dots_white.png");
+            loadingGIF = new Gif(this, "ajax_loader_gray_512.gif");
+            if (loadingGIF != null) loadingGIF.loop();
+            loadingGIF_blue = new Gif(this, "obci_cog_anim-normalblue.gif");
+            if (loadingGIF_blue != null) loadingGIF_blue.loop();
+            println("UI images loaded successfully");
+        } catch (Exception e) {
+            println("ERROR loading UI images: " + e.getMessage());
+            e.printStackTrace();
+        }
 
         prepareExitHandler();
 
@@ -278,13 +304,18 @@ public class Main extends GUI {
             // Instantiate ControlPanel in the synchronized block.
             // It's important to avoid instantiating a ControlP5 during a draw() call
             // Otherwise we get a crash on launch 10% of the time
+            println("Creating ControlPanel...");
             controlPanel = new ControlPanel(this);
+            println("ControlPanel created successfully");
 
             setupComplete = true; // signal that the setup thread has finished
             println("OpenBCI_GUI::Setup: Setup is complete!");
+            println("systemMode = " + systemMode);
+            println("setupComplete = " + setupComplete);
         }
 
         //Apply GUI-wide settings to front end at the end of setup
+        println("Applying GUI settings...");
         guiSettings.applySettings();
 
         if (!isAdminUser() || isElevationNeeded()) {
@@ -327,7 +358,7 @@ public class Main extends GUI {
 
         currentBoard.update();
 
-        dataLogger.update(this);
+        dataLogger.update();
 
         helpWidget.update();
         topNav.update();
@@ -343,7 +374,7 @@ public class Main extends GUI {
             }
         }
         if (systemMode == SYSTEMMODE_POSTINIT) {
-            processNewData();
+            processNewData(this);
 
             //alternative component listener function (line 177 mouseReleased- 187 frame.addComponentListener) for processing 3,
             //Component listener doesn't seem to work, so staying with this method for now
@@ -367,7 +398,7 @@ public class Main extends GUI {
             }
         }
     }
-//
+    //
 //
     void systemDraw() { //for drawing to the screen
         //redraw the screen...not every time, get paced by when data is being plotted
@@ -413,7 +444,7 @@ public class Main extends GUI {
                         + " fps"
         );
     }
-//
+    //
 //    //Always Called after systemDraw()
     void systemInitSession() {
         if (midInitCheck2) {
@@ -422,7 +453,7 @@ public class Main extends GUI {
                 initSystem(); //found in OpenBCI_GUI.pde
             } catch (Exception e) {
                 e.printStackTrace();
-                haltSystem();
+                haltSystem(this);
             }
             midInitCheck2 = false;
             midInit = false;
@@ -430,7 +461,7 @@ public class Main extends GUI {
             midInitCheck2 = true;
         }
     }
-//
+    //
 //
 //    //halt the data collection
 //    void haltSystem() {
@@ -591,7 +622,7 @@ public class Main extends GUI {
                 Pair<Boolean, String> res = ((BoardBrainFlow)currentBoard).sendCommand("C");
                 //println(res.getKey().booleanValue(), res.getValue());
                 if (res.getValue().startsWith("no daisy to attach")) {
-                    haltSystem();
+                    haltSystem(this);
                     outputError("User selected Cyton+Daisy, but no Daisy is attached. Please change Channel Count to 8 Channels.");
                     controlPanel.open();
                     return;
@@ -617,7 +648,7 @@ public class Main extends GUI {
             }
         }
 
-        updateToNChan(currentBoard.getNumEXGChannels());
+        updateToNChan(this, currentBoard.getNumEXGChannels());
 
         dataLogger.initialize();
 
@@ -637,7 +668,7 @@ public class Main extends GUI {
         verbosePrint("OpenBCI_GUI: initSystem: -- Init 3 -- " + millis());
 
         if (abandonInit) {
-            haltSystem();
+            haltSystem(this);
             outputError("Failed to initialize board. Please check that the board is on and has power. See Console Log for more details.");
             controlPanel.open();
             return;
@@ -689,7 +720,7 @@ public class Main extends GUI {
             public void run () {
                 System.out.println("SHUTDOWN HOOK");
 
-                haltSystem();
+                haltSystem(Main.this);
             }
         }
         ));
@@ -740,8 +771,8 @@ public class Main extends GUI {
     void initCoreDataObjects() {
 //        nPointsPerUpdate = int(round(float(UPDATE_MILLIS) * currentBoard.getSampleRate()/ 1000.f));
         nPointsPerUpdate = Math.round(((float) UPDATE_MILLIS) * currentBoard.getSampleRate() / 1000f);
-        dataProcessingRawBuffer = new float[nchan][getCurrentBoardBufferSize()];
-        dataProcessingFilteredBuffer = new float[nchan][getCurrentBoardBufferSize()];
+        dataProcessingRawBuffer = new float[nchan][getCurrentBoardBufferSize(this)];
+        dataProcessingFilteredBuffer = new float[nchan][getCurrentBoardBufferSize(this)];
 
         data_elec_imp_ohm = new float[nchan];
         is_railed = new DataStatus[nchan];
@@ -756,13 +787,13 @@ public class Main extends GUI {
         //initialize the FFT objects
         for (int Ichan=0; Ichan < nchan; Ichan++) {
             // verbosePrint("Init FFT Buff – " + Ichan);
-            fftBuff[Ichan] = new ddf.minim.analysis.FFT(getNfftSafe(), currentBoard.getSampleRate());
+            fftBuff[Ichan] = new ddf.minim.analysis.FFT(getNfftSafe(this), currentBoard.getSampleRate());
         }  //make the FFT objects
 
         //Attempt initialization. If error, print to console and exit function.
         //Fixes GUI crash when trying to load outdated recordings
         try {
-            initializeFFTObjects(fftBuff, dataProcessingRawBuffer, getNfftSafe(), currentBoard.getSampleRate());
+            initializeFFTObjects(fftBuff, dataProcessingRawBuffer, getNfftSafe(this), currentBoard.getSampleRate());
         } catch (ArrayIndexOutOfBoundsException e) {
             //e.printStackTrace();
             outputError("Playback file load error. Try using a more recent recording.");

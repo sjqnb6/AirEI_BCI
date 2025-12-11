@@ -6,9 +6,10 @@ import processing.awt.PSurfaceAWT;
 import processing.core.PApplet;
 
 import java.awt.*;
-
-import static GUI.GGVI.*;
 import Globel.GUI;
+
+import static Globel.GUI.*;
+
 public class PopupMessage extends PApplet implements Runnable {
     GUI MAIN;
     private final int defaultWidth = 500;

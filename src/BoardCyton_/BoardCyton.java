@@ -19,13 +19,13 @@ import java.util.List;
 
 import static Debugging_.GF.outputError;
 import static Debugging_.GF.outputWarn;
-import static GUI.GGVI.cyton_sdSetting;
+import static Globel.GUI.cyton_sdSetting;
 import static processing.core.PApplet.println;
 
 public abstract class BoardCyton extends BoardBrainFlow
         implements ImpedanceSettingsBoard, AccelerometerCapableBoard, AnalogCapableBoard, DigitalCapableBoard, ADS1299SettingsBoard {
     private final char[] channelSelectForSettings = {'1', '2', '3', '4', '5', '6', '7', '8', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I'};
-
+    GUI MAIN;
     private ADS1299Settings currentADS1299Settings;
     private boolean[] isCheckingImpedance;
     protected boolean[] isCheckingImpedanceN;

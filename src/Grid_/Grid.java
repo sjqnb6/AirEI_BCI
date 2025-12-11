@@ -7,9 +7,9 @@ import processing.core.PFont;
 import java.util.Arrays;
 
 import static Extras_.GF.getFontStringHeight;
-import static GUI.GGVI.p5;
 import Globel.GUI;
 public class Grid{
+    GUI MAIN;
     private int numRows;
     private int numCols;
 
@@ -24,14 +24,14 @@ public class Grid{
     private int pad_horiz = 5;
     private int pad_vert = 5;
 
-    private PFont tableFont = p5;
+    private PFont tableFont = MAIN.p5;
     private int tableFontSize = 12;
 
     private int[][] textColors;
 
     private String[][] strings;
-    GUI MAIN;
     public Grid(GUI MAIN, int _numRows, int _numCols, int _rowHeight) {
+        this.MAIN = MAIN;
         numRows = _numRows;
         numCols = _numCols;
         rowHeight = _rowHeight;

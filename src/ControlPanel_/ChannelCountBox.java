@@ -9,8 +9,8 @@ import controlP5.ControlP5;
 import processing.core.PApplet;
 import processing.core.PConstants;
 
-import static GUI.GGVI.h3;
-import static GUI.GGVI.nchan;
+import static Globel.GUI.h3;
+import static Globel.GUI.nchan;
 import static SystemManager.GF.updateToNChan;
 import static processing.core.PApplet.str;
 import static processing.core.PConstants.LEFT;
@@ -87,7 +87,7 @@ public class ChannelCountBox{
         chanButton8 = createCCCButton(name, text, isToggled, _x, _y, _w, _h);
         chanButton8.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
-                updateToNChan(8);
+                updateToNChan(MAIN,8);
                 chanButton8.setOn();
                 chanButton16.setOff();
             }
@@ -98,7 +98,7 @@ public class ChannelCountBox{
         chanButton16 = createCCCButton(name, text, isToggled, _x, _y, _w, _h);
         chanButton16.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
-                updateToNChan(16);
+                updateToNChan(MAIN,16);
                 chanButton8.setOff();
                 chanButton16.setOn();
             }
@@ -111,7 +111,7 @@ public class ChannelCountBox{
     }
 
     public void set8ChanButtonActive() {
-        updateToNChan(8);
+        updateToNChan(MAIN,8);
         chanButton8.setOn();
         chanButton16.setOff();
     }

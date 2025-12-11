@@ -10,7 +10,7 @@ import processing.core.PApplet;
 
 import static Debugging_.GF.output;
 import static Debugging_.GF.outputWarn;
-import static GUI.GGVI.*;
+import static Globel.GUI.*;
 import static SystemManager.GF.haltSystem;
 import static WidgetManager_.GVI.w_focus;
 import static processing.core.PApplet.println;
@@ -66,23 +66,23 @@ public class InitBox{
     //This is the primary method called when Start/Stop Session Button is pressed in Control Panel
     public void initButtonPressed() {
         if (getInitSessionButtonText().equals("START SESSION")) {
-            if ((eegDataSource == DATASOURCE_CYTON && selectedProtocol == BoardProtocol.NONE) || (eegDataSource == DATASOURCE_GANGLION && selectedProtocol == BoardProtocol.NONE)) {
+            if ((eegDataSource == DATASOURCE_CYTON && MAIN.selectedProtocol == BoardProtocol.NONE) || (eegDataSource == DATASOURCE_GANGLION && MAIN.selectedProtocol == BoardProtocol.NONE)) {
                 outputWarn("No Transfer Protocol selected. Please select your Transfer Protocol and retry system initiation.");
                 return;
-            } else if (eegDataSource == DATASOURCE_CYTON && selectedProtocol == BoardProtocol.SERIAL && openBCI_portName == "N/A") { //if data source == normal && if no serial port selected OR no SD setting selected
+            } else if (eegDataSource == DATASOURCE_CYTON && MAIN.selectedProtocol == BoardProtocol.SERIAL && openBCI_portName == "N/A") { //if data source == normal && if no serial port selected OR no SD setting selected
                 outputWarn("No Serial/COM port selected. Attempting to AUTO-CONNECT to Cyton.");
                 controlPanel.comPortBox.attemptAutoConnectCyton();
                 return;
-            } else if (eegDataSource == DATASOURCE_CYTON && selectedProtocol == BoardProtocol.WIFI && wifi_portName == "N/A" && controlPanel.getWifiSearchStyle() == controlPanel.WIFI_DYNAMIC) {
+            } else if (eegDataSource == DATASOURCE_CYTON && MAIN.selectedProtocol == BoardProtocol.WIFI && wifi_portName == "N/A" && controlPanel.getWifiSearchStyle() == controlPanel.WIFI_DYNAMIC) {
                 outputWarn("No Wifi Shield selected. Please select your Wifi Shield and retry system initiation.");
                 return;
             } else if (eegDataSource == DATASOURCE_PLAYBACKFILE && playbackData_fname == "N/A" && sdData_fname == "N/A") { //if data source == playback && playback file == 'N/A'
                 outputWarn("No playback file selected. Please select a playback file and retry system initiation.");        // tell user that they need to select a file before the system can be started
                 return;
-            } else if (eegDataSource == DATASOURCE_GANGLION && (selectedProtocol == BoardProtocol.NATIVE_BLE || selectedProtocol == BoardProtocol.BLED112) && ganglion_portName == "N/A") {
+            } else if (eegDataSource == DATASOURCE_GANGLION && (MAIN.selectedProtocol == BoardProtocol.NATIVE_BLE || MAIN.selectedProtocol == BoardProtocol.BLED112) && ganglion_portName == "N/A") {
                 outputWarn("No BLE device selected. Please select your Ganglion device and retry system initiation.");
                 return;
-            } else if (eegDataSource == DATASOURCE_GANGLION && selectedProtocol == BoardProtocol.WIFI && wifi_portName == "N/A" && controlPanel.getWifiSearchStyle() == controlPanel.WIFI_DYNAMIC) {
+            } else if (eegDataSource == DATASOURCE_GANGLION && MAIN.selectedProtocol == BoardProtocol.WIFI && wifi_portName == "N/A" && controlPanel.getWifiSearchStyle() == controlPanel.WIFI_DYNAMIC) {
                 outputWarn("No Wifi Shield selected. Please select your Wifi Shield and retry system initiation.");
                 return;
             } else if (eegDataSource == -1) {//if no data source selected
@@ -97,7 +97,7 @@ public class InitBox{
                 //Set data logger outputs to save data to BDF or CSV
                 controlPanel.setDataLoggerOutputs();
 
-                if (controlPanel.getWifiSearchStyle() == controlPanel.WIFI_STATIC && (selectedProtocol == BoardProtocol.WIFI || selectedProtocol == BoardProtocol.WIFI)) {
+                if (controlPanel.getWifiSearchStyle() == controlPanel.WIFI_STATIC && (MAIN.selectedProtocol == BoardProtocol.WIFI || MAIN.selectedProtocol == BoardProtocol.WIFI)) {
                     wifi_ipAddress = controlPanel.wifiBox.staticIPAddressTF.getText();
                     println("Static IP address of " + wifi_ipAddress);
                 }
@@ -116,7 +116,7 @@ public class InitBox{
             controlPanel.dataLogBoxGanglion.setSessionTextfieldText(directoryManager.getFileNameDateTime());
             controlPanel.wifiBox.setStaticIPTextfield(wifi_ipAddress);
             w_focus.killAuditoryFeedback();
-            haltSystem();
+            haltSystem(MAIN);
         }
     }
 

@@ -5,7 +5,6 @@ import Globel.GUI;
 import processing.core.PApplet;
 
 import static Containers_.GVI.*;
-import static GUI.GGVI.settings;
 
 public class GF {
 
@@ -54,7 +53,7 @@ public class GF {
             setupContainers(MAIN);
             //setupVizs(); //container extension example (more below)
             MAIN.settings.widthOfLastScreen = MAIN.width;
-            settings.heightOfLastScreen = MAIN.height;
+            MAIN.settings.heightOfLastScreen = MAIN.height;
         }
     }
 

@@ -11,7 +11,7 @@ import processing.core.PApplet;
 import java.io.File;
 
 import static Debugging_.GF.output;
-import static GUI.GGVI.*;
+import static Globel.GUI.p5;
 import static processing.core.PConstants.LEFT;
 import static processing.core.PConstants.TOP;
 
@@ -53,7 +53,7 @@ public class PlaybackFileBox{
         MAIN.strokeWeight(1);
         MAIN.rect(x, y, w, h);
         MAIN.fill(MAIN.OPENBCI_DARKBLUE);
-        MAIN.textFont(h3, 16);
+        MAIN.textFont(MAIN.h3, 16);
         MAIN.textAlign(LEFT, TOP);
         MAIN.text("PLAYBACK FILE", x + padding, y + padding);
         MAIN.popStyle();
@@ -68,7 +68,7 @@ public class PlaybackFileBox{
                 output("Select a file for playback");
                 MAIN.selectInput("Select a pre-recorded file for playback:",
                         "playbackFileSelected",
-                        new File(directoryManager.getGuiDataPath() + "Recordings")
+                        new File(MAIN.directoryManager.getGuiDataPath() + "Recordings")
                 );
             }
         });
@@ -82,7 +82,7 @@ public class PlaybackFileBox{
                 output("Select a file for playback");
                 MAIN.selectInput("Select a pre-recorded file for playback:",
                         "playbackFileSelected",
-                        new File(directoryManager.getGuiDataPath() + "Sample_Data" + System.getProperty("file.separator") + "OpenBCI-sampleData-2-meditation.txt")
+                        new File(MAIN.directoryManager.getGuiDataPath() + "Sample_Data" + System.getProperty("file.separator") + "OpenBCI-sampleData-2-meditation.txt")
                 );
             }
         });

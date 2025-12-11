@@ -3,8 +3,9 @@ package DataWriterBF_;
 import java.io.File;
 
 import static processing.core.PApplet.println;
-
+import Globel.GUI;
 public class DataWriterBF {
+    GUI MAIN;
     private String folderPath = "";
     private String folderName = "";
     private StringBuilder fileName = null;
@@ -12,8 +13,8 @@ public class DataWriterBF {
     private int fileNumber = 0;
 
     //variation on constructor to have custom name
-    public DataWriterBF() {
-
+    public DataWriterBF(GUI MAIN) {
+        this.MAIN = MAIN;
     }
 
     public void setBrainFlowStreamerFolderName(String _folderName, String _folderPath) {
@@ -59,7 +60,7 @@ public class DataWriterBF {
         folderName = "";
         folderPath = "";
         fileName = null;
-        GGVI.brainflowStreamer = "";
+        MAIN.brainflowStreamer = "";
     }
 
     public String getBrainFlowStreamerRecordingFileName() {

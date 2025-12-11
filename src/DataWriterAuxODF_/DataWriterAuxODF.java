@@ -2,36 +2,36 @@ package DataWriterAuxODF_;
 
 import AuxDataBoard_.AuxDataBoard;
 import DataWriterODF_.DataWriterODF;
-
-import static GUI.GGVI.currentBoard;
-
+import Globel.GUI;
 public class DataWriterAuxODF extends DataWriterODF {
+    GUI MAIN;
     protected String fileNamePrependString = "OpenBCI-RAW-Aux-";
     protected String headerFirstLineString = "%OpenBCI Raw Aux Data";
 
     //variation on constructor to have custom name
-    public DataWriterAuxODF(String _sessionName, String _fileName) {
-        super(_sessionName, _fileName);
+    public DataWriterAuxODF(GUI MAIN, String _sessionName, String _fileName) {
+        super(MAIN, _sessionName, _fileName);
+        this.MAIN = MAIN;
     }
 
     protected int getNumberOfChannels() {
-        return ((AuxDataBoard)currentBoard).getNumAuxChannels();
+        return ((AuxDataBoard)MAIN.currentBoard).getNumAuxChannels();
     }
 
     protected int getSamplingRate() {
-        return ((AuxDataBoard)currentBoard).getAuxSampleRate();
+        return ((AuxDataBoard)MAIN.currentBoard).getAuxSampleRate();
     }
 
     protected String getUnderlyingBoardClass() {
-        return ((AuxDataBoard)currentBoard).getClass().getName();
+        return ((AuxDataBoard)MAIN.currentBoard).getClass().getName();
     }
 
     protected String[] getChannelNames() {
-        return ((AuxDataBoard)currentBoard).getAuxChannelNames();
+        return ((AuxDataBoard)MAIN.currentBoard).getAuxChannelNames();
     }
 
     protected int getTimestampChannel() {
-        return ((AuxDataBoard)currentBoard).getAuxTimestampChannel();
+        return ((AuxDataBoard)MAIN.currentBoard).getAuxTimestampChannel();
     }
 
 };

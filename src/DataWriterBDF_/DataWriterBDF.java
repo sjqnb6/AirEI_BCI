@@ -14,11 +14,12 @@ import java.util.Date;
 import static Debugging_.GF.output;
 import static Debugging_.GF.verbosePrint;
 import static Debugging_.GVI.isVerbose;
-import static GUI.GGVI.*;
+import static Globel.GUI.*;
 import static processing.core.PApplet.*;
-
+import Globel.GUI;
 //write data to a text file in BDF+ format http://www.biosemi.com/faq/file_format.htm
 public class DataWriterBDF {
+    GUI MAIN;
     private PrintWriter writer;
     private OutputStream dstream;
     // private FileOutputStream fstream;
@@ -163,11 +164,11 @@ public class DataWriterBDF {
      *  date and time.
      * @constructor
      */
-    DataWriterBDF() {
+    DataWriterBDF(GUI MAIN) {
 
         fname = getFileName();
-        fs_Hz = currentBoard.getSampleRate();
-        nbChan = currentBoard.getNumEXGChannels();
+        fs_Hz = MAIN.currentBoard.getSampleRate();
+        nbChan = MAIN.currentBoard.getNumEXGChannels();
 
         init();
     }
@@ -178,10 +179,10 @@ public class DataWriterBDF {
      * @constructor
      */
     public DataWriterBDF(String _fileName) {
-
+        this.MAIN = MAIN;
         fname = getFileName(_fileName);
-        fs_Hz = currentBoard.getSampleRate();
-        nbChan = currentBoard.getNumEXGChannels();
+        fs_Hz = MAIN.currentBoard.getSampleRate();
+        nbChan = MAIN.currentBoard.getNumEXGChannels();
 
         init();
     }
@@ -227,14 +228,14 @@ public class DataWriterBDF {
             }
 
             writeChannelDataValues(data, i);
-            if (currentBoard instanceof AccelerometerCapableBoard) {
+            if (MAIN.currentBoard instanceof AccelerometerCapableBoard) {
                 writeAuxDataValues(data, i);
             }
             samplesInDataRecord++;
             // writeValues(data.auxValues,scale_for_aux);
             if (samplesInDataRecord >= fs_Hz) {
                 arrayCopy(chanValBuf,chanValBuf_buffer);
-                if (currentBoard instanceof AccelerometerCapableBoard) {
+                if (MAIN.currentBoard instanceof AccelerometerCapableBoard) {
                     arrayCopy(auxValBuf,auxValBuf_buffer);
                 }
 
@@ -813,7 +814,7 @@ public class DataWriterBDF {
      *  Ref [1]: http://www.biosemi.com/faq/file_format.htm
      */
     private void writeChannelDataValues(double[][] allData, int sampleIndex) {
-        int[] exgchannels = currentBoard.getEXGChannels();
+        int[] exgchannels = MAIN.currentBoard.getEXGChannels();
 
         for (int i = 0; i < nbChan; i++) {
             // [daniellasry 5/3/2020] This function has been updated to work
@@ -841,7 +842,7 @@ public class DataWriterBDF {
      *  Ref [1]: http://www.biosemi.com/faq/file_format.htm
      */
     private void writeAuxDataValues(double[][] allData, int sampleIndex) {
-        int[] accelChannels = ((AccelerometerCapableBoard)currentBoard).getAccelerometerChannels();
+        int[] accelChannels = ((AccelerometerCapableBoard)MAIN.currentBoard).getAccelerometerChannels();
 
         for (int i = 0; i < nbAux; i++) {
             if (write_accel) {

@@ -9,8 +9,8 @@ import controlP5.CallbackListener;
 import controlP5.ControlP5;
 import processing.core.PApplet;
 
-import static GUI.GGVI.controlPanel;
-import static GUI.GGVI.h3;
+import static Globel.GUI.controlPanel;
+import static Globel.GUI.h3;
 import static processing.core.PConstants.LEFT;
 import static processing.core.PConstants.TOP;
 

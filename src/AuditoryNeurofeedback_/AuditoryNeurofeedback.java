@@ -10,9 +10,8 @@ import processing.core.PApplet;
 
 import static AuditoryNeurofeedback_.GVI.*;
 import static Debugging_.GF.outputError;
-import static GUI.GGVI.p5;
-import static GUI.GGVI.topNav;
 import static Globel.GUI.auditoryNfbFilePlayers;
+import static Globel.GUI.topNav;
 import static processing.core.PApplet.map;
 
 public class AuditoryNeurofeedback{
@@ -30,9 +29,10 @@ public class AuditoryNeurofeedback{
     private int buttonW = 120;
     private int buttonH;
 
-    private GUI MAIN;
+    GUI MAIN;
 
     public AuditoryNeurofeedback(GUI MAIN, int _x, int _y, int _w, int _h) {
+        this.MAIN = MAIN;
         localCP5 = new ControlP5(MAIN);
         localCP5.setGraphics(MAIN, 0,0);
         localCP5.setAutoDraw(false);
@@ -83,7 +83,7 @@ public class AuditoryNeurofeedback{
 
     private void createStartStopButton(int _x, int _y, int _w, int _h) {
         //This is a generalized createButton method that allows us to save code by using a few patterns and method overloading
-        startStopButton = MAIN.createButton(localCP5, "startStopButton", "Turn Audio On", _x, _y, _w, _h, p5, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
+        startStopButton = MAIN.createButton(localCP5, "startStopButton", "Turn Audio On", _x, _y, _w, _h, MAIN.p5, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
         //Set the border color explicitely
         startStopButton.setBorderColor(MAIN.OBJECT_BORDER_GREY);
         //For this button, only call the callback listener on mouse release
@@ -112,7 +112,7 @@ public class AuditoryNeurofeedback{
 
     private void createModeButton(int _x, int _y, int _w, int _h) {
         //This is a generalized createButton method that allows us to save code by using a few patterns and method overloading
-        modeButton = MAIN.createButton(localCP5, "modeButton", "Use Band Powers", _x, _y, _w, _h, p5, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
+        modeButton = MAIN.createButton(localCP5, "modeButton", "Use Band Powers", _x, _y, _w, _h, MAIN.p5, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
         //Set the border color explicitely
         modeButton.setBorderColor(MAIN.OBJECT_BORDER_GREY);
         //For this button, only call the callback listener on mouse release

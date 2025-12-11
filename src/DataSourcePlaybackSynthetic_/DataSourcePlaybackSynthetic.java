@@ -6,14 +6,16 @@ import DataSourcePlayback_.DataSourcePlayback;
 import FileBoard_.FileBoard;
 
 import java.util.List;
-
-import static GUI.GGVI.nchan;
 import Globel.GUI;
+
+import static Globel.GUI.nchan;
+
 public class DataSourcePlaybackSynthetic extends DataSourcePlayback implements AccelerometerCapableBoard, FileBoard {
     GUI MAIN;
     public DataSourcePlaybackSynthetic(GUI MAIN, String filePath) {
 
         super(MAIN, filePath);
+        this.MAIN = MAIN;
     }
 
     protected boolean instantiateUnderlyingBoard(GUI MAIN) {

@@ -24,8 +24,9 @@ import processing.core.PApplet;
 import java.util.ArrayList;
 import java.util.List;
 
-import static GUI.GGVI.*;
 import Globel.GUI;
+
+import static Globel.GUI.*;
 ////////////////////////////////////////////////////////////////////////////////
 
 public class W_emg extends Widget {

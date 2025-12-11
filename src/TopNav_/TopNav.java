@@ -104,7 +104,7 @@ public class TopNav {
 
     public void initSecondaryNav() {
 
-        boolean needToMakeSmoothingButton = (currentBoard instanceof SmoothingCapableBoard) && smoothingButton == null;
+        boolean needToMakeSmoothingButton = (MAIN.currentBoard instanceof SmoothingCapableBoard) && smoothingButton == null;
 
         if (!secondaryNavInit) {
             //Buttons on the left side of the GUI secondary nav bar
@@ -344,7 +344,7 @@ public class TopNav {
     }
 
     private String getSmoothingString() {
-        return ((SmoothingCapableBoard)currentBoard).getSmoothingActive() ? "Smoothing On" : "Smoothing Off";
+        return ((SmoothingCapableBoard)MAIN.currentBoard).getSmoothingActive() ? "Smoothing On" : "Smoothing Off";
     }
 
     private Button createTNButton(String name, String text, int _x, int _y, int _w, int _h, PFont _font, int _fontSize, int _bg, int _textColor) {
@@ -389,12 +389,12 @@ public class TopNav {
     }
 
     private void createSmoothingButton(String text, int _x, int _y, int _w, int _h, PFont font, int _fontSize, final int _bg, int _textColor) {
-        SmoothingCapableBoard smoothBoard = (SmoothingCapableBoard)currentBoard;
+        SmoothingCapableBoard smoothBoard = (SmoothingCapableBoard)MAIN.currentBoard;
         int bgColor = smoothBoard.getSmoothingActive() ? _bg : MAIN.BUTTON_LOCKED_GREY;
         smoothingButton = createTNButton("smoothingButton", text, _x, _y, _w, _h, font, _fontSize, bgColor, _textColor);
         smoothingButton.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
-                SmoothingCapableBoard smoothBoard = (SmoothingCapableBoard)currentBoard;
+                SmoothingCapableBoard smoothBoard = (SmoothingCapableBoard)MAIN.currentBoard;
                 smoothBoard.setSmoothingActive(!smoothBoard.getSmoothingActive());
                 smoothingButton.getCaptionLabel().setText(getSmoothingString());
                 int _bgColor = smoothBoard.getSmoothingActive() ? _bg : MAIN.BUTTON_LOCKED_GREY;
@@ -511,8 +511,8 @@ public class TopNav {
     public void stopButtonWasPressed() {
 
         //Exit method if doing Cyton impedance check. Avoids a BrainFlow error.
-        if (currentBoard instanceof BoardCyton && w_cytonImpedance != null) {
-            Integer checkingImpOnChan = ((ImpedanceSettingsBoard)currentBoard).isCheckingImpedanceOnChannel();
+        if (MAIN.currentBoard instanceof BoardCyton && w_cytonImpedance != null) {
+            Integer checkingImpOnChan = ((ImpedanceSettingsBoard)MAIN.currentBoard).isCheckingImpedanceOnChannel();
             //println("isCheckingImpedanceOnAnythingEZCHECK==",w_cytonImpedance.isCheckingImpedanceOnAnything);
             if (checkingImpOnChan != null || w_cytonImpedance.cytonMasterImpedanceCheckIsActive() || w_cytonImpedance.isCheckingImpedanceOnAnything) {
                 PopupMessage msg = new PopupMessage(MAIN, "Busy Checking Impedance", "Please turn off impedance check to begin recording the data stream.");
@@ -522,17 +522,17 @@ public class TopNav {
         }
 
         //toggle the data transfer state of the ADS1299...stop it or start it...
-        if (currentBoard.isStreaming()) {
+        if (MAIN.currentBoard.isStreaming()) {
             output("openBCI_GUI: stopButton was pressed. Stopping data transfer, wait a few seconds.");
-            stopRunning();
-            if (!currentBoard.isStreaming()) {
+            stopRunning(MAIN);
+            if (!MAIN.currentBoard.isStreaming()) {
                 toggleDataStreamingButton.getCaptionLabel().setText(stopButton_pressToStart_txt);
                 toggleDataStreamingButton.setColorBackground(MAIN.TURN_ON_GREEN);
             }
         } else { //not running
             output("openBCI_GUI: startButton was pressed. Starting data transfer, wait a few seconds.");
-            startRunning();
-            if (currentBoard.isStreaming()) {
+            startRunning(MAIN);
+            if (MAIN.currentBoard.isStreaming()) {
                 toggleDataStreamingButton.getCaptionLabel().setText(stopButton_pressToStop_txt);
                 toggleDataStreamingButton.setColorBackground(MAIN.TURN_OFF_RED);
                 nextPlayback_millis = MAIN.millis();  //used for synthesizeData and readFromFile.  This restarts the clock that keeps the playback at the right pace.

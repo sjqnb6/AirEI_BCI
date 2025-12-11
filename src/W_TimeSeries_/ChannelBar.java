@@ -16,7 +16,7 @@ import processing.core.PImage;
 
 import static Debugging_.GF.verbosePrint;
 import static Extras_.GF.log10;
-import static GUI.GGVI.*;
+import static Globel.GUI.*;
 import static WidgetManager_.GVI.w_timeSeries;
 
 import Globel.GUI;
@@ -68,7 +68,7 @@ class ChannelBar {
     boolean drawVoltageValue;
 
     public ChannelBar(GUI MAIN, int _channelIndex, int _x, int _y, int _w, int _h, PImage expand_default, PImage expand_hover, PImage expand_active, PImage contract_default, PImage contract_hover, PImage contract_active) {
-
+        this.MAIN = MAIN;
         cbCp5 = new ControlP5(MAIN);
         cbCp5.setGraphics(MAIN, x, y);
         cbCp5.setAutoDraw(false); //Setting this saves code as cp5 elements will only be drawn/visible when [cp5].draw() is called
@@ -165,7 +165,7 @@ class ChannelBar {
         // update data in plot
         updatePlotPoints();
 
-        if(currentBoard.isEXGChannelActive(channelIndex)) {
+        if(MAIN.currentBoard.isEXGChannelActive(channelIndex)) {
             onOffButton.setColorBackground(MAIN.channelColors[channelIndex%8]); // power down == false, set color to vibrant
         }
         else {
@@ -242,8 +242,8 @@ class ChannelBar {
 
         //draw impedance values in time series also for each channel
         drawVoltageValue = true;
-        if (currentBoard instanceof ImpedanceSettingsBoard) {
-            if(((ImpedanceSettingsBoard)currentBoard).isCheckingImpedance(channelIndex)) {
+        if (MAIN.currentBoard instanceof ImpedanceSettingsBoard) {
+            if(((ImpedanceSettingsBoard)MAIN.currentBoard).isCheckingImpedance(channelIndex)) {
                 impValue.draw();
                 drawVoltageValue = false;
             }
@@ -272,7 +272,7 @@ class ChannelBar {
     }
 
     private int nPointsBasedOnDataSource() {
-        return numSeconds * currentBoard.getSampleRate();
+        return numSeconds * MAIN.currentBoard.getSampleRate();
     }
 
     public void adjustTimeAxis(int _newTimeSize) {
@@ -310,7 +310,7 @@ class ChannelBar {
         //Do this once a second for all TimeSeries ChannelBars to save on resources
         int newMillis = MAIN.millis();
         boolean doAutoscale = newMillis > previousMillis + 1000;
-        if (isAutoscale && currentBoard.isStreaming() && doAutoscale) {
+        if (isAutoscale && MAIN.currentBoard.isStreaming() && doAutoscale) {
             autoscaleMin = (int) Math.floor(autoscaleMin);
             autoscaleMax = (int) Math.ceil(autoscaleMax);
             previousMillis = newMillis;
@@ -375,12 +375,12 @@ class ChannelBar {
         onOffButton.setCircularButton(true);
         onOffButton.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
-                boolean newState = !currentBoard.isEXGChannelActive(channelIndex);
+                boolean newState = !MAIN.currentBoard.isEXGChannelActive(channelIndex);
                 MAIN.println("[" + channelString + "] onOff released - " + (newState ? "On" : "Off"));
-                currentBoard.setEXGChannelActive(channelIndex, newState);
-                if (currentBoard instanceof ADS1299SettingsBoard) {
-                    w_timeSeries.adsSettingsController.updateChanSettingsDropdowns(channelIndex, currentBoard.isEXGChannelActive(channelIndex));
-                    boolean hasUnappliedChanges = currentBoard.isEXGChannelActive(channelIndex) != newState;
+                MAIN.currentBoard.setEXGChannelActive(channelIndex, newState);
+                if (MAIN.currentBoard instanceof ADS1299SettingsBoard) {
+                    w_timeSeries.adsSettingsController.updateChanSettingsDropdowns(channelIndex, MAIN.currentBoard.isEXGChannelActive(channelIndex));
+                    boolean hasUnappliedChanges = MAIN.currentBoard.isEXGChannelActive(channelIndex) != newState;
                     w_timeSeries.adsSettingsController.setHasUnappliedSettings(channelIndex, hasUnappliedChanges);
                 }
             }

@@ -6,7 +6,6 @@ public class GVI {
     public static boolean isVerbose = false;
 
     //Help Widget initiation
-    public static HelpWidget helpWidget;
 
     //use signPost(String identifier) to print 'identifier' text and time since last signPost() for debugging latency/timing issues
     public static boolean printSignPosts = true;

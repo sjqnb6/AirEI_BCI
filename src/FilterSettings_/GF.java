@@ -1,9 +1,9 @@
 package FilterSettings_;
 
 import java.io.File;
-
+import Globel.GUI;
 import static Debugging_.GF.*;
-import static GUI.GGVI.filterSettings;
+import static Globel.GUI.filterSettings;
 
 public class GF {
 

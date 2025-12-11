@@ -1,6 +1,6 @@
 package Widget_;
 
-import static GUI.GGVI.wm;
+import static Globel.GUI.wm;
 import static processing.core.PApplet.println;
 
 public class GF {

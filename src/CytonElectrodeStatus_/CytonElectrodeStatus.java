@@ -15,8 +15,8 @@ import processing.core.PFont;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
-import static GUI.GGVI.data_elec_imp_ohm;
-import static GUI.GGVI.is_railed;
+import static Globel.GUI.data_elec_imp_ohm;
+import static Globel.GUI.is_railed;
 import static WidgetManager_.GVI.w_cytonImpedance;
 
 public class CytonElectrodeStatus {

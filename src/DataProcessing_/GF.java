@@ -8,18 +8,18 @@ import java.util.List;
 import static Globel.GUI.*;
 import static SystemManager.GF.getCurrentBoardBufferSize;
 import static java.lang.Math.sqrt;
-
+import Globel.GUI;
 public class GF {
 
-    public static void processNewData() {
+    public static void processNewData(GUI MAIN) {
 
-        List<double[]> currentData = currentBoard.getData(getCurrentBoardBufferSize());
-        int[] exgChannels = currentBoard.getEXGChannels();
-        int channelCount = currentBoard.getNumEXGChannels();
+        List<double[]> currentData = MAIN.currentBoard.getData(getCurrentBoardBufferSize(MAIN));
+        int[] exgChannels = MAIN.currentBoard.getEXGChannels();
+        int channelCount = MAIN.currentBoard.getNumEXGChannels();
 
         //update the data buffers
         for (int Ichan=0; Ichan < channelCount; Ichan++) {
-            for(int i = 0; i < getCurrentBoardBufferSize(); i++) {
+            for(int i = 0; i < getCurrentBoardBufferSize(MAIN); i++) {
                 dataProcessingRawBuffer[Ichan][i] = (float)currentData.get(i)[exgChannels[Ichan]];
             }
 

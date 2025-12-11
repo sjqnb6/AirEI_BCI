@@ -94,7 +94,7 @@ public class EmgSettingsUI extends PApplet implements Runnable {
 
         emgSettingsValues = dataProcessing.emgSettings.values;
 
-        channelCount = currentBoard.getNumEXGChannels();
+        channelCount = MAIN.currentBoard.getNumEXGChannels();
 
         x = 0;
         y = 0;

@@ -29,8 +29,10 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import static GUI.GGVI.*;
 import Globel.GUI;
+
+import static Globel.GUI.*;
+
 public class W_Focus extends Widget {
     GUI MAIN;
     //to see all core variables/methods of the Widget class, refer to Widget.pde
@@ -90,8 +92,8 @@ public class W_Focus extends Widget {
         cp5ElementsToCheck.add((Controller)auditoryNeurofeedback.startStopButton);
         cp5ElementsToCheck.add((Controller)auditoryNeurofeedback.modeButton);
 
-        exgChannels = currentBoard.getEXGChannels();
-        channelCount = currentBoard.getNumEXGChannels();
+        exgChannels = MAIN.currentBoard.getEXGChannels();
+        channelCount = MAIN.currentBoard.getNumEXGChannels();
         dataArray = new double[channelCount][];
 
         // initialize graphics parameters
@@ -140,7 +142,7 @@ public class W_Focus extends Widget {
             prevChanSelectIsVisible = focusChanSelect.isVisible();
         }
 
-        if (currentBoard.isStreaming()) {
+        if (MAIN.currentBoard.isStreaming()) {
             dataGrid.setString(df.format(metricPrediction), 0, 1);
             focusBar.update(metricPrediction);
         }
@@ -258,9 +260,9 @@ public class W_Focus extends Widget {
     //Returns a metric value from 0. to 1. When there is an error, returns -1.
     private double updateFocusState() {
         try {
-            int windowSize = currentBoard.getSampleRate() * xLimit.getValue();
+            int windowSize = MAIN.currentBoard.getSampleRate() * xLimit.getValue();
             // getData in GUI returns data in shape ndatapoints x nchannels, in BrainFlow its transposed
-            List<double[]> currentData = currentBoard.getData(windowSize);
+            List<double[]> currentData = MAIN.currentBoard.getData(windowSize);
 
             if (currentData.size() != windowSize || focusChanSelect.activeChan.size() <= 0) {
                 return -1.0;
@@ -279,7 +281,7 @@ public class W_Focus extends Widget {
                     ));
 
             //Full Source Code for this method: https://github.com/brainflow-dev/brainflow/blob/c5f0ad86683e6eab556e30965befb7c93e389a3b/src/data_handler/data_handler.cpp#L1115
-            Pair<double[], double[]> bands = DataFilter.get_avg_band_powers (dataArray, channelsInDataArray, currentBoard.getSampleRate(), true);
+            Pair<double[], double[]> bands = DataFilter.get_avg_band_powers (dataArray, channelsInDataArray, MAIN.currentBoard.getSampleRate(), true);
             double[] featureVector = bands.getLeft ();
 
             //Left array is Averages, right array is Standard Deviations. Update values using Averages.

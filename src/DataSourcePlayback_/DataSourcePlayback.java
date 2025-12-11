@@ -11,7 +11,7 @@ import java.util.List;
 
 import static Debugging_.GF.outputError;
 import static Debugging_.GF.outputWarn;
-import static GUI.GGVI.topNav;
+import static Globel.GUI.topNav;
 import static SystemManager.GF.updateToNChan;
 import Globel.GUI;
 public abstract class DataSourcePlayback implements DataSource, FileBoard {
@@ -70,7 +70,7 @@ public abstract class DataSourcePlayback implements DataSource, FileBoard {
                 int startIndex = line.indexOf('=') + 2;
                 String nchanStr = line.substring(startIndex);
                 int chanCount = Integer.parseInt(nchanStr);
-                updateToNChan(chanCount); // sythetic board depends on this being set before it's initialized
+                updateToNChan(MAIN, chanCount); // sythetic board depends on this being set before it's initialized
             }
 
             // some boards have configurable sample rate, so read it from header

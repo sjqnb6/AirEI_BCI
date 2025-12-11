@@ -3,13 +3,11 @@ package EmgSettingsValues_;
 import EmgSettingsEnums_.*;
 
 import java.util.Arrays;
-
-import static Globel.GUI.currentBoard;
 import static processing.core.PApplet.abs;
 import static processing.core.PApplet.map;
-
+import Globel.GUI;
 public class EmgSettingsValues {
-
+    GUI MAIN;
     //These values can be changed via dropdowns
     public EmgWindow[] window;
     public EmgUVLimit[] uvLimit;
@@ -26,9 +24,9 @@ public class EmgSettingsValues {
 
     private transient int channelCount;
 
-    public EmgSettingsValues() {
-
-        channelCount = currentBoard.getNumEXGChannels();
+    public EmgSettingsValues(GUI MAIN) {
+        this.MAIN = MAIN;
+        channelCount = MAIN.currentBoard.getNumEXGChannels();
 
         window = new EmgWindow[channelCount];
         uvLimit = new EmgUVLimit[channelCount];
@@ -58,7 +56,7 @@ public class EmgSettingsValues {
     public void process(float[][] data_forDisplay_uV) {
         //looping over channels and analyzing input data
         for (int i = 0; i < channelCount; i++) {
-            float averagePeriod = currentBoard.getSampleRate() * window[i].getValue();
+            float averagePeriod = MAIN.currentBoard.getSampleRate() * window[i].getValue();
             int _uvLimit = uvLimit[i].getValue();
             float creepSpeedIncreasing = creepIncreasing[i].getValue();
             float creepSpeedDecreasing = creepDecreasing[i].getValue();

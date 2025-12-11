@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 import static Debugging_.GF.outputError;
 import static Debugging_.GF.outputSuccess;
-import static GUI.GGVI.*;
+import static Globel.GUI.*;
 import static SystemManager.GF.stopRunning;
 import static WidgetManager_.GVI.w_timeSeries;
 import Globel.GUI;
@@ -93,7 +93,7 @@ public class W_CytonImpedance extends Widget {
     public W_CytonImpedance(GUI MAIN){
         super(MAIN); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
         this.MAIN = MAIN;
-        cytonBoard = (BoardCyton) currentBoard;
+        cytonBoard = (BoardCyton) MAIN.currentBoard;
 
         imp_buttons_cp5 = new ControlP5(pApplet);
         imp_buttons_cp5.setGraphics(pApplet, 0,0);
@@ -113,7 +113,7 @@ public class W_CytonImpedance extends Widget {
 
         footerHeight = navH/2;
 
-        if (currentBoard.getNumEXGChannels() > 8) {
+        if (MAIN.currentBoard.getNumEXGChannels() > 8) {
             numTableRows += 8;
         }
 
@@ -527,7 +527,7 @@ public class W_CytonImpedance extends Widget {
                         //println("^^^^^^^^^^^NEW THREAD!!!");
 
                         if (topNav.dataStreamingButtonIsActive()) {
-                            stopRunning();
+                            stopRunning(MAIN);
                             topNav.resetStartStopButton();
                         } else {
                             cytonBoard.stopStreaming();
@@ -587,7 +587,7 @@ public class W_CytonImpedance extends Widget {
 
                         Boolean isCheckingImpedance = cytonBoard.isCheckingImpedanceOnAnyChannelsNorP().getLeft();
                         if (isCheckingImpedance != null) {
-                            if (!currentBoard.isStreaming()) {
+                            if (!MAIN.currentBoard.isStreaming()) {
                                 cytonBoard.startStreaming();
                             }
                         } else {
@@ -627,7 +627,7 @@ public class W_CytonImpedance extends Widget {
 
             prevMasterCheckCounter = masterCheckCounter;
 
-            numElectrodesToMasterCheck = currentBoard.getNumEXGChannels();
+            numElectrodesToMasterCheck = MAIN.currentBoard.getNumEXGChannels();
 
             /*
             if (guiSettings.getExpertModeBoolean()) {
@@ -672,7 +672,7 @@ public class W_CytonImpedance extends Widget {
         }
 
         if (topNav.dataStreamingButtonIsActive()) {
-            stopRunning();
+            stopRunning(MAIN);
             topNav.resetStartStopButton();
         }
 

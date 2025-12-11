@@ -34,6 +34,7 @@ public class DataProcessing {
     public EmgSettings emgSettings;
 
     public DataProcessing(GUI MAIN, int NCHAN, float sample_rate_Hz) {
+        this.MAIN = MAIN;
         nchan = NCHAN;
         fs_Hz = sample_rate_Hz;
         data_std_uV = new float[nchan];
@@ -47,7 +48,7 @@ public class DataProcessing {
 
     //Process data on a channel-by-channel basis
     private synchronized void processChannel(int Ichan, float[][] data_forDisplay_uV, float[] prevFFTdata) {
-        int Nfft = getNfftSafe();
+        int Nfft = getNfftSafe(MAIN);
         double foo;
 
         // Filter the data in the time domain
@@ -184,10 +185,10 @@ public class DataProcessing {
                 // if the frequency matches a band
                 if (FFT_freq_Hz >= processing_band_low_Hz[i] && FFT_freq_Hz < processing_band_high_Hz[i]) {
                     if (Ibin != 0 && Ibin != Nfft/2) {
-                        psdx = fftBuff[Ichan].getBand(Ibin) * fftBuff[Ichan].getBand(Ibin) * Nfft/currentBoard.getSampleRate() / 4;
+                        psdx = fftBuff[Ichan].getBand(Ibin) * fftBuff[Ichan].getBand(Ibin) * Nfft/MAIN.currentBoard.getSampleRate() / 4;
                     }
                     else {
-                        psdx = fftBuff[Ichan].getBand(Ibin) * fftBuff[Ichan].getBand(Ibin) * Nfft/currentBoard.getSampleRate();
+                        psdx = fftBuff[Ichan].getBand(Ibin) * fftBuff[Ichan].getBand(Ibin) * Nfft/MAIN.currentBoard.getSampleRate();
                     }
                     sum += psdx;
                     // binNum ++;

@@ -17,7 +17,6 @@ import java.util.Map;
 
 import static Debugging_.GF.*;
 import static Extras_.GF.dropNonPrintableChars;
-import static GUI.GGVI.*;
 
 public class ADS1299SettingsController{
     public GUI MAIN;
@@ -83,10 +82,10 @@ public class ADS1299SettingsController{
         createHWSettingsSendButton("HardwareSettingsSend", "Send", x + colOffset + (w/numControlButtons)*2 - button_w/2, button_y, button_w, button_h);
 
         activeChannels = _activeChannels;
-        ADS1299SettingsBoard settingsBoard = (ADS1299SettingsBoard)currentBoard;
+        ADS1299SettingsBoard settingsBoard = (ADS1299SettingsBoard)MAIN.currentBoard;
         boardSettings = settingsBoard.getADS1299Settings();
         boardSettings.saveAllLastValues();
-        channelCount = currentBoard.getNumEXGChannels();
+        channelCount = MAIN.currentBoard.getNumEXGChannels();
         hasUnappliedChanges = new boolean[channelCount];
         Arrays.fill(hasUnappliedChanges, Boolean.FALSE);
 
@@ -95,11 +94,11 @@ public class ADS1299SettingsController{
         int labelTxt = MAIN.OPENBCI_DARKBLUE;
         colOffset = (w / 5) / 2;
         int label_y = y - 14 - padding_3;
-        gainLabel = new TextBox(MAIN, "PGA Gain", x + colOffset, label_y, labelTxt, labelBG, 12, h5, MAIN.CENTER, MAIN.TOP);
-        inputTypeLabel = new TextBox(MAIN, "Input Type", x + colOffset + (w/5), label_y, labelTxt, labelBG, 12, h5, MAIN.CENTER, MAIN.TOP);
-        biasLabel = new TextBox(MAIN, "Bias Include", x + colOffset + (w/5)*2, label_y, labelTxt, labelBG, 12, h5, MAIN.CENTER, MAIN.TOP);
-        srb2Label = new TextBox(MAIN,"SRB2", x + colOffset + (w/5)*3, label_y, labelTxt, labelBG, 12, h5, MAIN.CENTER, MAIN.TOP);
-        srb1Label = new TextBox(MAIN,"SRB1", x + colOffset + (w/5)*4, label_y, labelTxt, labelBG, 12, h5, MAIN.CENTER, MAIN.TOP);
+        gainLabel = new TextBox(MAIN, "PGA Gain", x + colOffset, label_y, labelTxt, labelBG, 12, MAIN.h5, MAIN.CENTER, MAIN.TOP);
+        inputTypeLabel = new TextBox(MAIN, "Input Type", x + colOffset + (w/5), label_y, labelTxt, labelBG, 12, MAIN.h5, MAIN.CENTER, MAIN.TOP);
+        biasLabel = new TextBox(MAIN, "Bias Include", x + colOffset + (w/5)*2, label_y, labelTxt, labelBG, 12, MAIN.h5, MAIN.CENTER, MAIN.TOP);
+        srb2Label = new TextBox(MAIN,"SRB2", x + colOffset + (w/5)*3, label_y, labelTxt, labelBG, 12, MAIN.h5, MAIN.CENTER, MAIN.TOP);
+        srb1Label = new TextBox(MAIN,"SRB1", x + colOffset + (w/5)*4, label_y, labelTxt, labelBG, 12, MAIN.h5, MAIN.CENTER, MAIN.TOP);
 
         createCustomCommandUI();
 
@@ -109,10 +108,10 @@ public class ADS1299SettingsController{
     public void update() {
         boolean tfactive = customCommandTF.isFocus();
         if (tfactive) {
-            textFieldIsActive = true;
+            MAIN.textFieldIsActive = true;
         }
 
-        textfieldUpdateHelper.checkTextfield(customCommandTF);
+        MAIN.textfieldUpdateHelper.checkTextfield(customCommandTF);
     }
 
     public void draw() {
@@ -156,7 +155,7 @@ public class ADS1299SettingsController{
                 }
             }
 
-            boolean showCustomCommandUI = guiSettings.getExpertModeBoolean();
+            boolean showCustomCommandUI = MAIN.guiSettings.getExpertModeBoolean();
 
             //Draw background behind command buttons
             MAIN.pushStyle();
@@ -272,7 +271,7 @@ public class ADS1299SettingsController{
         loadButton.setDescription("Load hardware settings from file.");
         loadButton.onClick(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
-                if (currentBoard.isStreaming()) {
+                if (MAIN.currentBoard.isStreaming()) {
                     PopupMessage msg = new PopupMessage(MAIN, "Info", "Streaming needs to be stopped before loading hardware settings.");
                 } else {
                     MAIN.selectInput("Select settings file to load", "loadHardwareSettings");
@@ -304,7 +303,7 @@ public class ADS1299SettingsController{
 
                 for (int i = 0; i < channelCount; i++) {
                     if (hasUnappliedChanges[i]) {
-                        boolean sendCommandSuccess = ((ADS1299SettingsBoard)currentBoard).getADS1299Settings().commit(i);
+                        boolean sendCommandSuccess = ((ADS1299SettingsBoard)MAIN.currentBoard).getADS1299Settings().commit(i);
                         if (!sendCommandSuccess) {
                             noErrors = false;
                         } else {
@@ -351,7 +350,7 @@ public class ADS1299SettingsController{
         list.getCaptionLabel() //the caption label is the text object in the primary bar
                 .toUpperCase(false) //DO NOT AUTOSET TO UPPERCASE!!!
                 .setText(e.getName())
-                .setFont(h5)
+                .setFont(MAIN.h5)
                 .setSize(12)
                 .getStyle() //need to grab style before affecting the paddingTop
                 .setPaddingTop(4)
@@ -359,7 +358,7 @@ public class ADS1299SettingsController{
         list.getValueLabel() //the value label is connected to the text objects in the dropdown item bars
                 .toUpperCase(false) //DO NOT AUTOSET TO UPPERCASE!!!
                 .setText(e.getName())
-                .setFont(p6)
+                .setFont(MAIN.p6)
                 .setSize(10) //set the font size of the item bars to 14pt
                 .getStyle() //need to grab style before affecting the paddingTop
                 .setPaddingTop(3) //4-pixel vertical offset to center text
@@ -405,7 +404,7 @@ public class ADS1299SettingsController{
                 .setPosition(0, 0)
                 .setCaptionLabel("")
                 .setSize(120, 20)
-                .setFont(f2)
+                .setFont(MAIN.f2)
                 .setFocus(false)
                 .setColor(MAIN.color(26, 26, 26))
                 .setColorBackground(MAIN.color(255, 255, 255)) // text field bg color
@@ -439,7 +438,7 @@ public class ADS1299SettingsController{
         sendCustomCmdButton.onClick(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 String text = dropNonPrintableChars(customCommandTF.getText());
-                Pair<Boolean, String> res = ((BoardBrainFlow)currentBoard).sendCommand(text);
+                Pair<Boolean, String> res = ((BoardBrainFlow)MAIN.currentBoard).sendCommand(text);
                 if (res.getKey().booleanValue()) {
                     outputSuccess("[ExpertMode] Success sending command to board: " + text);
                 } else {
@@ -513,8 +512,8 @@ public class ADS1299SettingsController{
     }
 
     public void updateAllChanSettingsDropdowns() {
-        for (int i = 0; i < currentBoard.getNumEXGChannels(); i++) {
-            updateChanSettingsDropdowns(i, currentBoard.isEXGChannelActive(i));
+        for (int i = 0; i < MAIN.currentBoard.getNumEXGChannels(); i++) {
+            updateChanSettingsDropdowns(i, MAIN.currentBoard.isEXGChannelActive(i));
             setHasUnappliedSettings(i, false);
         }
     }

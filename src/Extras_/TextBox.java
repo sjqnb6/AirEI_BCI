@@ -3,9 +3,10 @@ package Extras_;
 import Widget_.Widget;
 import processing.core.PApplet;
 import processing.core.PFont;
-
-import static GUI.GGVI.p5;
 import Globel.GUI;
+
+import static Globel.GUI.p5;
+
 public class TextBox extends Widget {
     GUI MAIN;
     public int x;
@@ -24,6 +25,7 @@ public class TextBox extends Widget {
 
     public TextBox(GUI MAIN, String s, int x1, int y1) {
         super(MAIN);
+        this.MAIN = MAIN;
         string = s; x = x1; y = y1;
         textColor = MAIN.OPENBCI_DARKBLUE;
         backgroundColor = pApplet.color(255);

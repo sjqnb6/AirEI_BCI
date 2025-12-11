@@ -18,23 +18,24 @@ import ControlPanel_.RadioConfigBox;
 import processing.core.PApplet;
 
 import static Debugging_.GF.*;
-import static GUI.GGVI.*;
+import Globel.GUI;
+
+import static Globel.GUI.*;
 import static processing.core.PApplet.println;
 import static processing.core.PApplet.split;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 public class RadioConfig {
-
+    GUI MAIN;
     private processing.serial.Serial serial_direct_board;
     private final int NUM_RADIO_CHAN = 26;
     private String rcStringReceived = "";
     private boolean autoscanPressed = false;
     private boolean overridePressed = false;
 
-    private PApplet pApplet;
-    public RadioConfig(PApplet pApplet) {
-        this.pApplet = pApplet;
+    public RadioConfig(GUI MAIN) {
+        this.MAIN = MAIN;
     }
     //=========== AUTO-SCAN ============
     //= Scans through channels until a success message has been found
@@ -50,7 +51,7 @@ public class RadioConfig {
         for(int i = 1; i < NUM_RADIO_CHAN; i++){
             set_channel_over(rcConfig,i);
             system_status(rcConfig);
-            if (board_message != null && board_message.toString().toLowerCase().contains("success")) {
+            if (MAIN.board_message != null && MAIN.board_message.toString().toLowerCase().contains("success")) {
                 return;
             }
         }
@@ -68,7 +69,7 @@ public class RadioConfig {
         for(int i = 1; i < NUM_RADIO_CHAN; i++){
             set_channel_over(i);
             get_channel();
-            if (board_message != null && board_message.toString().toLowerCase().contains("success")) {
+            if (MAIN.board_message != null && MAIN.board_message.toString().toLowerCase().contains("success")) {
                 autoscanPressed = false;
                 closeSerialPort();
                 return true;
@@ -97,11 +98,11 @@ public class RadioConfig {
         if(!connect_to_portName(rcConfig)){
             return;
         }
-        serial_direct_board = new processing.serial.Serial(pApplet, openBCI_portName, openBCI_baud); //force open the com port
+        serial_direct_board = new processing.serial.Serial(MAIN, openBCI_portName, openBCI_baud); //force open the com port
         if(serial_direct_board != null){
             serial_direct_board.write(0xF0);
             serial_direct_board.write(0x07);
-            pApplet.delay(50);
+            MAIN.delay(50);
             if(print_bytes(rcConfig)){
                 String[] s = split(rcStringReceived, ':');
                 if (s[0].equals("Success")) {
@@ -124,11 +125,11 @@ public class RadioConfig {
         if(!connect_to_portName()){
             return false;
         }
-        serial_direct_board = new processing.serial.Serial(pApplet, openBCI_portName, openBCI_baud); //force open the com port
+        serial_direct_board = new processing.serial.Serial(MAIN, openBCI_portName, openBCI_baud); //force open the com port
         if(serial_direct_board != null){
             serial_direct_board.write(0xF0);
             serial_direct_board.write(0x07);
-            pApplet.delay(50);
+            MAIN.delay(50);
             if(!print_bytes()){
                 closeSerialPort();
                 return false;
@@ -167,11 +168,11 @@ public class RadioConfig {
                 return;
             }
         }
-        serial_direct_board = new processing.serial.Serial(pApplet, openBCI_portName, openBCI_baud); //force open the com port
+        serial_direct_board = new processing.serial.Serial(MAIN, openBCI_portName, openBCI_baud); //force open the com port
         if(serial_direct_board != null){
             serial_direct_board.write(0xF0);
             serial_direct_board.write(0x00);
-            pApplet.delay(100);
+            MAIN.delay(100);
             print_bytes(rcConfig);
         }
         else {
@@ -188,11 +189,11 @@ public class RadioConfig {
                 return false;
             }
         }
-        serial_direct_board = new processing.serial.Serial(pApplet, openBCI_portName, openBCI_baud); //force open the com port
+        serial_direct_board = new processing.serial.Serial(MAIN, openBCI_portName, openBCI_baud); //force open the com port
         if(serial_direct_board != null){
             serial_direct_board.write(0xF0);
             serial_direct_board.write(0x00);
-            pApplet.delay(50);
+            MAIN.delay(50);
             if(!print_bytes()){
                 closeSerialPort();
                 return false;
@@ -233,13 +234,13 @@ public class RadioConfig {
                 return;
             }
         }
-        serial_direct_board = new processing.serial.Serial(pApplet, openBCI_portName, openBCI_baud); //force open the com port
+        serial_direct_board = new processing.serial.Serial(MAIN, openBCI_portName, openBCI_baud); //force open the com port
         if(serial_direct_board != null){
             if(channel_number > 0){
                 serial_direct_board.write(0xF0);
                 serial_direct_board.write(0x01);
                 serial_direct_board.write((byte)(channel_number));
-                pApplet.delay(1000);
+                MAIN.delay(1000);
                 print_bytes(rcConfig);
             }
             else rcConfig.print_onscreen("Please Select a Channel.");
@@ -272,13 +273,13 @@ public class RadioConfig {
                 return;
             }
         }
-        serial_direct_board = new processing.serial.Serial(pApplet, openBCI_portName, openBCI_baud); //force open the com port
+        serial_direct_board = new processing.serial.Serial(MAIN, openBCI_portName, openBCI_baud); //force open the com port
         if(serial_direct_board != null){
             if(channel_number > 0){
                 serial_direct_board.write(0xF0);
                 serial_direct_board.write(0x02);
                 serial_direct_board.write((byte)(channel_number));
-                pApplet.delay(300);
+                MAIN.delay(300);
                 print_bytes(rcConfig);
             }
 
@@ -300,13 +301,13 @@ public class RadioConfig {
                 return;
             }
         }
-        serial_direct_board = new processing.serial.Serial(pApplet, openBCI_portName, openBCI_baud); //force open the com port
+        serial_direct_board = new processing.serial.Serial(MAIN, openBCI_portName, openBCI_baud); //force open the com port
         if(serial_direct_board != null){
             if(channel_number > 0){
                 serial_direct_board.write(0xF0);
                 serial_direct_board.write(0x02);
                 serial_direct_board.write((byte)(channel_number));
-                pApplet.delay(100);
+                MAIN.delay(100);
                 print_bytes();
             }
         }
@@ -324,7 +325,7 @@ public class RadioConfig {
             output("Attempting to open Serial/COM port: " + openBCI_portName);
             try {
                 println("Radios_Config: connect_to_portName: Attempting to open serial port: " + openBCI_portName);
-                serial_output = new processing.serial.Serial(pApplet, openBCI_portName, openBCI_baud); //open the com port
+                serial_output = new processing.serial.Serial(MAIN, openBCI_portName, openBCI_baud); //open the com port
                 serial_output.clear(); // clear anything in the com port's buffer
                 // portIsOpen = true;
                 println("Radios_Config: connect_to_portName: Port is open!");
@@ -356,7 +357,7 @@ public class RadioConfig {
             verbosePrint("Attempting to open Serial/COM port: " + openBCI_portName);
             try {
                 verbosePrint("Radios_Config: connect_to_portName: Attempting to open serial port: " + openBCI_portName);
-                serial_output = new processing.serial.Serial(pApplet, openBCI_portName, openBCI_baud); //open the com port
+                serial_output = new processing.serial.Serial(MAIN, openBCI_portName, openBCI_baud); //open the com port
                 serial_output.clear(); // clear anything in the com port's buffer
                 // portIsOpen = true;
                 verbosePrint("Radios_Config: connect_to_portName: Port is open!");

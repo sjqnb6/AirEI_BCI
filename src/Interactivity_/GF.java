@@ -7,20 +7,20 @@ import processing.core.PApplet;
 
 import static Containers_.GVI.drawContainers;
 import static Debugging_.GF.*;
-import static GUI.GGVI.*;
+import static Globel.GUI.*;
 import static WidgetManager_.GVI.w_marker;
 import static processing.core.PApplet.println;
 import static processing.core.PApplet.str;
-
+import Globel.GUI;
 public class GF {
 
     //interpret a keypress...the key pressed comes in as "key"
-    public static void keyPressed(PApplet applet) {
+    public static void keyPressed(GUI MAIN) {
 
-        char key = applet.key;
+        char key = MAIN.key;
 
         // don't allow key presses until setup is complete and the UI is initialized
-        if (!setupComplete) {
+        if (!MAIN.setupComplete) {
             return;
         }
 
@@ -29,16 +29,16 @@ public class GF {
         //println("OpenBCI_GUI: keyPressed: key = " + key + ", int(key) = " + int(key) + ", keyCode = " + keyCode);
 
         //Check for Copy/Paste text keyboard shortcuts before anything else.
-        if (copyPaste.checkIfPressedAllOS()) {
+        if (MAIN.copyPaste.checkIfPressedAllOS()) {
             return;
         }
 
-        boolean anyActiveTextfields = textfieldUpdateHelper.getAnyTextfieldsActive();
+        boolean anyActiveTextfields = MAIN.textfieldUpdateHelper.getAnyTextfieldsActive();
 
-        if(!controlPanel.isOpen && !anyActiveTextfields){ //don't parse the key if the control panel is open
-            if (guiSettings.getExpertModeBoolean() || key == ' ') { //Check if Expert Mode is On or Spacebar has been pressed
+        if(!MAIN.controlPanel.isOpen && !anyActiveTextfields){ //don't parse the key if the control panel is open
+            if (MAIN.guiSettings.getExpertModeBoolean() || key == ' ') { //Check if Expert Mode is On or Spacebar has been pressed
                 if (((int)(key) >=32) && ((int)(key) <= 126)) {  //32 through 126 represent all the usual printable ASCII characters
-                    parseKey(applet, key);
+                    parseKey(MAIN, key);
                 }
             }
         }
@@ -48,11 +48,12 @@ public class GF {
         }
     }
 
-    public static synchronized void keyReleased() {
-        copyPaste.checkIfReleasedAllOS();
+    public static synchronized void keyReleased(GUI MAIN) {
+
+        MAIN.copyPaste.checkIfReleasedAllOS();
     }
 
-    public static void parseKey(PApplet applet, char val) {
+    public static void parseKey(GUI MAIN, char val) {
         //assumes that val is a usual printable ASCII character (ASCII 32 through 126)
         switch (val) {
             case ' ':
@@ -63,10 +64,10 @@ public class GF {
                 drawContainers = !drawContainers;
                 return;
             case '{':
-                if(colorScheme == COLOR_SCHEME_DEFAULT){
-                    colorScheme = COLOR_SCHEME_ALTERNATIVE_A;
-                } else if(colorScheme == COLOR_SCHEME_ALTERNATIVE_A) {
-                    colorScheme = COLOR_SCHEME_DEFAULT;
+                if(MAIN.colorScheme == MAIN.COLOR_SCHEME_DEFAULT){
+                    MAIN.colorScheme = MAIN.COLOR_SCHEME_ALTERNATIVE_A;
+                } else if(MAIN.colorScheme == MAIN.COLOR_SCHEME_ALTERNATIVE_A) {
+                    MAIN.colorScheme = MAIN.COLOR_SCHEME_DEFAULT;
                 }
                 //topNav.updateNavButtonsBasedOnColorScheme();
                 output("New Dark color scheme coming soon!");
@@ -74,142 +75,142 @@ public class GF {
 
             //deactivate channels 1-4
             case '1':
-                currentBoard.setEXGChannelActive(1-1, false);
+                MAIN.currentBoard.setEXGChannelActive(1-1, false);
                 return;
             case '2':
-                currentBoard.setEXGChannelActive(2-1, false);
+                MAIN.currentBoard.setEXGChannelActive(2-1, false);
                 return;
             case '3':
-                currentBoard.setEXGChannelActive(3-1, false);
+                MAIN.currentBoard.setEXGChannelActive(3-1, false);
                 return;
             case '4':
-                currentBoard.setEXGChannelActive(4-1, false);
+                MAIN.currentBoard.setEXGChannelActive(4-1, false);
                 return;
 
             //activate channels 1-4
             case '!':
-                currentBoard.setEXGChannelActive(1-1, true);
+                MAIN.currentBoard.setEXGChannelActive(1-1, true);
                 return;
             case '@':
-                currentBoard.setEXGChannelActive(2-1, true);
+                MAIN.currentBoard.setEXGChannelActive(2-1, true);
                 return;
             case '#':
-                currentBoard.setEXGChannelActive(3-1, true);
+                MAIN.currentBoard.setEXGChannelActive(3-1, true);
                 return;
             case '$':
-                currentBoard.setEXGChannelActive(4-1, true);
+                MAIN.currentBoard.setEXGChannelActive(4-1, true);
                 return;
 
 
             ///////////////////// Save User settings lowercase n
             case 'n':
                 println("Interactivity: Save key pressed!");
-                settings.save(settings.getPath("User", eegDataSource, nchan));
+                MAIN.settings.save(MAIN.settings.getPath("User", MAIN.eegDataSource, MAIN.nchan));
                 outputSuccess("Settings Saved! Using Expert Mode, you can load these settings using 'N' key. Click \"Default\" to revert to factory settings.");
                 return;
 
             ///////////////////// Load User settings uppercase N
             case 'N':
                 println("Interactivity: Load key pressed!");
-                settings.loadKeyPressed();
+                MAIN.settings.loadKeyPressed();
                 return;
 
             case '?':
-                if(currentBoard instanceof BoardCyton) {
-                    ((BoardCyton)currentBoard).printRegisters();
+                if(MAIN.currentBoard instanceof BoardCyton) {
+                    ((BoardCyton)MAIN.currentBoard).printRegisters();
                 }
                 return;
 
             case 'm':
-                String picfname = "OpenBCI-" + directoryManager.getFileNameDateTime() + ".jpg";
+                String picfname = "OpenBCI-" + MAIN.directoryManager.getFileNameDateTime() + ".jpg";
                 //println("OpenBCI_GUI: 'm' was pressed...taking screenshot:" + picfname);
-                applet.saveFrame(directoryManager.getGuiDataPath() + "Screenshots" + System.getProperty("file.separator") + picfname);    // take a shot of that!
+                MAIN.saveFrame(MAIN.directoryManager.getGuiDataPath() + "Screenshots" + System.getProperty("file.separator") + picfname);    // take a shot of that!
                 output("Screenshot captured! Saved to /Documents/OpenBCI_GUI/Screenshots/" + picfname);
                 return;
             default:
                 break;
         }
 
-        if (nchan > 4) {
+        if (MAIN.nchan > 4) {
             switch (val) {
                 case '5':
-                    currentBoard.setEXGChannelActive(5-1, false);
+                    MAIN.currentBoard.setEXGChannelActive(5-1, false);
                     return;
                 case '6':
-                    currentBoard.setEXGChannelActive(6-1, false);
+                    MAIN.currentBoard.setEXGChannelActive(6-1, false);
                     return;
                 case '7':
-                    currentBoard.setEXGChannelActive(7-1, false);
+                    MAIN.currentBoard.setEXGChannelActive(7-1, false);
                     return;
                 case '8':
-                    currentBoard.setEXGChannelActive(8-1, false);
+                    MAIN.currentBoard.setEXGChannelActive(8-1, false);
                     return;
                 case '%':
-                    currentBoard.setEXGChannelActive(5-1, true);
+                    MAIN.currentBoard.setEXGChannelActive(5-1, true);
                     return;
                 case '^':
-                    currentBoard.setEXGChannelActive(6-1, true);
+                    MAIN.currentBoard.setEXGChannelActive(6-1, true);
                     return;
                 case '&':
-                    currentBoard.setEXGChannelActive(7-1, true);
+                    MAIN.currentBoard.setEXGChannelActive(7-1, true);
                     return;
                 case '*':
-                    currentBoard.setEXGChannelActive(8-1, true);
+                    MAIN.currentBoard.setEXGChannelActive(8-1, true);
                     return;
                 default:
                     break;
             }
         }
 
-        if (nchan > 8) {
+        if (MAIN.nchan > 8) {
             switch (val) {
                 case 'q':
-                    currentBoard.setEXGChannelActive(9-1, false);
+                    MAIN.currentBoard.setEXGChannelActive(9-1, false);
                     return;
                 case 'w':
-                    currentBoard.setEXGChannelActive(10-1, false);
+                    MAIN.currentBoard.setEXGChannelActive(10-1, false);
                     return;
                 case 'e':
-                    currentBoard.setEXGChannelActive(11-1, false);
+                    MAIN.currentBoard.setEXGChannelActive(11-1, false);
                     return;
                 case 'r':
-                    currentBoard.setEXGChannelActive(12-1, false);
+                    MAIN.currentBoard.setEXGChannelActive(12-1, false);
                     return;
                 case 't':
-                    currentBoard.setEXGChannelActive(13-1, false);
+                    MAIN.currentBoard.setEXGChannelActive(13-1, false);
                     return;
                 case 'y':
-                    currentBoard.setEXGChannelActive(14-1, false);
+                    MAIN.currentBoard.setEXGChannelActive(14-1, false);
                     return;
                 case 'u':
-                    currentBoard.setEXGChannelActive(15-1, false);
+                    MAIN.currentBoard.setEXGChannelActive(15-1, false);
                     return;
                 case 'i':
-                    currentBoard.setEXGChannelActive(16-1, false);
+                    MAIN.currentBoard.setEXGChannelActive(16-1, false);
                     return;
                 case 'Q':
-                    currentBoard.setEXGChannelActive(9-1, true);
+                    MAIN.currentBoard.setEXGChannelActive(9-1, true);
                     return;
                 case 'W':
-                    currentBoard.setEXGChannelActive(10-1, true);
+                    MAIN.currentBoard.setEXGChannelActive(10-1, true);
                     return;
                 case 'E':
-                    currentBoard.setEXGChannelActive(11-1, true);
+                    MAIN.currentBoard.setEXGChannelActive(11-1, true);
                     return;
                 case 'R':
-                    currentBoard.setEXGChannelActive(12-1, true);
+                    MAIN.currentBoard.setEXGChannelActive(12-1, true);
                     return;
                 case 'T':
-                    currentBoard.setEXGChannelActive(13-1, true);
+                    MAIN.currentBoard.setEXGChannelActive(13-1, true);
                     return;
                 case 'Y':
-                    currentBoard.setEXGChannelActive(14-1, true);
+                    MAIN.currentBoard.setEXGChannelActive(14-1, true);
                     return;
                 case 'U':
-                    currentBoard.setEXGChannelActive(15-1, true);
+                    MAIN.currentBoard.setEXGChannelActive(15-1, true);
                     return;
                 case 'I':
-                    currentBoard.setEXGChannelActive(16-1, true);
+                    MAIN.currentBoard.setEXGChannelActive(16-1, true);
                     return;
                 default:
                     break;
@@ -217,10 +218,10 @@ public class GF {
         }
 
         // Fixes #976. These keyboard shortcuts enable synthetic square waves on Ganglion and Cyton
-        if (currentBoard instanceof BoardGanglion || currentBoard instanceof BoardCyton) {
+        if (MAIN.currentBoard instanceof BoardGanglion || MAIN.currentBoard instanceof BoardCyton) {
             if (val == '[' ||  val == ']') {
                 println("Expert Mode: '" + val + "' pressed. Sending to Ganglion...");
-                Boolean success = ((Board)currentBoard).sendCommand(str(val)).getKey();
+                Boolean success = ((Board)MAIN.currentBoard).sendCommand(str(val)).getKey();
                 if (success) {
                     outputSuccess("Expert Mode: Success sending '" + val + "' to Ganglion!");
                 } else {
@@ -235,8 +236,8 @@ public class GF {
             return;
         }
 
-        if (currentBoard instanceof Board) {
-            output("Expert Mode: '" + applet.key + "' pressed. This is not assigned or applicable to current setup.");
+        if (MAIN.currentBoard instanceof Board) {
+            output("Expert Mode: '" + MAIN.key + "' pressed. This is not assigned or applicable to current setup.");
             //((Board)currentBoard).sendCommand(str(key));
         }
     }

@@ -46,7 +46,7 @@ class MarkerBar{
         numSeconds = markerWindow;
 
         // This widget is only instantiated when the board is accel capable, so we don't need to check
-        markerBoard = (DataSource)currentBoard;
+        markerBoard = (DataSource)MAIN.currentBoard;
 
         x = _x;
         y = _y;
@@ -126,7 +126,7 @@ class MarkerBar{
     }
 
     private int nPointsBasedOnDataSource() {
-        return numSeconds * currentBoard.getSampleRate();
+        return numSeconds * MAIN.currentBoard.getSampleRate();
     }
 
     public void adjustTimeAxis(int _newTimeSize) {
@@ -158,7 +158,7 @@ class MarkerBar{
         //Do this once a second for all TimeSeries ChannelBars to save on resources
         int newMillis = MAIN.millis();
         boolean doAutoscale = newMillis > previousMillis + 1000;
-        if (isAutoscale && currentBoard.isStreaming() && doAutoscale) {
+        if (isAutoscale && MAIN.currentBoard.isStreaming() && doAutoscale) {
             autoscaleMin = (int) Math.floor(autoscaleMin);
             autoscaleMax = (int) Math.ceil(autoscaleMax);
             previousMillis = newMillis;

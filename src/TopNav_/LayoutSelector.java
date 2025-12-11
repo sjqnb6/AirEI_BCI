@@ -10,7 +10,9 @@ import processing.core.PImage;
 import java.util.ArrayList;
 
 import static Debugging_.GF.output;
-import static GUI.GGVI.*;
+import static Globel.GUI.topNav;
+import static Globel.GUI.wm;
+
 import Globel.GUI;
 public class LayoutSelector{
 
@@ -27,7 +29,7 @@ public class LayoutSelector{
 
         w = 180;
         x = MAIN.width - w - 3;
-        y = (navBarHeight * 2) - 3;
+        y = (MAIN.navBarHeight * 2) - 3;
         margin = 6;
         b_w = (w - 5*margin)/4;
         b_h = b_w;
@@ -141,7 +143,7 @@ public class LayoutSelector{
                     output("Layout [" + (layoutNumber) + "] selected.");
                     toggleVisibility(); //shut layoutSelector if something is selected
                     wm.setNewContainerLayout(layoutNumber); //have WidgetManager update Layout and active widgets
-                    settings.currentLayout = layoutNumber; //copy this value to be used when saving Layout setting
+                    MAIN.settings.currentLayout = layoutNumber; //copy this value to be used when saving Layout setting
                 }
             });
             layoutOptions.add(tempLayoutButton);

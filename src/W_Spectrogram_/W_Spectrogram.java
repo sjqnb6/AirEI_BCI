@@ -25,7 +25,8 @@ import java.util.List;
 import java.util.TimeZone;
 
 import static Extras_.GF.log10;
-import static GUI.GGVI.*;
+import static Globel.GUI.nchan;
+
 import Globel.GUI;
 //////////////////////////////////////////////////////
 
@@ -106,11 +107,11 @@ public class W_Spectrogram extends Widget {
         graphW = w - paddingRight - paddingLeft;
         graphH = h - paddingBottom - paddingTop;
 
-        settings.spectMaxFrqSave = 1;
-        settings.spectSampleRateSave = 2;
-        settings.spectLogLinSave = 0;
-        vertAxisLabel = vertAxisLabels[settings.spectMaxFrqSave];
-        horizAxisLabel = horizAxisLabels[settings.spectSampleRateSave];
+        MAIN.settings.spectMaxFrqSave = 1;
+        MAIN.settings.spectSampleRateSave = 2;
+        MAIN.settings.spectLogLinSave = 0;
+        vertAxisLabel = vertAxisLabels[MAIN.settings.spectMaxFrqSave];
+        horizAxisLabel = horizAxisLabels[MAIN.settings.spectSampleRateSave];
         horizAxisLabelStrings = new StringList();
         //Fetch/calculate the time strings for the horizontal axis ticks
         fetchTimeStrings(numHorizAxisDivs);
@@ -118,9 +119,9 @@ public class W_Spectrogram extends Widget {
         //This is the protocol for setting up dropdowns.
         //Note that these 3 dropdowns correspond to the 3 global functions below
         //You just need to make sure the "id" (the 1st String) has the same name as the corresponding function
-        addDropdown("SpectrogramMaxFreq", "Max Freq", Arrays.asList(settings.spectMaxFrqArray), settings.spectMaxFrqSave);
-        addDropdown("SpectrogramSampleRate", "Window", Arrays.asList(settings.spectSampleRateArray), settings.spectSampleRateSave);
-        addDropdown("SpectrogramLogLin", "Log/Lin", Arrays.asList(settings.fftLogLinArray), settings.spectLogLinSave);
+        addDropdown("SpectrogramMaxFreq", "Max Freq", Arrays.asList(MAIN.settings.spectMaxFrqArray), MAIN.settings.spectMaxFrqSave);
+        addDropdown("SpectrogramSampleRate", "Window", Arrays.asList(MAIN.settings.spectSampleRateArray), MAIN.settings.spectSampleRateSave);
+        addDropdown("SpectrogramLogLin", "Log/Lin", Arrays.asList(MAIN.settings.fftLogLinArray), MAIN.settings.spectLogLinSave);
 
         //Resize the height of the data image using default
         dataImageH = vertAxisLabel[0] * 2;
@@ -146,7 +147,7 @@ public class W_Spectrogram extends Widget {
             lockElementsOnOverlapCheck(cp5ElementsToCheck);
         }
 
-        if (currentBoard.isStreaming()) {
+        if (MAIN.currentBoard.isStreaming()) {
             //Make sure we are always draw new pixels on the right
             xPos = dataImg.width - 1;
             //Fetch/calculate the time strings for the horizontal axis ticks
@@ -154,9 +155,9 @@ public class W_Spectrogram extends Widget {
         }
 
         //State change check
-        if (currentBoard.isStreaming() && !wasRunning) {
+        if (MAIN.currentBoard.isStreaming() && !wasRunning) {
             onStartRunning();
-        } else if (!currentBoard.isStreaming() && wasRunning) {
+        } else if (!MAIN.currentBoard.isStreaming() && wasRunning) {
             onStopRunning();
         }
     }
@@ -185,7 +186,7 @@ public class W_Spectrogram extends Widget {
         MAIN.popStyle();
 
         //draw the spectrogram if the widget is open, and update pixels if board is streaming data
-        if (currentBoard.isStreaming()) {
+        if (MAIN.currentBoard.isStreaming()) {
             MAIN.pushStyle();
             dataImg.loadPixels();
 
@@ -206,7 +207,7 @@ public class W_Spectrogram extends Widget {
             for (int i = 0; i <= dataImg.height/2; i++) {
                 //LEFT SPECTROGRAM ON TOP
                 float hueValue = hueLimit - MAIN.map((fftAvgs(spectChanSelectTop.activeChan, i)*32), 0, 256, 0, hueLimit);
-                if (settings.spectLogLinSave == 0) {
+                if (MAIN.settings.spectLogLinSave == 0) {
                     hueValue = MAIN.map(log10(hueValue), 0, 2, 0, hueLimit);
                 }
                 // colorMode is HSB, the range for hue is 256, for saturation is 100, brightness is 100.
@@ -225,7 +226,7 @@ public class W_Spectrogram extends Widget {
 
                 //RIGHT SPECTROGRAM ON BOTTOM
                 hueValue = hueLimit - MAIN.map((fftAvgs(spectChanSelectBot.activeChan, i)*32), 0, 256, 0, hueLimit);
-                if (settings.spectLogLinSave == 0) {
+                if (MAIN.settings.spectLogLinSave == 0) {
                     hueValue = MAIN.map(log10(hueValue), 0, 2, 0, hueLimit);
                 }
                 // colorMode is HSB, the range for hue is 256, for saturation is 100, brightness is 100.
@@ -372,7 +373,7 @@ public class W_Spectrogram extends Widget {
         //draw color scale reference to the right of the spectrogram
         for (int i = 0; i < colorScaleHeight; i++) {
             float hueValue = hueLimit - MAIN.map(i * 2, 0, colorScaleHeight*2, 0, hueLimit);
-            if (settings.spectLogLinSave == 0) {
+            if (MAIN.settings.spectLogLinSave == 0) {
                 hueValue = MAIN.map(MAIN.log(hueValue) / MAIN.log(10), 0, 2, 0, hueLimit);
             }
             //println(hueValue);
@@ -427,7 +428,7 @@ public class W_Spectrogram extends Widget {
     float fftAvgs(List<Integer> _activeChan, int freqBand) {
         float sum = 0f;
         for (int i = 0; i < _activeChan.size(); i++) {
-            sum += fftBuff[_activeChan.get(i)].getBand(freqBand);
+            sum += MAIN.fftBuff[_activeChan.get(i)].getBand(freqBand);
         }
         return sum / _activeChan.size();
     }
@@ -455,8 +456,8 @@ public class W_Spectrogram extends Widget {
     //Find times to display for playback position
     private long getCurrentTimeStamp() {
         //return current playback time
-        List<double[]> currentData = currentBoard.getData(1);
-        int timeStampChan = currentBoard.getTimestampChannel();
+        List<double[]> currentData = MAIN.currentBoard.getData(1);
+        int timeStampChan = MAIN.currentBoard.getTimestampChannel();
         long timestampMS = (long)(currentData.get(0)[timeStampChan] * 1000.0);
         return timestampMS;
     }
