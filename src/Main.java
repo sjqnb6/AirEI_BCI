@@ -130,7 +130,8 @@ public class Main extends GUI {
         p6 = createFont("fonts/OpenSans-Regular.ttf", 10);
 
 
-        cog = loadImage("obci-logo-blu-cog.png");
+//        cog = loadImage("obci-logo-blu-cog.png");
+        cog = loadImage("AirEI_BCI_logo.png");
 
         // check if the current directory is writable
         File dummy = new File(sketchPath());
@@ -198,7 +199,6 @@ public class Main extends GUI {
     }
     int n = 0;
     public synchronized void draw() {
-        //super.draw();
         if (showStartupError) {
             drawStartupError();
         }

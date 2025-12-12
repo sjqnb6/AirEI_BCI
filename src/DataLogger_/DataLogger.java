@@ -25,6 +25,7 @@ public class DataLogger {
     private int outputDataSource;
 
     public DataLogger(GUI MAIN) {
+        this.MAIN = MAIN;
         //Default to OpenBCI CSV Data Format
         outputDataSource = OUTPUT_SOURCE_ODF;
         fileWriterBF = new DataWriterBF(MAIN);

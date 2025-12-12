@@ -194,6 +194,7 @@ public class RadioConfig {
             serial_direct_board.write(0xF0);
             serial_direct_board.write(0x00);
             MAIN.delay(50);
+            println(print_bytes());
             if(!print_bytes()){
                 closeSerialPort();
                 return false;
