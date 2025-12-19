@@ -48,12 +48,12 @@ public class WifiBox{
         wifiDynamic_x = x + padding;
         wifiStatic_x = x + padding*2 + (w-padding*3)/2;
         wifiButtons_y = y + padding*2 + 16;
-        createDynamicIPAddressButton("wifiIPAddressDynamicButton", "DYNAMIC IP", wifiDynamic_x, wifiButtons_y, (w-padding*3)/2, 24);
-        createStaticIPAddressButton("wifiIPAddressStaticButton", "STATIC IP", wifiStatic_x, wifiButtons_y, (w-padding*3)/2, 24);
+        createDynamicIPAddressButton("wifiIPAddressDynamicButton", "动态 IP", wifiDynamic_x, wifiButtons_y, (w-padding*3)/2, 24);
+        createStaticIPAddressButton("wifiIPAddressStaticButton", "静态 IP", wifiStatic_x, wifiButtons_y, (w-padding*3)/2, 24);
 
         refreshWifi_x = x + padding;
         refreshWifi_y = y + padding*5 + 72 + 8 + 24;
-        createRefreshWifiButton("refreshWifiButton", "START SEARCH", refreshWifi_x, refreshWifi_y, w - padding*5, 24);
+        createRefreshWifiButton("refreshWifiButton", "开始搜索", refreshWifi_x, refreshWifi_y, w - padding*5, 24);
         createWifiList(wifiBox_cp5, "wifiList", x + padding, y + padding*4 + 8 + 24, w - padding*2, 72 + 8, p3);
         createStaticIPAddressTextfield();
     }
@@ -70,9 +70,9 @@ public class WifiBox{
         MAIN.strokeWeight(1);
         MAIN.rect(x, y, w, h);
         MAIN.fill(MAIN.OPENBCI_DARKBLUE);
-        MAIN.textFont(h3, 16);
+        MAIN.textFont(p7, 16);
         MAIN.textAlign(LEFT, TOP);
-        MAIN.text("WIFI SHIELDS", x + padding, y + padding);
+        MAIN.text("WIFI 模块", x + padding, y + padding);
         MAIN.popStyle();
 
         wifiDynamic_x = x + padding;
@@ -84,9 +84,9 @@ public class WifiBox{
         if (controlPanel.getWifiSearchStyle() == controlPanel.WIFI_STATIC) {
             MAIN.pushStyle();
             MAIN.fill(MAIN.OPENBCI_DARKBLUE);
-            MAIN.textFont(h3, 16);
+            MAIN.textFont(p7, 16);
             MAIN.textAlign(LEFT, TOP);
-            MAIN.text("ENTER IP ADDRESS", x + padding, y + h - 24 - 12 - padding*2);
+            MAIN.text("设置IP地址", x + padding, y + h - 24 - 12 - padding*2);
             MAIN.popStyle();
             staticIPAddressTF.setPosition(x + padding, y + h - 24 - padding);
         } else {
@@ -96,13 +96,13 @@ public class WifiBox{
             refreshWifi_y = y + padding*5 + 72 + 8 + 24;
             refreshWifi.setPosition(refreshWifi_x, refreshWifi_y);
 
-            String boardIpInfo = "BOARD IP: ";
+            String boardIpInfo = "数据板 IP: ";
             if (wifi_portName != "N/A") { // If user has selected a board from the menulist...
                 boardIpInfo += wifi_ipAddress;
             }
             MAIN.pushStyle();
             MAIN.fill(MAIN.OPENBCI_DARKBLUE);
-            MAIN.textFont(h3, 16);
+            MAIN.textFont(p7, 16);
             MAIN.textAlign(LEFT, TOP);
             MAIN.text(boardIpInfo, x + w/2 - MAIN.textWidth(boardIpInfo)/2, y + h - padding - 15);
             MAIN.popStyle();

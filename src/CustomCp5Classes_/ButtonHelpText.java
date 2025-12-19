@@ -3,8 +3,7 @@ package CustomCp5Classes_;
 import GUI.GUIManager;
 import Globel.GUI;
 
-import static Globel.GUI.guiSettings;
-import static Globel.GUI.p5;
+import static Globel.GUI.*;
 import static processing.core.PConstants.CENTER;
 import static processing.core.PConstants.TOP;
 
@@ -56,7 +55,7 @@ public class ButtonHelpText {
             MAIN.pushStyle();
             MAIN.textAlign(CENTER, TOP);
 
-            MAIN.textFont(p5,12);
+            MAIN.textFont(p7,12);
             MAIN.textLeading(lineSpacing); //line spacing
             MAIN.stroke(31,69,110, masterOpacity);
             MAIN.fill(255, masterOpacity);

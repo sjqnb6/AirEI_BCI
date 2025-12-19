@@ -9,8 +9,7 @@ import controlP5.ControlP5;
 import processing.core.PApplet;
 import processing.core.PConstants;
 
-import static Globel.GUI.h3;
-import static Globel.GUI.nchan;
+import static Globel.GUI.*;
 import static SystemManager.GF.updateToNChan;
 import static processing.core.PApplet.str;
 import static processing.core.PConstants.LEFT;
@@ -44,8 +43,8 @@ public class ChannelCountBox{
         cb16_butX = x + padding*2 + (w-padding*3)/2;
         cb_butY = y + padding*2 + 18;
         boolean is8Channels = (nchan == 8) ? true : false;
-        createChan8Button("cyton8ChanButton", "8 CHANNELS", is8Channels, cb8_butX, cb_butY, (w-padding*3)/2, 24);
-        createChan16Button("cyton16ChanButton", "16 CHANNELS", is8Channels, cb16_butX, cb_butY, (w-padding*3)/2, 24);
+        createChan8Button("cyton8ChanButton", "八通道", is8Channels, cb8_butX, cb_butY, (w-padding*3)/2, 24);
+        createChan16Button("cyton16ChanButton", "十六通道", is8Channels, cb16_butX, cb_butY, (w-padding*3)/2, 24);
     }
 
     public void update() {
@@ -62,13 +61,13 @@ public class ChannelCountBox{
         MAIN.strokeWeight(1);
         MAIN.rect(x, y, w, h);
         MAIN.fill(MAIN.OPENBCI_DARKBLUE);
-        MAIN.textFont(h3, 16);
+        MAIN.textFont(p7, 16);
         MAIN.textAlign(LEFT, TOP);
-        MAIN.text("CHANNEL COUNT ", x + padding, y + padding);
+        MAIN.text("通道数量 ", x + padding, y + padding);
         MAIN.fill(MAIN.OPENBCI_DARKBLUE); //set color to green
         MAIN.textFont(h3, 16);
         MAIN.textAlign(LEFT, TOP);
-        MAIN.text("  (" + str(nchan) + ")", x + padding + 142, y + padding); // print the channel count in green next to the box title
+        MAIN.text("  (" + str(nchan) + ")", x + padding + 80, y + padding); // print the channel count in green next to the box title
         MAIN.popStyle();
 
         ccc_cp5.draw();

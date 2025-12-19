@@ -51,7 +51,7 @@ public class SessionDataBox{
         createSessionNameTextfield(textfieldName);
 
         //button to autogenerate file name based on time/date
-        createAutoSessionNameButton("autoSessionName", "GENERATE SESSION NAME", x + padding, y + 66, w-(padding*2), 24);
+        createAutoSessionNameButton("autoSessionName", "生成会话名称", x + padding, y + 66, w-(padding*2), 24);
         createODFButton("odfButton", "OpenBCI", dataLogger.getDataLoggerOutputFormat(), x + padding, y + padding*2 + 18 + 58, (w-padding*3)/2, 24);
         createBDFButton("bdfButton", "BDF+", dataLogger.getDataLoggerOutputFormat(), x + padding*2 + (w-padding*3)/2, y + padding*2 + 18 + 58, (w-padding*3)/2, 24);
 
@@ -70,11 +70,11 @@ public class SessionDataBox{
         MAIN.strokeWeight(1);
         MAIN.rect(x, y, w, h);
         MAIN.fill(MAIN.OPENBCI_DARKBLUE);
-        MAIN.textFont(h3, 16);
+        MAIN.textFont(p7, 16);
         MAIN.textAlign(LEFT, TOP);
-        MAIN.text("SESSION DATA", x + padding, y + padding);
-        MAIN.textFont(p4, 14);
-        MAIN.text("Name", x + padding, y + padding*2 + 14);
+        MAIN.text("会话数据", x + padding, y + padding);
+        MAIN.textFont(p7, 14);
+        MAIN.text("名称", x + padding, y + padding*2 + 14);
         MAIN.popStyle();
 
         //Update the position of UI elements here, as this changes when user selects WiFi mode
@@ -96,8 +96,8 @@ public class SessionDataBox{
             //Carefully draw some text to the left of above dropdown, otherwise this text moves when changing WiFi mode
             int extraPadding = 20;
             MAIN.fill(MAIN.OPENBCI_DARKBLUE);
-            MAIN.textFont(p4, 14);
-            MAIN.text("Max File Duration", maxDurText_x, y + h - 24 - padding + extraPadding);
+            MAIN.textFont(p7, 14);
+            MAIN.text("最大文件时长", maxDurText_x, y + h - 24 - padding + extraPadding);
             MAIN.popStyle();
         }
         sessionData_cp5.draw();

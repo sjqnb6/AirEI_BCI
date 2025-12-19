@@ -33,7 +33,7 @@ public class InitBox{
         initBox_cp5.setGraphics(MAIN, 0,0);
         initBox_cp5.setAutoDraw(false);
 
-        createStartSessionButton("startSessionButton", "START SESSION", x + padding, y + padding, w-padding*2, h - padding*2);
+        createStartSessionButton("startSessionButton", "开始连接", x + padding, y + padding, w-padding*2, h - padding*2);
     }
 
     public void update() {
@@ -65,28 +65,28 @@ public class InitBox{
 
     //This is the primary method called when Start/Stop Session Button is pressed in Control Panel
     public void initButtonPressed() {
-        if (getInitSessionButtonText().equals("START SESSION")) {
+        if (getInitSessionButtonText().equals("开始连接")) {
             if ((eegDataSource == DATASOURCE_CYTON && MAIN.selectedProtocol == BoardProtocol.NONE) || (eegDataSource == DATASOURCE_GANGLION && MAIN.selectedProtocol == BoardProtocol.NONE)) {
-                outputWarn("No Transfer Protocol selected. Please select your Transfer Protocol and retry system initiation.");
+                outputWarn("未选择传输协议。请选择您的传输协议并重试系统启动。");
                 return;
             } else if (eegDataSource == DATASOURCE_CYTON && MAIN.selectedProtocol == BoardProtocol.SERIAL && openBCI_portName == "N/A") { //if data source == normal && if no serial port selected OR no SD setting selected
-                outputWarn("No Serial/COM port selected. Attempting to AUTO-CONNECT to Cyton.");
+                outputWarn("未选择串口/COM端口。尝试自动连接Cyton。");
                 controlPanel.comPortBox.attemptAutoConnectCyton();
                 return;
             } else if (eegDataSource == DATASOURCE_CYTON && MAIN.selectedProtocol == BoardProtocol.WIFI && wifi_portName == "N/A" && controlPanel.getWifiSearchStyle() == controlPanel.WIFI_DYNAMIC) {
-                outputWarn("No Wifi Shield selected. Please select your Wifi Shield and retry system initiation.");
+                outputWarn("没有选择Wifi。请选择您的 WiFi 并重试系统启动。");
                 return;
             } else if (eegDataSource == DATASOURCE_PLAYBACKFILE && playbackData_fname == "N/A" && sdData_fname == "N/A") { //if data source == playback && playback file == 'N/A'
-                outputWarn("No playback file selected. Please select a playback file and retry system initiation.");        // tell user that they need to select a file before the system can be started
+                outputWarn("没有选择回放文件。请选择回放文件并重试系统启动。");        // tell user that they need to select a file before the system can be started
                 return;
             } else if (eegDataSource == DATASOURCE_GANGLION && (MAIN.selectedProtocol == BoardProtocol.NATIVE_BLE || MAIN.selectedProtocol == BoardProtocol.BLED112) && ganglion_portName == "N/A") {
-                outputWarn("No BLE device selected. Please select your Ganglion device and retry system initiation.");
+                outputWarn("未选中BLE设备。请选择您的Ganglion设备并重试系统启动。");
                 return;
             } else if (eegDataSource == DATASOURCE_GANGLION && MAIN.selectedProtocol == BoardProtocol.WIFI && wifi_portName == "N/A" && controlPanel.getWifiSearchStyle() == controlPanel.WIFI_DYNAMIC) {
-                outputWarn("No Wifi Shield selected. Please select your Wifi Shield and retry system initiation.");
+                outputWarn("没有选择Wifi。请选择您的 WiFi 并重试系统启动。");
                 return;
             } else if (eegDataSource == -1) {//if no data source selected
-                outputWarn("No DATA SOURCE selected. Please select a DATA SOURCE and retry system initiation.");//tell user they must select a data source before initiating system
+                outputWarn("未选择数据来源。请选择一个数据源并重试系统启动。");//tell user they must select a data source before initiating system
                 return;
             } else { //otherwise, initiate system!
                 //verbosePrint("ControlPanel: CPmouseReleased: init");
@@ -104,12 +104,12 @@ public class InitBox{
 
                 //Set this flag to true, and draw "Starting Session..." to screen after then next draw() loop
                 midInit = true;
-                output("Attempting to Start Session..."); // Show this at the bottom of the GUI
+                output("尝试建立连接..."); // Show this at the bottom of the GUI
                 println("initButtonPressed: Calling initSystem() after next draw()");
             }
         } else {
             //if system is already active ... stop session and flip button state back
-            setInitSessionButtonText("START SESSION");
+            setInitSessionButtonText("开始连接");
             topNav.setLockTopLeftSubNavCp5Objects(false); //Unlock top left subnav buttons
             //creates new data file name so that you don't accidentally overwrite the old one
             controlPanel.dataLogBoxCyton.setSessionTextfieldText(directoryManager.getFileNameDateTime());

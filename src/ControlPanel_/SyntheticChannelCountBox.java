@@ -8,8 +8,7 @@ import controlP5.CallbackListener;
 import controlP5.ControlP5;
 import processing.core.PApplet;
 
-import static Globel.GUI.h3;
-import static Globel.GUI.nchan;
+import static Globel.GUI.*;
 import static SystemManager.GF.updateToNChan;
 import static processing.core.PApplet.str;
 import static processing.core.PConstants.LEFT;
@@ -35,9 +34,9 @@ public class SyntheticChannelCountBox{
         sccb_cp5.setGraphics(MAIN, 0,0);
         sccb_cp5.setAutoDraw(false);
 
-        createSynthChan4Button("synthChan4Button", "4 chan", x + padding, y + padding*2 + 18, (w-padding*4)/3, 24);
-        createSynthChan8Button("synthChan8Button", "8 chan", x + padding*2 + (w-padding*4)/3, y + padding*2 + 18, (w-padding*4)/3, 24);
-        createSynthChan16Button("synthChan16Button", "16 chan", x + padding*3 + ((w-padding*4)/3)*2, y + padding*2 + 18, (w-padding*4)/3, 24);
+        createSynthChan4Button("synthChan4Button", "四通道", x + padding, y + padding*2 + 18, (w-padding*4)/3, 24);
+        createSynthChan8Button("synthChan8Button", "八通道", x + padding*2 + (w-padding*4)/3, y + padding*2 + 18, (w-padding*4)/3, 24);
+        createSynthChan16Button("synthChan16Button", "十六通道", x + padding*3 + ((w-padding*4)/3)*2, y + padding*2 + 18, (w-padding*4)/3, 24);
     }
 
     public void update() {
@@ -50,13 +49,13 @@ public class SyntheticChannelCountBox{
         MAIN.strokeWeight(1);
         MAIN.rect(x, y, w, h);
         MAIN.fill(MAIN.OPENBCI_DARKBLUE);
-        MAIN.textFont(h3, 16);
+        MAIN.textFont(p7, 16);
         MAIN.textAlign(LEFT, TOP);
-        MAIN.text("CHANNEL COUNT", x + padding, y + padding);
+        MAIN.text("通道数量", x + padding, y + padding);
         MAIN.fill(MAIN.OPENBCI_DARKBLUE); //set color to green
         MAIN.textFont(h3, 16);
         MAIN.textAlign(LEFT, TOP);
-        MAIN.text("  (" + str(nchan) + ")", x + padding + 142, y + padding); // print the channel count in green next to the box title
+        MAIN.text("(" + str(nchan) + ")", x + padding + 65, y + padding); // print the channel count in green next to the box title
         MAIN.popStyle();
 
         sccb_cp5.draw();

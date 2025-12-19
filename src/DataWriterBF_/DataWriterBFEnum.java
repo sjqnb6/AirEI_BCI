@@ -4,9 +4,9 @@ import Widget_.IndexingInterface;
 
 public enum DataWriterBFEnum implements IndexingInterface
 {
-    DEFAULT (0, "Default"),
-    CUSTOM (1, "Custom"),
-    NONE (2, "None");
+    DEFAULT (0, "默认"),
+    CUSTOM (1, "自定义"),
+    NONE (2, "无");
 
     private int index;
     private String label;

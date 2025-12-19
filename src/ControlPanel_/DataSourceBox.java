@@ -40,7 +40,7 @@ public class DataSourceBox{
         datasource_cp5 = new ControlP5(MAIN);
         datasource_cp5.setGraphics(MAIN, 0,0);
         datasource_cp5.setAutoDraw(false);
-        createDatasourceList(datasource_cp5, "sourceList", x + padding, y + padding*2 + 13, w - padding*2, numItems * boxHeight, p3);
+        createDatasourceList(datasource_cp5, "sourceList", x + padding, y + padding*2 + 13, w - padding*2, numItems * boxHeight, p7);
     }
 
     public void update() {
@@ -53,9 +53,9 @@ public class DataSourceBox{
         MAIN.strokeWeight(1);
         MAIN.rect(x, y, w, h);
         MAIN.fill(MAIN.OPENBCI_DARKBLUE);
-        MAIN.textFont(h3, 16);
+        MAIN.textFont(p7, 16);
         MAIN.textAlign(LEFT, TOP);
-        MAIN.text("DATA SOURCE", x + padding, y + padding);
+        MAIN.text("数据库", x + padding, y + padding);
         MAIN.popStyle();
 
         datasource_cp5.draw();
@@ -66,11 +66,11 @@ public class DataSourceBox{
         sourceList.setPosition(_x, _y);
         // sourceList.itemHeight = 28;
         // sourceList.padding = 9;
-        sourceList.addItem("CYTON (live)", DATASOURCE_CYTON);
-        sourceList.addItem("GANGLION (live)", DATASOURCE_GANGLION);
-        sourceList.addItem("PLAYBACK (from file)", DATASOURCE_PLAYBACKFILE);
-        sourceList.addItem("SYNTHETIC (algorithmic)", DATASOURCE_SYNTHETIC);
-        sourceList.addItem("STREAMING (from external)", DATASOURCE_STREAMING);
+        sourceList.addItem("CYTON (在线采集)", DATASOURCE_CYTON);
+        sourceList.addItem("GANGLION (在线采集)", DATASOURCE_GANGLION);
+        sourceList.addItem("文件回放", DATASOURCE_PLAYBACKFILE);
+        sourceList.addItem("仿真数据", DATASOURCE_SYNTHETIC);
+        sourceList.addItem("外部流入", DATASOURCE_STREAMING);
         sourceList.scrollerLength = 10;
         sourceList.addCallback(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {

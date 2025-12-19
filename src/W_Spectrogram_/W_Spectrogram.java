@@ -119,9 +119,9 @@ public class W_Spectrogram extends Widget {
         //This is the protocol for setting up dropdowns.
         //Note that these 3 dropdowns correspond to the 3 global functions below
         //You just need to make sure the "id" (the 1st String) has the same name as the corresponding function
-        addDropdown("SpectrogramMaxFreq", "Max Freq", Arrays.asList(MAIN.settings.spectMaxFrqArray), MAIN.settings.spectMaxFrqSave);
-        addDropdown("SpectrogramSampleRate", "Window", Arrays.asList(MAIN.settings.spectSampleRateArray), MAIN.settings.spectSampleRateSave);
-        addDropdown("SpectrogramLogLin", "Log/Lin", Arrays.asList(MAIN.settings.fftLogLinArray), MAIN.settings.spectLogLinSave);
+        addDropdown("SpectrogramMaxFreq", "最大频率", Arrays.asList(MAIN.settings.spectMaxFrqArray), MAIN.settings.spectMaxFrqSave);
+        addDropdown("SpectrogramSampleRate", "采样率", Arrays.asList(MAIN.settings.spectSampleRateArray), MAIN.settings.spectSampleRateSave);
+        addDropdown("SpectrogramLogLin", "对数线", Arrays.asList(MAIN.settings.fftLogLinArray), MAIN.settings.spectLogLinSave);
 
         //Resize the height of the data image using default
         dataImageH = vertAxisLabel[0] * 2;

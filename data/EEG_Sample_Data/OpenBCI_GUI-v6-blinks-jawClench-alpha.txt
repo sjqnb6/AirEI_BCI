@@ -1,7 +1,7 @@
 %OpenBCI Raw EXG Data
 %Number of channels = 8
 %Sample Rate = 250 Hz
-%Board = OpenBCI_GUI$BoardCytonSerial
+%Board = BoardCytonSerial
 Sample Index, EXG Channel 0, EXG Channel 1, EXG Channel 2, EXG Channel 3, EXG Channel 4, EXG Channel 5, EXG Channel 6, EXG Channel 7, Accel Channel 0, Accel Channel 1, Accel Channel 2, Not Used, Digital Channel 0 (D11), Digital Channel 1 (D12), Digital Channel 2 (D13), Digital Channel 3 (D17), Not Used, Digital Channel 4 (D18), Analog Channel 0, Analog Channel 1, Analog Channel 2, Timestamp, Marker Channel, Timestamp (Formatted)
 0, 61379.36, 49492.89, -16597.06, -21309.75, 6703.91, -3284.86, 7223.10, 1740.11, 0.040, 0.420, 0.238,0,0,0,0,0,0,0,0,0,0, 1557936053329,0, 12:00:53.329
 1, 60973.46, 48972.47, -16279.02, -21050.13, 7045.02, -2887.53, 7593.09, 2118.70, 0.040, 0.420, 0.238,0,0,0,0,0,0,0,0,0,0, 1557936053336,0, 12:00:53.336

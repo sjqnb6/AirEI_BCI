@@ -131,7 +131,7 @@ public class W_PacketLoss extends Widget {
 
         MAIN.pushStyle();
         MAIN.fill(MAIN.OPENBCI_DARKBLUE);
-        MAIN.textFont(p5, 12);
+        MAIN.textFont(p7, 12);
         MAIN.text("Session length: " + sessionTimeElapsed.toString(), x + padding, y + 15);
         MAIN.text("Stream length: " + streamTimeElapsed.toString(), x + padding, y + 35);
         MAIN.popStyle();

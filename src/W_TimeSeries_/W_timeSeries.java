@@ -96,8 +96,8 @@ public class W_timeSeries extends Widget {
         numChannelBars = nchan; //set number of channel bars = to current nchan of system (4, 8, or 16)
 
         //This is a newer protocol for setting up dropdowns.
-        addDropdown("VertScale_TS", "Vert Scale", Collections.singletonList(yLimit.getEnumStringsAsList()), yLimit.getIndex());
-        addDropdown("Duration", "Window", Collections.singletonList(xLimit.getEnumStringsAsList()), xLimit.getIndex());
+        addDropdown("VertScale_TS", "垂直刻度", Collections.singletonList(yLimit.getEnumStringsAsList()), yLimit.getIndex());
+        addDropdown("Duration", "窗口", Collections.singletonList(xLimit.getEnumStringsAsList()), xLimit.getIndex());
 
         //Instantiate scrollbar if using playback mode and scrollbar feature in use
         if((MAIN.currentBoard instanceof FileBoard) && hasScrollbar) {

@@ -21,9 +21,9 @@ public class GF {
 //Called when user selects a playback file from controlPanel dialog box
     public static void playbackFileSelected(PApplet PApplet, File selection) {
         if (selection == null) {
-            println("DataLogging: playbackSelected: Window was closed or the user hit cancel.");
+            println("DataLogging: playbackSelected: 窗口关闭或用户点击取消。");
         } else {
-            println("DataLogging: playbackSelected: User selected " + selection.getAbsolutePath());
+            println("DataLogging: playbackSelected: 用户已选定: " + selection.getAbsolutePath());
             //Set the name of the file
             playbackFileSelected(PApplet, selection.getAbsolutePath(), selection.getName());
         }
@@ -33,9 +33,9 @@ public class GF {
     //Activated when user selects a file using the "Select Playback File" button in PlaybackHistory
     public static void playbackSelectedWidgetButton(PApplet PApplet, File selection) {
         if (selection == null) {
-            println("W_Playback: playbackSelected: Window was closed or the user hit cancel.");
+            println("W_Playback: playbackSelected: 窗口关闭或用户点击取消.");
         } else {
-            println("W_Playback: playbackSelected: User selected " + selection.getAbsolutePath());
+            println("W_Playback: playbackSelected: 用户已选定 " + selection.getAbsolutePath());
             if (playbackFileSelected(PApplet, selection.getAbsolutePath(), selection.getName())) {
                 // restart the session with the new file
                 requestReinit();
@@ -51,7 +51,7 @@ public class GF {
             requestReinit();
         } else {
             verbosePrint("Playback: " + filePath);
-            outputError("Playback: Selected file does not exist. Try another file or clear settings to remove this entry.");
+            outputError("Playback: 所选文件不存在。试试其他文件或清除设置以删除此条目。");
         }
     }
 
@@ -90,16 +90,16 @@ public class GF {
                 if (!line.startsWith("%Board")) {
                     playbackData_fname = "N/A";
                     playbackData_ShortName = "N/A";
-                    outputError("Found GUI v4 or earlier file. Please convert this file using the provided Python script.");
+                    outputError("找到了 GUI v4 或更早的文件。请使用提供的Python脚本转换此文件。");
                     PopupMessage msg = new PopupMessage("GUI v4 to v5 File Converter", "Found GUI v4 or earlier file. Please convert this file using the provided Python script. Press the button below to access this open-source fix.", "LINK", "https://github.com/OpenBCI/OpenBCI_GUI/tree/development/tools");
                     return false;
                 }
             } else if (line.equals("%STOP AT")) {
-                verbosePrint("PLAYBACK: Found SD File Header in File!");
+                verbosePrint("PLAYBACK: 在文件里找到了SD文件头！");
                 playbackData_fname = "N/A";
                 sdData_fname = longName;
             } else {
-                outputError("ERROR: Tried to load an unsupported file for playback! Please try a valid file.");
+                outputError("ERROR: 尝试加载一个不支持的文件来播放！请尝试使用有效的文件。");
                 playbackData_fname = "N/A";
                 playbackData_ShortName = "N/A";
                 sdData_fname = "N/A";
@@ -114,12 +114,12 @@ public class GF {
         }
 
         //Output new playback settings to GUI as success
-        outputSuccess("You have selected \""
-                + shortName + "\" for playback.");
+        outputSuccess("你已经选定了 \""
+                + shortName + "\" 用于回放。");
 
         File f = new File(userPlaybackHistoryFile);
         if (!f.exists()) {
-            println("OpenBCI_GUI::playbackFileSelected: Playback history file not found.");
+            println("OpenBCI_GUI::playbackFileSelected:找不到播放历史文件。");
             playbackHistoryFileExists = false;
         } else {
             try {
@@ -127,7 +127,7 @@ public class GF {
                 JSONArray recentFilesArray = savePlaybackHistoryJSON.getJSONArray("playbackFileHistory");
                 playbackHistoryFileExists = true;
             } catch (RuntimeException e) {
-                outputError("Found an error in UserPlaybackHistory.json. Deleting this file. Please, Restart the GUI.");
+                outputError("发现UserPlaybackHistory.json有错误。删除这个文件。请重启GUI。");
                 File file = new File(userPlaybackHistoryFile);
                 if (!file.isDirectory()) {
                     file.delete();
@@ -143,7 +143,7 @@ public class GF {
     public static void savePlaybackFileToHistory(PApplet PApplet, String fileName) {
         int maxNumHistoryFiles = 36;
         if (playbackHistoryFileExists) {
-            println("Found user playback history file!");
+            println("找到了用户播放历史文件！");
             savePlaybackHistoryJSON = loadJSONObject(new File(userPlaybackHistoryFile));
             JSONArray recentFilesArray = savePlaybackHistoryJSON.getJSONArray("playbackFileHistory");
             //println("ARRAYSIZE-Check1: " + int(recentFilesArray.size()));
@@ -181,7 +181,7 @@ public class GF {
             PApplet.saveJSONObject(savePlaybackHistoryJSON, userPlaybackHistoryFile);
 
         } else if (!playbackHistoryFileExists) {
-            println("Playback history file not found. making a new one.");
+            println("找不到播放历史文件。需要生成一个新的。");
             //do this if the file does not exist
             JSONObject newHistoryFile;
             newHistoryFile = new JSONObject();
@@ -199,7 +199,7 @@ public class GF {
             PApplet.saveJSONObject(newHistoryFile, userPlaybackHistoryFile);
 
             //now the file exists!
-            println("Playback history JSON has been made!");
+            println("播放历史 JSON 已经制作！");
             playbackHistoryFileExists = true;
         }
     }

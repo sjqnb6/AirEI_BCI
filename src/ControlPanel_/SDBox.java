@@ -13,8 +13,7 @@ import java.util.Map;
 
 import static Debugging_.GF.output;
 import static Debugging_.GF.verbosePrint;
-import static Globel.GUI.cyton_sdSetting;
-import static Globel.GUI.h5;
+import static Globel.GUI.*;
 import static processing.core.PConstants.LEFT;
 import static processing.core.PConstants.TOP;
 
@@ -58,9 +57,9 @@ public class SDBox{
         MAIN.strokeWeight(1);
         MAIN.rect(x, y, w, h);
         MAIN.fill(MAIN.OPENBCI_DARKBLUE);
-        MAIN.textFont(MAIN.h3, 16);
+        MAIN.textFont(p7, 16);
         MAIN.textAlign(LEFT, TOP);
-        MAIN.text("WRITE TO SD CARD?", x + padding, y + padding);
+        MAIN.text("是否写入SD卡?", x + padding, y + padding);
         //draw backgrounds to dropdown scrollableLists ... unfortunately ControlP5 doesn't have this by default, so we have to hack it to make it look nice...
         MAIN.popStyle();
 
@@ -89,7 +88,7 @@ public class SDBox{
         sdList.getCaptionLabel() //the caption label is the text object in the primary bar
                 .toUpperCase(false) //DO NOT AUTOSET TO UPPERCASE!!!
                 .setText(CytonSDMode.NO_WRITE.getName())
-                .setFont(MAIN.p4)
+                .setFont(p7)
                 .setSize(14)
                 .getStyle() //need to grab style before affecting the paddingTop
                 .setPaddingTop(4)
@@ -97,7 +96,7 @@ public class SDBox{
         sdList.getValueLabel() //the value label is connected to the text objects in the dropdown item bars
                 .toUpperCase(false) //DO NOT AUTOSET TO UPPERCASE!!!
                 .setText(CytonSDMode.NO_WRITE.getName())
-                .setFont(h5)
+                .setFont(p7)
                 .setSize(12) //set the font size of the item bars to 14pt
                 .getStyle() //need to grab style before affecting the paddingTop
                 .setPaddingTop(3) //4-pixel vertical offset to center text

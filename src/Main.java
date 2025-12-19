@@ -128,7 +128,7 @@ public class Main extends GUI {
         p13 = createFont("fonts/OpenSans-Regular.ttf", 13);
         p5 = createFont("fonts/OpenSans-Regular.ttf", 12);
         p6 = createFont("fonts/OpenSans-Regular.ttf", 10);
-
+        p7 = createFont("fonts/SourceHanSansSC-Regular-2.otf", 18);
 
 //        cog = loadImage("obci-logo-blu-cog.png");
         cog = loadImage("AirEI_BCI_logo.png");
@@ -272,7 +272,7 @@ public class Main extends GUI {
 
         println("Loading UI images...");
         try {
-            logo_black = loadImage("obci-logo-blk.png");
+            logo_black = loadImage("AirEI_BCI_w.png");
             if (logo_black == null) println("WARNING: Failed to load obci-logo-blk.png");
             logo_blue = loadImage("obci-logo-blu.png");
             if (logo_blue == null) println("WARNING: Failed to load obci-logo-blu.png");
@@ -322,7 +322,7 @@ public class Main extends GUI {
         println("systemMode changed to SYSTEMMODE_PREINIT");
 
         if (!isAdminUser() || isElevationNeeded()) {
-            outputError("OpenBCI_GUI: This application is not being run with Administrator access. This could limit the ability to connect to devices or read/write files.");
+            outputError("AirEI_BCI: 该应用未以管理员权限运行。这可能会限制连接设备或读写文件的能力。");
         }
     }
 

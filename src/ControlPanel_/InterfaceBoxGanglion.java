@@ -8,8 +8,7 @@ import controlP5.CallbackListener;
 import controlP5.ControlP5;
 import processing.core.PApplet;
 
-import static Globel.GUI.controlPanel;
-import static Globel.GUI.h3;
+import static Globel.GUI.*;
 import static processing.core.PConstants.LEFT;
 import static processing.core.PConstants.TOP;
 
@@ -35,9 +34,9 @@ public class InterfaceBoxGanglion{
         ifbg_cp5.setGraphics(MAIN, 0,0);
         ifbg_cp5.setAutoDraw(false);
 
-        createGanglionNativeBLEButton("protocolNativeBLEGanglion", "Bluetooth (Native)", false, x + padding, y + padding * 3 + 4, w - padding * 2, 24);
-        createBLED112Button("protocolBLED112Ganglion", "Bluetooth (BLED112 Dongle)", false, x + padding, y + (padding * 4) + 24 + 4, w - padding * 2, 24);
-        createGanglionWifiButton("protocolWifiGanglion", "Wifi (from Wifi Shield)", false, x + padding, y + (padding * 5) + (24 * 2) + 4, w - padding * 2, 24);
+        createGanglionNativeBLEButton("protocolNativeBLEGanglion", "蓝牙（原生）", false, x + padding, y + padding * 3 + 4, w - padding * 2, 24);
+        createBLED112Button("protocolBLED112Ganglion", "蓝牙 (BLED112 适配器)", false, x + padding, y + (padding * 4) + 24 + 4, w - padding * 2, 24);
+        createGanglionWifiButton("protocolWifiGanglion", "无线模块 (WIFI)", false, x + padding, y + (padding * 5) + (24 * 2) + 4, w - padding * 2, 24);
     }
 
     public void update() {}
@@ -49,9 +48,9 @@ public class InterfaceBoxGanglion{
         MAIN.strokeWeight(1);
         MAIN.rect(x, y, w, h);
         MAIN.fill(MAIN.OPENBCI_DARKBLUE);
-        MAIN.textFont(h3, 16);
+        MAIN.textFont(p7, 16);
         MAIN.textAlign(LEFT, TOP);
-        MAIN.text("PICK TRANSFER PROTOCOL", x + padding, y + padding);
+        MAIN.text("选取传输协议", x + padding, y + padding);
         MAIN.popStyle();
 
         ifbg_cp5.draw();

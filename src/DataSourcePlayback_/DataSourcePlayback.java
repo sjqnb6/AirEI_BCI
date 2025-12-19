@@ -91,7 +91,7 @@ public abstract class DataSourcePlayback implements DataSource, FileBoard {
 
         boolean success = sampleRateExg > 0 && underlyingClassName != "";
         if(!success) {
-            outputError("Playback file does not contain the required header data.");
+            outputError("播放文件不包含所需的头部数据。");
         }
         return success;
     }

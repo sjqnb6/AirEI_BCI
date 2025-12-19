@@ -12,6 +12,7 @@ import java.io.File;
 
 import static Debugging_.GF.output;
 import static Globel.GUI.p5;
+import static Globel.GUI.p7;
 import static processing.core.PConstants.LEFT;
 import static processing.core.PConstants.TOP;
 
@@ -39,8 +40,8 @@ public class PlaybackFileBox{
         pbfb_cp5.setGraphics(MAIN, 0,0);
         pbfb_cp5.setAutoDraw(false);
 
-        createSelectPlaybackFileButton("selectPlaybackFileControlPanel", "SELECT OPENBCI PLAYBACK FILE", x + padding, y + padding*2 + titleH, w - padding*2, buttonH);
-        createSampleDataButton("selectSampleDataControlPanel", "Sample Data", x + w - sampleDataButton_w - padding, y + padding - 2, sampleDataButton_w, sampleDataButton_h);
+        createSelectPlaybackFileButton("selectPlaybackFileControlPanel", "选择回放文件", x + padding, y + padding*2 + titleH, w - padding*2, buttonH);
+        createSampleDataButton("selectSampleDataControlPanel", "采样数据", x + w - sampleDataButton_w - padding, y + padding - 2, sampleDataButton_w, sampleDataButton_h);
     }
 
     public void update() {
@@ -53,9 +54,9 @@ public class PlaybackFileBox{
         MAIN.strokeWeight(1);
         MAIN.rect(x, y, w, h);
         MAIN.fill(MAIN.OPENBCI_DARKBLUE);
-        MAIN.textFont(MAIN.h3, 16);
+        MAIN.textFont(p7, 16);
         MAIN.textAlign(LEFT, TOP);
-        MAIN.text("PLAYBACK FILE", x + padding, y + padding);
+        MAIN.text("回放文件", x + padding, y + padding);
         MAIN.popStyle();
 
         pbfb_cp5.draw();
@@ -65,28 +66,28 @@ public class PlaybackFileBox{
         selectPlaybackFile = MAIN.createButton(pbfb_cp5, name, text, _x, _y, _w, _h);
         selectPlaybackFile.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
-                output("Select a file for playback");
-                MAIN.selectInput("Select a pre-recorded file for playback:",
+                output("选择回放文件");
+                MAIN.selectInput("选择预录文件播放:",
                         "playbackFileSelected",
                         new File(MAIN.directoryManager.getGuiDataPath() + "Recordings")
                 );
             }
         });
-        selectPlaybackFile.setDescription("Click to open a dialog box to select an OpenBCI playback file (.txt or .csv).");
+        selectPlaybackFile.setDescription("点击打开对话框，选择 OpenBCI 播放文件（.txt 或 .csv）。");
     }
 
     private void createSampleDataButton(String name, String text, int _x, int _y, int _w, int _h) {
-        sampleDataButton = MAIN.createButton(pbfb_cp5, name, text, _x, _y, _w, _h, p5, 12, MAIN.buttonsLightBlue, MAIN.color(255));
+        sampleDataButton = MAIN.createButton(pbfb_cp5, name, text, _x, _y, _w, _h, p7, 12, MAIN.buttonsLightBlue, MAIN.color(255));
         sampleDataButton.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
-                output("Select a file for playback");
-                MAIN.selectInput("Select a pre-recorded file for playback:",
+                output("选择回放文件");
+                MAIN.selectInput("选择预录文件播放",
                         "playbackFileSelected",
                         new File(MAIN.directoryManager.getGuiDataPath() + "Sample_Data" + System.getProperty("file.separator") + "OpenBCI-sampleData-2-meditation.txt")
                 );
             }
         });
         //sampleDataButton.setCornerRoundness((int)(sampleDataButton_h));
-        sampleDataButton.setDescription("Click to open the folder containing OpenBCI GUI Sample Data.");
+        sampleDataButton.setDescription("点击打开包含图形界面示例数据的文件夹。");
     }
 };

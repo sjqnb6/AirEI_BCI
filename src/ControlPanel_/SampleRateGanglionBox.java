@@ -9,6 +9,7 @@ import controlP5.ControlP5;
 import processing.core.PApplet;
 
 import static Globel.GUI.h3;
+import static Globel.GUI.p7;
 import static processing.core.PApplet.println;
 import static processing.core.PConstants.LEFT;
 import static processing.core.PConstants.TOP;
@@ -58,11 +59,11 @@ public class SampleRateGanglionBox{
         MAIN.strokeWeight(1);
         MAIN.rect(x, y, w, h);
         MAIN.fill(MAIN.OPENBCI_DARKBLUE);
-        MAIN.textFont(h3, 16);
+        MAIN.textFont(p7, 16);
         MAIN.textAlign(LEFT, TOP);
-        MAIN.text("SAMPLE RATE ", x + padding, y + padding);
+        MAIN.text("采样率 ", x + padding, y + padding);
         MAIN.fill(MAIN.OPENBCI_DARKBLUE); //set color to green
-        MAIN.textFont(h3, 16);
+        MAIN.textFont(p7, 16);
         MAIN.textAlign(LEFT, TOP);
         MAIN.popStyle();
 

@@ -14,10 +14,10 @@ import static processing.core.PConstants.TOP;
 
 public class StreamingBoardBox{
     public int x, y, w, h, padding; //size and position
-    private final String boxLabel = "STREAMING BOARD CONFIG";
+    private final String boxLabel = "流式数据采集板设置";
     private final String ipLabel = "IP";
-    private final String portLabel = "PORT";
-    private final String boardLabel = "BOARD";
+    private final String portLabel = "端口";
+    private final String boardLabel = "采集板";
     private ControlP5 localCP5;
     private ScrollableList boardIdList;
     private Textfield ipAddress;
@@ -90,12 +90,12 @@ public class StreamingBoardBox{
 
         MAIN.pushStyle();
         MAIN.fill(MAIN.OPENBCI_DARKBLUE);
-        MAIN.textFont(h3, 16);
+        MAIN.textFont(p7, 16);
         MAIN.textAlign(LEFT, TOP);
         //draw text labels
         MAIN.text(boxLabel, x + padding, y + padding);
         MAIN.textAlign(LEFT, TOP);
-        MAIN.textFont(p4, 14);
+        MAIN.textFont(p7, 14);
         MAIN.text(ipLabel, x + padding, y + padding*2 + headerH + 4);
         MAIN.text(portLabel, x + w/2, y + padding*2 + headerH + 4);
         MAIN.text(boardLabel, x + padding, y + padding*3 + objectH + headerH + 4);

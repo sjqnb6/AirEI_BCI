@@ -50,8 +50,8 @@ public class BrainFlowStreamerBox{
         createNetworkTextfields();
 
         //button to autogenerate file name based on time/date
-        createStreamNetworkButton("networkButton", "Network", x + padding, y + 32, (w-padding*3)/2, OBJECT_H);
-        createStreamFileButton("fileButton", "File", x + padding*2 + (w-padding*3)/2, y + 32, (w-padding*3)/2, OBJECT_H);
+        createStreamNetworkButton("networkButton", "网络流", x + padding, y + 32, (w-padding*3)/2, OBJECT_H);
+        createStreamFileButton("fileButton", "文件", x + padding*2 + (w-padding*3)/2, y + 32, (w-padding*3)/2, OBJECT_H);
     }
 
     public void update() {
@@ -72,15 +72,15 @@ public class BrainFlowStreamerBox{
         MAIN.strokeWeight(1);
         MAIN.rect(x, y, w, h);
         MAIN.fill(MAIN.OPENBCI_DARKBLUE);
-        MAIN.textFont(h3, 16);
+        MAIN.textFont(p7, 16);
         MAIN.textAlign(PConstants.LEFT, PConstants.TOP);
-        MAIN.text("BRAINFLOW STREAMER", x + padding, y + padding);
-        MAIN.textFont(p4, 14);
+        MAIN.text("BRAINFLOW 数据流", x + padding, y + padding);
+        MAIN.textFont(p7, 14);
         if (outputToFile.isOn()) {
-            MAIN.text("Location", x + padding, streamerTextfieldY + 2);
+            MAIN.text("文件路径", x + padding, streamerTextfieldY + 2);
         } else if (outputToNetwork.isOn()) {
             MAIN.text("IP", x + padding, streamerTextfieldY + 2);
-            MAIN.text("Port", x + w - padding*2 - port.getWidth() - 14 - padding, streamerTextfieldY + 2);
+            MAIN.text("端口", x + w - padding*2 - port.getWidth() - 14 - padding, streamerTextfieldY + 2);
         }
         MAIN.popStyle();
 
@@ -178,7 +178,7 @@ public class BrainFlowStreamerBox{
                 //setToODFHeight();
             }
         });
-        outputToNetwork.setDescription("Use BrainFlow Streamer to output to network address. You can accept this data stream using a separate process which utilizes any BrainFlow binding. This is a helpful feature for developers.");
+        outputToNetwork.setDescription("通过 BrainFlow Streamer 向网络地址输出数据流。支持使用任意 BrainFlow 语言绑定的外部进程接收数据，适用于开发者进行扩展开发。");
     }
 
     private void createStreamFileButton(String name, String text, int _x, int _y, int _w, int _h) {
@@ -192,7 +192,7 @@ public class BrainFlowStreamerBox{
                 //setToBDFHeight();
             }
         });
-        outputToFile.setDescription("Set BrainFlow Streamer output to stream over network. A new file will be made in the session folder when the data stream is paused or max file duration is reached.");
+        outputToFile.setDescription("将 BrainFlow Streamer 设置为文件输出模式。");
     }
 
     private void createDropdown(String name){
@@ -212,7 +212,7 @@ public class BrainFlowStreamerBox{
         bfFileSaveOption.getCaptionLabel() //the caption label is the text object in the primary bar
                 .toUpperCase(false) //DO NOT AUTOSET TO UPPERCASE!!!
                 .setText(dataWriterBfEnum.getString())
-                .setFont(p4)
+                .setFont(p7)
                 .setSize(14)
                 .getStyle() //need to grab style before affecting the paddingTop
                 .setPaddingTop(4)
@@ -220,7 +220,7 @@ public class BrainFlowStreamerBox{
         bfFileSaveOption.getValueLabel() //the value label is connected to the text objects in the dropdown item bars
                 .toUpperCase(false) //DO NOT AUTOSET TO UPPERCASE!!!
                 .setText(dataWriterBfEnum.getString())
-                .setFont(h5)
+                .setFont(p7)
                 .setSize(12) //set the font size of the item bars to 14pt
                 .getStyle() //need to grab style before affecting the paddingTop
                 .setPaddingTop(3) //4-pixel vertical offset to center text
@@ -231,12 +231,12 @@ public class BrainFlowStreamerBox{
                     int val = (int)(theEvent.getController()).getValue();
                     Map bob = ((ScrollableList)theEvent.getController()).getItem(val);
                     dataWriterBfEnum = (DataWriterBFEnum)bob.get("value");
-                    StringBuilder sb = new StringBuilder("BrainFlow File Streamer: User selected ");
+                    StringBuilder sb = new StringBuilder("BrainFlow 文件流: 用户已选中 ");
                     sb.append(dataWriterBfEnum.getString());
                     sb.append(" file location.");
                     output(sb.toString());
                     if (dataWriterBfEnum.getIsCustomLocation()) {
-                        MAIN.selectOutput("Select a folder to save BrainFlow CSV files to:",
+                        MAIN.selectOutput("选择一个文件夹来保存 BrainFlow CSV 文件：",
                                 "bfSelectedFolder",
                                 new File(directoryManager.getRecordingsPath())
                         );

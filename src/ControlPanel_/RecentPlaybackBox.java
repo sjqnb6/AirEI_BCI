@@ -26,7 +26,7 @@ public class RecentPlaybackBox{
     public int x, y, w, h, padding; //size and position
     public StringList shortFileNames = new StringList();
     public StringList longFilePaths = new StringList();
-    private String filePickedShort = "Select Recent Playback File";
+    private String filePickedShort = "选择最近的回放文件";
     public ControlP5 rpb_cp5;
     private ScrollableList recentPlaybackSL;
     private int titleH = 14;
@@ -76,9 +76,9 @@ public class RecentPlaybackBox{
         this.gui.strokeWeight(1);
         this.gui.rect((float) x, (float) y, (float) w, (float) (h + recentPlaybackSL.getHeight() - padding*2.5));
         this.gui.fill(gui.OPENBCI_DARKBLUE);
-        this.gui.textFont(h3, 16);
+        this.gui.textFont(p7, 16);
         this.gui.textAlign(LEFT, TOP);
-        this.gui.text("PLAYBACK HISTORY", x + padding, y + padding);
+        this.gui.text("回放历史", x + padding, y + padding);
         this.gui.popStyle();
         recentPlaybackSL.setVisible(true);
         rpb_cp5.draw();
@@ -89,7 +89,7 @@ public class RecentPlaybackBox{
 
         File f = new File(userPlaybackHistoryFile);
         if (!f.exists()) {
-            println("OpenBCI_GUI::Control Panel: Playback history file not found.");
+            println("OpenBCI_GUI::Control Panel:没有找到回放历史文件");
             recentPlaybackFilesHaveUpdated = true;
             playbackHistoryFileExists = false;
             return;
@@ -99,7 +99,7 @@ public class RecentPlaybackBox{
             JSONObject playbackHistory = gui.loadJSONObject(userPlaybackHistoryFile);
             JSONArray recentFilesArray = playbackHistory.getJSONArray("playbackFileHistory");
             if (recentFilesArray.size() < 10) {
-                println("CP: Playback History Size = " + recentFilesArray.size());
+                println("CP: 回放历史大小 = " + recentFilesArray.size());
                 numFilesToShow = recentFilesArray.size();
             }
             shortFileNames.clear();
@@ -118,7 +118,7 @@ public class RecentPlaybackBox{
 
             playbackHistoryFileExists = true;
         } catch (Exception e) {
-            println("OpenBCI_GUI::Control Panel: Other error! Please submit an issue on Github and share this console log.");
+            println("OpenBCI_GUI::Control Panel: 另一个错误！请在Github提交一个问题并分享这个控制台日志。");
             println(e.getMessage());
             playbackHistoryFileExists = false;
         }
@@ -145,7 +145,7 @@ public class RecentPlaybackBox{
                 .getCaptionLabel() //the caption label is the text object in the primary bar
                 .toUpperCase(false) //DO NOT AUTOSET TO UPPERCASE!!!
                 .setText(filePickedShort)
-                .setFont(h4)
+                .setFont(p7)
                 .setSize(14)
                 .getStyle() //need to grab style before affecting the paddingTop
                 .setPaddingTop(4)
@@ -154,7 +154,7 @@ public class RecentPlaybackBox{
                 .getValueLabel() //the value label is connected to the text objects in the dropdown item bars
                 .toUpperCase(false) //DO NOT AUTOSET TO UPPERCASE!!!
                 .setText(filePickedShort)
-                .setFont(h5)
+                .setFont(p7)
                 .setSize(12) //set the font size of the item bars to 14pt
                 .getStyle() //need to grab style before affecting the paddingTop
                 .setPaddingTop(3) //4-pixel vertical offset to center text
@@ -170,8 +170,8 @@ public class RecentPlaybackBox{
                     if (new File(filePath).isFile()) {
                         playbackFileFromList(gui, filePath, s);
                     } else {
-                        verbosePrint("Playback History: " + filePath);
-                        outputError("Playback History: Selected file does not exist. Try another file or clear settings to remove this entry.");
+                        verbosePrint("回放历史： " + filePath);
+                        outputError("回放历史: 所选文件不存在。试试其他文件或清除设置以删除此条目。");
                     }
                 }
             }

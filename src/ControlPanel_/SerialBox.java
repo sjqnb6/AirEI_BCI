@@ -30,8 +30,8 @@ class SerialBox{
         cytonsb_cp5.setGraphics(MAIN, 0,0);
         cytonsb_cp5.setAutoDraw(false);
 
-        createAutoConnectButton("cytonAutoConnectButton", "AUTO-CONNECT", x + padding, y + padding*3 + 4, w - padding*3 - 70, 24);
-        createRadioConfigButton("cytonRadioConfigButton", "Manual >", x + w - 70 - padding, y + padding*3 + 4, 70, 24);
+        createAutoConnectButton("cytonAutoConnectButton", "自动连接", x + padding, y + padding*3 + 4, w - padding*3 - 70, 24);
+        createRadioConfigButton("cytonRadioConfigButton", "手动 >", x + w - 70 - padding, y + padding*3 + 4, 70, 24);
     }
 
     public void update() {
@@ -44,9 +44,9 @@ class SerialBox{
         MAIN.strokeWeight(1);
         MAIN.rect(x, y, w, h);
         MAIN.fill(MAIN.OPENBCI_DARKBLUE);
-        MAIN.textFont(h3, 16);
+        MAIN.textFont(p7, 16);
         MAIN.textAlign(LEFT, TOP);
-        MAIN.text("SERIAL CONNECT", x + padding, y + padding);
+        MAIN.text("串行连接", x + padding, y + padding);
         MAIN.popStyle();
 
         if (MAIN.selectedProtocol == GUI.BoardProtocol.SERIAL) {
@@ -55,7 +55,7 @@ class SerialBox{
     }
 
     private Button createSBButton(String name, String text, int _x, int _y, int _w, int _h) {
-        return MAIN.createButton(cytonsb_cp5, name, text, _x, _y, _w, _h, 0, p5, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE, MAIN.BUTTON_HOVER, MAIN.BUTTON_PRESSED, MAIN.OPENBCI_DARKBLUE, 0);
+        return MAIN.createButton(cytonsb_cp5, name, text, _x, _y, _w, _h, 0, p7, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE, MAIN.BUTTON_HOVER, MAIN.BUTTON_PRESSED, MAIN.OPENBCI_DARKBLUE, 0);
     }
 
     private void createAutoConnectButton(String name, String text, int _x, int _y, int _w, int _h) {

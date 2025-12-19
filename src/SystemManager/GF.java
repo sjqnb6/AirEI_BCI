@@ -27,7 +27,7 @@ public class GF {
 
             //Reset the text for the Start Session buttonscreen. Skip when reiniting board while already in playback mode session.
             if (!reinitRequested) {
-                controlPanel.initBox.setInitSessionButtonText("START SESSION");
+                controlPanel.initBox.setInitSessionButtonText("开始连接");
             }
 
             if (w_networking != null && w_networking.getNetworkActive()) {
@@ -75,17 +75,17 @@ public class GF {
         if (MAIN.currentBoard.isStreaming() && topNav.dataStreamingButtonIsActive()) {
             //If streaming, attempt to stop stream
             MAIN.currentBoard.stopStreaming();
-            output("Data stream stopped.");
+            output("数据流停止了。");
             try {
                 streamTimeElapsed.stop();
                 sessionTimeElapsed.suspend();
                 dataLogger.onStopStreaming();
             } catch (IllegalStateException e) {
                 e.printStackTrace();
-                outputError("GUI Error: Failed to stop Timer. Please make an issue on GitHub in the GUI repo.");
+                outputError("GUI Error: 未能阻止计时器。请在GitHub的GUI仓库里创建issue。");
             }
         } else {
-            output("Data stream is already stopped.");
+            output("数据流已经停止");
         }
     }
 

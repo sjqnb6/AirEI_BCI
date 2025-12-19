@@ -57,8 +57,8 @@ public class W_playback extends Widget {
         cp5_playback.setAutoDraw(false);
 
         int initialWidth = w - padding*2;
-        createPlaybackMenuList(cp5_playback, "playbackMenuList", x + padding/2, y + 2, initialWidth, h - padding*2, p3);
-        createSelectPlaybackFileButton("selectPlaybackFile_Session", "Select Playback File", x + w/2 - (padding*2), y - navHeight + 2, 200, navHeight - 6);
+        createPlaybackMenuList(cp5_playback, "playbackMenuList", x + padding/2, y + 2, initialWidth, h - padding*2, p7);
+        createSelectPlaybackFileButton("selectPlaybackFile_Session", "选择播放文件", x + w/2 - (padding*2), y - navHeight + 2, 200, navHeight - 6);
     }
 
     public void update() {
@@ -123,7 +123,7 @@ public class W_playback extends Widget {
 
         File f = new File(userPlaybackHistoryFile);
         if (!f.exists()) {
-            MAIN.println("OpenBCI_GUI::RefreshPlaybackList: Playback history file not found.");
+            MAIN.println("OpenBCI_GUI::RefreshPlaybackList：找不到播放历史文件。");
             return;
         }
 
@@ -147,7 +147,7 @@ public class W_playback extends Widget {
             }
             playbackMenuList.updateMenu();
         } catch (NullPointerException e) {
-           MAIN.println("PlaybackWidget: Playback history file not found.");
+           MAIN.println("PlaybackWidget: 找不到播放历史文件。");
         }
     }
 
@@ -156,11 +156,11 @@ public class W_playback extends Widget {
         selectPlaybackFileButton.setBorderColor(CP.OBJECT_BORDER_GREY);
         selectPlaybackFileButton.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
-                output("Select a file for playback");
-                pApplet.selectInput("Select a pre-recorded file for playback:", "playbackSelectedWidgetButton");
+                output("选择播放文件");
+                pApplet.selectInput("选择预录文件播放：", "playbackSelectedWidgetButton");
             }
         });
-        selectPlaybackFileButton.setDescription("Click to open a dialog box to select an OpenBCI playback file (.txt or .csv).");
+        selectPlaybackFileButton.setDescription("点击打开对话框，选择 OpenBCI 播放文件（.txt 或 .csv）。");
         cp5ElementsToCheck.add((Controller)selectPlaybackFileButton);
     }
 

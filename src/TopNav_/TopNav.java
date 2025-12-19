@@ -24,6 +24,8 @@ import static Interactivity_.GF.openURLInBrowser;
 import static SystemManager.GF.startRunning;
 import static SystemManager.GF.stopRunning;
 import static WidgetManager_.GVI.w_cytonImpedance;
+import static java.awt.Font.createFont;
+
 import Globel.GUI;
 public class TopNav {
 
@@ -81,19 +83,21 @@ public class TopNav {
         topNav_cp5 = new ControlP5(MAIN);
         topNav_cp5.setGraphics(MAIN, 0, 0);
         topNav_cp5.setAutoDraw(false);
+        //PFont font = MAIN.createFont("fonts/SourceHanSansSC-Regular-2.otf", 20);
+        //topNav_cp5.setFont(font);
 
         //TOP LEFT OF GUI
-        createControlPanelCollapser("System Control Panel", PAD_3, PAD_3, controlPanel_W, TOPNAV_BUT_H, h3, 16, TOPNAV_DARKBLUE, MAIN.WHITE);
+        createControlPanelCollapser("系统控制面板", PAD_3, PAD_3, controlPanel_W, TOPNAV_BUT_H, p7, 16, TOPNAV_DARKBLUE, MAIN.WHITE);
 
         //TOP RIGHT OF GUI, FROM LEFT<---Right
         createDebugButton(" ", MAIN.width - DEBUG_BUT_W - PAD_3, PAD_3, DEBUG_BUT_W, TOPNAV_BUT_H, h3, 16, TOPNAV_DARKBLUE, MAIN.WHITE);
-        createTutorialsButton("Help", (int)debugButton.getPosition()[0] - TOPRIGHT_BUT_W - PAD_3, PAD_3, TOPRIGHT_BUT_W, TOPNAV_BUT_H, h3, 16, TOPNAV_DARKBLUE, MAIN.WHITE);
-        createIssuesButton("Issues", (int)tutorialsButton.getPosition()[0] - TOPRIGHT_BUT_W - PAD_3, PAD_3, TOPRIGHT_BUT_W, TOPNAV_BUT_H, h3, 16, TOPNAV_DARKBLUE, MAIN.WHITE);
-        createShopButton("Shop", (int)issuesButton.getPosition()[0] - TOPRIGHT_BUT_W - PAD_3, PAD_3, TOPRIGHT_BUT_W, TOPNAV_BUT_H, h3, 16, TOPNAV_DARKBLUE, MAIN.WHITE);
-        createUpdateGuiButton("Update", (int)shopButton.getPosition()[0] - TOPRIGHT_BUT_W - PAD_3, PAD_3, TOPRIGHT_BUT_W, TOPNAV_BUT_H, h3, 16, TOPNAV_DARKBLUE, MAIN.WHITE);
+        createTutorialsButton("帮助", (int)debugButton.getPosition()[0] - TOPRIGHT_BUT_W - PAD_3, PAD_3, TOPRIGHT_BUT_W, TOPNAV_BUT_H, p7, 16, TOPNAV_DARKBLUE, MAIN.WHITE);
+        createIssuesButton("问题", (int)tutorialsButton.getPosition()[0] - TOPRIGHT_BUT_W - PAD_3, PAD_3, TOPRIGHT_BUT_W, TOPNAV_BUT_H, p7, 16, TOPNAV_DARKBLUE, MAIN.WHITE);
+        createShopButton("购买", (int)issuesButton.getPosition()[0] - TOPRIGHT_BUT_W - PAD_3, PAD_3, TOPRIGHT_BUT_W, TOPNAV_BUT_H, p7, 16, TOPNAV_DARKBLUE, MAIN.WHITE);
+        createUpdateGuiButton("更新", (int)shopButton.getPosition()[0] - TOPRIGHT_BUT_W - PAD_3, PAD_3, TOPRIGHT_BUT_W, TOPNAV_BUT_H, p7, 16, TOPNAV_DARKBLUE, MAIN.WHITE);
 
         //SUBNAV TOP RIGHT
-        createTopNavSettingsButton("Settings", MAIN.width - SUBNAV_BUT_W - PAD_3, SUBNAV_BUT_Y, SUBNAV_BUT_W, SUBNAV_BUT_H, h4, 14, SUBNAV_LIGHTBLUE, MAIN.WHITE);
+        createTopNavSettingsButton("设置", MAIN.width - SUBNAV_BUT_W - PAD_3, SUBNAV_BUT_Y, SUBNAV_BUT_W, SUBNAV_BUT_H, p7, 14, SUBNAV_LIGHTBLUE, MAIN.WHITE);
 
         layoutSelector = new LayoutSelector(MAIN);
         tutorialSelector = new TutorialSelector(MAIN);
@@ -108,8 +112,8 @@ public class TopNav {
 
         if (!secondaryNavInit) {
             //Buttons on the left side of the GUI secondary nav bar
-            createToggleDataStreamButton(stopButton_pressToStart_txt, PAD_3, SUBNAV_BUT_Y, DATASTREAM_BUT_W, SUBNAV_BUT_H, h4, 14, MAIN.TURN_ON_GREEN, MAIN.OPENBCI_DARKBLUE);
-            createFiltersButton("Filters", PAD_3*2 + toggleDataStreamingButton.getWidth(), SUBNAV_BUT_Y, SUBNAV_BUT_W, SUBNAV_BUT_H, h4, 14, SUBNAV_LIGHTBLUE, MAIN.WHITE);
+            createToggleDataStreamButton(stopButton_pressToStart_txt, PAD_3, SUBNAV_BUT_Y, DATASTREAM_BUT_W, SUBNAV_BUT_H, p7, 14, MAIN.TURN_ON_GREEN, MAIN.OPENBCI_DARKBLUE);
+            createFiltersButton("Filters", PAD_3*2 + toggleDataStreamingButton.getWidth(), SUBNAV_BUT_Y, SUBNAV_BUT_W, SUBNAV_BUT_H, p7, 14, SUBNAV_LIGHTBLUE, MAIN.WHITE);
 
             //Appears at Top Right SubNav while in a Session
             createLayoutButton("Layout", MAIN.width - 3 - 60, SUBNAV_BUT_Y, 60, SUBNAV_BUT_H, h4, 14, SUBNAV_LIGHTBLUE, MAIN.WHITE);
@@ -132,6 +136,7 @@ public class TopNav {
 
         //Make sure these buttons don't get accidentally locked
         if (systemMode >= SYSTEMMODE_POSTINIT) {
+
             setLockTopLeftSubNavCp5Objects(controlPanel.isOpen);
         }
 
@@ -164,7 +169,7 @@ public class TopNav {
         if (colorScheme == COLOR_SCHEME_ALTERNATIVE_A) {
             topNavBg = MAIN.OPENBCI_BLUE;
             subNavBg = SUBNAV_LIGHTBLUE;
-            logo = logo_white;
+            logo = logo_black;
         } else {
             topNavBg = MAIN.color(255);
             subNavBg = MAIN.color(229);

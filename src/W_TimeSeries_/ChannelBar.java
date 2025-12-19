@@ -83,7 +83,7 @@ class ChannelBar {
         defaultH = h;
 
         onOff_diameter = h > 26 ? 26 : h - 2;
-        createOnOffButton("onOffButton"+channelIndex, channelString, x + 6, y + (int)(h/2) - (int)(onOff_diameter/2), onOff_diameter, onOff_diameter);
+        createOnOffButton("通道开关"+channelIndex, channelString, x + 6, y + (int)(h/2) - (int)(onOff_diameter/2), onOff_diameter, onOff_diameter);
 
         //Create GPlot for this Channel
         uiSpaceWidth = 36 + padding_4;
@@ -385,7 +385,7 @@ class ChannelBar {
                 }
             }
         });
-        onOffButton.setDescription("Click to toggle channel " + channelString + ".");
+        onOffButton.setDescription("点击切换通道 " + channelString + ".");
     }
 
     private Button createYScaleButton(int chan, boolean shouldIncrease, String bName, String bText, int _x, int _y, int _w, int _h, PImage _default, PImage _hover, PImage _active) {

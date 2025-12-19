@@ -8,8 +8,7 @@ import controlP5.CallbackListener;
 import controlP5.ControlP5;
 import processing.core.PApplet;
 
-import static Globel.GUI.controlPanel;
-import static Globel.GUI.h3;
+import static Globel.GUI.*;
 import static processing.core.PConstants.LEFT;
 import static processing.core.PConstants.TOP;
 
@@ -33,8 +32,8 @@ public class InterfaceBoxCyton{
         ifbc_cp5.setAutoDraw(false);
 
         //Disabled both toggles by default for this box
-        createSerialCytonButton("protocolSerialCyton", "Serial (from Dongle)", false, x + padding, y + padding * 3 + 4, w - padding * 2, 24);
-        createWifiCytonButton("protocolWifiCyton", "Wifi (from Wifi Shield)", false, x + padding, y + padding * 4 + 24 + 4, w - padding * 2, 24);
+        createSerialCytonButton("protocolSerialCyton", "串口（USB适配器）", false, x + padding, y + padding * 3 + 4, w - padding * 2, 24);
+        createWifiCytonButton("protocolWifiCyton", "无线模块 (WIFI)", false, x + padding, y + padding * 4 + 24 + 4, w - padding * 2, 24);
     }
 
     public void update() {}
@@ -46,9 +45,9 @@ public class InterfaceBoxCyton{
         MAIN.strokeWeight(1);
         MAIN.rect(x, y, w, h);
         MAIN.fill(MAIN.OPENBCI_DARKBLUE);
-        MAIN.textFont(h3, 16);
+        MAIN.textFont(p7, 16);
         MAIN.textAlign(LEFT, TOP);
-        MAIN.text("PICK TRANSFER PROTOCOL", x + padding, y + padding);
+        MAIN.text("选取传输协议", x + padding, y + padding);
         MAIN.popStyle();
 
         ifbc_cp5.draw();

@@ -1189,7 +1189,7 @@ public class W_Networking extends Widget {
         // coms
         if (w_networking.protocolMode.equals("Serial")) {
             if (n == dataTypes.indexOf("FFT")) {
-                outputError("Please use Band Power instead of FFT for Serial Output. Changing data type...");
+                outputError("请用带功率代替FFT来进行串行输出。更改数据类型......0");
                 MAIN.println("Networking: Changing data type from FFT to BandPower. FFT data is too large to send over Serial communication.");
                 cp5_networking_dropdowns.getController("dataType1").getCaptionLabel().setText("BandPower");
                 cp5_networking_dropdowns.get(ScrollableList.class, "dataType1")

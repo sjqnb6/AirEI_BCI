@@ -13,7 +13,7 @@ class HelpWidget {
     int padding;
 
     //current text shown in help widget, based on most recent command
-    String currentOutput = "Learn how to use this application and more at docs.openbci.com";
+    String currentOutput = "了解如何使用该应用程序及更多内容，请 docs.openbci.com";
     OutputLevel curOutputLevel = OutputLevel.INFO;
     private int colorFadeCounter;
     private int colorFadeTimeMillis = 1000;
@@ -48,7 +48,7 @@ class HelpWidget {
             MAIN.fill(MAIN.color(0, 5, 11));
             MAIN.rect(x + padding, MAIN.height-h + padding, MAIN.width - padding*2, h - padding *2);
 
-            MAIN.textFont(p4);
+            MAIN.textFont(p7);
             MAIN.textSize(14);
             MAIN.fill(255);
             MAIN.textAlign(MAIN.LEFT, MAIN.TOP);
@@ -79,7 +79,7 @@ class HelpWidget {
 
             // Revert color mode back to standard RGB here
             MAIN.colorMode(MAIN.RGB, 255, 255, 255);
-            MAIN.textFont(p4);
+            MAIN.textFont(p7);
             MAIN.textSize(14);
             MAIN.fill(getTextColor());
             MAIN.textAlign(MAIN.LEFT, MAIN.TOP);
