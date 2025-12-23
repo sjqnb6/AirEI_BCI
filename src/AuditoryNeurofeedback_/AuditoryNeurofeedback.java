@@ -112,7 +112,7 @@ public class AuditoryNeurofeedback{
 
     private void createModeButton(int _x, int _y, int _w, int _h) {
         //This is a generalized createButton method that allows us to save code by using a few patterns and method overloading
-        modeButton = MAIN.createButton(localCP5, "modeButton", "Use Band Powers", _x, _y, _w, _h, MAIN.p5, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
+        modeButton = MAIN.createButton(localCP5, "modeButton", "Use Band Powers", _x, _y, _w, _h, MAIN.p7, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
         //Set the border color explicitely
         modeButton.setBorderColor(MAIN.OBJECT_BORDER_GREY);
         //For this button, only call the callback listener on mouse release
@@ -126,7 +126,7 @@ public class AuditoryNeurofeedback{
                 }
             }
         });
-        modeButton.setDescription("Change Auditory Feedback mode. Use the Metric to control all notes at once, or use Band Powers to control certain notes of the chord.");
+        modeButton.setDescription("切换听觉反馈模式。使用指标统一控制所有音符,或使用频段功率单独控制和弦中的特定音符。");
     }
 
 }

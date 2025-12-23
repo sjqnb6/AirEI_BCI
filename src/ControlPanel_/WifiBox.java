@@ -227,7 +227,7 @@ public class WifiBox{
         //Clear textfield on double click
         staticIPAddressTF.onDoublePress(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
-                output("WiFi Static IP: Enter your custom IP address for WiFi shield.");
+                output("WiFi静态IP：输入你自定义的WiFi Shield IP地址。");
                 staticIPAddressTF.clear();
             }
         });

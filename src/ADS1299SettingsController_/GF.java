@@ -29,13 +29,13 @@ public class GF {
 
     public static void storeHardwareSettings(GUI MAIN, File selection) {
         if (selection == null) {
-            output("Hardware Settings file not selected.");
+            output("硬件设置文件未被选中。");
         } else {
             if (MAIN.currentBoard instanceof ADS1299SettingsBoard) {
                 if (((ADS1299SettingsBoard)MAIN.currentBoard).getADS1299Settings().saveToFile(selection.getAbsolutePath())) {
-                    outputSuccess("Hardware Settings Saved!");
+                    outputSuccess("硬件设置已保存！");
                 } else {
-                    outputError("Failed to save Hardware Settings.");
+                    outputError("未能保存硬件设置。");
                 }
             }
         }

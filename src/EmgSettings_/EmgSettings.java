@@ -56,9 +56,9 @@ public class EmgSettings {
             File f = new File(filename);
             if (f.exists()) {
                 if (f.delete()) {
-                    outputError("Emg Settings: Could not load EMG settings from disk. Deleting this file...");
+                    outputError("EMG设置：无法从磁盘加载EMG设置。尝试删除这个文件......");
                 } else {
-                    outputError("Emg Settings: Error deleting old/broken EMG settings file! Please make sure the GUI has proper read/write permissions.");
+                    outputError("EMG设置：错误删除旧的/损坏的EMG设置文件！请确保图形界面有正确的读写权限。");
                 }
             }
             return false;
