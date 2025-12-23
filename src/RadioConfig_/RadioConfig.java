@@ -347,8 +347,8 @@ public class RadioConfig {
                 return false;
             }
         } else {
-            outputWarn("No Serial/COM port selected. Please select your Serial/COM port and retry.");
-            rcConfig.print_onscreen("Select a Serial/COM port, then try again.");
+            outputWarn("未选择串口/COM端口。请选择你的串口/COM端口并重试。");
+            rcConfig.print_onscreen("选择一个串口/COM端口，然后再试一次。");
             return false;
         }
     }

@@ -115,7 +115,7 @@ public class InterfaceSerial {
     // //manage the serial port
     public int openSerialPort(PApplet applet, String comPort, int baud) {
 
-        output("Attempting to open Serial/COM port: " + openBCI_portName);
+        output("尝试打开串口/COM端口： " + openBCI_portName);
         try {
             println("InterfaceSerial: openSerialPort: attempting to open serial port: " + openBCI_portName);
             serial_openBCI = new processing.serial.Serial(applet, comPort, baud); //open the com port
