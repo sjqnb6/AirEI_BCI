@@ -672,7 +672,7 @@ public class Main extends GUI {
 
         if (abandonInit) {
             haltSystem(this);
-            outputError("Failed to initialize board. Please check that the board is on and has power. See Console Log for more details.");
+            outputError("未能初始化主板。请检查电路板是否开启且有电。详情请参见控制台日志。");
             controlPanel.open();
             return;
         } else {
@@ -744,7 +744,7 @@ public class Main extends GUI {
                 auditoryNfbGains[i] = new ddf.minim.ugens.Gain(-15.0f);
                 auditoryNfbFilePlayers[i].patch(auditoryNfbGains[i]).patch(audioOutput);
             } catch (Exception e) {
-                outputError("AuditoryFeedback: Unable to load audio files. To enable this feature, please connect or turn on an audio device and restart the GUI.");
+                outputError("AuditoryFeedback: 无法加载音频文件。要启用此功能，请连接或开启音频设备并重启图形界面。");
                 audioOutputIsAvailable = false;
                 return;
             }
@@ -799,7 +799,7 @@ public class Main extends GUI {
             initializeFFTObjects(fftBuff, dataProcessingRawBuffer, getNfftSafe(this), currentBoard.getSampleRate());
         } catch (ArrayIndexOutOfBoundsException e) {
             //e.printStackTrace();
-            outputError("Playback file load error. Try using a more recent recording.");
+            outputError("播放文件加载错误。试试用更近期的录音。");
             return;
         }
     }

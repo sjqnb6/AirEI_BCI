@@ -334,8 +334,8 @@ public class W_EMGJoystick extends Widget {
     }
 
     private void createEmgSettingsButton() {
-        emgSettingsButton = MAIN.createButton(emgCp5, "emgSettingsButton", "EMG Settings", (int) (x0 + 1),
-                (int) (y0 + navH + 1), 125, navH - 3, p5, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
+        emgSettingsButton = MAIN.createButton(emgCp5, "emgSettingsButton", "EMG设置", (int) (x0 + 1),
+                (int) (y0 + navH + 1), 125, navH - 3, p7, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
         emgSettingsButton.setBorderColor(MAIN.OBJECT_BORDER_GREY);
         emgSettingsButton.onRelease(new CallbackListener() {
             public synchronized void controlEvent(CallbackEvent theEvent) {
@@ -344,7 +344,7 @@ public class W_EMGJoystick extends Widget {
                 }
             }
         });
-        emgSettingsButton.setDescription("Click to open the EMG Settings UI to adjust how this metric is calculated.");
+        emgSettingsButton.setDescription("点击打开EMG设置界面，调整该指标的计算方式。");
     }
 
     private ScrollableList createEmgJoystickInputDropdown(String name, EmgJoystickInput joystickInput, int inputNumber) {

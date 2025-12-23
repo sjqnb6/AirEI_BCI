@@ -1135,9 +1135,9 @@ public class SessionSettings {
             //Load all saved User Settings from a JSON file to see if it exists
             JSONObject loadDefaultSettingsJSONData = MAIN.loadJSONObject(defaultSettingsFileToLoad);
             this.load(defaultSettingsFileToLoad);
-            outputSuccess("Default Settings Loaded!");
+            outputSuccess("默认设置已加载！");
         } catch (Exception e) {
-            outputError("Default Settings Error: Valid Default Settings will be saved next system start.");
+            outputError("默认设置错误：有效的默认设置将在下一次系统启动时保存。");
             File f = new File(defaultSettingsFileToLoad);
             if (f.exists()) {
                 if (f.delete()) {

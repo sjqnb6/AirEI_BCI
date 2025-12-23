@@ -271,17 +271,17 @@ public class TopNav {
 
             if (localVersion < remoteVersion) {
                 MAIN.println("GUI needs to be updated. Download at https://github.com/OpenBCI/OpenBCI_GUI/releases/latest");
-                updateGuiVersionButton.setDescription("GUI needs to be updated. -- Local: " + localGUIVersionString +  " GitHub: " + remoteVersionString);
+                updateGuiVersionButton.setDescription("图形界面需要更新。——本地" + localGUIVersionString +  " GitHub: " + remoteVersionString);
                 return false;
             } else {
                 MAIN.println("GUI is up to date!");
-                updateGuiVersionButton.setDescription("GUI is up to date! -- Local: " + localGUIVersionString +  " GitHub: " + remoteVersionString);
+                updateGuiVersionButton.setDescription("图形界面是最新的！——本地：" + localGUIVersionString +  " GitHub: " + remoteVersionString);
                 return true;
             }
         } else {
             MAIN.println("TopNav: Internet Connection Not Available");
             MAIN.println("Local GUI Version: " + localGUIVersionString);
-            updateGuiVersionButton.setDescription("Connect to internet to check GUI version. -- Local: " + localGUIVersionString);
+            updateGuiVersionButton.setDescription("连接互联网查看图形界面版本。——本地：" + localGUIVersionString);
             return null;
         }
     }
@@ -294,7 +294,7 @@ public class TopNav {
             JSONObject response = MAIN.parseJSONObject(get.getContent());
             version = response.getString("name");
         } catch (Exception e) {
-            outputError("Network Error: Unable to resolve host @ " + _url);
+            outputError("网络错误：无法解决服务问题 @ " + _url);
         }
         return version;
     }
@@ -378,7 +378,7 @@ public class TopNav {
                 stopButtonWasPressed();
             }
         });
-        toggleDataStreamingButton.setDescription("Press this button to Stop/Start the data stream. Or press <SPACEBAR>");
+        toggleDataStreamingButton.setDescription("按下这个按钮即可停止/启动数据流");
     }
 
     private void createFiltersButton(String text, int _x, int _y, int _w, int _h, PFont font, int _fontSize, int _bg, int _textColor) {
@@ -390,7 +390,7 @@ public class TopNav {
                 }
             }
         });
-        filtersButton.setDescription("Here you can adjust the Filters that are applied to \"Filtered\" data.");
+        filtersButton.setDescription("在此可以调整应用于滤波数据的滤波器参数。");
     }
 
     private void createSmoothingButton(String text, int _x, int _y, int _w, int _h, PFont font, int _fontSize, final int _bg, int _textColor) {
@@ -406,7 +406,7 @@ public class TopNav {
                 smoothingButton.setColorBackground(_bgColor);
             }
         });
-        smoothingButton.setDescription("The default settings for the Cyton Dongle driver can make data appear \"choppy.\" This feature will \"smooth\" the data for you. Click \"Help\" -> \"Cyton Driver Fix\" for more info. Clicking here will toggle this setting.");
+        smoothingButton.setDescription("Cyton 适配器驱动默认设置可能导致数据采样不连贯。启用此功能可平滑数据流。详见\"帮助\" -> \"Cyton 驱动修复\"。点击切换此设置。");
     }
 
     private void createLayoutButton(String text, int _x, int _y, int _w, int _h, PFont font, int _fontSize, int _bg, int _textColor) {
@@ -420,7 +420,7 @@ public class TopNav {
                 }
             }
         });
-        layoutButton.setDescription("Here you can alter the overall layout of the GUI, allowing for different container configurations with more or less widgets.");
+        layoutButton.setDescription("在此可以调整图形界面的整体布局,支持不同的容器配置以显示更多或更少的部件。");
     }
 
     private void createDebugButton(String text, int _x, int _y, int _w, int _h, PFont font, int _fontSize, int _bg, int _textColor) {
@@ -430,7 +430,7 @@ public class TopNav {
                 ConsoleWindow.display();
             }
         });
-        debugButton.setDescription("Click to open the Console Log window.");
+        debugButton.setDescription("点击打开控制台日志窗口。");
     }
 
     private void createTutorialsButton(String text, int _x, int _y, int _w, int _h, PFont font, int _fontSize, int _bg, int _textColor) {
@@ -440,18 +440,18 @@ public class TopNav {
                 tutorialSelector.toggleVisibility();
             }
         });
-        tutorialsButton.setDescription("Click to find links to helpful online tutorials and getting started guides. Also, check out how to create custom widgets for the GUI!");
+        tutorialsButton.setDescription("查看在线教程和入门指南");
     }
 
     private void createIssuesButton(String text, int _x, int _y, int _w, int _h, PFont font, int _fontSize, int _bg, int _textColor) {
-        final String helpText = "If you have suggestions or want to share a bug you've found, please create an issue on the GUI's Github repo!";
+        final String helpText = "如果你建议或想分享你发现的漏洞，请在Github仓库创建一个issue！";
         issuesButton = createTNButton("issuesButton", text, _x, _y, _w, _h, font, _fontSize, _bg, _textColor);
         issuesButton.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 openURLInBrowser("https://github.com/OpenBCI/OpenBCI_GUI/issues");
             }
         });
-        issuesButton.setDescription("If you have suggestions or want to share a bug you've found, please create an issue on the GUI's Github repo!");
+        issuesButton.setDescription("如果你想分享你发现的漏洞，请在Github仓库创建一个issue！");
     }
 
     private void createShopButton(String text, int _x, int _y, int _w, int _h, PFont font, int _fontSize, int _bg, int _textColor) {
@@ -461,7 +461,7 @@ public class TopNav {
                 openURLInBrowser("https://shop.openbci.com/");
             }
         });
-        shopButton.setDescription("Head to our online store to purchase the latest OpenBCI hardware and accessories.");
+        shopButton.setDescription("访问在线商店购买最新产品");
     }
 
     private void createUpdateGuiButton(String text, int _x, int _y, int _w, int _h, PFont font, int _fontSize, int _bg, int _textColor) {
@@ -477,15 +477,15 @@ public class TopNav {
                 guiIsUpToDate = guiVersionIsUpToDate();
 
                 if (guiIsUpToDate == null) {
-                    outputError("Update GUI: Unable to check for new version of GUI. Try again when connected to the internet.");
+                    outputError("更新 GUI: 无法检查新版本的图形界面。连接互联网后再试一次。");
                     return;
                 }
 
                 if (!guiIsUpToDate) {
                     openURLInBrowser(guiLatestReleaseLocation);
-                    outputInfo("Update GUI: Opening latest GUI release page using default browser");
+                    outputInfo("更新 GUI: 使用默认浏览器打开最新的 GUI 发布页面");
                 } else {
-                    outputSuccess("Update GUI: Local OpenBCI GUI is up-to-date!");
+                    outputSuccess("更新 GUI: 当前图形界面是最新的！");
                 }
             }
         });
@@ -495,7 +495,7 @@ public class TopNav {
         }
 
         if (!guiIsUpToDate) {
-            outputWarn("Update Available! Press the \"Update\" button at the top of the GUI to download the latest version.");
+            outputWarn("发现新版本！点击界面顶部的\"更新\"按钮下载最新版本");
         }
     }
 
@@ -509,7 +509,7 @@ public class TopNav {
                 }
             }
         });
-        settingsButton.setDescription("Save and Load GUI Settings! Click Default to revert to factory settings.");
+        settingsButton.setDescription("保存并加载图形界面设置！");
     }
 
     //Execute this function whenver the stop button is pressed
@@ -528,14 +528,14 @@ public class TopNav {
 
         //toggle the data transfer state of the ADS1299...stop it or start it...
         if (MAIN.currentBoard.isStreaming()) {
-            output("openBCI_GUI: stopButton was pressed. Stopping data transfer, wait a few seconds.");
+            output("AirEIBCI_GUI: 终止按钮被按下了。停止数据传输，等待几秒钟。");
             stopRunning(MAIN);
             if (!MAIN.currentBoard.isStreaming()) {
                 toggleDataStreamingButton.getCaptionLabel().setText(stopButton_pressToStart_txt);
                 toggleDataStreamingButton.setColorBackground(MAIN.TURN_ON_GREEN);
             }
         } else { //not running
-            output("openBCI_GUI: startButton was pressed. Starting data transfer, wait a few seconds.");
+            output("AirEIBCI_GUI: 启动按钮被按下了。开始数据传输，等待几秒钟。");
             startRunning(MAIN);
             if (MAIN.currentBoard.isStreaming()) {
                 toggleDataStreamingButton.getCaptionLabel().setText(stopButton_pressToStop_txt);

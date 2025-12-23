@@ -368,7 +368,7 @@ public class RadioConfig {
             catch (RuntimeException e){
                 if (e.getMessage().contains("Port busy")) {
                     serial_output = null;
-                    outputError("Radios_Config: Serial Port in use. Try another port or unplug/plug dongle.");
+                    outputError("Radios_Config：正在使用串口。试试换个端口或者拔插接收器。");
                     // portIsOpen = false;
                 } else {
                     println("Error connecting to selected Serial/COM port. Make sure your board is powered up and your dongle is plugged in.");
@@ -378,7 +378,7 @@ public class RadioConfig {
                 return false;
             }
         } else {
-            outputWarn("No Serial/COM port selected. Please select your Serial/COM port and retry.");
+            outputWarn("未选择串口/COM端口。请选择你的串口/COM端口并重试。");
             return false;
         }
     }

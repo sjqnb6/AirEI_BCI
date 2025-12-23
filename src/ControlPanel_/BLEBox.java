@@ -47,8 +47,8 @@ public class BLEBox{
         bleBox_cp5.setGraphics(MAIN, 0,0);
         bleBox_cp5.setAutoDraw(false);
 
-        createRefreshBLEButton("refreshGanglionBLEButton", "START SEARCH", x + padding, y + padding*4 + 72 + 8, w - padding*5, 24);
-        createGanglionBLEMenuList(bleBox_cp5, "bleList", x + padding, y + padding*3 + 8, w - padding*2, 72, p3);
+        createRefreshBLEButton("refreshGanglionBLEButton", "开始搜索", x + padding, y + padding*4 + 72 + 8, w - padding*5, 24);
+        createGanglionBLEMenuList(bleBox_cp5, "ble列表", x + padding, y + padding*3 + 8, w - padding*2, 72, p7);
     }
 
     public void update() {
@@ -62,9 +62,9 @@ public class BLEBox{
         MAIN.strokeWeight(1);
         MAIN.rect(x, y, w, h);
         MAIN.fill(MAIN.OPENBCI_DARKBLUE);
-        MAIN.textFont(h3, 16);
+        MAIN.textFont(p7, 16);
         MAIN.textAlign(PConstants.LEFT, PConstants.TOP);
-        MAIN.text("BLE DEVICES", x + padding, y + padding);
+        MAIN.text("BLE设备", x + padding, y + padding);
         MAIN.popStyle();
 
         if (bleIsRefreshing) {
@@ -84,15 +84,15 @@ public class BLEBox{
 
     public void refreshGanglionNativeList() {
         if (bleIsRefreshing) {
-            output("Search for Ganglions using Native Bluetooth is in progress.");
+            output("使用原生蓝牙搜索Ganglions正在进行中。");
             return;
         }
-        output("Refreshing available Ganglions using Native Bluetooth...");
+        output("利用原生蓝牙刷新可用的Ganglions......");
         bleList.items.clear();
 
         Thread thread = new Thread(){
             public void run(){
-                refreshBLE.getCaptionLabel().setText("SEARCHING...");
+                refreshBLE.getCaptionLabel().setText("搜寻中...");
                 bleIsRefreshing = true;
 
                 try {

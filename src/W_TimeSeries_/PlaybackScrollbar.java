@@ -79,7 +79,7 @@ class PlaybackScrollbar  {
                 skipToStartButtonAction();
             }
         });
-        skipToStartButton.setDescription("Click to go back to the beginning of the file.");
+        skipToStartButton.setDescription("点击返回文件开头。");
     }
 
     /////////////// Update loop for PlaybackScrollbar

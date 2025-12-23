@@ -131,8 +131,8 @@ public class W_CytonImpedance extends Widget {
         //Init the electrode map and fill and create signal check buttons
         initCytonImpedanceMap();
 
-        cytonResetAllChannels = createCytonResetChannelsButton("cytonResetAllChannels", "Reset Channels", (int)(x0 + 1), (int)(y0 + navHeight + 1), 90, navHeight - 3, p5, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
-        cytonImpedanceMasterCheck = createCytonImpMasterCheckButton("cytonImpedanceMasterCheck", "Check All Channels", (int)(x0 + 1 + padding_3 + 90), (int)(y0 + navHeight + 1), 120, navHeight - 3, p5, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
+        cytonResetAllChannels = createCytonResetChannelsButton("cytonResetAllChannels", "重置通道", (int)(x0 + 1), (int)(y0 + navHeight + 1), 90, navHeight - 3, p7, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
+        cytonImpedanceMasterCheck = createCytonImpMasterCheckButton("cytonImpedanceMasterCheck", "查看所有频道", (int)(x0 + 1 + padding_3 + 90), (int)(y0 + navHeight + 1), 120, navHeight - 3, p7, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
         errorThreshold = new SignalCheckThresholdUI(threshold_ui_cp5, "errorThreshold", x + tableWidth + padding, y + h - navH, thresholdTFWidth, thresholdTFHeight, MAIN.SIGNAL_CHECK_RED, signalCheckMode);
         warningThreshold = new SignalCheckThresholdUI(threshold_ui_cp5, "warningThreshold", x + tableWidth + padding, y + h - navH/2, thresholdTFWidth, thresholdTFHeight, MAIN.SIGNAL_CHECK_YELLOW, signalCheckMode);
     }
@@ -381,14 +381,14 @@ public class W_CytonImpedance extends Widget {
         RectDimensions dim = dataGrid.getCellDims(numTableRows - 1, 0);
         int thresholdTextX = dim.x + dim.w / 2;
         pApplet.pushStyle();
-        pApplet.textFont(p6, 10);
+        pApplet.textFont(p7, 10);
         pApplet.textAlign(MAIN.CENTER, MAIN.TOP);
         pApplet.fill(ElectrodeState.GREYED_OUT.getColor());
-        pApplet.text("Thresholds", thresholdTextX, dim.y + dim.h + padding);
+        pApplet.text("阈值", thresholdTextX, dim.y + dim.h + padding);
         pApplet.popStyle();
 
         pApplet.pushStyle();
-        pApplet.textFont(p5, 12);
+        pApplet.textFont(p7, 12);
         pApplet.textAlign(MAIN.CENTER);
         String s;
         int c = ElectrodeState.GREYED_OUT.getColor();
@@ -403,7 +403,7 @@ public class W_CytonImpedance extends Widget {
                     return;
                 } else {
                     //If not checking impedance on all channels, display this text in the footer
-                    s = "Click a \"Test\" button in the table to start.";
+                    s = "点击表格中的测试按钮开始";
                 }
             }
         } else {
@@ -426,11 +426,11 @@ public class W_CytonImpedance extends Widget {
             }
             String s;
             if (counter == 0) {
-                s = "Looks great! No railed channels.";
+                s = "信号质量优异！所有通道均未出现饱和。";
             } else if (counter > 0 && counter <= 5) {
-                s = "A few channels are railed.";
+                s = "少数几个通道出现信号饱和。";
             } else {
-                s = "Many channels are railed right now.";
+                s = "当前有许多通道出现饱和";
             }
             signalQualityStatusTimer = pApplet.millis();
             signalQualityStatusDescription = s;
@@ -483,7 +483,7 @@ public class W_CytonImpedance extends Widget {
                 }
             }
         });
-        myButton.setDescription("Click to check impedance on all electrodes. Please allow time for commands to be sent to the board.");
+        myButton.setDescription("点击以检测所有电极阻抗，请等待命令发送到板卡。");
         return myButton;
     }
 
@@ -609,7 +609,7 @@ public class W_CytonImpedance extends Widget {
             });
         } catch (RejectedExecutionException e) {
             MAIN.println("CytonImpedanceError::"+e.getMessage());
-            outputError("Cyton Signal Check Error: Please be patient when pressing \'Check All Channels\' button!");
+            outputError("Cyton 信号检测错误: 请耐心等待按下检查所有信道的按钮");
             PopupMessage msg = new PopupMessage(MAIN, "Cyton Signal Check Error", "Please be patient when pressing \'Check All Channels\' button! You will likely need to restart a GUI session and turn the Cyton off and on.");
         }
     }
@@ -733,7 +733,7 @@ public class W_CytonImpedance extends Widget {
 
         prevMasterCheckCounter--;
         setLockAllImpedanceTestingButtons(false);
-        outputSuccess("Cyton: All channels have been reset and board is in default mode!\n");
+        outputSuccess("Cyton: 所有频道都已重置，主板处于默认模式！\n");
     }
 
     private void turnOffImpedanceCheckPreviousElectrode() {

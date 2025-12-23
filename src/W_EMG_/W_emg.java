@@ -184,9 +184,9 @@ public class W_emg extends Widget {
     }
 
     private void createEmgSettingsButton() {
-        emgSettingsButton = MAIN.createButton(emgCp5, "emgSettingsButton", "EMG Settings",
+        emgSettingsButton = MAIN.createButton(emgCp5, "emgSettingsButton", "EMG设置",
                 (int) (x0 + w - EMG_SETTINGS_BUTTON_WIDTH - 1), (int) (y0 + navH + 1),
-                EMG_SETTINGS_BUTTON_WIDTH, navH - 3, p5, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
+                EMG_SETTINGS_BUTTON_WIDTH, navH - 3, p7, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
         emgSettingsButton.setBorderColor(MAIN.OBJECT_BORDER_GREY);
         emgSettingsButton.onRelease(new CallbackListener() {
             public synchronized void controlEvent(CallbackEvent theEvent) {
@@ -195,6 +195,6 @@ public class W_emg extends Widget {
                 }
             }
         });
-        emgSettingsButton.setDescription("Click to open the EMG Settings UI to adjust how this metric is calculated.");
+        emgSettingsButton.setDescription("点击打开EMG设置界面，调整该指标的计算方式。");
     }
 };

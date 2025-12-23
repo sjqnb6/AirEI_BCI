@@ -22,8 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static Debugging_.GF.output;
-import static Globel.GUI.navHeight;
-import static Globel.GUI.p5;
+import static Globel.GUI.*;
 import static WidgetManager_.GVI.*;
 import Globel.GUI;
 
@@ -96,7 +95,7 @@ public class W_DigitalRead extends Widget {
             digitalReadDots[i] = tempDot;
         }
 
-        createDigitalModeButton("digitalModeButton", "Turn Digital Read On", (int)(x0 + 1), (int)(y0 + navHeight + 1), 128, navHeight - 3, p5, 12, MAIN.buttonsLightBlue, MAIN.WHITE);
+        createDigitalModeButton("digitalModeButton", "Turn Digital Read On", (int)(x0 + 1), (int)(y0 + navHeight + 1), 128, navHeight - 3, p7, 12, MAIN.buttonsLightBlue, MAIN.WHITE);
     }
 
     public int getNumDigitalReads() {
@@ -189,17 +188,17 @@ public class W_DigitalRead extends Widget {
                     digitalBoard.setDigitalActive(true);
                     digitalModeButton.getCaptionLabel().setText("Turn Digital Read Off");
                     if (MAIN.selectedProtocol == GUI.BoardProtocol.WIFI) {
-                        output("Starting to read digital inputs on pin marked D11, D12 and D17");
+                        output("开始读取标记为D11、D12和D17的引脚上的数字输入");
                     } else {
-                        output("Starting to read digital inputs on pin marked D11, D12, D13, D17 and D18");
+                        output("开始读取标记为D11、D12、D13、D17和D18引脚上的数字输入");
                     }
                     w_accelerometer.accelBoardSetActive(false);
                     w_analogRead.toggleAnalogReadButton(false);
                     w_pulsesensor.toggleAnalogReadButton(false);
                 } else {
                     digitalBoard.setDigitalActive(false);
-                    digitalModeButton.getCaptionLabel().setText("Turn Digital Read On");
-                    output("Starting to read accelerometer");
+                    digitalModeButton.getCaptionLabel().setText("转为数字阅读");
+                    output("开始读取加速度计");
                     w_accelerometer.accelBoardSetActive(true);
                     w_analogRead.toggleAnalogReadButton(false);
                     w_pulsesensor.toggleAnalogReadButton(false);
@@ -207,14 +206,14 @@ public class W_DigitalRead extends Widget {
             }
         });
         String _helpText = (MAIN.selectedProtocol == GUI.BoardProtocol.WIFI) ?
-                "Click this button to activate/deactivate digital read on Cyton pins D11, D12, and D17." :
-                "Click this button to activate/deactivate digital read on Cyton pins D11, D12, D13, D17 and D18."
+                "点击此按钮可激活/关闭Cyton引脚D11、D12和D17的数字读取。" :
+                "点击此按钮可激活/关闭Cyton引脚D11、D12、D13、D17和D18的数字读取。"
                 ;
         digitalModeButton.setDescription(_helpText);
     }
 
     public void toggleDigitalReadButton(boolean _value) {
-        String s = _value ? "Turn Digital Read Off" : "Turn Digital Read On";
+        String s = _value ? "关闭数字读取" : "转为数字阅读";
         digitalModeButton.getCaptionLabel().setText(s);
         if (_value) {
             digitalModeButton.setOn();

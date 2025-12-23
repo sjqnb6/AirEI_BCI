@@ -50,7 +50,7 @@ public class W_fft extends Widget {
 
     int xLim = xLimOptions[2];  //maximum value of x axis ... in this case 20 Hz, 40 Hz, 60 Hz, 120 Hz
     int xMax = xLimOptions[xLimOptions.length-1];   //maximum possible frequency in FFT
-    int FFT_indexLim = (int)(1.0*xMax*(getNfftSafe(MAIN)/MAIN.currentBoard.getSampleRate()));   // maxim value of FFT index
+    int FFT_indexLim;   // maxim value of FFT index
     int yLim = yLimOptions[2];  //maximum value of y axis ... 100 uV
 
     List<Controller> cp5ElementsToCheck = new ArrayList<Controller>();
@@ -58,6 +58,8 @@ public class W_fft extends Widget {
     public W_fft(GUI _parent){
         super(_parent); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
         pApplet = _parent;
+        this.MAIN = _parent;
+        FFT_indexLim = (int)(1.0*xMax*(getNfftSafe(MAIN)/MAIN.currentBoard.getSampleRate()));
         CP = new ColorPalette(_parent);
 
         //Add channel select dropdown to this widget

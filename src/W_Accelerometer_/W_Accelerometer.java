@@ -71,7 +71,7 @@ public class W_Accelerometer extends Widget {
 
     public W_Accelerometer(GUI MAIN) {
         super(MAIN); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
-
+        this.MAIN = MAIN;
         CP = new ColorPalette(MAIN);
 
         pApplet = MAIN;

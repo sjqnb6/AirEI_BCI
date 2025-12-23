@@ -23,8 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static Debugging_.GF.output;
-import static Globel.GUI.navHeight;
-import static Globel.GUI.p5;
+import static Globel.GUI.*;
 import static WidgetManager_.GVI.*;
 import Globel.GUI;
 ///////////////////////////////////////////////////,
@@ -105,7 +104,7 @@ public class W_AnalogRead extends Widget {
             analogReadBars[i].adjustTimeAxis(w_timeSeries.getTSHorizScale().getValue());
         }
 
-        createAnalogModeButton("analogModeButton", "Turn Analog Read On", (int)(x0 + 1), (int)(y0 + navHeight + 1), 128, navHeight - 3, p5, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
+        createAnalogModeButton("analogModeButton", "切换模拟读物", (int)(x0 + 1), (int)(y0 + navHeight + 1), 128, navHeight - 3, p7, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
     }
 
     public int getNumAnalogReads() {
@@ -187,19 +186,19 @@ public class W_AnalogRead extends Widget {
             public void controlEvent(CallbackEvent theEvent) {
                 if (!analogBoard.isAnalogActive()) {
                     analogBoard.setAnalogActive(true);
-                    analogModeButton.getCaptionLabel().setText("Turn Analog Read Off");
+                    analogModeButton.getCaptionLabel().setText("关闭模拟读数");
                     if (MAIN.selectedProtocol == GUI.BoardProtocol.WIFI) {
-                        output("Starting to read analog inputs on pin marked A5 (D11) and A6 (D12)");
+                        output("开始读取标记为A5（D11）和A6（D12）引脚上的模拟输入");
                     } else {
-                        output("Starting to read analog inputs on pin marked A5 (D11), A6 (D12) and A7 (D13)");
+                        output("开始读取标记为A5（D11）、A6（D12）和A7（D13）引脚上的模拟输入");
                     }
                     w_pulsesensor.toggleAnalogReadButton(true);
                     w_accelerometer.accelBoardSetActive(false);
                     w_digitalRead.toggleDigitalReadButton(false);
                 } else {
                     analogBoard.setAnalogActive(false);
-                    analogModeButton.getCaptionLabel().setText("Turn Analog Read On");
-                    output("Starting to read accelerometer");
+                    analogModeButton.getCaptionLabel().setText("切换模拟读物");
+                    output("开始读取加速度计");
                     w_accelerometer.accelBoardSetActive(true);
                     w_digitalRead.toggleDigitalReadButton(false);
                     w_pulsesensor.toggleAnalogReadButton(false);
@@ -207,14 +206,14 @@ public class W_AnalogRead extends Widget {
             }
         });
         String _helpText = (MAIN.selectedProtocol == GUI.BoardProtocol.WIFI) ?
-                "Click this button to activate/deactivate analog read on Cyton pins A5(D11) and A6(D12)." :
-                "Click this button to activate/deactivate analog read on Cyton pins A5(D11), A6(D12) and A7(D13)."
+                "点击此按钮可激活/关闭Cyton引脚A5（D11）和A6（D12）的模拟读取。" :
+                "点击此按钮可激活/停用Cyton针脚A5（D11）、A6（D12）和A7（D13）的模拟读数."
                 ;
         analogModeButton.setDescription(_helpText);
     }
 
     public void toggleAnalogReadButton(boolean _value) {
-        String s = _value ? "Turn Analog Read Off" : "Turn Analog Read On";
+        String s = _value ? "关闭模拟读数" : "打开模拟读物";
         analogModeButton.getCaptionLabel().setText(s);
         if (_value) {
             analogModeButton.setOn();

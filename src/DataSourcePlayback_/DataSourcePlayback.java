@@ -14,6 +14,8 @@ import static Debugging_.GF.outputWarn;
 import static Globel.GUI.topNav;
 import static SystemManager.GF.updateToNChan;
 import Globel.GUI;
+import BoardCyton_.BoardCytonSerial;
+
 public abstract class DataSourcePlayback implements DataSource, FileBoard {
     GUI MAIN;
     private String playbackFilePathExg;
@@ -98,10 +100,39 @@ public abstract class DataSourcePlayback implements DataSource, FileBoard {
 
     protected boolean instantiateUnderlyingBoard() {
         try {
-            // get class from name
-            Class<?> boardClass = Class.forName(underlyingClassName);
-            // find default contructor (since this is processing, PApplet is required arg in all constructors)
-            Constructor<?> constructor = boardClass.getConstructor(GUIManager.class);
+            // get class from name, try with package prefix if not found
+            Class<?> boardClass = null;
+            String[] packagePrefixes = {
+                "",                          // 尝试原始类名
+                "BoardCyton_.",              // Cyton 相关的板子
+                "BoardGanglion_.",           // Ganglion 相关的板子
+                "BoardBrainFlowSynthetic_.", // 合成板
+                "BoardBrainflow_.",          // Brainflow 板
+                "BoardNull_.",               // 空板
+                "Board_."                    // 通用板
+            };
+            
+            for (String prefix : packagePrefixes) {
+                try {
+                    String fullClassName = prefix + underlyingClassName;
+                    boardClass = Class.forName(fullClassName);
+                    break; // 找到了，退出循环
+                } catch (ClassNotFoundException e) {
+                    // 继续尝试下一个前缀
+                }
+            }
+            
+            if (boardClass == null) {
+                throw new ClassNotFoundException(underlyingClassName);
+            }
+            
+            // find default contructor, try GUI.class first, then GUIManager.class
+            Constructor<?> constructor = null;
+            try {
+                constructor = boardClass.getConstructor(GUI.class);
+            } catch (NoSuchMethodException e) {
+                constructor = boardClass.getConstructor(GUIManager.class);
+            }
             underlyingBoard = (Board)constructor.newInstance(MAIN);
         } catch (Exception e) {
             outputError("Cannot instantiate underlying board of class " + underlyingClassName);

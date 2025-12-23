@@ -34,7 +34,7 @@ public class W_GanglionImpedance extends Widget {
     public W_GanglionImpedance(GUI MAIN){
         super(MAIN); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
         this.MAIN = MAIN;
-        createStartStopCheck("startStopCheck", "Start Impedance Check", x + padding, y + padding, 200, navHeight, p4, 14, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
+        createStartStopCheck("startStopCheck", "启动阻抗检测", x + padding, y + padding, 200, navHeight, p7, 14, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
     }
 
     public void update(){
@@ -122,15 +122,15 @@ public class W_GanglionImpedance extends Widget {
                         MAIN.println("Starting Ganglion impedance check...");
                         //Start impedance check
                         ganglionBoard.setCheckingImpedance(true);
-                        startStopCheck.getCaptionLabel().setText("Stop Impedance Check");
+                        startStopCheck.getCaptionLabel().setText("停止阻抗检测");
                     } else {
                         //Stop impedance check
                         ganglionBoard.setCheckingImpedance(false);
-                        startStopCheck.getCaptionLabel().setText("Start Impedance Check");
+                        startStopCheck.getCaptionLabel().setText("启动阻抗检测");
                     }
                 }
             }
         });
-        startStopCheck.setDescription("Click this button to start or stop checking impedance.");
+        startStopCheck.setDescription("点击此按钮开始或结束电极阻抗测量。");
     }
 };

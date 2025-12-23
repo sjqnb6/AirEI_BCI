@@ -27,7 +27,9 @@ public class GF {
                 strCurrentLine = reader.readLine();
                 verbosePrint(strCurrentLine);
                 if (strCurrentLine.startsWith(infoToCheck)) {
-                    String[] splitCurrentLine = split(strCurrentLine, "OpenBCI_GUI$");
+//                    String[] splitCurrentLine = split(strCurrentLine, "OpenBCI_GUI$");
+//                    underlyingBoardClassName = splitCurrentLine[1];
+                    String[] splitCurrentLine = split(strCurrentLine, "= ");
                     underlyingBoardClassName = splitCurrentLine[1];
                 }
                 lineCounter++;

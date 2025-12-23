@@ -47,7 +47,7 @@ public class W_playback extends Widget {
 
     public W_playback(GUI MAIN) {
         super(MAIN); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
-
+        this.MAIN = MAIN;
         CP = new ColorPalette(MAIN);
 
         pApplet = MAIN;

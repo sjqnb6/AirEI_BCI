@@ -12,10 +12,10 @@ public class DataStatus{
     public boolean is_railed_warn;
     private double percentage;
     public String notificationString;
-    private final int default_color = MAIN.OPENBCI_DARKBLUE;
-    private final int yellow = MAIN.SIGNAL_CHECK_YELLOW;
-    private final int red = MAIN.BOLD_RED;
-    private int colorIndicator = default_color;
+    private final int default_color;
+    private final int yellow;
+    private final int red;
+    private int colorIndicator;
     // thresholds are pecentages of max possible value
     private double threshold_railed = 90.0;
     private double threshold_railed_warn = 75.0;
@@ -27,6 +27,10 @@ public class DataStatus{
         is_railed_warn = false;
         percentage = 0.0;
         this.MAIN = MAIN;
+        default_color = MAIN.OPENBCI_DARKBLUE;
+        yellow = MAIN.SIGNAL_CHECK_YELLOW;
+        red = MAIN.BOLD_RED;
+        colorIndicator = default_color;
     }
     // here data is a full range for 20sec of data and doesnt take in account window size
     public void update(float[] data, int channel) {

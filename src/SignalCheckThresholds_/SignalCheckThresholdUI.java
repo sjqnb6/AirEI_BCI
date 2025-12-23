@@ -75,7 +75,7 @@ public class SignalCheckThresholdUI {
         //Clear textfield on double click
         myTextfield.onDoublePress(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
-                output("SessionData: Enter your custom session name.");
+                output("SessionData：输入你的自定义会话名称。");
                 myTextfield.clear();
             }
         });
