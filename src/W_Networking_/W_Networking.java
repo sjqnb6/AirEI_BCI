@@ -312,7 +312,8 @@ public class W_Networking extends Widget {
     private void accumulateNewData() {
         double[][] newData = MAIN.currentBoard.getFrameData();
         int[] exgChannels = MAIN.currentBoard.getEXGChannels();
-        int markerChannel = MAIN.currentBoard.getMarkerChannel();
+        //int markerChannel = MAIN.currentBoard.getMarkerChannel();
+        int markerChannel = 0;
 
         if (newData[exgChannels[0]].length == 0) {
             return;
@@ -336,7 +337,8 @@ public class W_Networking extends Widget {
 
             if (MAIN.currentBoard instanceof AccelerometerCapableBoard) {
                 AccelerometerCapableBoard accelBoard = (AccelerometerCapableBoard) MAIN.currentBoard;
-                int[] accelChannels = accelBoard.getAccelerometerChannels();
+                //int[] accelChannels = accelBoard.getAccelerometerChannels();
+                int[] accelChannels = new int[]{0, 1, 2};
                 double[] accelSample = new double[accelChannels.length];
                 for (int iChan = 0; iChan < accelChannels.length; iChan++) {
                     accelSample[iChan] = newData[accelChannels[iChan]][iSample];

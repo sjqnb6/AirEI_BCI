@@ -75,7 +75,7 @@ public class SessionSettings {
     public int introAnimationInit = 0;
     public final int introAnimationDuration = 2500;
     //Max File Size #461, default option 4 -> 60 minutes
-    public final String[] fileDurations = {"5 Minutes", "15 minutes", "30 Minutes", "60 Minutes", "120 Minutes", "No Limit"};
+    public final String[] fileDurations = {"5 分钟", "15 分钟", "30 分钟", "60 分钟", "120 分钟", "无限制"};
     public final int[] fileDurationInts = {5, 15, 30, 60, 120, -1};
     public final int defaultOBCIMaxFileSize = 3; //4th option from the above list
     private boolean logFileIsOpen = false;
@@ -1024,7 +1024,7 @@ public class SessionSettings {
         controlPanel.recentPlaybackBox.rpb_cp5.get(ScrollableList.class, "recentPlaybackFilesCP").clear();
         controlPanel.recentPlaybackBox.shortFileNames.clear();
         controlPanel.recentPlaybackBox.longFilePaths.clear();
-        outputSuccess("All settings have been cleared!");
+        outputSuccess("所有设置都已清除！");
     }
 
     /**
@@ -1065,7 +1065,7 @@ public class SessionSettings {
     }
 
     public void initCheckPointFive() {
-        outputSuccess("Session started!");
+        outputSuccess("连接建立!");
     }
 
     public void loadKeyPressed() {

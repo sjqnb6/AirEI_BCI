@@ -63,8 +63,8 @@ public abstract class Board implements DataSource {
         dataThisFrame = getNewDataInternal();
 
         for (int i = 0; i < dataThisFrame[0].length; i++) {
-            double[] newEntry = new double[getTotalChannelCount()];
-            for (int j = 0; j < getTotalChannelCount(); j++) {
+            double[] newEntry = new double[30];
+            for (int j = 0; j < 8; j++) {
                 newEntry[j] = dataThisFrame[j][i];
             }
 

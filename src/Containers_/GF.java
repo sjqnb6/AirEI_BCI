@@ -41,7 +41,9 @@ public class GF {
 
     public static void drawContainers(GUI MAIN) {
         for(int i = 0; i < GVI.container.length; i++){
-            GVI.container[i].draw(MAIN);
+            if(GVI.container[i] != null){
+                GVI.container[i].draw(MAIN);
+            }
         }
 
         //Draw viz objects.. example extension of container class (more below)

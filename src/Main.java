@@ -251,7 +251,6 @@ public class Main extends GUI {
         settings.heightOfLastScreen = height;
 
         setupContainers(this);
-
         fontInfo = new PlotFontInfo();
         helpWidget = new HelpWidget(this,0, win_h - 30, win_w, 30);
         //Instantiate buttonHelpText before any buttons have been made
@@ -438,7 +437,7 @@ public class Main extends GUI {
 
         //Display GUI version and FPS in the title bar of the app
         surface.setTitle(
-                "OpenBCI GUI "
+                "AirEI_BCI GUI "
                         + localGUIVersionString
                         + " - "
                         + localGUIVersionDate
@@ -614,13 +613,14 @@ public class Main extends GUI {
 
         //Handle edge cases for Cyton and Cyton+Daisy users immediately after board is initialized. Fixes #954
         if (eegDataSource == DATASOURCE_CYTON) {
-            println("OpenBCI_GUI: Configuring Cyton Channel Count...");
+            //-------------------------------------------------------------------------------------------
+            println("AirEI_BCI_GUI: 配置Cyton通道数量");
             if (currentBoard instanceof BoardCytonSerial) {
-                Pair<Boolean, String> res = ((BoardBrainFlow)currentBoard).sendCommand("c");
+//                Pair<Boolean, String> res = ((BoardBrainFlow)currentBoard).sendCommand("c");
                 //println(res.getKey().booleanValue(), res.getValue());guiSettings
-                if (res.getValue().startsWith("daisy removed")) {
-                    println("OpenBCI_GUI: Daisy is physically attached, using Cyton 8 Channels instead.");
-                }
+//                if (res.getValue().startsWith("daisy removed")) {
+//                    println("OpenBCI_GUI: Daisy is physically attached, using Cyton 8 Channels instead.");
+//                }
             } else if (currentBoard instanceof BoardCytonSerialDaisy) {
                 Pair<Boolean, String> res = ((BoardBrainFlow)currentBoard).sendCommand("C");
                 //println(res.getKey().booleanValue(), res.getValue());

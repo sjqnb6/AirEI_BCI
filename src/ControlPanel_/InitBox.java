@@ -90,7 +90,7 @@ public class InitBox{
                 return;
             } else { //otherwise, initiate system!
                 //verbosePrint("ControlPanel: CPmouseReleased: init");
-                setInitSessionButtonText("STOP SESSION");
+                setInitSessionButtonText("停止连接");
                 // Global steps to START SESSION
                 // Prepare the serial port
 

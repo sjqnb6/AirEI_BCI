@@ -26,9 +26,9 @@ public class PopupMessage extends PApplet implements Runnable {
     private String buttonMessage = "OK";
     private String buttonLink = null;
 
-    private int headerColor = MAIN.OPENBCI_BLUE;
-    private int buttonColor = MAIN.OPENBCI_BLUE;
-    private int backgroundColor = MAIN.GREY_235;
+    private int headerColor;
+    private int buttonColor;
+    private int backgroundColor;
 
     private ControlP5 cp5;
 
@@ -37,7 +37,9 @@ public class PopupMessage extends PApplet implements Runnable {
         this.MAIN = MAIN;
         headerMessage = header;
         message = msg;
-
+        headerColor = MAIN.OPENBCI_BLUE;
+        buttonColor = MAIN.OPENBCI_BLUE;
+        backgroundColor = MAIN.GREY_235;
         Thread t = new Thread(this);
         t.start();
     }
@@ -84,7 +86,7 @@ public class PopupMessage extends PApplet implements Runnable {
                 .setColorBackground(buttonColor);
         cp5.getController("onButtonPressed")
                 .getCaptionLabel()
-                .setFont(p1)
+                .setFont(p7)
                 .toUpperCase(false)
                 .setSize(20)
                 .setText(buttonMessage)
@@ -111,13 +113,13 @@ public class PopupMessage extends PApplet implements Runnable {
         rect((width - w)/2, (height - h)/2, w, headerHeight);
 
         //draw header text
-        textFont(p0, 24);
+        textFont(p7, 24);
         fill(MAIN.WHITE);
         textAlign(LEFT, CENTER);
         text(headerMessage, (width - w)/2 + padding, headerHeight/2);
 
         //draw message
-        textFont(p3, 16);
+        textFont(p7, 16);
         fill(102);
         textAlign(LEFT, TOP);
         text(message, (width - w)/2 + padding, (height - h)/2 + padding + headerHeight, w-padding*2, h-padding*2-headerHeight);

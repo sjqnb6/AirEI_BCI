@@ -12,6 +12,7 @@ import brainflow.BrainFlowInputParams;
 import java.util.List;
 
 import static Debugging_.GF.outputWarn;
+import static processing.core.PApplet.println;
 
 public class BoardBrainFlowSynthetic extends BoardBrainFlow implements AccelerometerCapableBoard {
 
@@ -130,4 +131,10 @@ public class BoardBrainFlowSynthetic extends BoardBrainFlow implements Accelerom
     public int getAccelSampleRate() {
         return getSampleRate();
     }
+    @Override
+    public void startStreaming() {
+        super.startStreaming1();
+
+    }
+
 };

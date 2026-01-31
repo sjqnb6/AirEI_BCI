@@ -65,21 +65,21 @@ public class DataStatus{
             }
             percentage = (max / maxVal) * 100.0;
 
-            notificationString = "Not Railed " + String.format("%1$,.2f", percentage) + "% ";
+            notificationString = "未饱和 " + String.format("%1$,.2f", percentage) + "% ";
             colorIndicator = default_color;
             if (percentage > threshold_railed_warn) {
                 is_railed_warn = true;
-                notificationString = "Near Railed " + String.format("%1$,.2f", percentage) + "% ";
+                notificationString = "接近饱和 " + String.format("%1$,.2f", percentage) + "% ";
                 colorIndicator = yellow;
             }
             if (percentage > threshold_railed) {
                 is_railed = true;
-                notificationString = "Railed " + String.format("%1$,.2f", percentage) + "% ";
+                notificationString = "已饱和 " + String.format("%1$,.2f", percentage) + "% ";
                 colorIndicator = red;
             } else {
                 if (is_straight_line) {
                     is_railed = true;
-                    notificationString = "Data from the board doesn't change";
+                    notificationString = "主板数据未改变";
                     colorIndicator = red;
                 }
             }

@@ -66,7 +66,7 @@ class SerialBox{
                 controlPanel.comPortBox.attemptAutoConnectCyton();
             }
         });
-        autoConnectButton.setDescription("Attempt to auto-connect to Cyton. Try \"Manual\" if this does not work.");
+        autoConnectButton.setDescription("尝试自动连接主板，如果未能连接可以尝试手动选项");
     }
 
     private void createRadioConfigButton(String name, String text, int _x, int _y, int _w, int _h) {
@@ -79,11 +79,11 @@ class SerialBox{
                     } else {
                         controlPanel.rcBox.isShowing = true;
                         controlPanel.rcBox.print_onscreen(controlPanel.rcBox.initial_message);
-                        popOutRadioConfigButton.getCaptionLabel().setText("Manual <");
+                        popOutRadioConfigButton.getCaptionLabel().setText("手动 <");
                     }
                 }
             }
         });
-        popOutRadioConfigButton.setDescription("Having trouble connecting to Cyton? Click here to access Radio Configuration tools.");
+        popOutRadioConfigButton.setDescription("手动进行端口的查找和选择");
     }
 };

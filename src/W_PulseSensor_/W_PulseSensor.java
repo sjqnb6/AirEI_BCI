@@ -38,7 +38,7 @@ public class W_PulseSensor extends Widget {
     // Pulse Sensor Visualizer Stuff
     private int count = 0;
     private int heart = 0;
-    private final int PULSE_BUFFER_SIZE = 3*MAIN.currentBoard.getSampleRate(); // Originally 400
+    private final int PULSE_BUFFER_SIZE; // Originally 400
     private final int BPM_BUFFER_SIZE = 100;
 
     private int pulseWindowWidth;
@@ -83,6 +83,7 @@ public class W_PulseSensor extends Widget {
     public W_PulseSensor(GUI MAIN){
         super(MAIN); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
         this.MAIN = MAIN;
+        PULSE_BUFFER_SIZE = 3*MAIN.currentBoard.getSampleRate();
         analogBoard = (AnalogCapableBoard)MAIN.currentBoard;
 
         eggshell = MAIN.color(255, 253, 248);
@@ -356,7 +357,7 @@ public class W_PulseSensor extends Widget {
         double[][] frameData = MAIN.currentBoard.getFrameData();
         for (int i = 0; i < frameData[0].length; i++)
         {
-            int signal = (int)(frameData[analogChannels[0]][i]);
+            int signal = (int)(frameData[0][i]);
             processSignal(signal);
         }
     }

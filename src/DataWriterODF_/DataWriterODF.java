@@ -58,10 +58,10 @@ public class DataWriterODF {
                 output.print(", ");
             }
 
-            int timestampChan = getTimestampChannel();
+            //int timestampChan = getTimestampChannel();
             // *1000 to convert from seconds to milliserconds
-            long timestampMS = (long)(data[timestampChan][iSample] * 1000.0);
-
+            //long timestampMS = (long)(data[timestampChan][iSample] * 1000.0);
+            Long timestampMS = System.currentTimeMillis();
             output.print(dateFormat.format(new Date(timestampMS)));
             output.println();
 

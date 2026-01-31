@@ -47,6 +47,7 @@ public class PlaybackFileBox{
     public void update() {
     }
 
+
     public void draw() {
         MAIN.pushStyle();
         MAIN.fill(MAIN.boxColor);
@@ -69,7 +70,7 @@ public class PlaybackFileBox{
                 output("选择回放文件");
                 MAIN.selectInput("选择预录文件播放:",
                         "playbackFileSelected",
-                        new File(MAIN.directoryManager.getGuiDataPath() + "Recordings")
+                        new File(MAIN.directoryManager.getGuiDataPath() + "Recordings" + File.separator + "123.txt")
                 );
             }
         });

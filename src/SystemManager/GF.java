@@ -107,7 +107,7 @@ public class GF {
                 outputError("Failed to start Timer.");
             }
         } else {
-            outputError("Failed to start data stream. Please check hardware. See Console Log or BrainFlow Log for more details.");
+            outputError("开启数据流失败，请检查硬件设置");
         }
     }
 

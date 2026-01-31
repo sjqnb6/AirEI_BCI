@@ -113,17 +113,17 @@ public class TopNav {
         if (!secondaryNavInit) {
             //Buttons on the left side of the GUI secondary nav bar
             createToggleDataStreamButton(stopButton_pressToStart_txt, PAD_3, SUBNAV_BUT_Y, DATASTREAM_BUT_W, SUBNAV_BUT_H, p7, 14, MAIN.TURN_ON_GREEN, MAIN.OPENBCI_DARKBLUE);
-            createFiltersButton("Filters", PAD_3*2 + toggleDataStreamingButton.getWidth(), SUBNAV_BUT_Y, SUBNAV_BUT_W, SUBNAV_BUT_H, p7, 14, SUBNAV_LIGHTBLUE, MAIN.WHITE);
+            createFiltersButton("滤波", PAD_3*2 + toggleDataStreamingButton.getWidth(), SUBNAV_BUT_Y, SUBNAV_BUT_W, SUBNAV_BUT_H, p7, 14, SUBNAV_LIGHTBLUE, MAIN.WHITE);
 
             //Appears at Top Right SubNav while in a Session
-            createLayoutButton("Layout", MAIN.width - 3 - 60, SUBNAV_BUT_Y, 60, SUBNAV_BUT_H, h4, 14, SUBNAV_LIGHTBLUE, MAIN.WHITE);
+            createLayoutButton("Layout", MAIN.width - 3 - 60, SUBNAV_BUT_Y, 60, SUBNAV_BUT_H, p7, 14, SUBNAV_LIGHTBLUE, MAIN.WHITE);
             secondaryNavInit = true;
         }
 
         if (needToMakeSmoothingButton) {
             int pos_x = (int)filtersButton.getPosition()[0] + filtersButton.getWidth() + PAD_3;
             //Make smoothing button wider than most other topnav buttons to fit text comfortably
-            createSmoothingButton(getSmoothingString(), pos_x, SUBNAV_BUT_Y, SUBNAV_BUT_W + 48, SUBNAV_BUT_H, h4, 14, SUBNAV_LIGHTBLUE, MAIN.WHITE);
+            createSmoothingButton(getSmoothingString(), pos_x, SUBNAV_BUT_Y, SUBNAV_BUT_W + 48, SUBNAV_BUT_H, p7, 14, SUBNAV_LIGHTBLUE, MAIN.WHITE);
         }
 
 
@@ -349,7 +349,7 @@ public class TopNav {
     }
 
     private String getSmoothingString() {
-        return ((SmoothingCapableBoard)MAIN.currentBoard).getSmoothingActive() ? "Smoothing On" : "Smoothing Off";
+        return ((SmoothingCapableBoard)MAIN.currentBoard).getSmoothingActive() ? "平滑启用" : "平滑关闭";
     }
 
     private Button createTNButton(String name, String text, int _x, int _y, int _w, int _h, PFont _font, int _fontSize, int _bg, int _textColor) {

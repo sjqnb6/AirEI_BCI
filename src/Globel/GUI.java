@@ -46,8 +46,8 @@ import static Debugging_.GF.outputError;
 
 public class GUI extends PApplet {
     //Used to check GUI version in TopNav.pde and displayed on the splash screen on startup
-    public static String localGUIVersionString = "v6.0.0-beta.1";
-    public static String localGUIVersionDate = "September 2023";
+    public static String localGUIVersionString = "v1.0.0-beta.1";
+    public static String localGUIVersionDate = "November 2025";
     public static String guiLatestVersionGithubAPI = "https://api.github.com/repos/OpenBCI/OpenBCI_GUI/releases/latest";
     public static String guiLatestReleaseLocation = "https://github.com/OpenBCI/OpenBCI_GUI/releases/latest";
     public static Boolean guiIsUpToDate;

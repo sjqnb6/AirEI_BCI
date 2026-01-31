@@ -131,7 +131,18 @@ public abstract class DataSourcePlayback implements DataSource, FileBoard {
             try {
                 constructor = boardClass.getConstructor(GUI.class);
             } catch (NoSuchMethodException e) {
-                constructor = boardClass.getConstructor(GUIManager.class);
+                try {
+                    constructor = boardClass.getConstructor(GUIManager.class);
+                } catch (NoSuchMethodException e2) {
+                    // 尝试带 int 参数的构造函数（用于 BoardBrainFlowSynthetic）
+                    try {
+                        constructor = boardClass.getConstructor(GUI.class, int.class);
+                        underlyingBoard = (Board)constructor.newInstance(MAIN, GUI.nchan);
+                        return underlyingBoard != null;
+                    } catch (NoSuchMethodException e3) {
+                        throw e;
+                    }
+                }
             }
             underlyingBoard = (Board)constructor.newInstance(MAIN);
         } catch (Exception e) {
@@ -162,11 +173,12 @@ public abstract class DataSourcePlayback implements DataSource, FileBoard {
             String line = lines[dataStart + iData];
             String[] valStrs = line.split(",");
             if (((valStrs.length - 1) != getTotalChannelCount()) && (numChannelsExg == 0)) {
-                outputWarn("you are using old file for playback.");
+                outputWarn("你正在使用旧文件进行播放。");
             }
             numChannelsExg = valStrs.length - 1;  // -1 becaise of gui's timestamps
-
+//------------------------------------------------------------------------------------------------------------
             double[] row = new double[numChannelsExg];
+            //double[] row = new double[40];
             for (int iCol = 0; iCol < numChannelsExg; iCol++) {
                 row[iCol] = Double.parseDouble(valStrs[iCol]);
             }
@@ -225,7 +237,7 @@ public abstract class DataSourcePlayback implements DataSource, FileBoard {
 
     @Override
     public void setEXGChannelActive(int channelIndex, boolean active) {
-        outputWarn("Deactivating channels is not possible for Playback board.");
+        outputWarn("播放板无法关闭频道。");
     }
 
     @Override
@@ -288,6 +300,7 @@ public abstract class DataSourcePlayback implements DataSource, FileBoard {
     @Override
     public double[][] getFrameData() {
         double[][] array = new double[numChannelsExg][numNewSamplesThisFrameExg];
+        //double[][] array = new double[40][numNewSamplesThisFrameExg];
         List<double[]> list = getData(numNewSamplesThisFrameExg);
         for (int i = 0; i < numNewSamplesThisFrameExg; i++) {
             for (int j = 0; j < numChannelsExg; j++) {
@@ -307,6 +320,7 @@ public abstract class DataSourcePlayback implements DataSource, FileBoard {
             int sampleDiff = maxSamples - currentSampleExg;
 
             double[] emptyData = new double[numChannelsExg];
+            //double[] emptyData = new double[40];
             ArrayList<double[]> newResult = new ArrayList(maxSamples);
             for (int i=0; i<sampleDiff; i++) {
                 newResult.add(emptyData);

@@ -133,8 +133,8 @@ public class W_CytonImpedance extends Widget {
 
         cytonResetAllChannels = createCytonResetChannelsButton("cytonResetAllChannels", "重置通道", (int)(x0 + 1), (int)(y0 + navHeight + 1), 90, navHeight - 3, p7, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
         cytonImpedanceMasterCheck = createCytonImpMasterCheckButton("cytonImpedanceMasterCheck", "查看所有频道", (int)(x0 + 1 + padding_3 + 90), (int)(y0 + navHeight + 1), 120, navHeight - 3, p7, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
-        errorThreshold = new SignalCheckThresholdUI(threshold_ui_cp5, "errorThreshold", x + tableWidth + padding, y + h - navH, thresholdTFWidth, thresholdTFHeight, MAIN.SIGNAL_CHECK_RED, signalCheckMode);
-        warningThreshold = new SignalCheckThresholdUI(threshold_ui_cp5, "warningThreshold", x + tableWidth + padding, y + h - navH/2, thresholdTFWidth, thresholdTFHeight, MAIN.SIGNAL_CHECK_YELLOW, signalCheckMode);
+        errorThreshold = new SignalCheckThresholdUI(MAIN, threshold_ui_cp5, "errorThreshold", x + tableWidth + padding, y + h - navH, thresholdTFWidth, thresholdTFHeight, MAIN.SIGNAL_CHECK_RED, signalCheckMode);
+        warningThreshold = new SignalCheckThresholdUI(MAIN, threshold_ui_cp5, "warningThreshold", x + tableWidth + padding, y + h - navH/2, thresholdTFWidth, thresholdTFHeight, MAIN.SIGNAL_CHECK_YELLOW, signalCheckMode);
     }
 
     public void update(){

@@ -28,8 +28,8 @@ class DigitalReadDot extends Widget {
     int dotStroke = 0xd2d2d2;
     int dot0Fill = 0xf5f5f5;
     int dot1Fill = 0xf5f5f5;
-    int val0Fill = MAIN.OPENBCI_DARKBLUE;
-    int val1Fill = MAIN.WHITE;
+    int val0Fill;
+    int val1Fill;
 
     int dotX;
     int dotY;
@@ -42,6 +42,8 @@ class DigitalReadDot extends Widget {
     public DigitalReadDot(GUI MAIN, int _digitalInputPin, int _x, int _y, int _w, int _h, int _padding) {
         super(MAIN); // channel number, x/y location, height, width
         this.MAIN = MAIN;
+        val0Fill = MAIN.OPENBCI_DARKBLUE;
+        val1Fill = MAIN.WHITE;
         digitalBoard = (DigitalCapableBoard)MAIN.currentBoard;
 
         digitalInputPin = _digitalInputPin;

@@ -30,7 +30,7 @@ public class TextBox extends Widget {
         textColor = MAIN.OPENBCI_DARKBLUE;
         backgroundColor = pApplet.color(255);
         fontSize = 12;
-        font = p5;
+        font = MAIN.p7;
         backgroundEdge_pixels = 1;
         drawBackground = false;
         alignH = MAIN.LEFT;
@@ -61,6 +61,7 @@ public class TextBox extends Widget {
         pApplet.pushStyle();
         pApplet.noStroke();
         pApplet.textFont(font);
+        pApplet.textSize(fontSize);
 
         //draw the box behind the text
         if (drawBackground == true) {
@@ -96,7 +97,8 @@ public class TextBox extends Widget {
         pApplet.noStroke();
         pApplet.fill(textColor);
         pApplet.textAlign(alignH,alignV);
-        pApplet.textFont(font);
+        pApplet.textFont(font);        
+        pApplet.textSize(fontSize);        
         pApplet.text(string,x,y);
         pApplet.strokeWeight(1);
         pApplet.popStyle();

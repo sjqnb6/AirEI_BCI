@@ -14,8 +14,8 @@ public abstract class BoardCytonSerialBase extends BoardCyton implements Smoothi
 
     public BoardCytonSerialBase(GUI MAIN) {
         super(MAIN);
-        setSmoothingActive(true);
         this.MAIN = MAIN;
+        setSmoothingActive(true);
     }
 
     // synchronized is important to ensure that we dont free buffers during getting data
@@ -37,9 +37,9 @@ public abstract class BoardCytonSerialBase extends BoardCyton implements Smoothi
     public boolean getSmoothingActive() {
         return smoothData;
     }
-
+//--------------------------------------------------------------------------------------------改
     @Override
-    protected synchronized double[][] getNewDataInternal() {
+    protected synchronized double[][] getNewDataInternal1() {
         double[][] data = super.getNewDataInternal();
         if (!smoothData) {
             return data;
@@ -66,5 +66,32 @@ public abstract class BoardCytonSerialBase extends BoardCyton implements Smoothi
         }
         return res;
     }
-
+    @Override
+    protected synchronized double[][] getNewDataInternal() {
+        double[][] data = super.getNewDataInternal();
+        if (!smoothData) {
+            return data;
+        }
+        // transpose to push to buffer
+        for (int i = 0; i < data[0].length; i++) {
+            double[] newEntry = new double[30];//getTotalChannelCount()
+            for (int j = 0; j < 30; j++) {
+                newEntry[j] = data[j][i];
+            }
+            buffer.addNewEntry(newEntry);
+        }
+        int numData = buffer.getDataCount();
+        if (numData == 0) {
+            return emptyData;
+        }
+        // transpose back
+        double[][] res = new double[30][numData];
+        for (int i = 0; i < numData; i++) {
+            double[] curData = buffer.popFirstEntry();
+            for (int j = 0; j < 30; j++) {
+                res[j][i] = curData[j];
+            }
+        }
+        return res;
+    }
 };

@@ -1,6 +1,8 @@
 package Widget_;
 
 import GUI.GUIManager;
+import controlP5.CallbackEvent;
+import controlP5.CallbackListener;
 import controlP5.ControlP5;
 import controlP5.Controller;
 import controlP5.ScrollableList;
@@ -111,10 +113,10 @@ public class Widget{
                 .addItems(_widgetOptions) // used to be .addItems(maxFreqList)
                 ;
 
-        scrollList.getCaptionLabel() //the caption label is the text object in the primary bar
+        scrollList.getCaptionLabel() //the caption label is the te  xt object in the primary bar
                 .toUpperCase(false) //DO NOT AUTOSET TO UPPERCASE!!!
                 .setText(widgetTitle)
-                .setFont(h4)
+                .setFont(p7)
                 .setSize(14)
                 .getStyle() //need to grab style before affecting the paddingTop
                 .setPaddingTop(4)
@@ -128,17 +130,39 @@ public class Widget{
                 .getStyle() //need to grab style before affecting the paddingTop
                 .setPaddingTop(3) //4-pixel vertical offset to center text
         ;
+
+        // Add explicit event callback for widget selection
+        scrollList.onChange(new CallbackListener() {
+            public void controlEvent(CallbackEvent theEvent) {
+                int selectedWidgetIndex = (int)scrollList.getValue();
+                WidgetSelector(selectedWidgetIndex);
+            }
+        });
     }
 
     public void setupNavDropdowns(){
         cp5_widget.setColor(MAIN.settings.dropdownColors);
         // println("Setting up dropdowns...");
+//        for (int i = 0; i < dropdowns.size(); i++) {
+//            NavBarDropdown d = dropdowns.get(i);
+//            for (int j = 0; j < d.items.size(); j++) {
+//                Object o = d.items.get(j);
+//                if (!(o instanceof String)) {
+//                    System.out.println(this.widgetTitle);
+//                    System.out.println(d.title);
+//                    System.out.println("BAD ITEM: dropdown id=" + d.id
+//                            + " index=" + j
+//                            + " class=" + (o == null ? "null" : o.getClass())
+//                            + " value=" + o);
+//                }
+//            }
+//        }
         for(int i = 0; i < dropdowns.size(); i++){
             int dropdownPos = dropdowns.size() - i;
             // println("dropdowns.get(i).id = " + dropdowns.get(i).id);
             ScrollableList scrollList = cp5_widget.addScrollableList(dropdowns.get(i).id)
                     .setPosition(x0+w0-(dropdownWidth*(dropdownPos))-(2*(dropdownPos)), y0 + navH + 2) //float right
-                    .setFont(h5)
+                    .setFont(p7)
                     .setOpen(false)
                     .setColor(MAIN.settings.dropdownColors)
                     .setOutlineColor(MAIN.OBJECT_BORDER_GREY)
@@ -201,7 +225,7 @@ public class Widget{
         //draw dropdown titles
         MAIN.pushStyle();
         MAIN.noStroke();
-        MAIN.textFont(h5);
+        MAIN.textFont(p7);
         MAIN.textSize(12);
         MAIN.textAlign(MAIN.CENTER, MAIN.BOTTOM);
         MAIN.fill(MAIN.OPENBCI_DARKBLUE);
@@ -323,5 +347,26 @@ public class Widget{
             }
             previousDropdownIsActive = dropdownIsActive;
         }
+    }
+    void WidgetSelector(int n){
+        println("New widget [" + n + "] selected for container...");
+        //find out if the widget you selected is already active
+        boolean isSelectedWidgetActive = wm.widgets.get(n).getIsActive();
+
+        //find out which widget & container you are currently in...
+        int theContainer = -1;
+        for(int i = 0; i < wm.widgets.size(); i++){
+            if(wm.widgets.get(i).isMouseHere()){
+                theContainer = wm.widgets.get(i).currentContainer; //keep track of current container (where mouse is...)
+                if(isSelectedWidgetActive){ //if the selected widget was already active
+                    wm.widgets.get(i).setContainer(wm.widgets.get(n).currentContainer); //just switch the widget locations (ie swap containers)
+                } else{
+                    wm.widgets.get(i).setIsActive(false);   //deactivate the current widget (if it is different than the one selected)
+                }
+            }
+        }
+
+        wm.widgets.get(n).setIsActive(true);//activate the new widget
+        wm.widgets.get(n).setContainer(theContainer);//map it to the current container
     }
 }; //end of base Widget class

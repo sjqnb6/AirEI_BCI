@@ -77,7 +77,7 @@ public class W_timeSeries extends Widget {
         tscp5.setGraphics(MAIN, 0,0);
         tscp5.setAutoDraw(false);
 
-        tsChanSelect = new ChannelSelect(pApplet, this, x, y, w, navH, "TS_Channels");
+        tsChanSelect = new ChannelSelect(pApplet, this, x, y, w, navH, "TS_Channel");
         //activate all channels in channelSelect by default for this widget
         tsChanSelect.activateAllButtons();
         cp5ElementsToCheck.addAll(tsChanSelect.getCp5ElementsForOverlapCheck());
@@ -96,8 +96,8 @@ public class W_timeSeries extends Widget {
         numChannelBars = nchan; //set number of channel bars = to current nchan of system (4, 8, or 16)
 
         //This is a newer protocol for setting up dropdowns.
-        addDropdown("VertScale_TS", "垂直刻度", Collections.singletonList(yLimit.getEnumStringsAsList()), yLimit.getIndex());
-        addDropdown("Duration", "窗口", Collections.singletonList(xLimit.getEnumStringsAsList()), xLimit.getIndex());
+        addDropdown("VertScale_TS", "垂直刻度", yLimit.getEnumStringsAsList(), yLimit.getIndex());
+        addDropdown("Duration", "窗口", xLimit.getEnumStringsAsList(), xLimit.getIndex());
 
         //Instantiate scrollbar if using playback mode and scrollbar feature in use
         if((MAIN.currentBoard instanceof FileBoard) && hasScrollbar) {
@@ -140,7 +140,7 @@ public class W_timeSeries extends Widget {
         int h_hsc = channelBarHeight * numChannelBars;
 
         if (MAIN.currentBoard instanceof ADS1299SettingsBoard) {
-            hwSettingsButton = createHSCButton("HardwareSettings", "Hardware Settings", (int)(x0 + 80), (int)(y0 + navHeight + 1), 120, navHeight - 3);
+            hwSettingsButton = createHSCButton("HardwareSettings", "硬件设置", (int)(x0 + 80), (int)(y0 + navHeight + 1), 120, navHeight - 3);
             cp5ElementsToCheck.add((Controller)hwSettingsButton);
             adsSettingsController = new ADS1299SettingsController(MAIN, tsChanSelect.activeChan, x_hsc, y_hsc, w_hsc, h_hsc, channelBarHeight);
         }
@@ -298,17 +298,17 @@ public class W_timeSeries extends Widget {
             return;
         }
 
-        String buttonText = "Time Series";
+        String buttonText = "时间序列";
 
         if (visible && MAIN.currentBoard.isStreaming()) {
-            PopupMessage msg = new PopupMessage(MAIN, "Info", "Streaming needs to be stopped before accessing Hardware Settings");
+            PopupMessage msg = new PopupMessage(MAIN, "提示", "在进入硬件设置之前，必须先停止流媒体播放");
             return;
         }
 
         boolean inSync = adsSettingsController.setIsVisible(visible);
 
         if (!visible && adsSettingsController != null && inSync) {
-            buttonText = "Hardware Settings";
+            buttonText = "硬件设置";
         }
         hwSettingsButton.setCaptionLabel(buttonText);
     }

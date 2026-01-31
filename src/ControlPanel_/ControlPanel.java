@@ -193,7 +193,7 @@ public class ControlPanel{
                         channelCountBox.y = serialBox.y + serialBox.h;
                         if (rcBox.isShowing) {
                             comPortBox.draw();
-                            rcBox.draw();
+//                          rcBox.draw();
                             comPortBox.serialList.setVisible(true);
                             if (channelPopup.wasClicked()) {
                                 channelPopup.draw();
@@ -255,9 +255,9 @@ public class ControlPanel{
             MAIN.strokeWeight(1);
             MAIN.stroke(MAIN.boxStrokeColor);
             MAIN.rect(x, y, w, dataSourceBox.h); //draw background of box
-            String stopInstructions = "Press the \"STOP SESSION\" button to change your data source or edit system settings.";
+            String stopInstructions = "按下 \"停止连接\" 按键来切换数据源或更改系统设置";
             MAIN.textAlign(CENTER, TOP);
-            MAIN.textFont(p4, 14);
+            MAIN.textFont(p7, 14);
             MAIN.fill(MAIN.OPENBCI_DARKBLUE);
             MAIN.text(stopInstructions, x + globalPadding*2, y + globalPadding*3, w - globalPadding*4, dataSourceBox.h - globalPadding*4);
             MAIN.popStyle();
@@ -267,7 +267,7 @@ public class ControlPanel{
     public void hideRadioPopoutBox() {
         rcBox.isShowing = false;
         comPortBox.isShowing = false;
-        serialBox.popOutRadioConfigButton.getCaptionLabel().setText("Manual >");
+        serialBox.popOutRadioConfigButton.getCaptionLabel().setText("手动 >");
         rcBox.closeSerialPort();
     }
 

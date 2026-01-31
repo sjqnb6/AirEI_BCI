@@ -43,6 +43,7 @@ class PlaybackScrollbar  {
     private PApplet applet;
     public PlaybackScrollbar (GUI MAIN, int _x, int _y, int _w, int _h, float xp, float yp, int sw, int sh) {
         this.MAIN = MAIN;
+        applet = MAIN;
 //        super(_parent);
         x = _x;
         y = _y;

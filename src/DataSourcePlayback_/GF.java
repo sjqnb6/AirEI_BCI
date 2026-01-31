@@ -29,7 +29,7 @@ public class GF {
                 if (strCurrentLine.startsWith(infoToCheck)) {
 //                    String[] splitCurrentLine = split(strCurrentLine, "OpenBCI_GUI$");
 //                    underlyingBoardClassName = splitCurrentLine[1];
-                    String[] splitCurrentLine = split(strCurrentLine, "= ");
+                    String[] splitCurrentLine = split(strCurrentLine, ".");
                     underlyingBoardClassName = splitCurrentLine[1];
                 }
                 lineCounter++;

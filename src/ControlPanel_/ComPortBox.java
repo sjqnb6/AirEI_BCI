@@ -52,7 +52,7 @@ public class ComPortBox{
         cytoncpb_cp5.setGraphics(MAIN, 0,0);
         cytoncpb_cp5.setAutoDraw(false);
 
-        createRefreshCytonDonglesButton("refreshCytonDonglesButton", "REFRESH LIST", x + padding, y + padding*4 + 72 + 8, w - padding*2, 24);
+        createRefreshCytonDonglesButton("refreshCytonDonglesButton", "刷新列表", x + padding, y + padding*4 + 72 + 8, w - padding*2, 24);
         createCytonDongleList(cytoncpb_cp5, "cytonDongleList", x + padding, y + padding*3 + 8,  w - padding*2, 72, p3);
     }
 
@@ -77,9 +77,9 @@ public class ComPortBox{
         MAIN.strokeWeight(1);
         MAIN.rect(x, y, w, h);
         MAIN.fill(MAIN.OPENBCI_DARKBLUE);
-        MAIN.textFont(h3, 16);
+        MAIN.textFont(p7, 16);
         MAIN.textAlign(LEFT, TOP);
-        MAIN.text("SERIAL/COM PORT", x + padding, y + padding);
+        MAIN.text("串口/COM端口", x + padding, y + padding);
         MAIN.popStyle();
 
         cytoncpb_cp5.draw();
@@ -102,7 +102,7 @@ public class ComPortBox{
                 if (theEvent.getAction() == ControlP5.ACTION_BROADCAST) {
                     Map bob = serialList.getItem((int)(serialList.getValue()));
                     openBCI_portName = (String)bob.get("subline");
-                    output("ControlPanel: Selected OpenBCI Port " + openBCI_portName);
+                    output("控制板: 选择了端口： " + openBCI_portName);
                 }
             }
         });
@@ -117,11 +117,11 @@ public class ComPortBox{
             if (cytonRadioCfg.get_channel()) {
                 controlPanel.initBox.initButtonPressed();
             } else {
-                outputWarn("Found a Cyton dongle, but could not connect to the board. Auto-Scanning now...");
+                outputWarn("找到了一个设备，但无法连接到电路板。现在自动扫描......");
                 midAutoScan = true;
             }
         } else {
-            outputWarn("No Cyton dongles were found.");
+            outputWarn("没有发现设备.");
         }
     }
 
@@ -132,7 +132,7 @@ public class ComPortBox{
             println("Successfully connected to Cyton using " + openBCI_portName);
             controlPanel.initBox.initButtonPressed();
         } else {
-            outputError("Unable to connect to Cyton. Please check hardware and power source.");
+            outputError("无法连接设备。请检查硬件和电源。");
         }
     }
 
@@ -142,22 +142,22 @@ public class ComPortBox{
 
         Thread thread = new Thread(){
             public void run(){
-                refreshCytonDongles.getCaptionLabel().setText("SEARCHING...");
+                refreshCytonDongles.getCaptionLabel().setText("搜寻中...");
 
                 LinkedList<String> comPorts = getCytonComPorts();
                 for (String comPort : comPorts) {
                     serialList.addItem("(Cyton) " + comPort, comPort, "");
                 }
                 serialList.updateMenu();
-                refreshCytonDongles.getCaptionLabel().setText("REFRESH LIST");
+                refreshCytonDongles.getCaptionLabel().setText("刷新列表");
             }
         };
 
         thread.start();
     }
-
+    // 
     private LinkedList<String> getCytonComPorts() {
-        final String[] names = {"FT231X USB UART", "VCP"};
+        final String[] names = {"USB Single Serial","USB-Enhanced-SERIAL", "USB Serial"};
         final SerialPort[] comPorts = SerialPort.getCommPorts();
         LinkedList<String> results = new LinkedList<String>();
         for (SerialPort comPort : comPorts) {

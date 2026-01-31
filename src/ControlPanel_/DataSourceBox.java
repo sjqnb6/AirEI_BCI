@@ -55,7 +55,7 @@ public class DataSourceBox{
         MAIN.fill(MAIN.OPENBCI_DARKBLUE);
         MAIN.textFont(p7, 16);
         MAIN.textAlign(LEFT, TOP);
-        MAIN.text("数据库", x + padding, y + padding);
+        MAIN.text("数据源", x + padding, y + padding);
         MAIN.popStyle();
 
         datasource_cp5.draw();

@@ -1,15 +1,18 @@
 package BoardBrainflow_;
 
+import com.fazecast.jSerialComm.SerialPort;
 import Board_.Board;
 import Globel.GUI;
 import PopupMessage_.PopupMessage;
+import SerialParser_.CytonSerialParser;
 import brainflow.BoardIds;
 import brainflow.BoardShim;
 import brainflow.BrainFlowError;
 import brainflow.BrainFlowInputParams;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-
+import com.fazecast.jSerialComm.SerialPort;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -23,6 +26,7 @@ import static processing.core.PApplet.println;
 
 public abstract class BoardBrainFlow extends Board {
     GUI MAIN;
+    protected CytonSerialParser parser = null;
     protected BoardShim boardShim = null;
     protected int samplingRateCache = -1;
     protected int sampleIndexChannelCache = -1;
@@ -49,8 +53,7 @@ public abstract class BoardBrainFlow extends Board {
         this.MAIN = MAIN;
     }
 
-    @Override
-    public boolean initializeInternal() {
+    public boolean initializeInternal1() {
         try {
             boardShim = new BoardShim (getBoardIdInt(), getParams());
             try {
@@ -76,22 +79,69 @@ public abstract class BoardBrainFlow extends Board {
             return false;
         }
     }
+    public boolean initializeInternal() {
+        try {
+            if(getBoardIdInt() == 0 )parser = new CytonSerialParser(20000);
+            else{
+                boardShim = new BoardShim (getBoardIdInt(), getParams());
+                try {
+                    BoardShim.enable_dev_board_logger();
+                    BoardShim.set_log_file(MAIN.directoryManager.getConsoleDataPath() + "Brainflow_" +
+                            MAIN.directoryManager.getFileNameDateTime() + ".txt");
+                } catch (BrainFlowError e) {
+                    e.printStackTrace();
+                }
+                boardShim.prepare_session();
+            }
+            /*
+            //This does not seem to work with Windows and Processing.
+            //For now, we will add a streamer using argument for start_stream(). -RW 9/18/2023
+            if (brainflowStreamer != "")
+                boardShim.add_streamer(brainflowStreamer);
+            */
+            return true;
+
+        } catch (Exception e) {
+            boardShim = null;
+            outputError("错误: " + e + " 未能初始化数据版,没有数据流产生");
+            e.printStackTrace();
+            return false;
+        }
+    }
 
     @Override
     public void uninitializeInternal() {
         if(isConnected()) {
-            try {
-                boardShim.release_session();
-            } catch (BrainFlowError e) {
-                println("WARNING: could not release brainflow board.");
-                e.printStackTrace();
-            }
+            parser.close();
         }
     }
 
     @Override
     public void updateInternal() {
         // empty
+    }
+
+
+    // 开始进行数据流传输
+    public void startStreaming1() {
+        super.startStreaming();
+
+        println("Brainflow start streaming");
+        if(streaming) {
+            println("Already streaming, do nothing");
+            return;
+        }
+
+        try {
+            //sendToSerialPort("COM5", 'b');
+            boardShim.start_stream (450000, MAIN.brainflowStreamer);
+            streaming = true;
+        }
+        catch (BrainFlowError e) {
+            println("ERROR: Exception when starting stream");
+            e.printStackTrace();
+            streaming = false;
+        }
     }
 
     @Override
@@ -105,18 +155,15 @@ public abstract class BoardBrainFlow extends Board {
         }
 
         try {
-            boardShim.start_stream (450000, MAIN.brainflowStreamer);
+            //sendToSerialPort("COM5", 'b');
+            parser.start_stream(MAIN.openBCI_portName, 921600);
             streaming = true;
-        }
-        catch (BrainFlowError e) {
-            println("ERROR: Exception when starting stream");
+        } catch(IOException e){
             e.printStackTrace();
-            streaming = false;
         }
     }
 
-    @Override
-    public void stopStreaming() {
+    public void stopStreaming1() {
         super.stopStreaming();
 
         println("Brainflow stop streaming");
@@ -130,7 +177,7 @@ public abstract class BoardBrainFlow extends Board {
             time_last_datapoint = -1.0;
         }
         catch (BrainFlowError e) {
-            outputError("ERROR: Exception when stopping stream. Please restart the Board and Session.");
+            outputError("错误：停止数据流时出现异常，请重启主板和会话");
             e.printStackTrace();
             //If no data was received in X seconds, there is a serious problem with communications. Go ahead and stop trying to collect data.
             //Prevents feedback loop of errors.
@@ -143,9 +190,28 @@ public abstract class BoardBrainFlow extends Board {
             MAIN.dataLogger.fileWriterBF.incrementBrainFlowStreamerFileNumber();
         }
     }
+    public void stopStreaming() {
+        if(getBoardIdInt() != 0) {
+            stopStreaming1();
+            return ;
+        }
+        super.stopStreaming();
 
-    @Override
-    public boolean isConnected() {
+        println("Brainflow stop streaming");
+        if(!streaming) {
+            println("Already stopped streaming, do nothing");
+            return;
+        }
+        parser.stop_stream();
+        streaming = false;
+        time_last_datapoint = -1.0;
+
+        if (MAIN.eegDataSource != MAIN.DATASOURCE_PLAYBACKFILE && MAIN.eegDataSource != MAIN.DATASOURCE_STREAMING) {
+            MAIN.dataLogger.fileWriterBF.incrementBrainFlowStreamerFileNumber();
+        }
+    }
+
+    public boolean isConnected1() {
         if (boardShim != null) {
             try {
                 return boardShim.is_prepared();
@@ -156,7 +222,18 @@ public abstract class BoardBrainFlow extends Board {
 
         return false;
     }
+    @Override
+    public boolean isConnected() {
+        if (parser != null) {
+            try {
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
+        return false;
+    }
     @Override
     public boolean isStreaming() {
         return streaming;
@@ -176,68 +253,85 @@ public abstract class BoardBrainFlow extends Board {
         return samplingRateCache;
     }
 
-    @Override
-    public int[] getEXGChannels() {
-        if(exgChannelsCache == null) {
-            int[] channels;
-            // for some boards there can be duplicates
-            SortedSet<Integer> set = new TreeSet<Integer>();
-            // maybe it will be nice to add method like get_exg_channels to brainflow to avoid this ugly code?
-            // but I doubt that smth else will need it and in python I know how to implement it better using existing API
-            try {
-                channels = BoardShim.get_eeg_channels(getBoardIdInt());
-                for(int i = 0; i < channels.length; i++) {
-                    set.add(channels[i]);
-                }
-            } catch (BrainFlowError e) {
-                println("WARNING: failed to get eeg channels from BoardShim");
-            }
-            try {
-                channels = BoardShim.get_emg_channels(getBoardIdInt());
-                for(int i = 0; i < channels.length; i++) {
-                    set.add(channels[i]);
-                }
-            } catch (BrainFlowError e) {
-                println("WARNING: failed to get emg channels from BoardShim");
-            }
-            try {
-                channels = BoardShim.get_ecg_channels(getBoardIdInt());
-                for(int i = 0; i < channels.length; i++) {
-                    set.add(channels[i]);
-                }
-            } catch (BrainFlowError e) {
-                println("WARNING: failed to get ecg channels from BoardShim");
-            }
-            try {
-                channels = BoardShim.get_eog_channels(getBoardIdInt());
-                for(int i = 0; i < channels.length; i++) {
-                    set.add(channels[i]);
-                }
-            } catch (BrainFlowError e) {
-                println("WARNING: failed to get eog channels from BoardShim");
-            }
-            Integer[] toArray = set.toArray(new Integer[set.size()]);
-            exgChannelsCache = new int[toArray.length];
-            for (int i = 0; i < toArray.length; i++) {
-                exgChannelsCache[i] = toArray[i].intValue();
-            }
-        }
+//    @Override
+//    public int[] getEXGChannels() {
+//        if(exgChannelsCache == null) {
+//            int[] channels;
+//            // for some boards there can be duplicates
+//            SortedSet<Integer> set = new TreeSet<Integer>();
+//            // maybe it will be nice to add method like get_exg_channels to brainflow to avoid this ugly code?
+//            // but I doubt that smth else will need it and in python I know how to implement it better using existing API
+//            try {
+//                channels = BoardShim.get_eeg_channels(getBoardIdInt());
+//                for(int i = 0; i < channels.length; i++) {
+//                    set.add(channels[i]);
+//                }
+//            } catch (BrainFlowError e) {
+//                println("WARNING: failed to get eeg channels from BoardShim");
+//            }
+//            try {
+//                channels = BoardShim.get_emg_channels(getBoardIdInt());
+//                for(int i = 0; i < channels.length; i++) {
+//                    set.add(channels[i]);
+//                }
+//            } catch (BrainFlowError e) {
+//                println("WARNING: failed to get emg channels from BoardShim");
+//            }
+//            try {
+//                channels = BoardShim.get_ecg_channels(getBoardIdInt());
+//                for(int i = 0; i < channels.length; i++) {
+//                    set.add(channels[i]);
+//                }
+//            } catch (BrainFlowError e) {
+//                println("WARNING: failed to get ecg channels from BoardShim");
+//            }
+//            try {
+//                channels = BoardShim.get_eog_channels(getBoardIdInt());
+//                for(int i = 0; i < channels.length; i++) {
+//                    set.add(channels[i]);
+//                }
+//            } catch (BrainFlowError e) {
+//                println("WARNING: failed to get eog channels from BoardShim");
+//            }
+//            Integer[] toArray = set.toArray(new Integer[set.size()]);
+//            exgChannelsCache = new int[toArray.length];
+//            for (int i = 0; i < toArray.length; i++) {
+//                exgChannelsCache[i] = toArray[i].intValue();
+//            }
+//        }
+//
+//        return exgChannelsCache;
+//    }
+public int[] getEXGChannels() {
 
-        return exgChannelsCache;
-    }
-
+    return new int[]{0, 1, 2, 3, 4, 5, 6, 7};
+}
+//    @Override
+//    public int getTimestampChannel() {
+//        if(timeStampChannelCache < 0) {
+//            try {
+//                timeStampChannelCache = BoardShim.get_timestamp_channel(getBoardIdInt());
+//            } catch (BrainFlowError e) {
+//                println("WARNING: failed to get timestamp channel from BoardShim");
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        return timeStampChannelCache;
+//    }
     @Override
     public int getTimestampChannel() {
-        if(timeStampChannelCache < 0) {
-            try {
-                timeStampChannelCache = BoardShim.get_timestamp_channel(getBoardIdInt());
-            } catch (BrainFlowError e) {
-                println("WARNING: failed to get timestamp channel from BoardShim");
-                e.printStackTrace();
-            }
-        }
-
-        return timeStampChannelCache;
+        return 10;
+//        if(timeStampChannelCache < 0) {
+//            try {
+//                timeStampChannelCache = BoardShim.get_timestamp_channel(getBoardIdInt());
+//            } catch (BrainFlowError e) {
+//                println("WARNING: failed to get timestamp channel from BoardShim");
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        return timeStampChannelCache;
     }
 
     @Override
@@ -267,7 +361,7 @@ public abstract class BoardBrainFlow extends Board {
                 return new ImmutablePair<Boolean, String>(Boolean.valueOf(true), resp);
             }
             catch (BrainFlowError e) {
-                outputError("ERROR: " + e + " when sending command: " + command);
+                outputError("错误: " + e + " 发送指令: " + command);
                 e.printStackTrace();
                 return new ImmutablePair<Boolean, String>(Boolean.valueOf(false), "");
             }
@@ -275,8 +369,8 @@ public abstract class BoardBrainFlow extends Board {
         return new ImmutablePair<Boolean, String>(Boolean.valueOf(false), "");
     }
 
-    @Override
-    protected double[][] getNewDataInternal() {
+
+    protected double[][] getNewDataInternal1() {
         if(streaming) {
             try {
                 double[][] data = boardShim.get_board_data();
@@ -285,10 +379,10 @@ public abstract class BoardBrainFlow extends Board {
                     double timeout = 5.0;
                     if (cur_time - time_last_datapoint > timeout) {
                         if (data_popup_displayed == false) {
-                            PopupMessage msg = new PopupMessage(MAIN,"Data Streaming Error",
-                                    "No new data received in " + timeout + " seconds. Please check your device and restart a GUI session.");
+                            PopupMessage msg = new PopupMessage(MAIN,"数据流错误",
+                                    "没有接收到数据持续" + timeout + " 秒. 请检查设备并且重启连接.");
                         }
-                        outputError("Data Streaming Error: No new data received in " + timeout + " seconds. Please check your device and restart a GUI session.");
+                        outputError("数据流错误：未收到新数据持续 " + timeout + " 秒. 请检查您的设备并重启GUI会话.");
                         data_popup_displayed = true;
                         stopRunning(MAIN);
                         topNav.resetStartStopButton();
@@ -306,6 +400,33 @@ public abstract class BoardBrainFlow extends Board {
 
         return emptyData;
     }
+    protected double[][] getNewDataInternal() {
+        if(getBoardIdInt() != 0) return getNewDataInternal1();
+        if(streaming) {
+            double[][] data = parser.get_data();
+            if ((data[0].length == 0) && (time_last_datapoint > 0)) {
+                double cur_time = System.currentTimeMillis() / 1000L;
+                double timeout = 5.0;
+                if (cur_time - time_last_datapoint > timeout) {
+                    if (data_popup_displayed == false) {
+                        PopupMessage msg = new PopupMessage(MAIN,"数据流错误",
+                                "没有接收到数据累计 " + timeout + " 秒. 请检查设备并且重启连接.");
+                    }
+                    outputError("没有接收到数据，累计 " + timeout + " 秒. 请检查设备并且重启连接");
+                    data_popup_displayed = true;
+                    stopRunning(MAIN);
+                    topNav.resetStartStopButton();
+                }
+            } else {
+                time_last_datapoint = System.currentTimeMillis() / 1000L;
+                data_popup_displayed = false;
+            }
+            return data;
+        }
+
+        return emptyData;
+    }
+
 
     @Override
     public int getTotalChannelCount() {
@@ -366,5 +487,42 @@ public abstract class BoardBrainFlow extends Board {
     @Override
     public void insertMarker(int value) {
         insertMarker((double) value);
+    }
+    private void sendToSerialPort(String portName, char c) {
+        SerialPort[] ports = SerialPort.getCommPorts();
+        SerialPort targetPort = null;
+
+        // 查找指定的串口
+        for (SerialPort port : ports) {
+            if (port.getSystemPortName().equals(portName)) {
+                targetPort = port;
+                break;
+            }
+        }
+
+        if (targetPort != null) {
+            try {
+                // 打开串口（波特率115200，数据位8，停止位1，无奇偶校验）
+                if (!targetPort.isOpen()) {
+                    targetPort.setComPortParameters(115200, 8, SerialPort.ONE_STOP_BIT, SerialPort.NO_PARITY);
+                    targetPort.openPort();
+                }
+
+                // 发送字符
+                byte[] buffer = new byte[] { (byte) c };
+                int bytesWritten = targetPort.writeBytes(buffer, 1);
+
+                if (bytesWritten > 0) {
+                    println("Successfully sent character '" + c + "' to " + portName);
+                } else {
+                    println("Failed to send character '" + c + "' to " + portName);
+                }
+            } catch (Exception e) {
+                println("Error sending to serial port: " + e.getMessage());
+                e.printStackTrace();
+            }
+        } else {
+            println("Serial port " + portName + " not found");
+        }
     }
 };

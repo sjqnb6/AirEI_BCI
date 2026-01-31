@@ -55,9 +55,9 @@ public class FilterUIPopup extends PApplet implements Runnable {
     private String buttonMessage = "OK";
     private String buttonLink = null;
 
-    private int headerColor = MAIN.OPENBCI_BLUE;
-    private int buttonColor = MAIN.OPENBCI_BLUE;
-    private int backgroundColor = MAIN.GREY_235;
+    private int headerColor;
+    private int buttonColor;
+    private int backgroundColor;
 
     private ControlP5 cp5;
 
@@ -118,7 +118,9 @@ public class FilterUIPopup extends PApplet implements Runnable {
         super();
         this.MAIN = MAIN;
         filterUIPopupIsOpen = true;
-
+        headerColor = MAIN.OPENBCI_BLUE;
+        buttonColor = MAIN.OPENBCI_BLUE;
+        backgroundColor = MAIN.GREY_235;
         Thread t = new Thread(this);
         t.start();
 
@@ -239,7 +241,7 @@ public class FilterUIPopup extends PApplet implements Runnable {
         }
 
         // Draw text labels
-        textFont(p3, 16);
+        textFont(p7, 16);
         textAlign(RIGHT, TOP);
         // Header labels
         fill(MAIN.WHITE);
@@ -558,7 +560,7 @@ public class FilterUIPopup extends PApplet implements Runnable {
                 .setPosition(_x, _y)
                 .setCaptionLabel("")
                 .setSize(_w, _h)
-                .setFont(createFont("Arial",12,true))
+                .setFont(p7)//createFont("Arial",12,true)
                 .setFocus(false)
                 .setColor(color(26, 26, 26))
                 .setColorBackground(color(255, 255, 255)) // text field bg color
@@ -575,7 +577,7 @@ public class FilterUIPopup extends PApplet implements Runnable {
         //Clear textfield on double click
         myTextfield.onDoublePress(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
-                output("Custom Filtering: Enter your custom filter frequency.");
+                output("自定义过滤：输入你的自定义过滤频率。");
                 myTextfield.clear();
             }
         });
@@ -826,7 +828,7 @@ public class FilterUIPopup extends PApplet implements Runnable {
         list.getCaptionLabel() //the caption label is the text object in the primary bar
                 .toUpperCase(false) //DO NOT AUTOSET TO UPPERCASE!!!
                 .setText(e.getString())
-                .setFont(h5)
+                .setFont(p7)
                 .setSize(12)
                 .getStyle() //need to grab style before affecting the paddingTop
                 .setPaddingTop(4)
@@ -834,7 +836,7 @@ public class FilterUIPopup extends PApplet implements Runnable {
         list.getValueLabel() //the value label is connected to the text objects in the dropdown item bars
                 .toUpperCase(false) //DO NOT AUTOSET TO UPPERCASE!!!
                 .setText(e.getString())
-                .setFont(p6)
+                .setFont(p7)
                 .setSize(10) //set the font size of the item bars to 14pt
                 .getStyle() //need to grab style before affecting the paddingTop
                 .setPaddingTop(3) //4-pixel vertical offset to center text

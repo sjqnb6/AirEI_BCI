@@ -49,10 +49,10 @@ public class W_EMGJoystick extends Widget {
     private float polarWindowY;
     private int polarWindowDiameter;
     private int polarWindowHalfDiameter;
-    private int graphStroke = MAIN.color(210);
-    private int graphBG = MAIN.color(245);
-    private int textColor = MAIN.OPENBCI_DARKBLUE;
-    private int strokeColor = MAIN.color(138, 146, 153);
+    private int graphStroke;
+    private int graphBG;
+    private int textColor;
+    private int strokeColor;
     private final int INDICATOR_DIAMETER = 15;
     private final int BAR_WIDTH = 10;
     private final int BAR_HEIGHT = 30;
@@ -85,14 +85,22 @@ public class W_EMGJoystick extends Widget {
     private TextBox yPositiveInputDropdownLabel;
     private TextBox yNegativeInputDropdownLabel;
 
-    private PImage xNegativeInputLabelImage = MAIN.loadImage("LEFT_100x100.png");
-    private PImage xPositiveInputLabelImage = MAIN.loadImage("RIGHT_100x100.png");
-    private PImage yPositiveInputLabelImage = MAIN.loadImage("UP_100x100.png");
-    private PImage yNegativeInputLabelImage = MAIN.loadImage("DOWN_100x100.png");
+    private PImage xNegativeInputLabelImage;
+    private PImage xPositiveInputLabelImage;
+    private PImage yPositiveInputLabelImage;
+    private PImage yNegativeInputLabelImage;
 
     public W_EMGJoystick(GUI MAIN){
         super(MAIN); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
         this.MAIN = MAIN;
+        graphStroke = MAIN.color(210);
+        graphBG = MAIN.color(245);
+        textColor = MAIN.OPENBCI_DARKBLUE;
+        strokeColor = MAIN.color(138, 146, 153);
+        xNegativeInputLabelImage = MAIN.loadImage("LEFT_100x100.png");
+        xPositiveInputLabelImage = MAIN.loadImage("RIGHT_100x100.png");
+        yPositiveInputLabelImage = MAIN.loadImage("UP_100x100.png");
+        yNegativeInputLabelImage = MAIN.loadImage("DOWN_100x100.png");
         emgCp5 = new ControlP5(MAIN);
         emgCp5.setGraphics(MAIN, 0,0);
         emgCp5.setAutoDraw(false);
