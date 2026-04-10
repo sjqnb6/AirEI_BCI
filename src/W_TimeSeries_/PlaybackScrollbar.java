@@ -132,11 +132,13 @@ class PlaybackScrollbar  {
     String getAbsoluteTimeToDisplay() {
         List<double[]> currentData = MAIN.currentBoard.getData(1);
         int timeStampChan = MAIN.currentBoard.getTimestampChannel();
+        //System.out.println(timeStampChan);
+
         long timestampMS = (long)(currentData.get(0)[timeStampChan] * 1000.0);
         if(timestampMS == 0) {
             return "";
         }
-
+        //System.out.println(timeStampFormat.format(new Date(timestampMS)));
         return timeStampFormat.format(new Date(timestampMS));
     }
 

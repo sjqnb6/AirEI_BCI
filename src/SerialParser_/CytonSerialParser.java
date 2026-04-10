@@ -111,13 +111,20 @@ public class CytonSerialParser implements AutoCloseable{
         try {
             int n = count;
             double[][] out = new double[NUM_TOTAL][n];
+            // ADS1299 ADC counts to microvolts (uV) scale factor
+            // Formula: 4.5V / (2^23 - 1) / 24 gain * 1,000,000
+            final double SCALE_FACTOR_UV = 4.5 / 8388607.0 / 24.0 * 1000000.0;
 
             for (int i = 0; i < n; i++) {
                 int idx = (readPos + i) % capacity;
                 int[] sample = ring[idx];
                 for (int ch = 0; ch < NUM_CHANNELS; ch++) {
-                    out[ch][i] = (double)sample[ch];
+                    out[ch][i] = (double)sample[ch] * SCALE_FACTOR_UV;
                 }
+                Long timestampMS = System.currentTimeMillis();
+                out[22][i] = ((double)timestampMS / 1000.0);
+
+
             }
 
             // drain

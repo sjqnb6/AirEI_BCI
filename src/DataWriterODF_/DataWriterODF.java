@@ -57,7 +57,7 @@ public class DataWriterODF {
                 output.print(data[iChan][iSample]);
                 output.print(", ");
             }
-
+            
             //int timestampChan = getTimestampChannel();
             // *1000 to convert from seconds to milliserconds
             //long timestampMS = (long)(data[timestampChan][iSample] * 1000.0);

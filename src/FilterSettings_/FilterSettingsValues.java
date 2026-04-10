@@ -60,7 +60,7 @@ public class FilterSettingsValues {
         //Set Master Values for all channels for BandPass Filter
         //Default to 5-50Hz BandPass on all channels since this has been the default for years
         masterBandPassFilterActive = FilterActiveOnChannel.ON;
-        masterBandPassStartFreq = 5;
+        masterBandPassStartFreq = 0.4;
         masterBandPassStopFreq = 50;
         masterBandPassFilterType = BrainFlowFilterType.BUTTERWORTH;
         masterBandPassFilterOrder = BrainFlowFilterOrder.FOUR;

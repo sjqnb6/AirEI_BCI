@@ -95,7 +95,7 @@ public class Main extends GUI {
     public void setup() {
         super.setup();
         println("=== OpenBCI GUI Setup Started ===");
-        frameRate(120);  // 设置draw函数执行频率
+        frameRate(30);  // 设置draw函数执行频率
         surface.setResizable(true);         // ✅ 允许最大化        frameRate(90);  // 设置draw函数执行频率
         surface.setLocation(100, 50);  // 将窗口左上角设置在屏幕坐标 (100, 50)
 
