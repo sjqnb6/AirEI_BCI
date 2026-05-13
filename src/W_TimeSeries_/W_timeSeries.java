@@ -162,6 +162,10 @@ public class W_timeSeries extends Widget {
         tsChanSelect.update(x, y, w);
 
         //Update and resize all active channels
+        // 先把所有通道移到可视区外，避免未激活通道的UI组件拦截鼠标事件
+        for (ChannelBar cb : channelBars) {
+            cb.resize(-10000, -10000, cb.w, cb.defaultH);
+        }
         for(int i = 0; i < tsChanSelect.activeChan.size(); i++) {
             int activeChan = tsChanSelect.activeChan.get(i);
             int channelBarY = (int)(ts_y + chanSelectOffset) + i*(channelBarHeight); //iterate through bar locations

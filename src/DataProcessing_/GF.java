@@ -52,8 +52,8 @@ public class GF {
     public static void processNewData(GUI MAIN) {
 
         List<double[]> currentData = MAIN.currentBoard.getData(getCurrentBoardBufferSize(MAIN));
-        int[] exgChannels = new int[]{0, 1, 2, 3, 4, 5, 6, 7};
-        int channelCount = 8;
+        int[] exgChannels = MAIN.currentBoard.getEXGChannels();
+        int channelCount = MAIN.currentBoard.getNumEXGChannels();
         //update the data buffers
         for (int Ichan=0; Ichan < channelCount; Ichan++) {
             for(int i = 0; i < getCurrentBoardBufferSize(MAIN); i++) {
