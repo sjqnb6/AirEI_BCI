@@ -77,11 +77,11 @@ public class W_fft extends Widget {
         //This is the protocol for setting up dropdowns.
         //Note that these 3 dropdowns correspond to the 3 global functions below
         //You just need to make sure the "id" (the 1st String) has the same name as the corresponding function
-        addDropdown("MaxFreq", "Max Freq", Arrays.asList(MAIN.settings.fftMaxFrqArray), MAIN.settings.fftMaxFrqSave);
-        addDropdown("VertScale", "Max uV", Arrays.asList(MAIN.settings.fftVertScaleArray), MAIN.settings.fftMaxuVSave);
-        addDropdown("LogLin", "Log/Lin", Arrays.asList(MAIN.settings.fftLogLinArray), MAIN.settings.fftLogLinSave);
-        addDropdown("Smoothing", "Smooth", Arrays.asList(MAIN.settings.fftSmoothingArray), smoothFac_ind); //smoothFac_ind is a global variable at the top of W_HeadPlot.pde
-        addDropdown("UnfiltFilt", "Filters?", Arrays.asList(MAIN.settings.fftFilterArray), MAIN.settings.fftFilterSave);
+        addDropdown("MaxFreq", "频率上限", Arrays.asList(MAIN.settings.fftMaxFrqArray), MAIN.settings.fftMaxFrqSave);
+        addDropdown("VertScale", "幅值上限", Arrays.asList(MAIN.settings.fftVertScaleArray), MAIN.settings.fftMaxuVSave);
+        addDropdown("LogLin", "对数/线性刻度", Arrays.asList(MAIN.settings.fftLogLinArray), MAIN.settings.fftLogLinSave);
+        addDropdown("Smoothing", "曲线平滑", Arrays.asList(MAIN.settings.fftSmoothingArray), smoothFac_ind); //smoothFac_ind is a global variable at the top of W_HeadPlot.pde
+        addDropdown("UnfiltFilt", "滤波设置", Arrays.asList(MAIN.settings.fftFilterArray), MAIN.settings.fftFilterSave);
 
         fft_points = new GPointsArray[nchan];
         // println("fft_points.length: " + fft_points.length);
@@ -92,9 +92,9 @@ public class W_fft extends Widget {
     void initializeFFTPlot(PApplet _parent) {
         //setup GPlot for FFT
         fft_plot = new GPlot(_parent, x, y-navHeight, w, h+navHeight); //based on container dimensions
-        fft_plot.setAllFontProperties("Arial", 0, 14);
-        fft_plot.getXAxis().setAxisLabelText("Frequency (Hz)");
-        fft_plot.getYAxis().setAxisLabelText("Amplitude (uV)");
+        fft_plot.setAllFontProperties("Microsoft YaHei", 0, 14); // Use a font that supports Chinese characters
+        fft_plot.getXAxis().setAxisLabelText("频率 (Hz)");
+        fft_plot.getYAxis().setAxisLabelText("幅值 (uV)");
         fft_plot.setMar(60, 70, 40, 30); //{ bot=60, left=70, top=40, right=30 } by default
         fft_plot.setLogScale("y");
 

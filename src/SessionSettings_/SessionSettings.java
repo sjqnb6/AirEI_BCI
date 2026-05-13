@@ -148,13 +148,13 @@ public class SessionSettings {
     //Used to set text in dropdown menus when loading FFT settings
     public String[] fftMaxFrqArray = {"20 Hz", "40 Hz", "60 Hz", "100 Hz", "120 Hz", "250 Hz", "500 Hz", "800 Hz"};
     public String[] fftVertScaleArray = {"10 uV", "50 uV", "100 uV", "1000 uV"};
-    public String[] fftLogLinArray = {"Log", "Linear"}; //share this with spectrogram also
+    public String[] fftLogLinArray = {"对数", "线性"}; //share this with spectrogram also
     public String[] fftSmoothingArray = {"0.0", "0.5", "0.75", "0.9", "0.95", "0.98", "0.99", "0.999"};
-    public String[] fftFilterArray = {"Filtered", "Unfilt."};
+    public String[] fftFilterArray = {"已滤波", "未滤波"};
 
     //Used to set text in dropdown menus when loading Accelerometer settings
-    public String[] accVertScaleArray = {"Auto","1 g", "2 g", "4 g"};
-    public String[] accHorizScaleArray = {"Sync", "1 sec", "3 sec", "5 sec", "10 sec", "20 sec"};
+    public String[] accVertScaleArray = {"自动","1 g", "2 g", "4 g"};
+    public String[] accHorizScaleArray = {"同步", "1 s", "3 s", "5 s", "10 s", "20 s"};
 
     //Used to set text in dropdown menus when loading Analog Read settings
     public String[] arVertScaleArray = {"Auto", "50", "100", "200", "400", "1000", "10000"};

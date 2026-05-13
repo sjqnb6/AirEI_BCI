@@ -7,9 +7,9 @@ import java.util.List;
 
 public enum FocusXLim implements IndexingInterface
 {
-    FIVE (0, 5, "5 sec"),
-    TEN (1, 10, "10 sec"),
-    TWENTY (2, 20, "20 sec");
+    FIVE (0, 5, "5 s"),
+    TEN (1, 10, "10 s"),
+    TWENTY (2, 20, "20 s");
 
     private int index;
     private int value;

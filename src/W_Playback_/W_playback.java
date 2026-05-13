@@ -156,7 +156,7 @@ public class W_playback extends Widget {
         selectPlaybackFileButton.setBorderColor(CP.OBJECT_BORDER_GREY);
         selectPlaybackFileButton.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
-                output("选择播放文件");
+                output("选择回放文件");
                 pApplet.selectInput("选择预录文件播放：", "playbackSelectedWidgetButton");
             }
         });

@@ -94,7 +94,7 @@ public class GF {
         dataLogger.onStartStreaming();
         MAIN.currentBoard.startStreaming();
         if (MAIN.currentBoard.isStreaming()) {
-            output("Data stream started.");
+            output("数据流开始了。");
             // todo: this should really be some sort of signal that listeners can register for "OnStreamStarted"
             // close hardware settings if user starts streaming
             w_timeSeries.closeADSSettings();

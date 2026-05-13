@@ -8,7 +8,7 @@ import java.util.List;
 
 public enum FocusClassifier implements IndexingInterface
 {
-    REGRESSION (0, "Regression", BrainFlowClassifiers.DEFAULT_CLASSIFIER);
+    REGRESSION (0, "回归模型", BrainFlowClassifiers.DEFAULT_CLASSIFIER);
 
     private int index;
     private int value;

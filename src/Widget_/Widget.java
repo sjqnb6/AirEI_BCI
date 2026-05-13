@@ -125,7 +125,7 @@ public class Widget{
         scrollList.getValueLabel() //the value label is connected to the text objects in the dropdown item bars
                 .toUpperCase(false) //DO NOT AUTOSET TO UPPERCASE!!!
                 .setText(widgetTitle)
-                .setFont(h5)
+                .setFont(p7)
                 .setSize(12) //set the font size of the item bars to 14pt
                 .getStyle() //need to grab style before affecting the paddingTop
                 .setPaddingTop(3) //4-pixel vertical offset to center text
@@ -161,6 +161,7 @@ public class Widget{
             int dropdownPos = dropdowns.size() - i;
             // println("dropdowns.get(i).id = " + dropdowns.get(i).id);
             ScrollableList scrollList = cp5_widget.addScrollableList(dropdowns.get(i).id)
+                    .plugTo(this)
                     .setPosition(x0+w0-(dropdownWidth*(dropdownPos))-(2*(dropdownPos)), y0 + navH + 2) //float right
                     .setFont(p7)
                     .setOpen(false)

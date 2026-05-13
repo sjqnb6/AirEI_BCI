@@ -49,9 +49,9 @@ public class FocusBar{
         plot.setYLim(0, yLimit); //change this to adjust vertical scale
         //plot.setPointSize(2);
         plot.setPointColor(0);
-        plot.getXAxis().setAxisLabelText("Time (s)");
-        plot.getYAxis().setAxisLabelText("Metric Value");
-        plot.setAllFontProperties("Arial", 0, 14);
+        plot.getXAxis().setAxisLabelText("时间 (s)");
+        plot.getYAxis().setAxisLabelText("专注度指标");
+        plot.setAllFontProperties("Microsoft YaHei", 0, 14);
         plot.getXAxis().getAxisLabel().setOffset((float)(22));
         plot.getYAxis().getAxisLabel().setOffset((float)(focusBarPadding));
         plot.getXAxis().setFontColor(MAIN.OPENBCI_DARKBLUE);

@@ -8,8 +8,8 @@ import java.util.List;
 
 public enum FocusMetric implements IndexingInterface
 {
-    CONCENTRATION (0, "Concentration", BrainFlowMetrics.MINDFULNESS, "Concentrating"),
-    RELAXATION (1, "Relaxation", BrainFlowMetrics.RESTFULNESS, "Relaxing");
+    CONCENTRATION (0, "专注", BrainFlowMetrics.MINDFULNESS, "Concentrating"),
+    RELAXATION (1, "放松", BrainFlowMetrics.RESTFULNESS, "Relaxing");
 
     private int index;
     private String label;

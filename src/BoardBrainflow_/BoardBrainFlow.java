@@ -157,7 +157,7 @@ public abstract class BoardBrainFlow extends Board {
 
         println("Brainflow start streaming");
 
-
+        // --------------------------------------可能在这里进行websocket连接？---------------------
         if(streaming) {
             println("Already streaming, do nothing");
             return;
@@ -317,7 +317,7 @@ public abstract class BoardBrainFlow extends Board {
 //    }
 public int[] getEXGChannels() {
 
-    return new int[]{0, 1, 2, 3, 4, 5, 6, 7};
+    return new int[]{1, 2, 3, 4, 5, 6, 7, 8};
 }
 //    @Override
 //    public int getTimestampChannel() {

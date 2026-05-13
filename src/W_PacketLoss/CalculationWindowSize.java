@@ -2,9 +2,9 @@ package W_PacketLoss;
 
 public enum CalculationWindowSize
 {
-    SECONDS1("1 sec", 1*1000),
-    SECONDS10("10 sec", 10*1000),
-    MINUTE1("1 min", 60*1000);
+    SECONDS1("过去一秒", 1*1000),
+    SECONDS10("过去10秒", 10*1000),
+    MINUTE1("过去1分钟", 60*1000);
 
     private String name;
     private int milliseconds;

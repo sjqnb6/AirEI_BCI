@@ -101,17 +101,17 @@ public class W_Focus extends Widget {
 
         //This is the protocol for setting up dropdowns.
         dropdownWidth = 60; //Override the default dropdown width for this widget
-        addDropdown("focusMetricDropdown", "Metric", focusMetric.getEnumStringsAsList(), focusMetric.getIndex());
-        addDropdown("focusClassifierDropdown", "Classifier", focusClassifier.getEnumStringsAsList(), focusClassifier.getIndex());
-        addDropdown("focusThresholdDropdown", "Threshold", focusThreshold.getEnumStringsAsList(), focusThreshold.getIndex());
-        addDropdown("focusWindowDropdown", "Window", xLimit.getEnumStringsAsList(), xLimit.getIndex());
+        addDropdown("focusMetricDropdown", "监测指标", focusMetric.getEnumStringsAsList(), focusMetric.getIndex());
+        addDropdown("focusClassifierDropdown", "分类器", focusClassifier.getEnumStringsAsList(), focusClassifier.getIndex());
+        addDropdown("focusThresholdDropdown", "阈值", focusThreshold.getEnumStringsAsList(), focusThreshold.getIndex());
+        addDropdown("focusWindowDropdown", "窗口", xLimit.getEnumStringsAsList(), xLimit.getIndex());
 
 
         //Create data table
         dataGrid = new Grid(MAIN, NUM_TABLE_ROWS, NUM_TABLE_COLUMNS, cellHeight);
-        dataGrid.setTableFontAndSize(p5, 12);
+        dataGrid.setTableFontAndSize(p7, 12);
         dataGrid.setDrawTableBorder(true);
-        dataGrid.setString("Metric Value", 0, 0);
+        dataGrid.setString("量化值", 0, 0);
         dataGrid.setString("Delta (1.5-4Hz)", 1, 0);
         dataGrid.setString("Theta (4-8Hz)", 2, 0);
         dataGrid.setString("Alpha (7.5-13Hz)", 3, 0);

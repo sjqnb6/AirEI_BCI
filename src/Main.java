@@ -39,7 +39,7 @@ import gifAnimation.Gif;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.lang3.tuple.Pair;
 import processing.core.PApplet;
-
+import brainflow.BoardIds;
 import java.io.File;
 
 import static Containers_.GF.drawContainers;
@@ -94,6 +94,20 @@ public class Main extends GUI {
 
     public void setup() {
         super.setup();
+//        try {
+//            System.out.println(BoardShim.get_package_num_channel(BoardIds.CYTON_BOARD));
+//        } catch (BrainFlowError e) {
+//            throw new RuntimeException(e);
+//        }
+//        try {
+//            int[] channels = BoardShim.get_eeg_channels(0);
+//            for(int i = 0; i < channels.length; i++){
+//                System.out.println(channels[i]);
+//            }
+//        } catch (BrainFlowError e) {
+//            throw new RuntimeException(e);
+//        };
+        System.out.println("---------------------------------------------------");
         println("=== OpenBCI GUI Setup Started ===");
         frameRate(30);  // 设置draw函数执行频率
         surface.setResizable(true);         // ✅ 允许最大化        frameRate(90);  // 设置draw函数执行频率
@@ -430,9 +444,9 @@ public class Main extends GUI {
 
         //Draw Session Start overlay on top of everything
         if (midInit) {
-            drawOverlay("Starting Session...");
+            drawOverlay("正在连接...");
         } else if (controlPanel.comPortBox.isAutoScanningForCytonSerial()) {
-            drawOverlay("Auto-Scanning for Cyton...");
+            drawOverlay("自动扫描 Cyton...");
         }
 
         //Display GUI version and FPS in the title bar of the app
@@ -762,7 +776,7 @@ public class Main extends GUI {
         popStyle();
 
         pushStyle();
-        textFont(p0, 24);
+        textFont(p7, 24);
         fill(boxColor, 255);
         stroke(OPENBCI_DARKBLUE, 200);
         rect(width/2 - (textWidth(text)+20)/2, height/2 - 80/2, textWidth(text) + 20, 80);

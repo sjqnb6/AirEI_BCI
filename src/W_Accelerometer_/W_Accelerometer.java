@@ -83,8 +83,8 @@ public class W_Accelerometer extends Widget {
         MAIN.settings.accHorizScaleSave = 3;
 
         //Make dropdowns
-        addDropdown("accelVertScale", "Vert Scale", Arrays.asList(MAIN.settings.accVertScaleArray), MAIN.settings.accVertScaleSave);
-        addDropdown("accelDuration", "Window", Arrays.asList(MAIN.settings.accHorizScaleArray), MAIN.settings.accHorizScaleSave);
+        addDropdown("accelVertScale", "垂直刻度", Arrays.asList(MAIN.settings.accVertScaleArray), MAIN.settings.accVertScaleSave);
+        addDropdown("accelDuration", "窗口", Arrays.asList(MAIN.settings.accHorizScaleArray), MAIN.settings.accHorizScaleSave);
 
         setGraphDimensions();
         yMaxMin = adjustYMaxMinBasedOnSource();

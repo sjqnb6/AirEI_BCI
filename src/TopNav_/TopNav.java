@@ -116,7 +116,7 @@ public class TopNav {
             createFiltersButton("滤波", PAD_3*2 + toggleDataStreamingButton.getWidth(), SUBNAV_BUT_Y, SUBNAV_BUT_W, SUBNAV_BUT_H, p7, 14, SUBNAV_LIGHTBLUE, MAIN.WHITE);
 
             //Appears at Top Right SubNav while in a Session
-            createLayoutButton("Layout", MAIN.width - 3 - 60, SUBNAV_BUT_Y, 60, SUBNAV_BUT_H, p7, 14, SUBNAV_LIGHTBLUE, MAIN.WHITE);
+            createLayoutButton("界面布局", MAIN.width - 3 - 60, SUBNAV_BUT_Y, 60, SUBNAV_BUT_H, p7, 14, SUBNAV_LIGHTBLUE, MAIN.WHITE);
             secondaryNavInit = true;
         }
 
@@ -146,12 +146,12 @@ public class TopNav {
                 tutorialSelector.update();
                 if ((int)(settingsButton.getPosition()[0]) != MAIN.width - (SUBNAV_BUT_W*2) + 3) {
                     settingsButton.setPosition(MAIN.width - (SUBNAV_BUT_W*2) + 3, SUBNAV_BUT_Y);
-                    verbosePrint("TopNav: Updated Settings Button Position");
+                    verbosePrint("TopNav：更新设置按钮位置");
                 }
             } else {
                 if ((int)(settingsButton.getPosition()[0]) != MAIN.width - 70 - 3) {
                     settingsButton.setPosition(MAIN.width - 70 - 3, SUBNAV_BUT_Y);
-                    verbosePrint("TopNav: Updated Settings Button Position");
+                    verbosePrint("TopNav：更新设置按钮位置");
                 }
             }
             configSelector.update();

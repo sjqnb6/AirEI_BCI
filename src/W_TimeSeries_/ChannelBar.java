@@ -99,12 +99,12 @@ class ChannelBar {
         plot.setYLim(yAxisLowerLim, yAxisUpperLim);
         plot.setPointSize(2);
         plot.setPointColor(0);
-        plot.setAllFontProperties("Arial", 0, 14);
+        plot.setAllFontProperties("Microsoft YaHei", 0, 14);
         plot.getXAxis().setFontColor(MAIN.OPENBCI_DARKBLUE);
         plot.getXAxis().setLineColor(MAIN.OPENBCI_DARKBLUE);
         plot.getXAxis().getAxisLabel().setFontColor(MAIN.OPENBCI_DARKBLUE);
         if(channelIndex == nchan-1) {
-            plot.getXAxis().setAxisLabelText("Time (s)");
+            plot.getXAxis().setAxisLabelText("时间 (s)");
             plot.getXAxis().getAxisLabel().setOffset(plotBottomWellH/2 + 5f);
         }
         // plot.setBgColor(OPENBCI_BLUE);

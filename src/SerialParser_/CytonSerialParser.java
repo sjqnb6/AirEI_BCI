@@ -13,6 +13,7 @@ public class CytonSerialParser implements AutoCloseable{
     private static final int FRAME_SIZE = 33;
     private static final byte HEADER = (byte) 0xA0;
     private static final byte TAIL   = (byte) 0xC0;
+    private static final int NUM_STORED = NUM_CHANNELS + 1;
     // ===== ring buffer: [capacity][8 channels] =====
     private final int capacity;
     private final int[][] ring; // ring[sampleIndex][channel]
@@ -27,7 +28,7 @@ public class CytonSerialParser implements AutoCloseable{
     private volatile boolean running = false;    // ===== parser state =====
     private final byte[] frame = new byte[FRAME_SIZE];
     private int framePos = 0; // how many bytes already filled in frame[]
-    private final int[] tmpSample = new int[NUM_CHANNELS]; // reused, no per-frame allocation
+    private final int[] tmpSample = new int[NUM_STORED]; // reused, no per-frame allocation
 
     // ===== optional debug stats =====
     private volatile long parsedFrames = 0;
@@ -39,7 +40,7 @@ public class CytonSerialParser implements AutoCloseable{
             throw new IllegalArgumentException("bufferCapacitySamples must be > 0");
         }
         this.capacity = bufferCapacitySamples;
-        this.ring = new int[capacity][NUM_CHANNELS];
+        this.ring = new int[capacity][NUM_STORED];
     }    /**
      * Start serial streaming + parsing in a background thread.
      *
@@ -118,8 +119,9 @@ public class CytonSerialParser implements AutoCloseable{
             for (int i = 0; i < n; i++) {
                 int idx = (readPos + i) % capacity;
                 int[] sample = ring[idx];
+                out[0][i] = sample[0]; // Package Num
                 for (int ch = 0; ch < NUM_CHANNELS; ch++) {
-                    out[ch][i] = (double)sample[ch] * SCALE_FACTOR_UV;
+                    out[ch + 1][i] = (double)sample[ch + 1] * SCALE_FACTOR_UV;
                 }
                 Long timestampMS = System.currentTimeMillis();
                 out[22][i] = ((double)timestampMS / 1000.0);
@@ -223,6 +225,8 @@ public class CytonSerialParser implements AutoCloseable{
             if (packetId != expected) discontinuities++;
         }
         lastPacketId = packetId;
+        
+        tmpSample[0] = packetId;
 
         int off = 2;
         for (int ch = 0; ch < NUM_CHANNELS; ch++) {
@@ -235,7 +239,7 @@ public class CytonSerialParser implements AutoCloseable{
                 raw |= 0xFF000000;
             }
 
-            tmpSample[ch] = raw;
+            tmpSample[ch + 1] = raw;
             off += 3;
         }
 
@@ -249,7 +253,7 @@ public class CytonSerialParser implements AutoCloseable{
         bufferLock.lock();
         try {
             int[] slot = ring[writePos];
-            System.arraycopy(sample, 0, slot, 0, NUM_CHANNELS);
+            System.arraycopy(sample, 0, slot, 0, NUM_STORED);
 
             if (count == capacity) {
                 // overwrite oldest

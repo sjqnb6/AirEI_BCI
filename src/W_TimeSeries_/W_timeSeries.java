@@ -97,7 +97,7 @@ public class W_timeSeries extends Widget {
 
         //This is a newer protocol for setting up dropdowns.
         addDropdown("VertScale_TS", "垂直刻度", yLimit.getEnumStringsAsList(), yLimit.getIndex());
-        addDropdown("Duration", "窗口", xLimit.getEnumStringsAsList(), xLimit.getIndex());
+        addDropdown("Duration", "时间窗口", xLimit.getEnumStringsAsList(), xLimit.getIndex());
 
         //Instantiate scrollbar if using playback mode and scrollbar feature in use
         if((MAIN.currentBoard instanceof FileBoard) && hasScrollbar) {
@@ -354,12 +354,12 @@ public class W_timeSeries extends Widget {
             channelBars[i].adjustTimeAxis(xLimit.getValue());
         }
     }
-    void VertScale_TS(int n) {
+    public void VertScale_TS(int n) {
         w_timeSeries.setTSVertScale(n);
     }
 
     //triggered when there is an event in the Duration Dropdown
-    void Duration(int n) {
+    public void Duration(int n) {
         w_timeSeries.setTSHorizScale(n);
 
         int newDuration = w_timeSeries.getTSHorizScale().getValue();

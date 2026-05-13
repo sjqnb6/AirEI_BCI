@@ -7,7 +7,7 @@ import java.util.List;
 
 public enum EmgJoystickSmoothing implements IndexingInterface
 {
-    OFF (0, "Off", 0f),
+    OFF (0, "关闭", 0f),
     POINT_9 (1, "0.9", .9f),
     POINT_95 (2, "0.95", .95f),
     POINT_98 (3, "0.98", .98f),

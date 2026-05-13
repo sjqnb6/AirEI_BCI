@@ -58,8 +58,8 @@ public class W_BandPower extends Widget {
         cp5ElementsToCheck.addAll(bpChanSelect.getCp5ElementsForOverlapCheck());
 
         //Add settings dropdowns
-        addDropdown("Smoothing", "Smooth", Arrays.asList(MAIN.settings.fftSmoothingArray), MAIN.smoothFac_ind); //smoothFac_ind is a global variable at the top of W_HeadPlot.pde
-        addDropdown("UnfiltFilt", "Filters?", Arrays.asList(MAIN.settings.fftFilterArray), MAIN.settings.fftFilterSave);
+        addDropdown("Smoothing", "平滑度", Arrays.asList(MAIN.settings.fftSmoothingArray), MAIN.smoothFac_ind); //smoothFac_ind is a global variable at the top of W_HeadPlot.pde
+        addDropdown("UnfiltFilt", "滤波", Arrays.asList(MAIN.settings.fftFilterArray), MAIN.settings.fftFilterSave);
 
         // Setup for the BandPower plot
         bp_plot = new GPlot(MAIN, x, y-navHeight, w, h+navHeight);
@@ -72,9 +72,9 @@ public class W_BandPower extends Widget {
         bp_plot.getXAxis().setNTicks(0);
         bp_plot.getTitle().setTextAlignment(MAIN.LEFT);
         bp_plot.getTitle().setRelativePos(0);
-        bp_plot.setAllFontProperties("Arial", 0, 14);
-        bp_plot.getYAxis().getAxisLabel().setText("Power — (uV)^2 / Hz");
-        bp_plot.getXAxis().setAxisLabelText("EEG Power Bands");
+        bp_plot.setAllFontProperties("Microsoft YaHei", 0, 14);
+        bp_plot.getYAxis().getAxisLabel().setText("功率 — (uV)^2 / Hz");
+        bp_plot.getXAxis().setAxisLabelText("脑电频段");
         bp_plot.getXAxis().getAxisLabel().setOffset(42f);
         bp_plot.startHistograms(GPlot.VERTICAL);
         bp_plot.getHistogram().setDrawLabels(true);

@@ -11,8 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static Globel.GUI.nchan;
-import static Globel.GUI.p5;
+import static Globel.GUI.*;
 import static processing.core.PConstants.CENTER;
 import static processing.core.PConstants.TOP;
 import Globel.GUI;
@@ -94,10 +93,10 @@ public class ChannelSelect {
             } else {
                 applet.fill(CP.OPENBCI_DARKBLUE);
             }
-            applet.textFont(p5, 12);
+            applet.textFont(p7, 12);
 
-            applet.text("Channels", chanSelectXPos, y - 6);
-            tri_xpos = x + applet.textWidth("Channels") + 7;
+            applet.text("通道", chanSelectXPos, y - 6);
+            tri_xpos = x + applet.textWidth("通道") + 7;
 
             //draw triangle as pointing up or down, depending on if channel Select is active or closed
             if (!isVisible) {

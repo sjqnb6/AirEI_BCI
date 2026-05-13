@@ -59,7 +59,10 @@ public class ButtonHelpText {
             MAIN.textLeading(lineSpacing); //line spacing
             MAIN.stroke(31,69,110, masterOpacity);
             MAIN.fill(255, masterOpacity);
-            numLines = (int)((float)myText.length()/30.0) + 1; //add 1 to round up
+            numLines = 0;
+            for (String line : myText.split("\n")) {
+                numLines += (int)((float)line.length()/30.0) + 1;
+            }
             // println("numLines: " + numLines);
             //if on left side of screen, draw box brightness to prevent box off screen
             if(x <= MAIN.width/2){

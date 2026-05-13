@@ -61,10 +61,12 @@ public abstract class Board implements DataSource {
         updateInternal();
 
         dataThisFrame = getNewDataInternal();
+        // 把数据发送给 Python 侧的 WebSocket 连接用来做脑电分析
+        PythonIntegration_.PythonWsClient.getInstance().pushData(dataThisFrame);
 
         for (int i = 0; i < dataThisFrame[0].length; i++) {
             double[] newEntry = new double[30];
-            for (int j = 0; j < 8; j++) {
+            for (int j = 0; j < 30; j++) {
                 newEntry[j] = dataThisFrame[j][i];
             }
 

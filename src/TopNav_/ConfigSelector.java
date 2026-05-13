@@ -57,19 +57,19 @@ public class ConfigSelector {
         isVisible = false;
 
         int buttonNumber = 0;
-        createExpertModeButton("expertMode", "Turn Expert Mode On", x + margin, y + margin*(buttonNumber+1) + b_h*(buttonNumber), b_w, b_h);
+        createExpertModeButton("expertMode", "启用专家模式", x + margin, y + margin*(buttonNumber+1) + b_h*(buttonNumber), b_w, b_h);
         buttonNumber++;
-        createSaveSettingsButton("saveSessionSettings", "Save", x + margin, y + margin*(buttonNumber+1) + b_h*(buttonNumber), b_w, b_h);
+        createSaveSettingsButton("saveSessionSettings", "保存", x + margin, y + margin*(buttonNumber+1) + b_h*(buttonNumber), b_w, b_h);
         buttonNumber++;
-        createLoadSettingsButton("loadSessionSettings", "Load", x + margin, y + margin*(buttonNumber+1) + b_h*(buttonNumber), b_w, b_h);
+        createLoadSettingsButton("loadSessionSettings", "加载", x + margin, y + margin*(buttonNumber+1) + b_h*(buttonNumber), b_w, b_h);
         buttonNumber++;
-        createDefaultSettingsButton("defaultSessionSettings", "Default", x + margin, y + margin*(buttonNumber+1) + b_h*(buttonNumber), b_w, b_h);
+        createDefaultSettingsButton("defaultSessionSettings", "默认", x + margin, y + margin*(buttonNumber+1) + b_h*(buttonNumber), b_w, b_h);
         buttonNumber++;
-        createClearAllSettingsButton("clearAllGUISettings", "Clear All", x + margin, y + margin*(buttonNumber+1) + b_h*(buttonNumber), b_w, b_h);
+        createClearAllSettingsButton("clearAllGUISettings", "清除全部设置", x + margin, y + margin*(buttonNumber+1) + b_h*(buttonNumber), b_w, b_h);
         buttonNumber += 2;
-        createClearSettingsNoButton("clearAllSettingsNo", "No", x + margin, y + margin*(buttonNumber+1) + b_h*(buttonNumber), b_w, b_h);
+        createClearSettingsNoButton("clearAllSettingsNo", "否", x + margin, y + margin*(buttonNumber+1) + b_h*(buttonNumber), b_w, b_h);
         buttonNumber++;
-        createClearSettingsYesButton("clearAllSettingsYes", "Yes", x + margin, y + margin*(buttonNumber+1) + b_h*(buttonNumber), b_w, b_h);
+        createClearSettingsYesButton("clearAllSettingsYes", "是", x + margin, y + margin*(buttonNumber+1) + b_h*(buttonNumber), b_w, b_h);
     }
 
     public void update() {
@@ -89,10 +89,10 @@ public class ConfigSelector {
             defaultSessionSettings.setVisible(isSessionStarted);
 
             if (clearAllSettingsPressed) {
-                MAIN.textFont(p2, 16);
+                MAIN.textFont(p7, 16);
                 MAIN.fill(255);
                 MAIN.textAlign(MAIN.CENTER);
-                MAIN.text("Are You Sure?", x + w/2, clearAllGUISettings.getPosition()[1] + b_h*2);
+                MAIN.text("确定执行?", x + w/2, clearAllGUISettings.getPosition()[1] + b_h*2);
             }
             clearAllSettingsYes.setVisible(clearAllSettingsPressed);
             clearAllSettingsNo.setVisible(clearAllSettingsPressed);
@@ -190,20 +190,20 @@ public class ConfigSelector {
     }
 
     private void createExpertModeButton(String name, String text, int _x, int _y, int _w, int _h) {
-        expertMode = MAIN.createButton(settings_cp5, name, text, _x, _y, _w, _h, p5, 12, MAIN.BUTTON_NOOBGREEN, MAIN.WHITE);
+        expertMode = MAIN.createButton(settings_cp5, name, text, _x, _y, _w, _h, p7, 12, MAIN.BUTTON_NOOBGREEN, MAIN.WHITE);
         expertMode.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 toggleVisibility();
                 boolean isActive = !guiSettings.getExpertModeBoolean();
                 toggleExpertModeFrontEnd(isActive);
                 String outputMsg = isActive ?
-                        "Expert Mode ON: All keyboard shortcuts and features are enabled!" :
-                        "Expert Mode OFF: Use spacebar to start/stop the data stream.";
+                        "专家模式开启：所有键盘快捷键和功能均已启用！" :
+                        "专家模式关闭：使用空格键启动/停止数据流。";
                 output(outputMsg);
                 guiSettings.setExpertMode(isActive ? ExpertModeEnum.ON : ExpertModeEnum.OFF);
             }
         });
-        expertMode.setDescription("Expert Mode enables advanced keyboard shortcuts and access to all GUI features.");
+        expertMode.setDescription("专家模式可启用高级键盘快捷键\n并访问所有 GUI 功能。");
     }
 
     private void createSaveSettingsButton(String name, String text, int _x, int _y, int _w, int _h) {
@@ -214,7 +214,7 @@ public class ConfigSelector {
                 MAIN.settings.saveButtonPressed();
             }
         });
-        saveSessionSettings.setDescription("Expert Mode enables advanced keyboard shortcuts and access to all GUI features.");
+        saveSessionSettings.setDescription("专家模式可启用高级键盘快捷键\n并访问所有 GUI 功能。");
     }
 
     private void createLoadSettingsButton(String name, String text, int _x, int _y, int _w, int _h) {
@@ -225,7 +225,7 @@ public class ConfigSelector {
                 MAIN.settings.loadButtonPressed();
             }
         });
-        loadSessionSettings.setDescription("Expert Mode enables advanced keyboard shortcuts and access to all GUI features.");
+        loadSessionSettings.setDescription("专家模式可启用高级键盘快捷键\n并访问所有 GUI 功能。");
     }
 
     private void createDefaultSettingsButton(String name, String text, int _x, int _y, int _w, int _h) {
@@ -236,11 +236,11 @@ public class ConfigSelector {
                 MAIN.settings.defaultButtonPressed();
             }
         });
-        defaultSessionSettings.setDescription("Expert Mode enables advanced keyboard shortcuts and access to all GUI features.");
+        defaultSessionSettings.setDescription("专家模式可启用高级键盘快捷键\n并访问所有 GUI 功能。");
     }
 
     private void createClearAllSettingsButton(String name, String text, int _x, int _y, int _w, int _h) {
-        clearAllGUISettings = MAIN.createButton(settings_cp5, name, text, _x, _y, _w, _h, p5, 12, MAIN.BUTTON_CAUTIONRED, MAIN.WHITE);
+        clearAllGUISettings = MAIN.createButton(settings_cp5, name, text, _x, _y, _w, _h, p7, 12, MAIN.BUTTON_CAUTIONRED, MAIN.WHITE);
         clearAllGUISettings.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 //Leave box open if this button was pressed and toggle flag
@@ -250,7 +250,7 @@ public class ConfigSelector {
                 h += clearAllSettingsPressed ? delta_h : -delta_h;
             }
         });
-        clearAllGUISettings.setDescription("This will clear all user settings and playback history. You will be asked to confirm.");
+        clearAllGUISettings.setDescription("这将清除所有用户设置和回放\n历史记录。系统会要求您确认。");
     }
 
     private void createClearSettingsNoButton(String name, String text, int _x, int _y, int _w, int _h) {
@@ -282,15 +282,15 @@ public class ConfigSelector {
                 }
             }
         });
-        clearAllSettingsYes.setDescription("Clicking 'Yes' will delete all user settings and stop the session if running.");
+        clearAllSettingsYes.setDescription("单击“是”将删除所有用户设置并停止会话。");
     }
 
     public void toggleExpertModeFrontEnd(boolean b) {
         if (b) {
-            expertMode.getCaptionLabel().setText("Turn Expert Mode Off");
+            expertMode.getCaptionLabel().setText("关闭专家模式");
             expertMode.setColorBackground(MAIN.BUTTON_EXPERTPURPLE);
         } else {
-            expertMode.getCaptionLabel().setText("Turn Expert Mode On");
+            expertMode.getCaptionLabel().setText("启用专家模式");
             expertMode.setColorBackground(MAIN.BUTTON_NOOBGREEN);
         }
     }

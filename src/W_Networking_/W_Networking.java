@@ -157,7 +157,7 @@ public class W_Networking extends Widget {
 
         protocolMode = "UDP"; // Set Default to UDP
         protocolIndex = 0; // Set Default to UDP
-        addDropdown("Protocol", "Protocol", protocols, protocolIndex);
+        addDropdown("Protocol", "协议", protocols, protocolIndex);
         serialNetworkingComPorts = new ArrayList<String>(getComPorts());
         defaultBaud = "57600";
         verbosePrint("serialNetworkingComPorts = " + serialNetworkingComPorts);
@@ -678,30 +678,30 @@ public class W_Networking extends Widget {
     }
 
     private void createGuideButton() {
-        guideButton = MAIN.createButton(cp5_networking, "networkingGuideButton", "Networking Guide", (int) (x0 + 1),
-                (int) (y0 + navH + 1), 125, navH - 3, p5, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
+        guideButton = MAIN.createButton(cp5_networking, "networkingGuideButton", "网络指南", (int) (x0 + 1),
+                (int) (y0 + navH + 1), 125, navH - 3, p7, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
         guideButton.setBorderColor(MAIN.OBJECT_BORDER_GREY);
         guideButton.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 openURLInBrowser(NETWORKING_GUIDE_URL);
-                output("Opening Networking Widget Guide using default browser.");
+                output("使用默认浏览器打开网络工具指南。");
             }
         });
-        guideButton.setDescription("Click to open the Networking Widget Guide in your default browser.");
+        guideButton.setDescription("单击可在默认浏览器中打开网络工具指南。");
     }
 
     private void createDataOutputsButton() {
-        dataOutputsButton = MAIN.createButton(cp5_networking, "dataOutputsButton", "Data Outputs",
-                x0 + 1 + 3 + guideButton.getWidth(), y0 + navH + 1, 100, navH - 3, p5, 12, MAIN.colorNotPressed,
+        dataOutputsButton = MAIN.createButton(cp5_networking, "dataOutputsButton", "数据输出",
+                x0 + 1 + 3 + guideButton.getWidth(), y0 + navH + 1, 100, navH - 3, p7, 12, MAIN.colorNotPressed,
                 MAIN.OPENBCI_DARKBLUE);
         dataOutputsButton.setBorderColor(MAIN.OBJECT_BORDER_GREY);
         dataOutputsButton.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 openURLInBrowser(NETWORKING_DATA_OUTPUTS_URL);
-                output("Opening Networking Data Outputs Guide using default browser.");
+                output("使用默认浏览器打开网络数据输出指南。");
             }
         });
-        dataOutputsButton.setDescription("Click to open the Networking Data Outputs Guide in your default browser.");
+        dataOutputsButton.setDescription("单击可在默认浏览器中打开网络数据输出指南。");
     }
 
     /* Creating DataType Dropdowns */

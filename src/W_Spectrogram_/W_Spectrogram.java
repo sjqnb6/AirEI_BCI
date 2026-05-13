@@ -121,7 +121,7 @@ public class W_Spectrogram extends Widget {
         //You just need to make sure the "id" (the 1st String) has the same name as the corresponding function
         addDropdown("SpectrogramMaxFreq", "最大频率", Arrays.asList(MAIN.settings.spectMaxFrqArray), MAIN.settings.spectMaxFrqSave);
         addDropdown("SpectrogramSampleRate", "采样率", Arrays.asList(MAIN.settings.spectSampleRateArray), MAIN.settings.spectSampleRateSave);
-        addDropdown("SpectrogramLogLin", "对数线", Arrays.asList(MAIN.settings.fftLogLinArray), MAIN.settings.spectLogLinSave);
+        addDropdown("SpectrogramLogLin", "对数/线性", Arrays.asList(MAIN.settings.fftLogLinArray), MAIN.settings.spectLogLinSave);
 
         //Resize the height of the data image using default
         dataImageH = vertAxisLabel[0] * 2;
@@ -293,7 +293,8 @@ public class W_Spectrogram extends Widget {
         MAIN.fill(255);
         MAIN.textSize(14);
         //draw horizontal axis label
-        MAIN.text("Time", x + w/2 - MAIN.textWidth("Time")/3, y + h - 9);
+        MAIN.textFont(MAIN.p7);
+        MAIN.text("时间", x + w/2 - MAIN.textWidth("时间")/3, y + h - 9);
         MAIN.noFill();
         MAIN.stroke(255);
         MAIN.strokeWeight(2);
@@ -322,11 +323,12 @@ public class W_Spectrogram extends Widget {
         MAIN.pushStyle();
         MAIN.pushMatrix();
         MAIN.rotate(MAIN.radians(-90));
-        MAIN.translate(-h/2 - MAIN.textWidth("Frequency (Hz)")/3, 20);
+        MAIN.translate(-h/2 - MAIN.textWidth("频率 (Hz)")/3, 20);
         MAIN.fill(255);
         MAIN.textSize(14);
+        MAIN.textFont(MAIN.p7);
         //draw y axis label
-        MAIN.text("Frequency (Hz)", -y, x);
+        MAIN.text("频率 (Hz)", -y, x);
         MAIN.popMatrix();
         MAIN.popStyle();
 

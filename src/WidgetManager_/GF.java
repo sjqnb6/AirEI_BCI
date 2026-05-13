@@ -22,6 +22,7 @@ import W_Marker_.W_Marker;
 import W_Networking_.W_Networking;
 import W_PacketLoss.W_PacketLoss;
 import W_Playback_.W_playback;
+import W_Prediction_.W_Prediction;
 import W_PulseSensor_.W_PulseSensor;
 import W_Spectrogram_.W_Spectrogram;
 import W_Template_.W_template;
@@ -42,29 +43,29 @@ public class GF {
 
         //Widget_0 -- The Widget number helps when debugging GUI front-end
         w_timeSeries = new W_timeSeries(_this);
-        w_timeSeries.setTitle("Time Series");
+        w_timeSeries.setTitle("时域波形");
         addWidget(w_timeSeries, w);
 
         //Widget_1
         w_fft = new W_fft(_this);
-        w_fft.setTitle("FFT Plot");
+        w_fft.setTitle("频谱图");
         addWidget(w_fft, w);
 
         if (_this.currentBoard instanceof AccelerometerCapableBoard) {
             w_accelerometer = new W_Accelerometer(_this);
-            w_accelerometer.setTitle("Accelerometer");
+            w_accelerometer.setTitle("加速度计");
             addWidget(w_accelerometer, w);
         }
 
         if (_this.currentBoard instanceof BoardCyton) {
             w_cytonImpedance = new W_CytonImpedance(_this);
-            w_cytonImpedance.setTitle("Cyton Signal");
+            w_cytonImpedance.setTitle("Cyton 信号质量");
             addWidget(w_cytonImpedance, w);
         }
 
         if(_this.currentBoard instanceof DataSourcePlayback){
             w_playback = new W_playback(_this);
-            w_playback.setTitle("Playback History");
+            w_playback.setTitle("回放历史");
             addWidget(w_playback, w);
         }
 
@@ -72,70 +73,74 @@ public class GF {
         if(nchan == 4 && _this.currentBoard instanceof BoardGanglion){
             //If using Ganglion, this is Widget_3
             w_ganglionImpedance = new W_GanglionImpedance(_this);
-            w_ganglionImpedance.setTitle("Ganglion Signal");
+            w_ganglionImpedance.setTitle("Ganglion 信号质量");
             addWidget(w_ganglionImpedance, w);
         }
 
         w_focus = new W_Focus(_this);
-        w_focus.setTitle("Focus Widget");
+        w_focus.setTitle("专注度");
         addWidget(w_focus, w);
 
         w_networking = new W_Networking(_this);
-        w_networking.setTitle("Networking");
+        w_networking.setTitle("网络通讯");
         addWidget(w_networking, w);
 
         w_bandPower = new W_BandPower(_this);
-        w_bandPower.setTitle("Band Power");
+        w_bandPower.setTitle("频带功率");
         addWidget(w_bandPower, w);
 
-        w_headPlot = new W_HeadPlot(_this);
-        w_headPlot.setTitle("Head Plot");
-        addWidget(w_headPlot, w);
+        // w_headPlot = new W_HeadPlot(_this);
+        // w_headPlot.setTitle("脑电地形图");
+        // addWidget(w_headPlot, w);
 
         w_emg = new W_emg(_this);
-        w_emg.setTitle("EMG");
+        w_emg.setTitle("肌电图");
         addWidget(w_emg, w);
 
         w_emgJoystick = new W_EMGJoystick(_this);
-        w_emgJoystick.setTitle("EMG Joystick");
+        w_emgJoystick.setTitle("肌电控制摇杆");
         addWidget(w_emgJoystick, w);
 
         w_spectrogram = new W_Spectrogram(_this);
-        w_spectrogram.setTitle("Spectrogram");
+        w_spectrogram.setTitle("时频图");
         addWidget(w_spectrogram, w);
 
         if(_this.currentBoard instanceof AnalogCapableBoard){
             w_pulsesensor = new W_PulseSensor(_this);
-            w_pulsesensor.setTitle("Pulse Sensor");
+            w_pulsesensor.setTitle("脉搏传感器");
             addWidget(w_pulsesensor, w);
         }
 
         if(_this.currentBoard instanceof DigitalCapableBoard) {
             w_digitalRead = new W_DigitalRead(_this);
-            w_digitalRead.setTitle("Digital Read");
+            w_digitalRead.setTitle("数字信号读取");
             addWidget(w_digitalRead, w);
         }
 
         if(_this.currentBoard instanceof AnalogCapableBoard) {
             w_analogRead = new W_AnalogRead(_this);
-            w_analogRead.setTitle("Analog Read");
+            w_analogRead.setTitle("模拟信号读取");
             addWidget(w_analogRead, w);
         }
 
         if (_this.currentBoard instanceof Board) {
             w_packetLoss = new W_PacketLoss(_this);
-            w_packetLoss.setTitle("Packet Loss");
+            w_packetLoss.setTitle("丢包率");
             addWidget(w_packetLoss, w);
         }
 
         w_marker = new W_Marker(_this);
-        w_marker.setTitle("Marker");
+        w_marker.setTitle("事件标记");
         addWidget(w_marker, w);
 
+        w_prediction = new W_Prediction(_this);
+        w_prediction.setTitle("疲劳检测");
+        addWidget(w_prediction, w);
+
         //DEVELOPERS: Here is an example widget with the essentials/structure in place
-        w_template1 = new W_template(_this);
-        w_template1.setTitle("Widget Template 1");
-        addWidget(w_template1, w);
+        // w_template1 = new W_template(_this);
+        // w_template1.setTitle("Widget Template 1");
+        // addWidget(w_template1, w);
 
 
 

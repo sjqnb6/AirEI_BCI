@@ -74,16 +74,16 @@ public class W_Marker extends Widget {
         createMarkerButtons();
 
         updateGraphDims();
-        addDropdown("markerVertScaleDropdown", "Vert Scale", markerVertScale.getEnumStringsAsList(), markerVertScale.getIndex());
-        addDropdown("markerWindowDropdown", "Window", markerWindow.getEnumStringsAsList(), markerWindow.getIndex());
+        addDropdown("markerVertScaleDropdown", "垂直缩放", markerVertScale.getEnumStringsAsList(), markerVertScale.getIndex());
+        addDropdown("markerWindowDropdown", "窗口", markerWindow.getEnumStringsAsList(), markerWindow.getIndex());
         markerBar = new MarkerBar(MAIN, MAX_NUMBER_OF_MARKER_BUTTONS, markerWindow.getValue(), markerVertScale.getValue(), graphX, graphY, graphW, graphH);
 
         markerUIGrid = new Grid(MAIN, MARKER_UI_GRID_ROWS, MARKER_UI_GRID_COLUMNS, MARKER_UI_GRID_CELL_HEIGHT);
         markerUIGrid.setDrawTableBorder(false);
         markerUIGrid.setDrawTableInnerLines(false);
-        markerUIGrid.setTableFontAndSize(p4, 14);
-        markerUIGrid.setString("Receive IP", 3, 0);
-        markerUIGrid.setString("Receive Port", 3, 2);
+        markerUIGrid.setTableFontAndSize(p7, 14);
+        markerUIGrid.setString("接收IP地址", 3, 0);
+        markerUIGrid.setString("接收端口", 3, 2);
 
         createMarkerReceiveTextfields();
 
@@ -182,7 +182,7 @@ public class W_Marker extends Widget {
     }
 
     private Button createMarkerButton(final int markerNumber, int _x, int _y) {
-        Button newButton = MAIN.createButton(localCP5, "markerButton" + markerNumber, "Insert " + markerNumber, _x, _y, MARKER_BUTTON_WIDTH, MARKER_BUTTON_HEIGHT, p5, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
+        Button newButton = MAIN.createButton(localCP5, "markerButton" + markerNumber, "插入标记 " + markerNumber, _x, _y, MARKER_BUTTON_WIDTH, MARKER_BUTTON_HEIGHT, p7, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
         newButton.setBorderColor(MAIN.OBJECT_BORDER_GREY);
         newButton.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {

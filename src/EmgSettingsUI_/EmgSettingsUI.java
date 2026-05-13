@@ -47,9 +47,9 @@ public class EmgSettingsUI extends PApplet implements Runnable {
     private int footerObjY;
     private int[] footerObjX = new int[NUM_FOOTER_OBJECTS];
 
-    private final int HEADER_COLOR = MAIN.OPENBCI_BLUE;
-    private final int BACKGROUND_COLOR = MAIN.GREY_235;
-    private final int LABEL_COLOR = MAIN.WHITE;
+    private final int HEADER_COLOR;
+    private final int BACKGROUND_COLOR;
+    private final int LABEL_COLOR;
 
     private final int defaultWidth = 600;
     private final int defaultHeight = 600;
@@ -87,6 +87,9 @@ public class EmgSettingsUI extends PApplet implements Runnable {
     public EmgSettingsUI(GUI MAIN) {
         super();
         this.MAIN = MAIN;
+        HEADER_COLOR = MAIN.OPENBCI_BLUE;
+        LABEL_COLOR = MAIN.WHITE;
+        BACKGROUND_COLOR = MAIN.GREY_235;
         MAIN.emgSettingsPopupIsOpen = true;
 
         Thread t = new Thread(this);

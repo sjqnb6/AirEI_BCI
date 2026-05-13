@@ -23,6 +23,8 @@ import Globel.GUI;
     protected PacketLossTracker setupPacketLossTracker() {
         final int minSampleIndex = 0;
         final int maxSampleIndex = 255;
+        System.out.println(getSampleIndexChannel());
+        System.out.println("---------------------------------------------------");
         return new PacketLossTracker(getSampleIndexChannel(), getTimestampChannel(),
                 minSampleIndex, maxSampleIndex);
     }

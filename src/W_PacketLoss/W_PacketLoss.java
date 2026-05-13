@@ -42,13 +42,13 @@ public class W_PacketLoss extends Widget {
         sessionPacketRecord = packetLossTracker.getSessionPacketRecord();
         streamPacketRecord = packetLossTracker.getStreamPacketRecord();
 
-        dataGrid.setString("entire session", 0, 1);
-        dataGrid.setString("contiguous stream", 0, 2);
+        dataGrid.setString("当前会话", 0, 1);
+        dataGrid.setString("连续数据流", 0, 2);
 
-        dataGrid.setString("packets lost", 1, 0);
-        dataGrid.setString("packets received", 2, 0);
-        dataGrid.setString("packets expected", 3, 0);
-        dataGrid.setString("% packets lost", 4, 0);
+        dataGrid.setString("丢包数", 1, 0);
+        dataGrid.setString("接收包数", 2, 0);
+        dataGrid.setString("预期数", 3, 0);
+        dataGrid.setString("丢包率", 4, 0);
 
         createTableDropdown();
 
@@ -75,7 +75,7 @@ public class W_PacketLoss extends Widget {
         tableDropdown.getCaptionLabel() //the caption label is the text object in the primary bar
                 .toUpperCase(false) //DO NOT AUTOSET TO UPPERCASE!!!
                 .setText(tableWindowSize.getName())
-                .setFont(h5)
+                .setFont(p7)
                 .setSize(12)
                 .getStyle() //need to grab style before affecting the paddingTop
                 .setPaddingTop(3)
@@ -83,7 +83,7 @@ public class W_PacketLoss extends Widget {
         tableDropdown.getValueLabel() //the value label is connected to the text objects in the dropdown item bars
                 .toUpperCase(false) //DO NOT AUTOSET TO UPPERCASE!!!
                 .setText("VALUE LABEL")
-                .setFont(h5)
+                .setFont(p7)
                 .setSize(12) //set the font size of the item bars to 14pt
                 .getStyle() //need to grab style before affecting the paddingTop
                 .setPaddingTop(3) //4-pixel vertical offset to center text
@@ -132,8 +132,8 @@ public class W_PacketLoss extends Widget {
         MAIN.pushStyle();
         MAIN.fill(MAIN.OPENBCI_DARKBLUE);
         MAIN.textFont(p7, 12);
-        MAIN.text("Session length: " + sessionTimeElapsed.toString(), x + padding, y + 15);
-        MAIN.text("Stream length: " + streamTimeElapsed.toString(), x + padding, y + 35);
+        MAIN.text("会话时长: " + sessionTimeElapsed.toString(), x + padding, y + 15);
+        MAIN.text("数据流时长: " + streamTimeElapsed.toString(), x + padding, y + 35);
         MAIN.popStyle();
 
         dataGrid.draw();

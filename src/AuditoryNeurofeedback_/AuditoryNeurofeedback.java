@@ -83,26 +83,26 @@ public class AuditoryNeurofeedback{
 
     private void createStartStopButton(int _x, int _y, int _w, int _h) {
         //This is a generalized createButton method that allows us to save code by using a few patterns and method overloading
-        startStopButton = MAIN.createButton(localCP5, "startStopButton", "Turn Audio On", _x, _y, _w, _h, MAIN.p5, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
+        startStopButton = MAIN.createButton(localCP5, "startStopButton", "开启音频", _x, _y, _w, _h, MAIN.p7, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
         //Set the border color explicitely
         startStopButton.setBorderColor(MAIN.OBJECT_BORDER_GREY);
         //For this button, only call the callback listener on mouse release
         startStopButton.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 if (!audioOutputIsAvailable) {
-                    outputError("AuditoryFeedback: Unable to load audio files. To enable this feature, please connect or turn on an audio device and restart the GUI.");
+                    outputError("听觉反馈：无法加载音频文件。若要启用此功能，请连接或打开音频设备，并重新启动GUI（图形界面）。");
                     return;
                 }
                 //If using a TopNav object, ignore interaction with widget object (ex. widgetTemplateButton)
                 if (!topNav.configSelector.isVisible && !topNav.layoutSelector.isVisible) {
                     if (auditoryNfbFilePlayers[0].isPlaying()) {
                         killAudio();
-                        startStopButton.getCaptionLabel().setText("Turn Audio On");
+                        startStopButton.getCaptionLabel().setText("开启音频");
                     } else {
                         for (int i = 0; i < NUM_SOUND_FILES; i++) {
                             auditoryNfbFilePlayers[i].loop();
                         }
-                        startStopButton.getCaptionLabel().setText("Turn Audio Off");
+                        startStopButton.getCaptionLabel().setText("关闭音频");
                     }
                 }
             }
@@ -112,7 +112,7 @@ public class AuditoryNeurofeedback{
 
     private void createModeButton(int _x, int _y, int _w, int _h) {
         //This is a generalized createButton method that allows us to save code by using a few patterns and method overloading
-        modeButton = MAIN.createButton(localCP5, "modeButton", "Use Band Powers", _x, _y, _w, _h, MAIN.p7, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
+        modeButton = MAIN.createButton(localCP5, "modeButton", "频带功率", _x, _y, _w, _h, MAIN.p7, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
         //Set the border color explicitely
         modeButton.setBorderColor(MAIN.OBJECT_BORDER_GREY);
         //For this button, only call the callback listener on mouse release
@@ -120,7 +120,7 @@ public class AuditoryNeurofeedback{
             public void controlEvent(CallbackEvent theEvent) {
                 //If using a TopNav object, ignore interaction with widget object (ex. widgetTemplateButton)
                 if (!topNav.configSelector.isVisible && !topNav.layoutSelector.isVisible) {
-                    String s = !usingBandPowers ? "Use Metric" : "Use Band Powers";
+                    String s = !usingBandPowers ? "综合指标" : "频带功率";
                     modeButton.getCaptionLabel().setText(s);
                     usingBandPowers = !usingBandPowers;
                 }

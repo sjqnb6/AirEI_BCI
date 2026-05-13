@@ -77,10 +77,10 @@ public class AccelerometerBar {
         plot.setYLim(-accelXyzLimit, accelXyzLimit); //change this to adjust vertical scale
         //plot.setPointSize(2);
         plot.setPointColor(0);
-        plot.getXAxis().setAxisLabelText("Time (s)");
-        plot.getYAxis().setAxisLabelText("Acceleration (g)");
+        plot.getXAxis().setAxisLabelText("时间 (s)");
+        plot.getYAxis().setAxisLabelText("加速度 (g)");
         plot.getYAxis().setNTicks(3);
-        plot.setAllFontProperties("Arial", 0, 14);
+        plot.setAllFontProperties("Microsoft YaHei", 0, 14);
         plot.getXAxis().getAxisLabel().setOffset((float)(accBarPadding));
         plot.getYAxis().getAxisLabel().setOffset((float)(accBarPadding));
         plot.getXAxis().setFontColor(CP.OPENBCI_DARKBLUE);

@@ -112,7 +112,8 @@ public class FilterUIPopup extends PApplet implements Runnable {
     private boolean ignoreExpanderInteraction = false;
     List<ScrollableList> cp5ElementsToCheck = new ArrayList<ScrollableList>();
 
-    DecimalFormat df = new DecimalFormat("#.0");
+    // Use 0.0 so that decimals less than 1 have a leading zero (e.g. 0.4 instead of .4)
+    DecimalFormat df = new DecimalFormat("0.0");
 
     public FilterUIPopup(GUI MAIN) {
         super();
@@ -245,25 +246,25 @@ public class FilterUIPopup extends PApplet implements Runnable {
         textAlign(RIGHT, TOP);
         // Header labels
         fill(MAIN.WHITE);
-        text("Filter", headerObjX[0], HEADER_OBJ_Y, HEADER_OBJ_WIDTH, uiObjectHeight);
-        text("Notch", headerObjX[2], HEADER_OBJ_Y, HEADER_OBJ_WIDTH, uiObjectHeight);
+        text("滤波器", headerObjX[0], HEADER_OBJ_Y, HEADER_OBJ_WIDTH, uiObjectHeight);
+        text("陷波器", headerObjX[2], HEADER_OBJ_Y, HEADER_OBJ_WIDTH, uiObjectHeight);
         // Column labels
         textAlign(CENTER, TOP);
         fill(102);
-        text("Channel", columnObjX[0], HEADER_HEIGHT + SM_SPACER, TEXTFIELD_WIDTH, HEADER_HEIGHT);
+        text("通道", columnObjX[0], HEADER_HEIGHT + SM_SPACER, TEXTFIELD_WIDTH, HEADER_HEIGHT);
         String firstColumnHeader = "";
         String secondColumnHeader = "";
         if (filterSettings.values.brainFlowFilter == BFFilter.BANDPASS) {
-            firstColumnHeader = "Start (Hz)";
-            secondColumnHeader = "Stop (Hz)";
+            firstColumnHeader = "起始频率 (Hz)";
+            secondColumnHeader = "截至频率 (Hz)";
         } else if (filterSettings.values.brainFlowFilter == BFFilter.BANDSTOP) {
-            firstColumnHeader = "Start (Hz)";
-            secondColumnHeader = "Stop (Hz)";
+            firstColumnHeader = "起始频率 (Hz)";
+            secondColumnHeader = "截至频率 (Hz)";
         }
         text(firstColumnHeader, columnObjX[1], HEADER_HEIGHT + SM_SPACER, TEXTFIELD_WIDTH, HEADER_HEIGHT);
         text(secondColumnHeader, columnObjX[2], HEADER_HEIGHT + SM_SPACER, TEXTFIELD_WIDTH, HEADER_HEIGHT);
-        text("Type", columnObjX[3], HEADER_HEIGHT + SM_SPACER, TEXTFIELD_WIDTH, HEADER_HEIGHT);
-        text("Order", columnObjX[4], HEADER_HEIGHT + SM_SPACER, TEXTFIELD_WIDTH, HEADER_HEIGHT);
+        text("类型", columnObjX[3], HEADER_HEIGHT + SM_SPACER, TEXTFIELD_WIDTH, HEADER_HEIGHT);
+        text("阶数", columnObjX[4], HEADER_HEIGHT + SM_SPACER, TEXTFIELD_WIDTH, HEADER_HEIGHT);
 
         popStyle();
 
@@ -323,9 +324,9 @@ public class FilterUIPopup extends PApplet implements Runnable {
     private void createAllCp5Objects() {
         calculateXYForHeaderColumnsAndFooter();
 
-        createFilterSettingsSaveButton("saveFilterSettingsButton", "Save", footerObjX[0], footerObjY, HEADER_OBJ_WIDTH, uiObjectHeight);
-        createFilterSettingsLoadButton("loadFilterSettingsButton", "Load", footerObjX[1], footerObjY, HEADER_OBJ_WIDTH, uiObjectHeight);
-        createFilterSettingsDefaultButton("defaultFilterSettingsButton", "Reset", footerObjX[2], footerObjY, HEADER_OBJ_WIDTH, uiObjectHeight);
+        createFilterSettingsSaveButton("saveFilterSettingsButton", "保存", footerObjX[0], footerObjY, HEADER_OBJ_WIDTH, uiObjectHeight);
+        createFilterSettingsLoadButton("loadFilterSettingsButton", "载入", footerObjX[1], footerObjY, HEADER_OBJ_WIDTH, uiObjectHeight);
+        createFilterSettingsDefaultButton("defaultFilterSettingsButton", "重置", footerObjX[2], footerObjY, HEADER_OBJ_WIDTH, uiObjectHeight);
 
         createOnOffButtons();
         createTextfields();
@@ -505,7 +506,7 @@ public class FilterUIPopup extends PApplet implements Runnable {
     }
 
     private void createOnOffButtons() {
-        createMasterOnOffButton("masterOnOffButton", "All", LG_SPACER + TEXTFIELD_WIDTH/2 - ON_OFF_DIAMETER/2, HEADER_HEIGHT*2 + SM_SPACER, ON_OFF_DIAMETER, ON_OFF_DIAMETER);
+        createMasterOnOffButton("masterOnOffButton", "全选", LG_SPACER + TEXTFIELD_WIDTH/2 - ON_OFF_DIAMETER/2, HEADER_HEIGHT*2 + SM_SPACER, ON_OFF_DIAMETER, ON_OFF_DIAMETER);
         for (int chan = 0; chan < filterSettings.getChannelCount(); chan++) {
             int expanderH = EXPANDER_IS_USED ? EXPANDER_HEIGHT : -SM_SPACER;
             createOnOffButton("onOffButton"+chan, str(chan+1), chan, LG_SPACER + TEXTFIELD_WIDTH/2 - ON_OFF_DIAMETER/2, HEADER_HEIGHT*2 + SM_SPACER*(chan+3) + ON_OFF_DIAMETER*(chan+1) + expanderH, ON_OFF_DIAMETER, ON_OFF_DIAMETER);
@@ -935,7 +936,7 @@ public class FilterUIPopup extends PApplet implements Runnable {
     }
 
     private void createFilterSettingsSaveButton(String name, String text, int _x, int _y, int _w, int _h) {
-        saveButton = MAIN.createButton(cp5, name, text, _x, _y, _w, _h, h5, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
+        saveButton = MAIN.createButton(cp5, name, text, _x, _y, _w, _h, p7, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
         saveButton.setBorderColor(MAIN.OBJECT_BORDER_GREY);
         saveButton.onClick(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
@@ -945,7 +946,7 @@ public class FilterUIPopup extends PApplet implements Runnable {
     }
 
     private void createFilterSettingsLoadButton(String name, String text, int _x, int _y, int _w, int _h) {
-        loadButton = MAIN.createButton(cp5, name, text, _x, _y, _w, _h, h5, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
+        loadButton = MAIN.createButton(cp5, name, text, _x, _y, _w, _h, p7, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
         loadButton.setBorderColor(MAIN.OBJECT_BORDER_GREY);
         loadButton.onClick(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
@@ -955,7 +956,7 @@ public class FilterUIPopup extends PApplet implements Runnable {
     }
 
     private void createFilterSettingsDefaultButton(String name, String text, int _x, int _y, int _w, int _h) {
-        defaultButton = MAIN.createButton(cp5, name, text, _x, _y, _w, _h, h5, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
+        defaultButton = MAIN.createButton(cp5, name, text, _x, _y, _w, _h, p7, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
         defaultButton.setBorderColor(MAIN.OBJECT_BORDER_GREY);
         defaultButton.onClick(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
@@ -966,7 +967,7 @@ public class FilterUIPopup extends PApplet implements Runnable {
     }
 
     private void createMasterOnOffButton(String name, final String text, int _x, int _y, int _w, int _h) {
-        masterOnOffButton = MAIN.createButton(cp5, name, text, _x, _y, _w, _h, 0, h2, 16, MAIN.SUBNAV_LIGHTBLUE, MAIN.WHITE, MAIN.BUTTON_HOVER, MAIN.BUTTON_PRESSED, (Integer) null, -2);
+        masterOnOffButton = MAIN.createButton(cp5, name, text, _x, _y, _w, _h, 0, p7, 10, MAIN.SUBNAV_LIGHTBLUE, MAIN.WHITE, MAIN.BUTTON_HOVER, MAIN.BUTTON_PRESSED, (Integer) null, -2);
         masterOnOffButton.setCircularButton(true);
         masterOnOffButton.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {

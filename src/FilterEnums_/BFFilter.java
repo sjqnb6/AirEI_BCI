@@ -2,8 +2,8 @@ package FilterEnums_;
 
 public enum BFFilter implements FilterSettingsEnum
 {
-    BANDSTOP (0, "BandStop"),
-    BANDPASS (1, "BandPass");
+    BANDSTOP (0, "带阻滤波"),
+    BANDPASS (1, "带通滤波");
 
     private int index;
     private String name;

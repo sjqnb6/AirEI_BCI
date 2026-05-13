@@ -15,6 +15,7 @@ import W_Marker_.W_Marker;
 import W_Networking_.W_Networking;
 import W_PacketLoss.W_PacketLoss;
 import W_Playback_.W_playback;
+import W_Prediction_.W_Prediction;
 import W_PulseSensor_.W_PulseSensor;
 import W_Spectrogram_.W_Spectrogram;
 import W_Template_.W_template;
@@ -42,5 +43,6 @@ public class GVI {
     public static W_Focus w_focus;
     public static W_EMGJoystick w_emgJoystick;
     public static W_Marker w_marker;
+    public static W_Prediction w_prediction;
 
 }

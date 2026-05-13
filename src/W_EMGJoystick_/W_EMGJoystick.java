@@ -121,7 +121,7 @@ public class W_EMGJoystick extends Widget {
             plotChannelLabels[i] = Integer.toString(emgJoystickInputs[i].getIndex() + 1);
         }
 
-        addDropdown("emgJoystickSmoothingDropdown", "Smoothing", joystickSmoothing.getEnumStringsAsList(), joystickSmoothing.getIndex());
+        addDropdown("emgJoystickSmoothingDropdown", "平滑", joystickSmoothing.getEnumStringsAsList(), joystickSmoothing.getIndex());
 
         createInputDropdowns();
     }
@@ -325,7 +325,7 @@ public class W_EMGJoystick extends Widget {
         MAIN.pushStyle();
 
         MAIN.fill(MAIN.OPENBCI_DARKBLUE);
-        MAIN.textFont(p4, 14);
+        MAIN.textFont(p7, 14);
         MAIN.textLeading(14);
         MAIN.textAlign(MAIN.CENTER,MAIN.CENTER);
 
@@ -352,7 +352,7 @@ public class W_EMGJoystick extends Widget {
                 }
             }
         });
-        emgSettingsButton.setDescription("点击打开EMG设置界面，调整该指标的计算方式。");
+        emgSettingsButton.setDescription("点击打开EMG设置界面，\n调整该指标的计算方式。");
     }
 
     private ScrollableList createEmgJoystickInputDropdown(String name, EmgJoystickInput joystickInput, int inputNumber) {
@@ -380,7 +380,7 @@ public class W_EMGJoystick extends Widget {
         list.getCaptionLabel() //the caption label is the text object in the primary bar
                 .toUpperCase(false) //DO NOT AUTOSET TO UPPERCASE!!!
                 .setText(joystickInput.getString())
-                .setFont(h5)
+                .setFont(p7)
                 .setSize(12)
                 .getStyle() //need to grab style before affecting the paddingTop
                 .setPaddingTop(4)
@@ -388,7 +388,7 @@ public class W_EMGJoystick extends Widget {
         list.getValueLabel() //the value label is connected to the text objects in the dropdown item bars
                 .toUpperCase(false) //DO NOT AUTOSET TO UPPERCASE!!!
                 .setText(joystickInput.getString())
-                .setFont(p6)
+                .setFont(p7)
                 .setSize(10) //set the font size of the item bars to 14pt
                 .getStyle() //need to grab style before affecting the paddingTop
                 .setPaddingTop(3) //4-pixel vertical offset to center text

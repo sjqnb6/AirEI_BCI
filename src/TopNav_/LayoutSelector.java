@@ -140,7 +140,7 @@ public class LayoutSelector{
             tempLayoutButton.setForceDrawBackground(true);
             tempLayoutButton.onRelease(new CallbackListener() {
                 public void controlEvent(CallbackEvent theEvent) {
-                    output("Layout [" + (layoutNumber) + "] selected.");
+                    output("选择了界面 [" + (layoutNumber) + "] .");
                     toggleVisibility(); //shut layoutSelector if something is selected
                     wm.setNewContainerLayout(layoutNumber); //have WidgetManager update Layout and active widgets
                     MAIN.settings.currentLayout = layoutNumber; //copy this value to be used when saving Layout setting

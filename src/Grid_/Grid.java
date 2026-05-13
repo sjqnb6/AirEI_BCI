@@ -24,7 +24,7 @@ public class Grid{
     private int pad_horiz = 5;
     private int pad_vert = 5;
 
-    private PFont tableFont = MAIN.p5;
+    private PFont tableFont = MAIN.p7;
     private int tableFontSize = 12;
 
     private int[][] textColors;

@@ -67,10 +67,10 @@ class MarkerBar{
         plot.setYLim((float) -0.2, (float) (yLimit + .2)); //change this to adjust vertical scale
         //plot.setPointSize(2);
         plot.setPointColor(0);
-        plot.getXAxis().setAxisLabelText("Time (s)");
-        plot.getYAxis().setAxisLabelText("Marker (int)");
+        plot.getXAxis().setAxisLabelText("时间 (s)");
+        plot.getYAxis().setAxisLabelText("标志 (int)");
         plot.getYAxis().setNTicks(5);
-        plot.setAllFontProperties("Arial", 0, 14);
+        plot.setAllFontProperties("Microsoft YaHei", 0, 14);
         plot.getXAxis().getAxisLabel().setOffset((float)(X_AXIS_PADDING));
         plot.getYAxis().getAxisLabel().setOffset((float)(Y_AXIS_PADDING));
         plot.getXAxis().setFontColor(MAIN.OPENBCI_DARKBLUE);

@@ -39,7 +39,6 @@ public class BoardBrainFlowStreaming extends BoardBrainFlow {
         this.ipAddress = ipAddress;
         this.ipPort = ipPort;
     }
-
     // implement mandatory abstract functions
     @Override
     protected BrainFlowInputParams getParams() {
@@ -180,7 +179,8 @@ public class BoardBrainFlowStreaming extends BoardBrainFlow {
             double[][] data = new double[channelCount][samplesCount];
             //System.out.println(samplesCount);
             //System.out.println("---------------------------------------");
-            for (int ch = 0; ch < 8; ch++) {
+            // JSON 传回的数据现在有 9 行数据，第 0 行是包编号，第 1-8 行是对应脑电通道
+            for (int ch = 0; ch < 9; ch++) {
                 JSONArray channelData = samplesArray.getJSONArray(ch);
                 for (int sample = 0; sample < samplesCount; sample++) {
                     data[ch][sample] = channelData.getDouble(sample);
