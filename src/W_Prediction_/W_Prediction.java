@@ -14,7 +14,11 @@ public class W_Prediction extends Widget {
             "EEGNet", "EEGViT", "conformer", "EEGDeformer", "LGGNet", "TSception"
     };
 
-    private static final String[] CLASS_LABELS = {"清醒", "疲惫", "困倦"};
+    private static final String[] CLASS_LABELS = {
+            "清醒", // Alert
+            "疲劳", // Fatigue
+            "困倦"  // Drowsy
+    };
 
     private static final int COLOR_BG = 245;
     private static final int COLOR_PANEL = 255;
@@ -28,15 +32,26 @@ public class W_Prediction extends Widget {
     private static final int COLOR_RISK = 0xFFE74C3C;
 
     private static final int HISTORY_SIZE = 180;
+    private static final int STATE_CONFIRM_POINTS = 4;
+
+    private static final int STATE_NORMAL = 0;
+    private static final int STATE_ELEVATED = 1;
+    private static final int STATE_HIGH_RISK = 2;
 
     GUI MAIN;
     ControlP5 localCP5;
 
     private final float[] displayedProbs = new float[]{0f, 0f, 0f};
     private float displayedFatigueScore = 0f;
+
     private final float[] fatigueHistory = new float[HISTORY_SIZE];
+    private final int[] stateHistory = new int[HISTORY_SIZE];
     private int historyWriteIndex = 0;
     private boolean historyFilled = false;
+
+    private int stableRiskState = STATE_NORMAL;
+    private int pendingRiskState = STATE_NORMAL;
+    private int pendingRiskCount = 0;
 
     public W_Prediction(GUI MAIN) {
         super(MAIN);
@@ -49,7 +64,6 @@ public class W_Prediction extends Widget {
         addDropdown("ModelSelect", "模型", Arrays.asList(MODEL_NAMES), 0);
     }
 
-    // Method name should match dropdown ID for callback binding.
     public void ModelSelect(int n) {
         if (n >= 0 && n < MODEL_NAMES.length) {
             PythonWsClient.getInstance().setModelType(MODEL_NAMES[n]);
@@ -67,14 +81,39 @@ public class W_Prediction extends Widget {
             displayedProbs[i] += (((float) probs[i]) - displayedProbs[i]) * 0.18f;
         }
 
-        float rawScore = (float) client.getLatestFatigueScore();
-        rawScore = clamp(rawScore, 0f, 100f);
+        float rawScore = clamp((float) client.getLatestFatigueScore(), 0f, 100f);
         displayedFatigueScore += (rawScore - displayedFatigueScore) * 0.12f;
 
+        updateStableRiskState(rawScore);
+
         fatigueHistory[historyWriteIndex] = displayedFatigueScore;
+        stateHistory[historyWriteIndex] = stableRiskState;
+
         historyWriteIndex = (historyWriteIndex + 1) % HISTORY_SIZE;
         if (historyWriteIndex == 0) {
             historyFilled = true;
+        }
+    }
+
+    private void updateStableRiskState(float score) {
+        int rawState = classifyState(score);
+
+        if (rawState == stableRiskState) {
+            pendingRiskState = rawState;
+            pendingRiskCount = 0;
+            return;
+        }
+
+        if (rawState != pendingRiskState) {
+            pendingRiskState = rawState;
+            pendingRiskCount = 1;
+        } else {
+            pendingRiskCount++;
+        }
+
+        if (pendingRiskCount >= STATE_CONFIRM_POINTS) {
+            stableRiskState = pendingRiskState;
+            pendingRiskCount = 0;
         }
     }
 
@@ -120,7 +159,7 @@ public class W_Prediction extends Widget {
     }
 
     private void drawTopCard(int x, int y, int w, int h) {
-        int stateColor = getStateColor(displayedFatigueScore);
+        int stateColor = getStateColor(stableRiskState);
 
         pApplet.noStroke();
         pApplet.fill(250);
@@ -146,13 +185,13 @@ public class W_Prediction extends Widget {
 
         pApplet.fill(stateColor);
         pApplet.textSize(15);
-        pApplet.text(getStateText(displayedFatigueScore), x + 14, y + 66);
+        pApplet.text(getStateText(stableRiskState), x + 14, y + 66);
 
         PythonWsClient client = PythonWsClient.getInstance();
-        String modelText = "模型: " + client.getModelType();
-        String connText = "WS连接: " + (client.isConnected() ? "已连接" : "离线");
+        String modelText = "当前模型: " + client.getModelType();
+        String connText = "WS: " + (client.isConnected() ? "已连接" : "离线");
         double latency = client.getLatestInferenceLatencyMs();
-        String latencyText = latency >= 0 ? String.format("推理延迟: %.0f ms", latency) : "延迟: --";
+        String latencyText = latency >= 0 ? String.format("推理延迟: %.0f ms", latency) : "推理延迟: --";
 
         float rightX = x + w - 220;
         drawInfoBadge(rightX, y + 12, 198, 20, modelText, COLOR_TEXT_SECONDARY);
@@ -193,7 +232,7 @@ public class W_Prediction extends Widget {
         int chartH = h - 48;
 
         drawTrendGrid(chartX, chartY, chartW, chartH);
-        drawTrendCurve(chartX, chartY, chartW, chartH);
+        drawTrendCurveSegmented(chartX, chartY, chartW, chartH);
     }
 
     private void drawTrendGrid(int x, int y, int w, int h) {
@@ -217,25 +256,45 @@ public class W_Prediction extends Widget {
         pApplet.text("0", x - 6, y + h);
     }
 
-    private void drawTrendCurve(int x, int y, int w, int h) {
+    private void drawTrendCurveSegmented(int x, int y, int w, int h) {
         int count = historyFilled ? HISTORY_SIZE : historyWriteIndex;
         if (count < 2) {
             return;
         }
 
-        pApplet.noFill();
-        pApplet.stroke(getStateColor(displayedFatigueScore));
-        pApplet.strokeWeight(2f);
+        for (int i = 1; i < count; i++) {
+            int prevIdx = historyToBufferIndex(i - 1, count);
+            int currIdx = historyToBufferIndex(i, count);
 
-        pApplet.beginShape();
-        for (int i = 0; i < count; i++) {
-            int idx = historyFilled ? (historyWriteIndex + i) % HISTORY_SIZE : i;
-            float val = clamp(fatigueHistory[idx], 0f, 100f);
-            float xx = x + (count == 1 ? 0 : (w * i / (float) (count - 1)));
-            float yy = y + h - (val / 100f) * h;
-            pApplet.vertex(xx, yy);
+            float prevVal = clamp(fatigueHistory[prevIdx], 0f, 100f);
+            float currVal = clamp(fatigueHistory[currIdx], 0f, 100f);
+
+            float x1 = x + (w * (i - 1) / (float) (count - 1));
+            float y1 = y + h - (prevVal / 100f) * h;
+            float x2 = x + (w * i / (float) (count - 1));
+            float y2 = y + h - (currVal / 100f) * h;
+
+            int segmentState = stateHistory[prevIdx];
+            pApplet.stroke(getStateColor(segmentState));
+            pApplet.strokeWeight(2f);
+            pApplet.line(x1, y1, x2, y2);
         }
-        pApplet.endShape();
+
+        int latestIdx = historyToBufferIndex(count - 1, count);
+        float latestVal = clamp(fatigueHistory[latestIdx], 0f, 100f);
+        float latestX = x + w;
+        float latestY = y + h - (latestVal / 100f) * h;
+
+        pApplet.noStroke();
+        pApplet.fill(getStateColor(stateHistory[latestIdx]));
+        pApplet.ellipse(latestX, latestY, 6, 6);
+    }
+
+    private int historyToBufferIndex(int historyPos, int count) {
+        if (!historyFilled) {
+            return historyPos;
+        }
+        return (historyWriteIndex + historyPos) % HISTORY_SIZE;
     }
 
     private void drawProbCard(int x, int y, int w, int h) {
@@ -251,7 +310,7 @@ public class W_Prediction extends Widget {
         pApplet.textAlign(MAIN.LEFT, MAIN.TOP);
         pApplet.textFont(p7);
         pApplet.textSize(12);
-        pApplet.text("疲劳状态概率分布", x + 12, y + 10);
+        pApplet.text("类别概率", x + 12, y + 10);
 
         int rowH = (h - 46) / 3;
         int barX = x + 12;
@@ -287,15 +346,21 @@ public class W_Prediction extends Widget {
         pApplet.text(String.format("%.1f%%", prob * 100f), x + w, y);
     }
 
-    private int getStateColor(float score) {
-        if (score >= 70f) return COLOR_RISK;
-        if (score >= 40f) return COLOR_WARN;
+    private int classifyState(float score) {
+        if (score >= 70f) return STATE_HIGH_RISK;
+        if (score >= 40f) return STATE_ELEVATED;
+        return STATE_NORMAL;
+    }
+
+    private int getStateColor(int state) {
+        if (state == STATE_HIGH_RISK) return COLOR_RISK;
+        if (state == STATE_ELEVATED) return COLOR_WARN;
         return COLOR_SAFE;
     }
 
-    private String getStateText(float score) {
-        if (score >= 70f) return "高风险预警";
-        if (score >= 40f) return "风险升高";
+    private String getStateText(int state) {
+        if (state == STATE_HIGH_RISK) return "高风险预警";
+        if (state == STATE_ELEVATED) return "风险升高";
         return "正常";
     }
 

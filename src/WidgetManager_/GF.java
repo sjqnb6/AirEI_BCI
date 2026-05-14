@@ -81,9 +81,9 @@ public class GF {
         w_focus.setTitle("专注度");
         addWidget(w_focus, w);
 
-        w_networking = new W_Networking(_this);
-        w_networking.setTitle("网络通讯");
-        addWidget(w_networking, w);
+        // w_networking = new W_Networking(_this);
+        // w_networking.setTitle("网络通讯");
+        // addWidget(w_networking, w);
 
         w_bandPower = new W_BandPower(_this);
         w_bandPower.setTitle("频带功率");
@@ -129,9 +129,9 @@ public class GF {
             addWidget(w_packetLoss, w);
         }
 
-        w_marker = new W_Marker(_this);
-        w_marker.setTitle("事件标记");
-        addWidget(w_marker, w);
+        // w_marker = new W_Marker(_this);
+        // w_marker.setTitle("事件标记");
+        // addWidget(w_marker, w);
 
         w_prediction = new W_Prediction(_this);
         w_prediction.setTitle("疲劳检测");
