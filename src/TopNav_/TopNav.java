@@ -90,11 +90,11 @@ public class TopNav {
         createControlPanelCollapser("系统控制面板", PAD_3, PAD_3, controlPanel_W, TOPNAV_BUT_H, p7, 16, TOPNAV_DARKBLUE, MAIN.WHITE);
 
         //TOP RIGHT OF GUI, FROM LEFT<---Right
-        createDebugButton(" ", MAIN.width - DEBUG_BUT_W - PAD_3, PAD_3, DEBUG_BUT_W, TOPNAV_BUT_H, h3, 16, TOPNAV_DARKBLUE, MAIN.WHITE);
-        createTutorialsButton("帮助", (int)debugButton.getPosition()[0] - TOPRIGHT_BUT_W - PAD_3, PAD_3, TOPRIGHT_BUT_W, TOPNAV_BUT_H, p7, 16, TOPNAV_DARKBLUE, MAIN.WHITE);
-        createIssuesButton("问题", (int)tutorialsButton.getPosition()[0] - TOPRIGHT_BUT_W - PAD_3, PAD_3, TOPRIGHT_BUT_W, TOPNAV_BUT_H, p7, 16, TOPNAV_DARKBLUE, MAIN.WHITE);
-        createShopButton("购买", (int)issuesButton.getPosition()[0] - TOPRIGHT_BUT_W - PAD_3, PAD_3, TOPRIGHT_BUT_W, TOPNAV_BUT_H, p7, 16, TOPNAV_DARKBLUE, MAIN.WHITE);
-        createUpdateGuiButton("更新", (int)shopButton.getPosition()[0] - TOPRIGHT_BUT_W - PAD_3, PAD_3, TOPRIGHT_BUT_W, TOPNAV_BUT_H, p7, 16, TOPNAV_DARKBLUE, MAIN.WHITE);
+        // createDebugButton("Debug", MAIN.width - DEBUG_BUT_W - PAD_3, PAD_3, DEBUG_BUT_W, TOPNAV_BUT_H, h3, 16, TOPNAV_DARKBLUE, MAIN.WHITE);
+        // createTutorialsButton("帮助", (int)debugButton.getPosition()[0] - TOPRIGHT_BUT_W - PAD_3, PAD_3, TOPRIGHT_BUT_W, TOPNAV_BUT_H, p7, 16, TOPNAV_DARKBLUE, MAIN.WHITE);
+        // createIssuesButton("问题", (int)tutorialsButton.getPosition()[0] - TOPRIGHT_BUT_W - PAD_3, PAD_3, TOPRIGHT_BUT_W, TOPNAV_BUT_H, p7, 16, TOPNAV_DARKBLUE, MAIN.WHITE);
+        // createShopButton("购买", (int)issuesButton.getPosition()[0] - TOPRIGHT_BUT_W - PAD_3, PAD_3, TOPRIGHT_BUT_W, TOPNAV_BUT_H, p7, 16, TOPNAV_DARKBLUE, MAIN.WHITE);
+        // createUpdateGuiButton("更新", (int)shopButton.getPosition()[0] - TOPRIGHT_BUT_W - PAD_3, PAD_3, TOPRIGHT_BUT_W, TOPNAV_BUT_H, p7, 16, TOPNAV_DARKBLUE, MAIN.WHITE);
 
         //SUBNAV TOP RIGHT
         createTopNavSettingsButton("设置", MAIN.width - SUBNAV_BUT_W - PAD_3, SUBNAV_BUT_Y, SUBNAV_BUT_W, SUBNAV_BUT_H, p7, 14, SUBNAV_LIGHTBLUE, MAIN.WHITE);
@@ -214,18 +214,18 @@ public class TopNav {
 
         //Draw Console Log Image on top of cp5 object
         PImage _logo = (colorScheme == COLOR_SCHEME_DEFAULT) ? consoleImgBlue : consoleImgWhite;
-        MAIN.image(_logo, debugButton.getPosition()[0] + 6, debugButton.getPosition()[1] + 2, 22, 22);
+        //MAIN.image(_logo, debugButton.getPosition()[0] + 6, debugButton.getPosition()[1] + 2, 22, 22);
 
 
     }
 
     public void screenHasBeenResized(int _x, int _y) {
         topNav_cp5.setGraphics(MAIN, 0, 0); //Important!
-        debugButton.setPosition(MAIN.width - debugButton.getWidth() - PAD_3, PAD_3);
-        tutorialsButton.setPosition((int)debugButton.getPosition()[0] - TOPRIGHT_BUT_W - PAD_3, PAD_3);
-        issuesButton.setPosition(tutorialsButton.getPosition()[0] - tutorialsButton.getWidth() - PAD_3, PAD_3);
-        shopButton.setPosition(issuesButton.getPosition()[0] - issuesButton.getWidth() - PAD_3, PAD_3);
-        updateGuiVersionButton.setPosition(shopButton.getPosition()[0] - shopButton.getWidth() - PAD_3, PAD_3);
+        //debugButton.setPosition(MAIN.width - debugButton.getWidth() - PAD_3, PAD_3);
+        //tutorialsButton.setPosition((int)debugButton.getPosition()[0] - TOPRIGHT_BUT_W - PAD_3, PAD_3);
+        //issuesButton.setPosition(tutorialsButton.getPosition()[0] - tutorialsButton.getWidth() - PAD_3, PAD_3);
+        //shopButton.setPosition(issuesButton.getPosition()[0] - issuesButton.getWidth() - PAD_3, PAD_3);
+        //updateGuiVersionButton.setPosition(shopButton.getPosition()[0] - shopButton.getWidth() - PAD_3, PAD_3);
         settingsButton.setPosition(MAIN.width - settingsButton.getWidth() - PAD_3, SUBNAV_BUT_Y);
 
         if (systemMode == SYSTEMMODE_POSTINIT) {

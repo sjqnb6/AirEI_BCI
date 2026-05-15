@@ -19,22 +19,19 @@ public class W_Prediction extends Widget {
             "昏睡", // Drowsy
     };
 
-    // Classic industrial console palette (light gray, low saturation).
-    private static final int COLOR_BG = 226;
-    private static final int COLOR_PANEL = 233;
-    private static final int COLOR_CARD = 239;
-    private static final int COLOR_BORDER = 168;
-    private static final int COLOR_BORDER_DARK = 128;
-    private static final int COLOR_TEXT = 36;
-    private static final int COLOR_TEXT_SECONDARY = 74;
-    private static final int COLOR_GRID = 184;
-    private static final int COLOR_BADGE_BG = 228;
-    private static final int COLOR_BADGE_BORDER = 185;
-    private static final int COLOR_BAR_BG = 218;
+    // Industrial-style neutral palette.
+    private static final int COLOR_BG = 236;
+    private static final int COLOR_PANEL = 242;
+    private static final int COLOR_CARD = 245;
+    private static final int COLOR_BORDER = 166;
+    private static final int COLOR_BORDER_DARK = 95;
+    private static final int COLOR_TEXT = 26;
+    private static final int COLOR_TEXT_SECONDARY = 92;
+    private static final int COLOR_GRID = 205;
 
-    private static final int COLOR_SAFE = 0xFF5F8F5A;
-    private static final int COLOR_WARN = 0xFF9B8A4F;
-    private static final int COLOR_RISK = 0xFFA36A62;
+    private static final int COLOR_SAFE = 0xFF2ECC71;
+    private static final int COLOR_WARN = 0xFFF39C12;
+    private static final int COLOR_RISK = 0xFFE74C3C;
 
     private static final int HISTORY_SIZE = 180;
     private static final int TREND_X_TICKS = 6;
@@ -210,10 +207,10 @@ public class W_Prediction extends Widget {
 
     private void drawInfoBadge(float x, float y, float w, float h, String text, int textColor) {
         pApplet.noStroke();
-        pApplet.fill(COLOR_BADGE_BG);
+        pApplet.fill(234);
         pApplet.rect(x, y, w, h, 1);
 
-        pApplet.stroke(COLOR_BADGE_BORDER);
+        pApplet.stroke(200);
         pApplet.strokeWeight(1f);
         pApplet.noFill();
         pApplet.rect(x, y, w, h, 1);
@@ -383,13 +380,13 @@ public class W_Prediction extends Widget {
         int trackH = Math.max(10, h - 22);
 
         pApplet.noStroke();
-        pApplet.fill(COLOR_BAR_BG);
+        pApplet.fill(228);
         pApplet.rect(x, trackY, w, trackH, 1);
 
         pApplet.fill(c);
         pApplet.rect(x, trackY, w * prob, trackH, 1);
 
-        pApplet.stroke(COLOR_BADGE_BORDER);
+        pApplet.stroke(200);
         pApplet.strokeWeight(1f);
         pApplet.noFill();
         pApplet.rect(x, trackY, w, trackH, 1);
@@ -412,7 +409,7 @@ public class W_Prediction extends Widget {
     }
 
     private String getStateText(int state) {
-        if (state == STATE_HIGH_RISK) return "高风险预警";
+        if (state == STATE_HIGH_RISK) return "High Risk";
         if (state == STATE_ELEVATED) return "风险升高";
         return "正常";
     }

@@ -246,6 +246,6 @@ public class DataProcessing {
             w_pulsesensor.updatePulseSensorWidgetData();
         }
 
-        w_networking.updateNetworkingWidgetData();
+        //w_networking.updateNetworkingWidgetData();
     }
 }

@@ -230,7 +230,7 @@ public class Main extends GUI {
                 reinitRequested = false;
             }
             if (systemMode == SYSTEMMODE_POSTINIT) {
-                w_networking.compareAndSetNetworkingFrameLocks();
+                //w_networking.compareAndSetNetworkingFrameLocks();
             }
         }
         else if (systemMode == SYSTEMMODE_INTROANIMATION) {
