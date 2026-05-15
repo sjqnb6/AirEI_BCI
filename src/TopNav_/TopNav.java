@@ -33,6 +33,21 @@ public class TopNav {
     private final int TOPNAV_DARKBLUE;
     private final int SUBNAV_LIGHTBLUE;
     private int strokeColor;
+    // Match W_Prediction industrial gray palette for target rows.
+    private static final int INDUSTRIAL_TOP_BG = 0xFF767676;
+    private static final int INDUSTRIAL_PANEL = 0xFFE9E9E9;
+    private static final int INDUSTRIAL_CARD = 0xFFEFEFEF;
+    private static final int INDUSTRIAL_TOP_BUTTON = 0xFF808080;
+    private static final int INDUSTRIAL_BORDER = 0xFFA8A8A8;
+    private static final int INDUSTRIAL_BORDER_DARK = 0xFF808080;
+    private static final int INDUSTRIAL_TEXT = 0xFF242424;
+    private static final int INDUSTRIAL_TEXT_LIGHT = 0xFFF6F6F6;
+    private static final int INDUSTRIAL_HOVER = 0xFFE4E4E4;
+    private static final int INDUSTRIAL_PRESSED = 0xFFD4D4D4;
+    private static final int INDUSTRIAL_TOP_HOVER = 0xFF9C9C9C;
+    private static final int INDUSTRIAL_TOP_PRESSED = 0xFF5E5E5E;
+    private static final int INDUSTRIAL_SUB_BUTTON = 0xFFEFEFEF;
+    private static final int INDUSTRIAL_SUB_BUTTON_ACTIVE = 0xFFCECECE;
 
     private ControlP5 topNav_cp5;
 
@@ -87,7 +102,7 @@ public class TopNav {
         //topNav_cp5.setFont(font);
 
         //TOP LEFT OF GUI
-        createControlPanelCollapser("系统控制面板", PAD_3, PAD_3, controlPanel_W, TOPNAV_BUT_H, p7, 16, TOPNAV_DARKBLUE, MAIN.WHITE);
+        createControlPanelCollapser("系统控制面板", PAD_3, PAD_3, controlPanel_W, TOPNAV_BUT_H, p7, 16, INDUSTRIAL_TOP_BUTTON, INDUSTRIAL_TEXT_LIGHT);
 
         //TOP RIGHT OF GUI, FROM LEFT<---Right
         // createDebugButton("Debug", MAIN.width - DEBUG_BUT_W - PAD_3, PAD_3, DEBUG_BUT_W, TOPNAV_BUT_H, h3, 16, TOPNAV_DARKBLUE, MAIN.WHITE);
@@ -97,7 +112,7 @@ public class TopNav {
         // createUpdateGuiButton("更新", (int)shopButton.getPosition()[0] - TOPRIGHT_BUT_W - PAD_3, PAD_3, TOPRIGHT_BUT_W, TOPNAV_BUT_H, p7, 16, TOPNAV_DARKBLUE, MAIN.WHITE);
 
         //SUBNAV TOP RIGHT
-        createTopNavSettingsButton("设置", MAIN.width - SUBNAV_BUT_W - PAD_3, SUBNAV_BUT_Y, SUBNAV_BUT_W, SUBNAV_BUT_H, p7, 14, SUBNAV_LIGHTBLUE, MAIN.WHITE);
+        createTopNavSettingsButton("设置", MAIN.width - SUBNAV_BUT_W - PAD_3, SUBNAV_BUT_Y, SUBNAV_BUT_W, SUBNAV_BUT_H, p7, 14, INDUSTRIAL_SUB_BUTTON, INDUSTRIAL_TEXT);
 
         layoutSelector = new LayoutSelector(MAIN);
         tutorialSelector = new TutorialSelector(MAIN);
@@ -112,18 +127,18 @@ public class TopNav {
 
         if (!secondaryNavInit) {
             //Buttons on the left side of the GUI secondary nav bar
-            createToggleDataStreamButton(stopButton_pressToStart_txt, PAD_3, SUBNAV_BUT_Y, DATASTREAM_BUT_W, SUBNAV_BUT_H, p7, 14, MAIN.TURN_ON_GREEN, MAIN.OPENBCI_DARKBLUE);
-            createFiltersButton("滤波", PAD_3*2 + toggleDataStreamingButton.getWidth(), SUBNAV_BUT_Y, SUBNAV_BUT_W, SUBNAV_BUT_H, p7, 14, SUBNAV_LIGHTBLUE, MAIN.WHITE);
+            createToggleDataStreamButton(stopButton_pressToStart_txt, PAD_3, SUBNAV_BUT_Y, DATASTREAM_BUT_W, SUBNAV_BUT_H, p7, 14, INDUSTRIAL_SUB_BUTTON, INDUSTRIAL_TEXT);
+            createFiltersButton("滤波", PAD_3*2 + toggleDataStreamingButton.getWidth(), SUBNAV_BUT_Y, SUBNAV_BUT_W, SUBNAV_BUT_H, p7, 14, INDUSTRIAL_SUB_BUTTON, INDUSTRIAL_TEXT);
 
             //Appears at Top Right SubNav while in a Session
-            createLayoutButton("界面布局", MAIN.width - 3 - 60, SUBNAV_BUT_Y, 60, SUBNAV_BUT_H, p7, 14, SUBNAV_LIGHTBLUE, MAIN.WHITE);
+            createLayoutButton("界面布局", MAIN.width - 3 - 60, SUBNAV_BUT_Y, 60, SUBNAV_BUT_H, p7, 14, INDUSTRIAL_SUB_BUTTON, INDUSTRIAL_TEXT);
             secondaryNavInit = true;
         }
 
         if (needToMakeSmoothingButton) {
             int pos_x = (int)filtersButton.getPosition()[0] + filtersButton.getWidth() + PAD_3;
             //Make smoothing button wider than most other topnav buttons to fit text comfortably
-            createSmoothingButton(getSmoothingString(), pos_x, SUBNAV_BUT_Y, SUBNAV_BUT_W + 48, SUBNAV_BUT_H, p7, 14, SUBNAV_LIGHTBLUE, MAIN.WHITE);
+            createSmoothingButton(getSmoothingString(), pos_x, SUBNAV_BUT_Y, SUBNAV_BUT_W + 48, SUBNAV_BUT_H, p7, 14, INDUSTRIAL_SUB_BUTTON, INDUSTRIAL_TEXT);
         }
 
 
@@ -166,22 +181,16 @@ public class TopNav {
         PImage logo;
         int topNavBg;
         int subNavBg;
-        if (colorScheme == COLOR_SCHEME_ALTERNATIVE_A) {
-            topNavBg = MAIN.OPENBCI_BLUE;
-            subNavBg = SUBNAV_LIGHTBLUE;
-            logo = logo_black;
-        } else {
-            topNavBg = MAIN.color(255);
-            subNavBg = MAIN.color(229);
-            logo = logo_black;
-        }
+        topNavBg = INDUSTRIAL_TOP_BG;
+        subNavBg = INDUSTRIAL_PANEL;
+        logo = logo_black;
 
         MAIN.pushStyle();
         //stroke(OPENBCI_DARKBLUE);
         MAIN.fill(topNavBg);
         MAIN.rect(0, 0, MAIN.width, navBarHeight);
         //noStroke();
-        MAIN.stroke(strokeColor);
+        MAIN.stroke(INDUSTRIAL_BORDER);
         MAIN.fill(subNavBg);
         MAIN.rect(-1, navBarHeight, MAIN.width+2, navBarHeight);
         MAIN.popStyle();
@@ -356,8 +365,31 @@ public class TopNav {
         return MAIN.createButton(topNav_cp5, name, text, _x, _y, _w, _h, 0, _font, _fontSize, _bg, _textColor, MAIN.BUTTON_HOVER, MAIN.BUTTON_PRESSED, MAIN.OPENBCI_DARKBLUE, -1);
     }
 
+    private void applyIndustrialButtonStyle(Button button, int bgColor) {
+        button.setColorBackground(bgColor);
+        button.setColorForeground(INDUSTRIAL_HOVER);
+        button.setColorActive(INDUSTRIAL_PRESSED);
+        button.setBorderColor(INDUSTRIAL_BORDER_DARK);
+        button.getCaptionLabel().setColor(INDUSTRIAL_TEXT);
+    }
+
+    private void applyIndustrialTopRowButtonStyle(Button button, int bgColor) {
+        button.setColorBackground(bgColor);
+        button.setColorForeground(INDUSTRIAL_TOP_HOVER);
+        button.setColorActive(INDUSTRIAL_TOP_PRESSED);
+        button.setBorderColor(INDUSTRIAL_BORDER_DARK);
+        button.getCaptionLabel().setColor(INDUSTRIAL_TEXT_LIGHT);
+    }
+
+    private void updateDataStreamingButtonStyle(boolean streaming) {
+        toggleDataStreamingButton.getCaptionLabel().setText(streaming ? stopButton_pressToStop_txt : stopButton_pressToStart_txt);
+        int bgColor = streaming ? INDUSTRIAL_SUB_BUTTON_ACTIVE : INDUSTRIAL_SUB_BUTTON;
+        applyIndustrialButtonStyle(toggleDataStreamingButton, bgColor);
+    }
+
     private void createControlPanelCollapser(String text, int _x, int _y, int _w, int _h, PFont font, int _fontSize, int _bg, int _textColor) {
         controlPanelCollapser = createTNButton("controlPanelCollapser", text, _x, _y, _w, _h, font, _fontSize, _bg, _textColor);
+        applyIndustrialTopRowButtonStyle(controlPanelCollapser, INDUSTRIAL_TOP_BUTTON);
         controlPanelCollapser.setSwitch(true);
         controlPanelCollapser.setOn();
         controlPanelCollapser.onRelease(new CallbackListener() {
@@ -373,6 +405,7 @@ public class TopNav {
 
     private void createToggleDataStreamButton(String text, int _x, int _y, int _w, int _h, PFont font, int _fontSize, int _bg, int _textColor) {
         toggleDataStreamingButton = createTNButton("toggleDataStreamingButton", text, _x, _y, _w, _h, font, _fontSize, _bg, _textColor);
+        updateDataStreamingButtonStyle(false);
         toggleDataStreamingButton.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 stopButtonWasPressed();
@@ -383,6 +416,7 @@ public class TopNav {
 
     private void createFiltersButton(String text, int _x, int _y, int _w, int _h, PFont font, int _fontSize, int _bg, int _textColor) {
         filtersButton = createTNButton("filtersButton", text, _x, _y, _w, _h, font, _fontSize, _bg, _textColor);
+        applyIndustrialButtonStyle(filtersButton, INDUSTRIAL_CARD);
         filtersButton.onRelease(new CallbackListener() {
             public synchronized void controlEvent(CallbackEvent theEvent) {
                 if (!MAIN.filterUIPopupIsOpen) {
@@ -397,13 +431,14 @@ public class TopNav {
         SmoothingCapableBoard smoothBoard = (SmoothingCapableBoard)MAIN.currentBoard;
         int bgColor = smoothBoard.getSmoothingActive() ? _bg : MAIN.BUTTON_LOCKED_GREY;
         smoothingButton = createTNButton("smoothingButton", text, _x, _y, _w, _h, font, _fontSize, bgColor, _textColor);
+        applyIndustrialButtonStyle(smoothingButton, bgColor);
         smoothingButton.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 SmoothingCapableBoard smoothBoard = (SmoothingCapableBoard)MAIN.currentBoard;
                 smoothBoard.setSmoothingActive(!smoothBoard.getSmoothingActive());
                 smoothingButton.getCaptionLabel().setText(getSmoothingString());
                 int _bgColor = smoothBoard.getSmoothingActive() ? _bg : MAIN.BUTTON_LOCKED_GREY;
-                smoothingButton.setColorBackground(_bgColor);
+                applyIndustrialButtonStyle(smoothingButton, _bgColor);
             }
         });
         smoothingButton.setDescription("Cyton 适配器驱动默认设置可能导致数据采样不连贯。启用此功能可平滑数据流。详见\"帮助\" -> \"Cyton 驱动修复\"。点击切换此设置。");
@@ -411,6 +446,7 @@ public class TopNav {
 
     private void createLayoutButton(String text, int _x, int _y, int _w, int _h, PFont font, int _fontSize, int _bg, int _textColor) {
         layoutButton = createTNButton("layoutButton", text, _x, _y, _w, _h, font, _fontSize, _bg, _textColor);
+        applyIndustrialButtonStyle(layoutButton, INDUSTRIAL_CARD);
         layoutButton.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 //make sure that you can't open the layout selector accidentally
@@ -501,6 +537,7 @@ public class TopNav {
 
     private void createTopNavSettingsButton(String text, int _x, int _y, int _w, int _h, PFont font, int _fontSize, int _bg, int _textColor) {
         settingsButton = createTNButton("settingsButton", text, _x, _y, _w, _h, font, _fontSize, _bg, _textColor);
+        applyIndustrialButtonStyle(settingsButton, INDUSTRIAL_CARD);
         settingsButton.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 //make Help button and Settings button mutually exclusive
@@ -531,15 +568,13 @@ public class TopNav {
             output("AirEIBCI_GUI: 终止按钮被按下了。停止数据传输，等待几秒钟。");
             stopRunning(MAIN);
             if (!MAIN.currentBoard.isStreaming()) {
-                toggleDataStreamingButton.getCaptionLabel().setText(stopButton_pressToStart_txt);
-                toggleDataStreamingButton.setColorBackground(MAIN.TURN_ON_GREEN);
+                updateDataStreamingButtonStyle(false);
             }
         } else { //not running
             output("AirEIBCI_GUI: 启动按钮被按下了。开始数据传输，等待几秒钟。");
             startRunning(MAIN);
             if (MAIN.currentBoard.isStreaming()) {
-                toggleDataStreamingButton.getCaptionLabel().setText(stopButton_pressToStop_txt);
-                toggleDataStreamingButton.setColorBackground(MAIN.TURN_OFF_RED);
+                updateDataStreamingButtonStyle(true);
                 nextPlayback_millis = MAIN.millis();  //used for synthesizeData and readFromFile.  This restarts the clock that keeps the playback at the right pace.
             }
         }
@@ -551,8 +586,7 @@ public class TopNav {
 
     public void resetStartStopButton() {
         if (toggleDataStreamingButton != null) {
-            toggleDataStreamingButton.getCaptionLabel().setText(stopButton_pressToStart_txt);
-            toggleDataStreamingButton.setColorBackground(MAIN.TURN_ON_GREEN);
+            updateDataStreamingButtonStyle(false);
         }
     }
 
