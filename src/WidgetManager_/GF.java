@@ -17,18 +17,14 @@ import W_EMG_.W_emg;
 import W_FFT_.W_fft;
 import W_Focus_.W_Focus;
 import W_GanglionImpedance_.W_GanglionImpedance;
-import W_HeadPlot_.W_HeadPlot;
-import W_Marker_.W_Marker;
-import W_Networking_.W_Networking;
+import W_Head_.W_Head;
 import W_PacketLoss.W_PacketLoss;
 import W_Playback_.W_playback;
 import W_Prediction_.W_Prediction;
 import W_PulseSensor_.W_PulseSensor;
 import W_Spectrogram_.W_Spectrogram;
-import W_Template_.W_template;
 import W_TimeSeries_.W_timeSeries;
 import Widget_.Widget;
-import processing.core.PApplet;
 
 import java.util.ArrayList;
 
@@ -81,6 +77,10 @@ public class GF {
         w_focus.setTitle("专注度");
         addWidget(w_focus, w);
 
+
+        w_head = new W_Head(_this);
+        w_head.setTitle("脑电地形图");
+        addWidget(w_head, w);
         // w_networking = new W_Networking(_this);
         // w_networking.setTitle("网络通讯");
         // addWidget(w_networking, w);

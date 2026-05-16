@@ -242,7 +242,7 @@ public class Main extends GUI {
                 }
             } else {
                 // Settings not yet initialized, draw a simple loading screen
-                background(OPENBCI_DARKBLUE);
+                background(226);
                 fill(255);
                 textAlign(CENTER, CENTER);
                 textSize(20);
@@ -285,7 +285,7 @@ public class Main extends GUI {
 
         println("Loading UI images...");
         try {
-            logo_black = loadImage("AirEI_BCI_w.png");
+            logo_black = loadImage("AirEI_BCI_black.png");
             if (logo_black == null) println("WARNING: Failed to load obci-logo-blk.png");
             logo_blue = loadImage("obci-logo-blu.png");
             if (logo_blue == null) println("WARNING: Failed to load obci-logo-blu.png");
@@ -347,7 +347,7 @@ public class Main extends GUI {
         final int padding = 20;
 
         pushStyle();
-        background(OPENBCI_DARKBLUE);
+        background(226);
         stroke(204);
         fill(GREY_235);
         rect((width - w)/2, (height - h)/2, w, h);
@@ -418,7 +418,12 @@ public class Main extends GUI {
 //
     void systemDraw() { //for drawing to the screen
         //redraw the screen...not every time, get paced by when data is being plotted
-        background(OPENBCI_DARKBLUE);  //clear the screen
+        if (systemMode == SYSTEMMODE_PREINIT) {
+            // Pre-connection page uses the same industrial light-gray base as the updated top controls.
+            background(226);
+        } else {
+            background(OPENBCI_DARKBLUE);  //clear the screen
+        }
         noStroke();
         //background(255);  //clear the screen
 

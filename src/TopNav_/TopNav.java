@@ -34,18 +34,19 @@ public class TopNav {
     private final int SUBNAV_LIGHTBLUE;
     private int strokeColor;
     // Match W_Prediction industrial gray palette for target rows.
-    private static final int INDUSTRIAL_TOP_BG = 0xFF767676;
+    private static final int INDUSTRIAL_TOP_BG = 0xFFB8B8B8;
     private static final int INDUSTRIAL_PANEL = 0xFFE9E9E9;
     private static final int INDUSTRIAL_CARD = 0xFFEFEFEF;
-    private static final int INDUSTRIAL_TOP_BUTTON = 0xFF808080;
+    private static final int INDUSTRIAL_TOP_BUTTON = 0xFF9A9A9A;
     private static final int INDUSTRIAL_BORDER = 0xFFA8A8A8;
     private static final int INDUSTRIAL_BORDER_DARK = 0xFF808080;
     private static final int INDUSTRIAL_TEXT = 0xFF242424;
     private static final int INDUSTRIAL_TEXT_LIGHT = 0xFFF6F6F6;
     private static final int INDUSTRIAL_HOVER = 0xFFE4E4E4;
     private static final int INDUSTRIAL_PRESSED = 0xFFD4D4D4;
-    private static final int INDUSTRIAL_TOP_HOVER = 0xFF9C9C9C;
-    private static final int INDUSTRIAL_TOP_PRESSED = 0xFF5E5E5E;
+    private static final int INDUSTRIAL_TOP_HOVER = 0xFFB3B3B3;
+    private static final int INDUSTRIAL_TOP_PRESSED = 0xFF7A7A7A;
+    private static final int INDUSTRIAL_TOP_BORDER = 0xFFE6E6E6;
     private static final int INDUSTRIAL_SUB_BUTTON = 0xFFEFEFEF;
     private static final int INDUSTRIAL_SUB_BUTTON_ACTIVE = 0xFFCECECE;
 
@@ -102,7 +103,7 @@ public class TopNav {
         //topNav_cp5.setFont(font);
 
         //TOP LEFT OF GUI
-        createControlPanelCollapser("系统控制面板", PAD_3, PAD_3, controlPanel_W, TOPNAV_BUT_H, p7, 16, INDUSTRIAL_TOP_BUTTON, INDUSTRIAL_TEXT_LIGHT);
+        createControlPanelCollapser("系统控制面板", PAD_3, PAD_3, controlPanel_W, TOPNAV_BUT_H, p7, 16, INDUSTRIAL_SUB_BUTTON, INDUSTRIAL_TEXT);
 
         //TOP RIGHT OF GUI, FROM LEFT<---Right
         // createDebugButton("Debug", MAIN.width - DEBUG_BUT_W - PAD_3, PAD_3, DEBUG_BUT_W, TOPNAV_BUT_H, h3, 16, TOPNAV_DARKBLUE, MAIN.WHITE);
@@ -193,6 +194,8 @@ public class TopNav {
         MAIN.stroke(INDUSTRIAL_BORDER);
         MAIN.fill(subNavBg);
         MAIN.rect(-1, navBarHeight, MAIN.width+2, navBarHeight);
+        MAIN.stroke(INDUSTRIAL_BORDER_DARK);
+        MAIN.line(0, navBarHeight, MAIN.width, navBarHeight);
         MAIN.popStyle();
 
         //hide the center logo if buttons would overlap it
@@ -377,7 +380,7 @@ public class TopNav {
         button.setColorBackground(bgColor);
         button.setColorForeground(INDUSTRIAL_TOP_HOVER);
         button.setColorActive(INDUSTRIAL_TOP_PRESSED);
-        button.setBorderColor(INDUSTRIAL_BORDER_DARK);
+        button.setBorderColor(INDUSTRIAL_TOP_BORDER);
         button.getCaptionLabel().setColor(INDUSTRIAL_TEXT_LIGHT);
     }
 
@@ -389,7 +392,7 @@ public class TopNav {
 
     private void createControlPanelCollapser(String text, int _x, int _y, int _w, int _h, PFont font, int _fontSize, int _bg, int _textColor) {
         controlPanelCollapser = createTNButton("controlPanelCollapser", text, _x, _y, _w, _h, font, _fontSize, _bg, _textColor);
-        applyIndustrialTopRowButtonStyle(controlPanelCollapser, INDUSTRIAL_TOP_BUTTON);
+        applyIndustrialButtonStyle(controlPanelCollapser, INDUSTRIAL_SUB_BUTTON);
         controlPanelCollapser.setSwitch(true);
         controlPanelCollapser.setOn();
         controlPanelCollapser.onRelease(new CallbackListener() {
@@ -537,7 +540,7 @@ public class TopNav {
 
     private void createTopNavSettingsButton(String text, int _x, int _y, int _w, int _h, PFont font, int _fontSize, int _bg, int _textColor) {
         settingsButton = createTNButton("settingsButton", text, _x, _y, _w, _h, font, _fontSize, _bg, _textColor);
-        applyIndustrialButtonStyle(settingsButton, INDUSTRIAL_CARD);
+        applyIndustrialButtonStyle(settingsButton, INDUSTRIAL_SUB_BUTTON);
         settingsButton.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 //make Help button and Settings button mutually exclusive

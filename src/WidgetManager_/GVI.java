@@ -20,7 +20,7 @@ import W_PulseSensor_.W_PulseSensor;
 import W_Spectrogram_.W_Spectrogram;
 import W_Template_.W_template;
 import W_TimeSeries_.W_timeSeries;
-
+import W_Head_.W_Head;
 public class GVI {
 
     // MAKE YOUR WIDGET GLOBALLY
@@ -44,5 +44,7 @@ public class GVI {
     public static W_EMGJoystick w_emgJoystick;
     public static W_Marker w_marker;
     public static W_Prediction w_prediction;
+
+    public static W_Head w_head;
 
 }

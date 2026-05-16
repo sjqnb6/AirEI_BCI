@@ -37,6 +37,13 @@ public class W_fft extends Widget {
     GUI MAIN;
     protected PApplet pApplet;
     public ColorPalette CP;
+    // Match W_Prediction industrial gray palette.
+    private static final int COLOR_BG = 226;
+    private static final int COLOR_PANEL = 233;
+    private static final int COLOR_CARD = 239;
+    private static final int COLOR_BORDER = 168;
+    private static final int COLOR_TEXT = 36;
+    private static final int COLOR_GRID = 184;
 
     public ChannelSelect fftChanSelect;
     boolean prevChanSelectIsVisible = false;
@@ -105,12 +112,16 @@ public class W_fft extends Widget {
         fft_plot.getYAxis().setDrawTickLabels(true);
         fft_plot.setPointSize(2);
         fft_plot.setPointColor(0);
-        fft_plot.getXAxis().setFontColor(CP.OPENBCI_DARKBLUE);
-        fft_plot.getXAxis().setLineColor(CP.OPENBCI_DARKBLUE);
-        fft_plot.getXAxis().getAxisLabel().setFontColor(CP.OPENBCI_DARKBLUE);
-        fft_plot.getYAxis().setFontColor(CP.OPENBCI_DARKBLUE);
-        fft_plot.getYAxis().setLineColor(CP.OPENBCI_DARKBLUE);
-        fft_plot.getYAxis().getAxisLabel().setFontColor(CP.OPENBCI_DARKBLUE);
+        fft_plot.setBgColor(COLOR_BG);
+        fft_plot.setBoxBgColor(COLOR_PANEL);
+        fft_plot.setBoxLineColor(COLOR_BORDER);
+        fft_plot.setGridLineColor(COLOR_GRID);
+        fft_plot.getXAxis().setFontColor(COLOR_TEXT);
+        fft_plot.getXAxis().setLineColor(COLOR_TEXT);
+        fft_plot.getXAxis().getAxisLabel().setFontColor(COLOR_TEXT);
+        fft_plot.getYAxis().setFontColor(COLOR_TEXT);
+        fft_plot.getYAxis().setLineColor(COLOR_TEXT);
+        fft_plot.getYAxis().getAxisLabel().setFontColor(COLOR_TEXT);
 
         //setup points of fft point arrays
         for (int i = 0; i < fft_points.length; i++) {
@@ -162,6 +173,9 @@ public class W_fft extends Widget {
 
         //remember to refer to x,y,w,h which are the positioning variables of the Widget class
         pApplet.pushStyle();
+        pApplet.noStroke();
+        pApplet.fill(COLOR_BG);
+        pApplet.rect(x, y - 1, w, h + 1);
 
         //draw FFT Graph w/ all plots
         pApplet.noStroke();
@@ -182,7 +196,7 @@ public class W_fft extends Widget {
         fft_plot.endDraw();
 
         //for this widget need to redraw the grey bar, bc the FFT plot covers it up...
-        pApplet.fill(200, 200, 200);
+        pApplet.fill(COLOR_CARD);
         pApplet.rect(x, y - navHeight, w, navHeight); //button bar
 
         pApplet.popStyle();

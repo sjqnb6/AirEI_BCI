@@ -39,6 +39,20 @@ public class W_Accelerometer extends Widget {
     GUI MAIN;
     protected PApplet pApplet;
     public ColorPalette CP;
+    // Match W_Prediction industrial gray palette.
+    private static final int COLOR_BG = 226;
+    private static final int COLOR_PANEL = 233;
+    private static final int COLOR_CARD = 239;
+    private static final int COLOR_BORDER = 168;
+    private static final int COLOR_BORDER_DARK = 128;
+    private static final int COLOR_TEXT = 36;
+    private static final int COLOR_TEXT_SECONDARY = 74;
+    private static final int COLOR_GRID = 184;
+    private static final int COLOR_BUTTON = 239;
+    private static final int COLOR_BUTTON_ACTIVE = 218;
+    private static final int COLOR_BUTTON_LOCKED = 185;
+    private static final int COLOR_BUTTON_HOVER = 228;
+    private static final int COLOR_BUTTON_PRESSED = 212;
 
     //Graphing variables
     public int[] xLimOptions = {0, 1, 3, 5, 10, 20}; //number of seconds (x axis of graph)
@@ -97,7 +111,7 @@ public class W_Accelerometer extends Widget {
         accelerometerBar.adjustTimeAxis(xLimOptions[MAIN.settings.accHorizScaleSave]);
         accelerometerBar.adjustVertScale(yLimOptions[MAIN.settings.accVertScaleSave]);
 
-        createAccelModeButton("accelModeButton", "Turn Accel. Off", (int)(x + 1), (int)(y0 + navHeight + 1), 120, navHeight - 3, p5, 12, CP.colorNotPressed, CP.OPENBCI_DARKBLUE);
+        createAccelModeButton("accelModeButton", "Turn Accel. Off", (int)(x + 1), (int)(y0 + navHeight + 1), 120, navHeight - 3, p5, 12, COLOR_BUTTON, COLOR_TEXT);
     }
 
     float adjustYMaxMinBasedOnSource() {
@@ -135,9 +149,12 @@ public class W_Accelerometer extends Widget {
 
         if(!accelBoard.canDeactivateAccelerometer() && !(MAIN.currentBoard instanceof BoardCyton)) {
             accelModeButton.getCaptionLabel().setText("Accel. On");
-            accelModeButton.setColorBackground(CP.BUTTON_LOCKED_GREY);
             accelModeButton.setLock(true);
+        } else {
+            accelModeButton.setLock(false);
         }
+        accelModeButton.setVisible(false);
+        refreshAccelModeButtonStyle();
     }
 
     public float getLastAccelVal(int val) {
@@ -149,18 +166,26 @@ public class W_Accelerometer extends Widget {
 
         MAIN.pushStyle();
 
-        MAIN.fill(50);
+        MAIN.noStroke();
+        MAIN.fill(COLOR_BG);
+        MAIN.rect(x, y - 1, w, h + 1);
+
+        MAIN.fill(COLOR_TEXT_SECONDARY);
         MAIN.textFont(p4, 14);
         MAIN.textAlign(MAIN.CENTER,MAIN.CENTER);
         MAIN.text("z", polarWindowX, (polarWindowY-polarWindowHeight/2)-12);
         MAIN.text("x", (polarWindowX+polarWindowWidth/2)+8, polarWindowY-5);
         MAIN.text("y", (polarWindowX+polarCorner)+10, (polarWindowY-polarCorner)-10);
 
-        MAIN.fill(CP.graphBG);  //pulse window background
-        MAIN.stroke(CP.graphStroke);
+        MAIN.fill(COLOR_PANEL);
+        MAIN.noStroke();
+        MAIN.rect(accelGraphX, accelGraphY, accelGraphWidth-accPadding*2, accelGraphHeight);
+
+        MAIN.fill(COLOR_CARD);  //pulse window background
+        MAIN.stroke(COLOR_BORDER);
         MAIN.ellipse(polarWindowX,polarWindowY,polarWindowWidth,polarWindowHeight);
 
-        MAIN.stroke(180);
+        MAIN.stroke(COLOR_GRID);
         MAIN.line(polarWindowX-polarWindowWidth/2, polarWindowY, polarWindowX+polarWindowWidth/2, polarWindowY);
         MAIN.line(polarWindowX, polarWindowY-polarWindowHeight/2, polarWindowX, polarWindowY+polarWindowHeight/2);
         MAIN.line(polarWindowX-polarCorner, polarWindowY+polarCorner, polarWindowX+polarCorner, polarWindowY-polarCorner);
@@ -212,7 +237,8 @@ public class W_Accelerometer extends Widget {
     }
 
     private void createAccelModeButton(String name, String text, int _x, int _y, int _w, int _h, PFont _font, int _fontSize, int _bg, int _textColor) {
-        accelModeButton = MAIN.createButton(cp5_widget, name, text, _x, _y, _w, _h, 0, _font, _fontSize, _bg, _textColor, CP.BUTTON_HOVER, CP.BUTTON_PRESSED, CP.OBJECT_BORDER_GREY, 0);
+        accelModeButton = MAIN.createButton(cp5_widget, name, text, _x, _y, _w, _h, 0, _font, _fontSize, _bg, _textColor, COLOR_BUTTON_HOVER, COLOR_BUTTON_PRESSED, COLOR_BORDER_DARK, 0);
+        refreshAccelModeButtonStyle();
         accelModeButton.setSwitch(true);
         accelModeButton.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
@@ -239,6 +265,8 @@ public class W_Accelerometer extends Widget {
                         accelModeButton.setOn();
                     }
                 }
+                accelModeButton.setVisible(false);
+                refreshAccelModeButtonStyle();
             }
         });
         accelModeButton.setDescription("Click to activate/deactivate the accelerometer for capable boards.");
@@ -250,6 +278,8 @@ public class W_Accelerometer extends Widget {
                 accelModeButton.setVisible(false);
             }
         }
+        accelModeButton.setVisible(false);
+        refreshAccelModeButtonStyle();
     }
 
     //Draw the current accelerometer values as text
@@ -299,6 +329,21 @@ public class W_Accelerometer extends Widget {
         if ((MAIN.currentBoard instanceof BoardCyton)) {
             accelModeButton.setVisible(!_value);
         }
+        accelModeButton.setVisible(false);
+        refreshAccelModeButtonStyle();
+    }
+
+    private void refreshAccelModeButtonStyle() {
+        if (accelModeButton == null) {
+            return;
+        }
+        int bg = accelModeButton.isLock() ? COLOR_BUTTON_LOCKED :
+                (accelBoard.isAccelerometerActive() ? COLOR_BUTTON_ACTIVE : COLOR_BUTTON);
+        accelModeButton.setColorBackground(bg);
+        accelModeButton.setColorForeground(COLOR_BUTTON_HOVER);
+        accelModeButton.setColorActive(COLOR_BUTTON_PRESSED);
+        accelModeButton.setBorderColor(COLOR_BORDER_DARK);
+        accelModeButton.getCaptionLabel().setColor(COLOR_TEXT);
     }
 
 };//end W_Accelerometer class

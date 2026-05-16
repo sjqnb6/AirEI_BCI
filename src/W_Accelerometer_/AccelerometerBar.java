@@ -22,6 +22,10 @@ public class AccelerometerBar {
     GUI MAIN;
 
     public ColorPalette CP;
+    // Match W_Prediction industrial gray palette.
+    private static final int COLOR_TEXT = 36;
+    private static final int COLOR_BORDER = 168;
+    private static final int COLOR_GRID = 184;
 
     //this class contains the plot for the 2d graph of accelerometer data
     int x, y, w, h;
@@ -83,12 +87,16 @@ public class AccelerometerBar {
         plot.setAllFontProperties("Microsoft YaHei", 0, 14);
         plot.getXAxis().getAxisLabel().setOffset((float)(accBarPadding));
         plot.getYAxis().getAxisLabel().setOffset((float)(accBarPadding));
-        plot.getXAxis().setFontColor(CP.OPENBCI_DARKBLUE);
-        plot.getXAxis().setLineColor(CP.OPENBCI_DARKBLUE);
-        plot.getXAxis().getAxisLabel().setFontColor(CP.OPENBCI_DARKBLUE);
-        plot.getYAxis().setFontColor(CP.OPENBCI_DARKBLUE);
-        plot.getYAxis().setLineColor(CP.OPENBCI_DARKBLUE);
-        plot.getYAxis().getAxisLabel().setFontColor(CP.OPENBCI_DARKBLUE);
+        plot.setBgColor(226);
+        plot.setBoxBgColor(233);
+        plot.setBoxLineColor(COLOR_BORDER);
+        plot.setGridLineColor(COLOR_GRID);
+        plot.getXAxis().setFontColor(COLOR_TEXT);
+        plot.getXAxis().setLineColor(COLOR_TEXT);
+        plot.getXAxis().getAxisLabel().setFontColor(COLOR_TEXT);
+        plot.getYAxis().setFontColor(COLOR_TEXT);
+        plot.getYAxis().setLineColor(COLOR_TEXT);
+        plot.getYAxis().getAxisLabel().setFontColor(COLOR_TEXT);
 
         initArrays();
 
@@ -131,8 +139,10 @@ public class AccelerometerBar {
 
     void draw() {
         MAIN.pushStyle();
+        MAIN.stroke(COLOR_BORDER);
         plot.beginDraw();
         plot.drawBox(); //we won't draw this eventually ...
+        MAIN.stroke(COLOR_GRID);
         plot.drawGridLines(GPlot.BOTH);
         plot.drawLines(); //Draw a Line graph!
         //plot.drawPoints(); //Used to draw Points instead of Lines
