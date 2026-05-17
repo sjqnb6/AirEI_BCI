@@ -25,7 +25,7 @@ import W_PulseSensor_.W_PulseSensor;
 import W_Spectrogram_.W_Spectrogram;
 import W_TimeSeries_.W_timeSeries;
 import Widget_.Widget;
-
+import W_Connectivity_.W_Connectivity;
 import java.util.ArrayList;
 
 import static Globel.GUI.nchan;
@@ -96,6 +96,10 @@ public class GF {
         w_emg = new W_emg(_this);
         w_emg.setTitle("肌电图");
         addWidget(w_emg, w);
+        
+        w_connectivity = new W_Connectivity(_this);
+        w_connectivity.setTitle("脑区连接图谱");
+        addWidget(w_connectivity, w);
 
         w_emgJoystick = new W_EMGJoystick(_this);
         w_emgJoystick.setTitle("肌电控制摇杆");
