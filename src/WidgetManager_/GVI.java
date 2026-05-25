@@ -19,6 +19,7 @@ import W_PacketLoss.W_PacketLoss;
 import W_Playback_.W_playback;
 import W_Prediction_.W_Prediction;
 import W_PulseSensor_.W_PulseSensor;
+import W_SignalQuality_.W_SignalQuality;
 import W_Spectrogram_.W_Spectrogram;
 import W_Template_.W_template;
 import W_TimeSeries_.W_timeSeries;
@@ -50,5 +51,5 @@ public class GVI {
     public static W_Head w_head;
     public static W_Connectivity w_connectivity;
     public static W_CFC w_cfc;
-
+    public static W_SignalQuality w_signalQuality;
 }

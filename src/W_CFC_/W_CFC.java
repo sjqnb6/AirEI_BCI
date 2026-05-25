@@ -427,9 +427,25 @@ public class W_CFC extends Widget {
         MAIN.text("耦合强度趋势", x0 + 8, y0 + 6);
 
         int gx = x0 + 10;
-        int gy = y0 + 24;
+        int gy = y0 + 40;
         int gw = w0 - 18;
-        int gh = h0 - 34;
+        int gh = h0 - 50;
+
+        int count = trendFilled ? TREND_POINTS : trendWrite;
+        float maxV = 0.05f;
+        for (int i = 0; i < count; i++) {
+            maxV = Math.max(maxV, getTrendValue(i, count));
+        }
+
+        // 独立信息行，避免与折线重叠
+        int infoY = y0 + 22;
+        MAIN.fill(TEXT_SUB);
+        MAIN.textFont(p7);
+        MAIN.textSize(10);
+        MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
+        MAIN.text("当前 " + PApplet.nf(peakMI, 1, 4), gx + 2, infoY);
+        MAIN.textAlign(PApplet.RIGHT, PApplet.TOP);
+        MAIN.text("最大 " + PApplet.nf(maxV, 1, 4), gx + gw - 2, infoY);
 
         MAIN.stroke(GRID_LINE);
         for (int i = 0; i <= 4; i++) {
@@ -441,18 +457,12 @@ public class W_CFC extends Widget {
         MAIN.line(gx, gy + gh, gx + gw, gy + gh);
         MAIN.line(gx, gy, gx, gy + gh);
 
-        int count = trendFilled ? TREND_POINTS : trendWrite;
         if (count < 2) {
             MAIN.fill(TEXT_SUB);
             MAIN.textFont(p7);
             MAIN.textSize(10);
             MAIN.text("等待稳定数据...", gx + 4, gy + 4);
             return;
-        }
-
-        float maxV = 0.05f;
-        for (int i = 0; i < count; i++) {
-            maxV = Math.max(maxV, getTrendValue(i, count));
         }
 
         MAIN.noFill();
@@ -466,14 +476,6 @@ public class W_CFC extends Widget {
             MAIN.vertex(xx, yy);
         }
         MAIN.endShape();
-
-        MAIN.fill(TEXT_SUB);
-        MAIN.textFont(p7);
-        MAIN.textSize(10);
-        MAIN.textAlign(PApplet.RIGHT, PApplet.TOP);
-        MAIN.text("最大 " + PApplet.nf(maxV, 1, 4), gx + gw - 2, gy + 2);
-        MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
-        MAIN.text("当前 " + PApplet.nf(peakMI, 1, 4), gx + 2, gy + 2);
     }
 
     private void computePAC(int windowSamples, int fs) {
@@ -695,13 +697,36 @@ public class W_CFC extends Widget {
     }
 
     private void ensureComputeBuffers(int n) {
-        if (tempSignalPhase.length != n) {
+        boolean needsSignalResize = tempSignalPhase.length != n || tempSignalAmp.length != n;
+        if (needsSignalResize) {
             tempSignalPhase = new float[n];
             tempSignalAmp = new float[n];
-            for (int i = 0; i < phaseSeries.length; i++) {
+        }
+
+        for (int i = 0; i < phaseSeries.length; i++) {
+            if (phaseSeries[i] == null || phaseSeries[i].length != n) {
                 phaseSeries[i] = new float[n];
             }
-            for (int i = 0; i < ampSeries.length; i++) {
+        }
+
+        for (int i = 0; i < ampSeries.length; i++) {
+            if (ampSeries[i] == null || ampSeries[i].length != n) {
+                ampSeries[i] = new float[n];
+            }
+        }
+
+        if (phaseSeries.length == 0 || ampSeries.length == 0) {
+            return;
+        }
+
+        // 防御性检查：避免外层数组重建后留下空槽导致写入空指针。
+        for (int i = 0; i < phaseSeries.length; i++) {
+            if (phaseSeries[i] == null) {
+                phaseSeries[i] = new float[n];
+            }
+        }
+        for (int i = 0; i < ampSeries.length; i++) {
+            if (ampSeries[i] == null) {
                 ampSeries[i] = new float[n];
             }
         }
