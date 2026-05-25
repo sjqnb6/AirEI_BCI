@@ -1,12 +1,13 @@
 package W_Prediction_;
+
 import Widget_.Widget;
-import controlP5.ControlP5;
 import Globel.GUI;
 import PythonIntegration_.PythonWsClient;
+import processing.core.PApplet;
 
 import java.util.Arrays;
 
-import static Globel.GUI.p7;
+import static Globel.GUI.*;
 
 public class W_Prediction extends Widget {
     private static final String[] MODEL_NAMES = {
@@ -14,27 +15,25 @@ public class W_Prediction extends Widget {
     };
 
     private static final String[] CLASS_LABELS = {
-            "清醒", // Alert
-            "疲劳", // Fatigue
-            "昏睡", // Drowsy
+            "清醒",
+            "疲劳",
+            "昏睡",
     };
 
-    // Classic industrial console palette (light gray, low saturation).
-    private static final int COLOR_BG = 226;
-    private static final int COLOR_PANEL = 233;
-    private static final int COLOR_CARD = 239;
-    private static final int COLOR_BORDER = 168;
-    private static final int COLOR_BORDER_DARK = 128;
-    private static final int COLOR_TEXT = 36;
-    private static final int COLOR_TEXT_SECONDARY = 74;
-    private static final int COLOR_GRID = 184;
-    private static final int COLOR_BADGE_BG = 228;
-    private static final int COLOR_BADGE_BORDER = 185;
-    private static final int COLOR_BAR_BG = 218;
+    private static final int BG_TOP = 0xFF0A1220;
+    private static final int BG_BOTTOM = 0xFF0D1830;
+    private static final int PANEL = 0xCC13243F;
+    private static final int PANEL_STROKE = 0x6683A2CC;
+    private static final int TEXT_MAIN = 0xFFEAF2FF;
+    private static final int TEXT_SUB = 0xFF98AECE;
+    private static final int GRID_LINE = 0x2D90AED8;
+    private static final int ACCENT = 0xFF4FD8FF;
+    private static final int ACCENT_SOFT = 0x4460E2FF;
+    private static final int CARD_BG = 0x2A163153;
 
-    private static final int COLOR_SAFE = 0xFF5F8F5A;
-    private static final int COLOR_WARN = 0xFF9B8A4F;
-    private static final int COLOR_RISK = 0xFFA36A62;
+    private static final int COLOR_SAFE = 0xFF5AE88A;
+    private static final int COLOR_WARN = 0xFFFFD866;
+    private static final int COLOR_RISK = 0xFFFF6B6B;
 
     private static final int HISTORY_SIZE = 180;
     private static final int TREND_X_TICKS = 6;
@@ -44,8 +43,7 @@ public class W_Prediction extends Widget {
     private static final int STATE_ELEVATED = 1;
     private static final int STATE_HIGH_RISK = 2;
 
-    GUI MAIN;
-    ControlP5 localCP5;
+    private final GUI MAIN;
 
     private final float[] displayedProbs = new float[]{0f, 0f, 0f};
     private float displayedFatigueScore = 0f;
@@ -62,10 +60,6 @@ public class W_Prediction extends Widget {
     public W_Prediction(GUI MAIN) {
         super(MAIN);
         this.MAIN = MAIN;
-
-        localCP5 = new ControlP5(MAIN);
-        localCP5.setGraphics(MAIN, 0, 0);
-        localCP5.setAutoDraw(false);
 
         addDropdown("ModelSelect", "模型", Arrays.asList(MODEL_NAMES), 0);
     }
@@ -87,7 +81,7 @@ public class W_Prediction extends Widget {
             displayedProbs[i] += (((float) probs[i]) - displayedProbs[i]) * 0.18f;
         }
 
-        float rawScore = clamp((float) client.getLatestFatigueScore(), 0f, 100f);
+        float rawScore = PApplet.constrain((float) client.getLatestFatigueScore(), 0f, 100f);
         displayedFatigueScore += (rawScore - displayedFatigueScore) * 0.12f;
 
         updateStableRiskState(rawScore);
@@ -127,183 +121,192 @@ public class W_Prediction extends Widget {
     public void draw() {
         super.draw();
 
-        pApplet.pushStyle();
-        pApplet.noStroke();
-        pApplet.fill(COLOR_BG);
-        pApplet.rect(x + 1, y + 1, w - 2, h - 2);
+        MAIN.pushStyle();
+        drawGradientBackground(x, y, w, h);
 
-        int pad = 12;
+        int pad = 10;
         int panelX = x + pad;
         int panelY = y + pad;
-        int panelW = w - pad * 2;
-        int panelH = h - pad * 2;
+        int panelW = w - 2 * pad;
+        int panelH = h - 2 * pad;
 
-        pApplet.fill(COLOR_PANEL);
-        pApplet.stroke(COLOR_BORDER);
-        pApplet.strokeWeight(1.4f);
-        pApplet.rect(panelX, panelY, panelW, panelH, 3);
+        MAIN.noStroke();
+        MAIN.fill(PANEL);
+        MAIN.rect(panelX, panelY, panelW, panelH, 4);
+        MAIN.stroke(PANEL_STROKE);
+        MAIN.strokeWeight(1.1f);
+        MAIN.noFill();
+        MAIN.rect(panelX, panelY, panelW, panelH, 4);
 
+        drawHeader(panelX, panelY, panelW);
 
-        int topCardH = 86;
-        int gap = 10;
-        int leftColW = (int) (panelW * 0.64f);
-        int rightColW = panelW - leftColW - gap;
+        int contentY = panelY + 50;
+        int contentH = panelH - 60;
 
-        int topX = panelX + 12;
-        int topY = panelY + 12;
-        int topW = panelW - 24;
+        int topCardH = 90;
+        int gap = 8;
+        int leftW = (int) (panelW * 0.64f);
+        int rightW = panelW - leftW - gap - 20;
 
-        drawTopCard(topX, topY, topW, topCardH);
+        drawTopCard(panelX + 10, contentY, panelW - 20, topCardH);
 
-        int contentY = topY + topCardH + gap;
-        int contentH = panelH - (contentY - panelY) - 12;
+        int lowerY = contentY + topCardH + gap;
+        int lowerH = contentH - topCardH - gap;
 
-        drawTrendCard(topX, contentY, leftColW, contentH);
-        drawProbCard(topX + leftColW + gap, contentY, rightColW - 12, contentH);
+        drawTrendCard(panelX + 10, lowerY, leftW, lowerH);
+        drawProbCard(panelX + 10 + leftW + gap, lowerY, rightW, lowerH);
 
-        pApplet.popStyle();
-        localCP5.draw();
+        MAIN.popStyle();
     }
 
-    private void drawTopCard(int x, int y, int w, int h) {
-        int stateColor = getStateColor(stableRiskState);
-
-        pApplet.noStroke();
-        pApplet.fill(COLOR_CARD);
-        pApplet.rect(x, y, w, h, 2);
-
-        pApplet.stroke(COLOR_BORDER);
-        pApplet.strokeWeight(1.2f);
-        pApplet.noFill();
-        pApplet.rect(x, y, w, h, 2);
-
-        pApplet.fill(COLOR_TEXT_SECONDARY);
-        pApplet.textFont(p7);
-        pApplet.textAlign(MAIN.LEFT, MAIN.TOP);
-        pApplet.textSize(12);
-        pApplet.text("疲劳风险指数", x + 14, y + 12);
-
-        pApplet.fill(COLOR_TEXT);
-        pApplet.textSize(34);
-        pApplet.text(String.format("%.1f", displayedFatigueScore), x + 14, y + 30);
-
-        pApplet.textSize(12);
-        pApplet.fill(COLOR_TEXT_SECONDARY);
-        pApplet.text("/ 100", x + 106, y + 48);
-
-        pApplet.fill(stateColor);
-        pApplet.textSize(15);
-        pApplet.text(getStateText(stableRiskState), x + 14, y + 66);
+    private void drawHeader(int panelX, int panelY, int panelW) {
+        MAIN.fill(TEXT_MAIN);
+        MAIN.textFont(p7);
+        MAIN.textSize(15);
+        MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
+        MAIN.text("脑电疲劳检测", panelX + 12, panelY + 9);
 
         PythonWsClient client = PythonWsClient.getInstance();
-        String modelText = "当前模型: " + client.getModelType();
-        String connText = "WS: " + (client.isConnected() ? "在线" : "离线");
+        MAIN.fill(TEXT_SUB);
+        MAIN.textSize(11);
+        MAIN.text(
+                "模型 " + client.getModelType()
+                        + " | WS " + (client.isConnected() ? "在线" : "离线")
+                        + " | 状态 " + getStateText(stableRiskState),
+                panelX + 12, panelY + 29
+        );
+
+        MAIN.stroke(PANEL_STROKE);
+        MAIN.line(panelX + 10, panelY + 44, panelX + panelW - 10, panelY + 44);
+    }
+
+    private void drawTopCard(int x0, int y0, int w0, int h0) {
+        MAIN.noStroke();
+        MAIN.fill(CARD_BG);
+        MAIN.rect(x0, y0, w0, h0, 3);
+        MAIN.stroke(PANEL_STROKE);
+        MAIN.noFill();
+        MAIN.rect(x0, y0, w0, h0, 3);
+
+        MAIN.fill(TEXT_SUB);
+        MAIN.textFont(p7);
+        MAIN.textSize(11);
+        MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
+        MAIN.text("疲劳风险指数", x0 + 10, y0 + 8);
+
+        int stateColor = getStateColor(stableRiskState);
+
+        MAIN.fill(TEXT_MAIN);
+        MAIN.textSize(32);
+        MAIN.text(String.format("%.1f", displayedFatigueScore), x0 + 10, y0 + 28);
+
+        MAIN.fill(TEXT_SUB);
+        MAIN.textSize(12);
+        MAIN.text("/ 100", x0 + 108, y0 + 46);
+
+        MAIN.fill(stateColor);
+        MAIN.textSize(14);
+        MAIN.text(getStateText(stableRiskState), x0 + 10, y0 + 66);
+
+        PythonWsClient client = PythonWsClient.getInstance();
         double latency = client.getLatestInferenceLatencyMs();
         String latencyText = latency >= 0 ? String.format("推理延迟: %.0f ms", latency) : "推理延迟: --";
 
-        float rightX = x + w - 220;
-        drawInfoBadge(rightX, y + 12, 198, 20, modelText, COLOR_TEXT_SECONDARY);
-        drawInfoBadge(rightX, y + 38, 94, 20, connText, client.isConnected() ? COLOR_SAFE : COLOR_RISK);
-        drawInfoBadge(rightX + 104, y + 38, 94, 20, latencyText, COLOR_TEXT_SECONDARY);
-
+        float rightX = x0 + w0 - 210;
+        drawInfoBadge(rightX, y0 + 12, 190, 22, "当前模型: " + client.getModelType(), TEXT_SUB);
+        drawInfoBadge(rightX, y0 + 40, 90, 22, "WS: " + (client.isConnected() ? "在线" : "离线"),
+                client.isConnected() ? COLOR_SAFE : COLOR_RISK);
+        drawInfoBadge(rightX + 100, y0 + 40, 90, 22, latencyText, TEXT_SUB);
     }
 
-    private void drawInfoBadge(float x, float y, float w, float h, String text, int textColor) {
-        pApplet.noStroke();
-        pApplet.fill(COLOR_BADGE_BG);
-        pApplet.rect(x, y, w, h, 1);
+    private void drawInfoBadge(float bx, float by, float bw, float bh, String text, int textColor) {
+        MAIN.noStroke();
+        MAIN.fill(0x33FFFFFF);
+        MAIN.rect(bx, by, bw, bh, 2);
 
-        pApplet.stroke(COLOR_BADGE_BORDER);
-        pApplet.strokeWeight(1f);
-        pApplet.noFill();
-        pApplet.rect(x, y, w, h, 1);
+        MAIN.stroke(PANEL_STROKE);
+        MAIN.strokeWeight(1f);
+        MAIN.noFill();
+        MAIN.rect(bx, by, bw, bh, 2);
 
-        pApplet.fill(textColor);
-        pApplet.textFont(p7);
-        pApplet.textAlign(MAIN.CENTER, MAIN.CENTER);
-        pApplet.textSize(11);
-        pApplet.text(text, x + w / 2f, y + h / 2f);
+        MAIN.fill(textColor);
+        MAIN.textFont(p7);
+        MAIN.textAlign(PApplet.CENTER, PApplet.CENTER);
+        MAIN.textSize(10);
+        MAIN.text(text, bx + bw / 2f, by + bh / 2f);
     }
 
-    private void drawTrendCard(int x, int y, int w, int h) {
-        pApplet.noStroke();
-        pApplet.fill(COLOR_CARD);
-        pApplet.rect(x, y, w, h, 2);
+    private void drawTrendCard(int x0, int y0, int w0, int h0) {
+        MAIN.noStroke();
+        MAIN.fill(CARD_BG);
+        MAIN.rect(x0, y0, w0, h0, 3);
+        MAIN.stroke(PANEL_STROKE);
+        MAIN.noFill();
+        MAIN.rect(x0, y0, w0, h0, 3);
 
-        pApplet.stroke(COLOR_BORDER);
-        pApplet.strokeWeight(1.2f);
-        pApplet.noFill();
-        pApplet.rect(x, y, w, h, 2);
+        MAIN.fill(TEXT_SUB);
+        MAIN.textFont(p7);
+        MAIN.textSize(11);
+        MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
+        MAIN.text("疲劳趋势曲线", x0 + 8, y0 + 6);
 
-        pApplet.fill(COLOR_TEXT_SECONDARY);
-        pApplet.textAlign(MAIN.LEFT, MAIN.TOP);
-        pApplet.textFont(p7);
-        pApplet.textSize(12);
-        pApplet.text("疲劳趋势曲线", x + 12, y + 10);
-
-        // Extra left padding avoids axis labels touching surrounding frame.
-        int chartX = x + 34;
-        int chartY = y + 34;
-        int chartW = w - 46;
-        int chartH = h - 66;
+        int chartX = x0 + 36;
+        int chartY = y0 + 28;
+        int chartW = w0 - 48;
+        int chartH = h0 - 50;
 
         int count = historyFilled ? HISTORY_SIZE : historyWriteIndex;
 
         drawTrendGrid(chartX, chartY, chartW, chartH, count);
-        drawTrendCurveSegmented(chartX, chartY, chartW, chartH);
+        drawTrendCurve(chartX, chartY, chartW, chartH);
     }
 
-    private void drawTrendGrid(int x, int y, int w, int h, int count) {
+    private void drawTrendGrid(int gx, int gy, int gw, int gh, int count) {
+        MAIN.stroke(GRID_LINE);
+        MAIN.strokeWeight(1f);
         for (int i = 0; i <= 5; i++) {
-            float yy = y + h * i / 5f;
-            pApplet.stroke(COLOR_GRID);
-            pApplet.strokeWeight(1f);
-            pApplet.line(x, yy, x + w, yy);
+            float yy = gy + gh * i / 5f;
+            MAIN.line(gx, yy, gx + gw, yy);
         }
 
-        pApplet.stroke(COLOR_BORDER_DARK);
-        pApplet.strokeWeight(1.8f);
-        pApplet.line(x, y, x, y + h);
-        pApplet.line(x, y + h, x + w, y + h);
+        MAIN.stroke(PANEL_STROKE);
+        MAIN.strokeWeight(1.2f);
+        MAIN.line(gx, gy, gx, gy + gh);
+        MAIN.line(gx, gy + gh, gx + gw, gy + gh);
 
-        pApplet.fill(COLOR_TEXT_SECONDARY);
-        pApplet.textAlign(MAIN.RIGHT, MAIN.CENTER);
-        pApplet.textSize(10);
+        MAIN.fill(TEXT_SUB);
+        MAIN.textFont(p7);
+        MAIN.textSize(10);
+        MAIN.textAlign(PApplet.RIGHT, PApplet.CENTER);
         for (int i = 0; i <= 5; i++) {
             int label = 100 - i * 20;
-            float yy = y + h * i / 5f;
-            pApplet.text(String.valueOf(label), x - 9, yy);
+            float yy = gy + gh * i / 5f;
+            MAIN.text(String.valueOf(label), gx - 6, yy);
         }
 
-        pApplet.stroke(COLOR_BORDER_DARK);
-        pApplet.strokeWeight(1f);
-        for (int i = 0; i <= 5; i++) {
-            float yy = y + h * i / 5f;
-            pApplet.line(x - 5, yy, x, yy);
-        }
-
-        pApplet.textAlign(MAIN.CENTER, MAIN.TOP);
-        pApplet.textSize(10);
+        MAIN.textAlign(PApplet.CENTER, PApplet.TOP);
         for (int i = 0; i <= TREND_X_TICKS; i++) {
-            float xx = x + w * i / (float) TREND_X_TICKS;
-            pApplet.line(xx, y + h, xx, y + h + 5);
+            float xx = gx + gw * i / (float) TREND_X_TICKS;
+            MAIN.stroke(GRID_LINE);
+            MAIN.line(xx, gy + gh, xx, gy + gh + 4);
             if (i == TREND_X_TICKS) {
-                pApplet.text("当前时刻", xx - 10, y + h + 8);
+                MAIN.text("当前", xx - 6, gy + gh + 6);
             } else {
                 int step = TREND_X_TICKS - i;
-                pApplet.text("-" + step + "s", xx, y + h + 8);
+                MAIN.text("-" + step + "s", xx, gy + gh + 6);
             }
         }
 
         if (count < 2) {
-            pApplet.textAlign(MAIN.LEFT, MAIN.TOP);
-            pApplet.fill(COLOR_TEXT_SECONDARY);
-            pApplet.textSize(11);
-            pApplet.text("Waiting for signal...", x + 10, y + 8);
+            MAIN.fill(TEXT_SUB);
+            MAIN.textFont(p7);
+            MAIN.textSize(10);
+            MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
+            MAIN.text("等待稳定数据...", gx + 4, gy + 4);
         }
     }
 
-    private void drawTrendCurveSegmented(int x, int y, int w, int h) {
+    private void drawTrendCurve(int gx, int gy, int gw, int gh) {
         int count = historyFilled ? HISTORY_SIZE : historyWriteIndex;
         if (count < 2) {
             return;
@@ -313,28 +316,30 @@ public class W_Prediction extends Widget {
             int prevIdx = historyToBufferIndex(i - 1, count);
             int currIdx = historyToBufferIndex(i, count);
 
-            float prevVal = clamp(fatigueHistory[prevIdx], 0f, 100f);
-            float currVal = clamp(fatigueHistory[currIdx], 0f, 100f);
+            float prevVal = PApplet.constrain(fatigueHistory[prevIdx], 0f, 100f);
+            float currVal = PApplet.constrain(fatigueHistory[currIdx], 0f, 100f);
 
-            float x1 = x + (w * (i - 1) / (float) (count - 1));
-            float y1 = y + h - (prevVal / 100f) * h;
-            float x2 = x + (w * i / (float) (count - 1));
-            float y2 = y + h - (currVal / 100f) * h;
+            float x1 = gx + (gw * (i - 1) / (float) (count - 1));
+            float y1 = gy + gh - (prevVal / 100f) * gh;
+            float x2 = gx + (gw * i / (float) (count - 1));
+            float y2 = gy + gh - (currVal / 100f) * gh;
 
-            int segmentState = stateHistory[prevIdx];
-            pApplet.stroke(getStateColor(segmentState));
-            pApplet.strokeWeight(2.4f);
-            pApplet.line(x1, y1, x2, y2);
+            int segColor = getStateColor(stateHistory[prevIdx]);
+            MAIN.stroke(segColor);
+            MAIN.strokeWeight(2.2f);
+            MAIN.line(x1, y1, x2, y2);
         }
 
         int latestIdx = historyToBufferIndex(count - 1, count);
-        float latestVal = clamp(fatigueHistory[latestIdx], 0f, 100f);
-        float latestX = x + w;
-        float latestY = y + h - (latestVal / 100f) * h;
+        float latestVal = PApplet.constrain(fatigueHistory[latestIdx], 0f, 100f);
+        float latestX = gx + gw;
+        float latestY = gy + gh - (latestVal / 100f) * gh;
 
-        pApplet.noStroke();
-        pApplet.fill(getStateColor(stateHistory[latestIdx]));
-        pApplet.ellipse(latestX, latestY, 7, 7);
+        float pulse = 0.7f + 0.3f * (float) Math.sin(MAIN.frameCount * 0.08f);
+        int dotColor = getStateColor(stateHistory[latestIdx]);
+        MAIN.noStroke();
+        MAIN.fill((dotColor >> 16) & 0xFF, (dotColor >> 8) & 0xFF, dotColor & 0xFF, (int) (220 * pulse));
+        MAIN.ellipse(latestX, latestY, 8, 8);
     }
 
     private int historyToBufferIndex(int historyPos, int count) {
@@ -344,59 +349,59 @@ public class W_Prediction extends Widget {
         return (historyWriteIndex + historyPos) % HISTORY_SIZE;
     }
 
-    private void drawProbCard(int x, int y, int w, int h) {
-        pApplet.noStroke();
-        pApplet.fill(COLOR_CARD);
-        pApplet.rect(x, y, w, h, 2);
+    private void drawProbCard(int x0, int y0, int w0, int h0) {
+        MAIN.noStroke();
+        MAIN.fill(CARD_BG);
+        MAIN.rect(x0, y0, w0, h0, 3);
+        MAIN.stroke(PANEL_STROKE);
+        MAIN.noFill();
+        MAIN.rect(x0, y0, w0, h0, 3);
 
-        pApplet.stroke(COLOR_BORDER);
-        pApplet.strokeWeight(1.2f);
-        pApplet.noFill();
-        pApplet.rect(x, y, w, h, 2);
+        MAIN.fill(TEXT_SUB);
+        MAIN.textFont(p7);
+        MAIN.textSize(11);
+        MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
+        MAIN.text("类别概率", x0 + 8, y0 + 6);
 
-        pApplet.fill(COLOR_TEXT_SECONDARY);
-        pApplet.textAlign(MAIN.LEFT, MAIN.TOP);
-        pApplet.textFont(p7);
-        pApplet.textSize(12);
-        pApplet.text("类别概率", x + 12, y + 10);
-
-        int rowH = (h - 46) / 3;
-        int barX = x + 12;
-        int barW = w - 24;
+        int rowH = (h0 - 40) / 3;
+        int barX = x0 + 10;
+        int barW = w0 - 20;
 
         for (int i = 0; i < 3; i++) {
-            int rowY = y + 30 + i * rowH;
-            drawProbRow(i, barX, rowY, barW, rowH - 8);
+            int rowY = y0 + 28 + i * rowH;
+            drawProbRow(i, barX, rowY, barW, rowH - 6);
         }
     }
 
-    private void drawProbRow(int cls, int x, int y, int w, int h) {
-        float prob = clamp(displayedProbs[cls], 0f, 1f);
+    private void drawProbRow(int cls, int rx, int ry, int rw, int rh) {
+        float prob = PApplet.constrain(displayedProbs[cls], 0f, 1f);
         int c = getClassColor(cls);
 
-        pApplet.fill(COLOR_TEXT);
-        pApplet.textAlign(MAIN.LEFT, MAIN.TOP);
-        pApplet.textSize(11);
-        pApplet.text(CLASS_LABELS[cls], x, y);
+        MAIN.fill(TEXT_MAIN);
+        MAIN.textFont(p7);
+        MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
+        MAIN.textSize(11);
+        MAIN.text(CLASS_LABELS[cls], rx, ry);
 
-        int trackY = y + 16;
-        int trackH = Math.max(10, h - 22);
+        int trackY = ry + 16;
+        int trackH = Math.max(8, rh - 20);
 
-        pApplet.noStroke();
-        pApplet.fill(COLOR_BAR_BG);
-        pApplet.rect(x, trackY, w, trackH, 1);
+        MAIN.noStroke();
+        MAIN.fill(0x33FFFFFF);
+        MAIN.rect(rx, trackY, rw, trackH, 2);
 
-        pApplet.fill(c);
-        pApplet.rect(x, trackY, w * prob, trackH, 1);
+        MAIN.fill(c);
+        MAIN.rect(rx, trackY, rw * prob, trackH, 2);
 
-        pApplet.stroke(COLOR_BADGE_BORDER);
-        pApplet.strokeWeight(1f);
-        pApplet.noFill();
-        pApplet.rect(x, trackY, w, trackH, 1);
+        MAIN.stroke(PANEL_STROKE);
+        MAIN.strokeWeight(1f);
+        MAIN.noFill();
+        MAIN.rect(rx, trackY, rw, trackH, 2);
 
-        pApplet.fill(COLOR_TEXT_SECONDARY);
-        pApplet.textAlign(MAIN.RIGHT, MAIN.TOP);
-        pApplet.text(String.format("%.1f%%", prob * 100f), x + w, y);
+        MAIN.fill(TEXT_SUB);
+        MAIN.textAlign(PApplet.RIGHT, PApplet.TOP);
+        MAIN.textSize(10);
+        MAIN.text(String.format("%.1f%%", prob * 100f), rx + rw, ry);
     }
 
     private int classifyState(float score) {
@@ -423,13 +428,32 @@ public class W_Prediction extends Widget {
         return COLOR_RISK;
     }
 
-    private float clamp(float value, float min, float max) {
-        return Math.max(min, Math.min(max, value));
+    private void drawGradientBackground(int x0, int y0, int w0, int h0) {
+        for (int i = 0; i < h0; i++) {
+            float t = i / (float) Math.max(1, h0 - 1);
+            int c = lerpRgb(BG_TOP, BG_BOTTOM, t);
+            MAIN.stroke((c >> 16) & 0xFF, (c >> 8) & 0xFF, c & 0xFF);
+            MAIN.line(x0, y0 + i, x0 + w0, y0 + i);
+        }
+
+        float glow = 0.5f + 0.5f * (float) Math.sin(MAIN.frameCount * 0.01f);
+        MAIN.noStroke();
+        MAIN.fill(79, 216, 255, (int) (18 * glow));
+        MAIN.ellipse(x0 + w0 * 0.18f, y0 + h0 * 0.26f, w0 * 0.42f, h0 * 0.36f);
+        MAIN.fill(103, 128, 255, (int) (14 * glow));
+        MAIN.ellipse(x0 + w0 * 0.82f, y0 + h0 * 0.74f, w0 * 0.36f, h0 * 0.32f);
     }
 
-    @Override
-    public void screenResized() {
-        super.screenResized();
-        localCP5.setGraphics(MAIN, 0, 0);
+    private int lerpRgb(int c1, int c2, float t) {
+        int r1 = (c1 >> 16) & 0xFF;
+        int g1 = (c1 >> 8) & 0xFF;
+        int b1 = c1 & 0xFF;
+        int r2 = (c2 >> 16) & 0xFF;
+        int g2 = (c2 >> 8) & 0xFF;
+        int b2 = c2 & 0xFF;
+        int r = (int) PApplet.lerp(r1, r2, t);
+        int g = (int) PApplet.lerp(g1, g2, t);
+        int b = (int) PApplet.lerp(b1, b2, t);
+        return ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | (b & 0xFF);
     }
 }

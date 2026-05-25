@@ -81,10 +81,10 @@ public class W_Connectivity extends Widget {
         super(MAIN);
         this.MAIN = MAIN;
 
-        addDropdown("ConnBand", "Band", Arrays.asList(BAND_NAMES), bandIndex);
-        addDropdown("ConnThreshold", "Threshold", Arrays.asList(THRESHOLD_LABELS), thresholdIndex);
-        addDropdown("ConnMode", "Mode", Arrays.asList("Arcs", "Matrix"), modeIndex);
-        addDropdown("ConnAnim", "Flow", Arrays.asList("On", "Off"), animIndex);
+        addDropdown("ConnBand", "频带", Arrays.asList(BAND_NAMES), bandIndex);
+        addDropdown("ConnThreshold", "阈值", Arrays.asList(THRESHOLD_LABELS), thresholdIndex);
+        addDropdown("ConnMode", "模式", Arrays.asList("弧线图", "矩阵图"), modeIndex);
+        addDropdown("ConnAnim", "流动", Arrays.asList("开启", "关闭"), animIndex);
 
         ensureBuffers();
     }
@@ -152,14 +152,14 @@ public class W_Connectivity extends Widget {
         MAIN.textFont(p7);
         MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
         MAIN.textSize(14);
-        MAIN.text("EEG Connectivity", panelX + 12, panelY + 10);
+        MAIN.text("脑电连接性图谱", panelX + 12, panelY + 10);
 
         MAIN.fill(DIM_TEXT_COLOR);
         MAIN.textSize(11);
         MAIN.text(
-                BAND_NAMES[bandIndex] + "  |  Threshold " + THRESHOLD_LABELS[thresholdIndex]
-                        + "  |  " + (modeIndex == 0 ? "Arcs" : "Matrix")
-                        + "  |  Flow " + (animIndex == 0 ? "On" : "Off"),
+                BAND_NAMES[bandIndex] + "  |  阈值 " + THRESHOLD_LABELS[thresholdIndex]
+                        + "  |  " + (modeIndex == 0 ? "弧线图" : "矩阵图")
+                        + "  |  流动 " + (animIndex == 0 ? "开启" : "关闭"),
                 panelX + 12, panelY + headerH - 14
         );
 

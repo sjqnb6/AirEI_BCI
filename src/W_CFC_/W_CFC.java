@@ -303,7 +303,7 @@ public class W_CFC extends Widget {
 
     private void drawRightPanel(int rx, int ry, int rw, int rh) {
         int cardGap = 8;
-        int topH = 94;
+        int topH = 120;
         int midH = (int) (rh * 0.42f);
         int botH = rh - topH - midH - cardGap * 2;
 
@@ -326,19 +326,29 @@ public class W_CFC extends Widget {
         MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
         MAIN.text("峰值耦合信息", x0 + 8, y0 + 6);
 
+        int leftX = x0 + 10;
+        int innerW = Math.max(120, w0 - 20);
+        int leftW = (int) PApplet.constrain(innerW * 0.52f, 92f, 140f);
+        int rightX = leftX + leftW + 10;
+        int rightW = Math.max(40, x0 + w0 - 10 - rightX);
+
         MAIN.fill(TEXT_MAIN);
-        MAIN.textSize(15);
-        MAIN.text("相位 " + PApplet.nf(peakPhaseHz, 1, 1) + " Hz", x0 + 10, y0 + 24);
-        MAIN.text("振幅 " + PApplet.nf(peakAmpHz, 1, 1) + " Hz", x0 + 10, y0 + 44);
+        MAIN.textSize(12);
+        MAIN.text("相位 " + PApplet.nf(peakPhaseHz, 1, 1) + " Hz", leftX - 3, y0 + 30);
+        MAIN.text("振幅 " + PApplet.nf(peakAmpHz, 1, 1) + " Hz", leftX - 3, y0 + 56);
 
         MAIN.fill(ACCENT);
-        MAIN.textSize(16);
-        MAIN.text("MI = " + PApplet.nf(peakMI, 1, 4), x0 + w0 - 138, y0 + 24);
+        MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
+        MAIN.textSize(12);
+        MAIN.text("MI = " + PApplet.nf(peakMI, 1, 4), rightX - 30, y0 + 28);
 
         MAIN.fill(TEXT_SUB);
-        MAIN.textSize(11);
-        MAIN.text("显著性 Z = " + PApplet.nf(zScore, 1, 2), x0 + w0 - 138, y0 + 48);
-        MAIN.text("经验 P = " + PApplet.nf(pValue, 1, 3), x0 + w0 - 138, y0 + 64);
+        MAIN.stroke(PANEL_STROKE);
+        MAIN.strokeWeight(1f);
+        MAIN.line(rightX, y0 + 50, rightX + rightW - 6, y0 + 50);
+        MAIN.textSize(10);
+        MAIN.text("显著性 Z = " + PApplet.nf(zScore, 1, 2), rightX - 33, y0 + 58);
+        MAIN.text("经验 P = " + PApplet.nf(pValue, 1, 3), rightX - 33, y0 + 76);
     }
 
     private void drawRoseCard(int x0, int y0, int w0, int h0) {

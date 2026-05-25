@@ -10,6 +10,7 @@ import DigitalCapableBoard_.DigitalCapableBoard;
 import W_Accelerometer_.W_Accelerometer;
 import W_AnalogRead_.W_AnalogRead;
 import W_BandPower_.W_BandPower;
+import W_CFC_.W_CFC;
 import W_CytonImpedance_.W_CytonImpedance;
 import W_DigitalRead_.W_DigitalRead;
 import W_EMGJoystick_.W_EMGJoystick;
@@ -100,6 +101,10 @@ public class GF {
         w_connectivity = new W_Connectivity(_this);
         w_connectivity.setTitle("脑区连接图谱");
         addWidget(w_connectivity, w);
+
+        w_cfc = new W_CFC(_this);
+        w_cfc.setTitle("跨频耦合图谱");
+        addWidget(w_cfc, w);
 
         w_emgJoystick = new W_EMGJoystick(_this);
         w_emgJoystick.setTitle("肌电控制摇杆");

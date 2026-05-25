@@ -3,6 +3,7 @@ package WidgetManager_;
 import W_Accelerometer_.W_Accelerometer;
 import W_AnalogRead_.W_AnalogRead;
 import W_BandPower_.W_BandPower;
+import W_CFC_.W_CFC;
 import W_Connectivity_.W_Connectivity;
 import W_CytonImpedance_.W_CytonImpedance;
 import W_DigitalRead_.W_DigitalRead;
@@ -48,5 +49,6 @@ public class GVI {
 
     public static W_Head w_head;
     public static W_Connectivity w_connectivity;
+    public static W_CFC w_cfc;
 
 }
