@@ -163,9 +163,15 @@ class ChannelBar {
         //update the voltage values
         val = dataProcessing.data_std_uV[channelIndex];
         voltageValue.string = String.format(getFmt(val),val) + " uVrms";
+        // Default to bright text so values remain readable on dark background.
+        voltageValue.setTextColor(COLOR_TEXT);
         if (is_railed != null) {
             voltageValue.setText(is_railed[channelIndex].notificationString + voltageValue.string);
-            voltageValue.setTextColor(is_railed[channelIndex].getColor());
+            if (is_railed[channelIndex].is_railed || is_railed[channelIndex].is_railed_warn) {
+                voltageValue.setTextColor(is_railed[channelIndex].getColor());
+            } else {
+                voltageValue.setTextColor(COLOR_TEXT);
+            }
         }
 
         //update the impedance values
@@ -175,6 +181,7 @@ class ChannelBar {
             fmt = "RAILED - " + fmt;
         }
         impValue.setText(fmt);
+        impValue.setTextColor(COLOR_TEXT);
 
         // update data in plot
         updatePlotPoints();

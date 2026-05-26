@@ -13,6 +13,14 @@ import Globel.GUI;
 //This class contains the time series plot for the focus metric over time
 import Globel.GUI;
 public class FocusBar{
+    // Match W_CFC / W_Connectivity dark tech palette.
+    private static final int COLOR_BG = 0xFF0E1A2F;
+    private static final int COLOR_PANEL = 0xFF142843;
+    private static final int COLOR_BOX = 0x6683A2CC;
+    private static final int COLOR_GRID = 0x2D90AED8;
+    private static final int COLOR_TEXT = 0xFFEAF2FF;
+    private static final int COLOR_LINE = 0xFF4FD8FF;
+
     GUI MAIN;
     int x, y, w, h;
     int focusBarPadding = 30;
@@ -54,12 +62,16 @@ public class FocusBar{
         plot.setAllFontProperties("Microsoft YaHei", 0, 14);
         plot.getXAxis().getAxisLabel().setOffset((float)(22));
         plot.getYAxis().getAxisLabel().setOffset((float)(focusBarPadding));
-        plot.getXAxis().setFontColor(MAIN.OPENBCI_DARKBLUE);
-        plot.getXAxis().setLineColor(MAIN.OPENBCI_DARKBLUE);
-        plot.getXAxis().getAxisLabel().setFontColor(MAIN.OPENBCI_DARKBLUE);
-        plot.getYAxis().setFontColor(MAIN.OPENBCI_DARKBLUE);
-        plot.getYAxis().setLineColor(MAIN.OPENBCI_DARKBLUE);
-        plot.getYAxis().getAxisLabel().setFontColor(MAIN.OPENBCI_DARKBLUE);
+        plot.setBgColor(COLOR_BG);
+        plot.setBoxBgColor(COLOR_PANEL);
+        plot.setBoxLineColor(COLOR_BOX);
+        plot.setGridLineColor(COLOR_GRID);
+        plot.getXAxis().setFontColor(COLOR_TEXT);
+        plot.getXAxis().setLineColor(COLOR_TEXT);
+        plot.getXAxis().getAxisLabel().setFontColor(COLOR_TEXT);
+        plot.getYAxis().setFontColor(COLOR_TEXT);
+        plot.getYAxis().setLineColor(COLOR_TEXT);
+        plot.getYAxis().getAxisLabel().setFontColor(COLOR_TEXT);
 
         adjustTimeAxis(numSeconds);
 
@@ -67,7 +79,7 @@ public class FocusBar{
 
         //set the plot points for X, Y, and Z axes
         plot.addLayer("layer 1", new GPointsArray(30));
-        plot.getLayer("layer 1").setLineColor(MAIN.ACCEL_X_COLOR);
+        plot.getLayer("layer 1").setLineColor(COLOR_LINE);
     }
 
     private void initArrays() {

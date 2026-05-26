@@ -34,6 +34,16 @@ import Globel.GUI;
 import static Globel.GUI.*;
 
 public class W_Focus extends Widget {
+    // Match W_CFC / W_Connectivity dark tech palette.
+    private static final int COLOR_BG_TOP = 0xFF0A1220;
+    private static final int COLOR_BG_BOTTOM = 0xFF0D1830;
+    private static final int COLOR_PANEL = 0xE013243F;
+    private static final int COLOR_BORDER = 0x6683A2CC;
+    private static final int COLOR_TEXT = 0xFFEAF2FF;
+    private static final int COLOR_TEXT_SUB = 0xFF98AECE;
+    private static final int COLOR_FOCUS = 0xFF6CE39A;
+    private static final int COLOR_IDLE = 0xFF2A405E;
+
     GUI MAIN;
     //to see all core variables/methods of the Widget class, refer to Widget.pde
     //put your custom variables here...
@@ -117,6 +127,11 @@ public class W_Focus extends Widget {
         dataGrid.setString("Alpha (7.5-13Hz)", 3, 0);
         dataGrid.setString("Beta (13-30Hz)", 4, 0);
         dataGrid.setString("Gamma (30-45Hz)", 5, 0);
+        // Improve table readability on dark background.
+        for (int r = 0; r < NUM_TABLE_ROWS; r++) {
+            dataGrid.setTextColor(COLOR_TEXT_SUB, r, 0); // labels
+            dataGrid.setTextColor(COLOR_TEXT, r, 1);     // values
+        }
 
         //Instantiate local cp5 for this box. This allows extra control of drawing cp5 elements specifically inside this class.
         //focus_cp5 = new ControlP5(ourApplet);
@@ -153,6 +168,15 @@ public class W_Focus extends Widget {
     public void draw() {
         super.draw(); //calls the parent draw() method of Widget (DON'T REMOVE)
         //remember to refer to x,y,w,h which are the positioning variables of the Widget class
+        MAIN.pushStyle();
+        drawGradientBackground(x, y - 1, w, h + 1);
+        MAIN.noStroke();
+        MAIN.fill(COLOR_PANEL);
+        MAIN.rect(x, y - 1, w, h + 1);
+        MAIN.stroke(COLOR_BORDER);
+        MAIN.noFill();
+        MAIN.rect(x, y - 1, w, h + 1);
+        MAIN.popStyle();
 
         //Draw data table
         dataGrid.draw();
@@ -313,15 +337,20 @@ public class W_Focus extends Widget {
         int fillColor;
         int strokeColor;
         StringBuilder sb = new StringBuilder("");
+        String targetLabel = focusMetric.getString();
         if (predictionExceedsThreshold) {
-            fillColor = cFocus;
-            strokeColor = cFocus;
+            fillColor = COLOR_FOCUS;
+            strokeColor = COLOR_FOCUS;
+            sb.append("已达");
+            sb.append(targetLabel);
+            sb.append("状态");
         } else {
-            fillColor = cDark;
-            strokeColor = cDark;
-            sb.append("Not ");
+            fillColor = COLOR_IDLE;
+            strokeColor = COLOR_IDLE;
+            sb.append("未达");
+            sb.append(targetLabel);
+            sb.append("阈值");
         }
-        sb.append(focusMetric.getIdealStateString());
         //Draw status graphic
         MAIN.pushStyle();
         MAIN.noStroke();
@@ -330,6 +359,7 @@ public class W_Focus extends Widget {
         MAIN.ellipseMode(MAIN.CENTER);
         MAIN.ellipse(xc, yc, wc, hc);
         MAIN.noStroke();
+        MAIN.fill(COLOR_TEXT);
         MAIN.textAlign(MAIN.CENTER);
         MAIN.text(sb.toString(), xc, yc + hc/2 + 16);
         MAIN.popStyle();
@@ -384,6 +414,28 @@ public class W_Focus extends Widget {
                 cPanel = 0xf5f5f5;   //little grey
                 break;
         }
+    }
+
+    private void drawGradientBackground(int x0, int y0, int w0, int h0) {
+        for (int i = 0; i < h0; i++) {
+            float t = i / (float) Math.max(1, h0 - 1);
+            int c = lerpRgb(COLOR_BG_TOP, COLOR_BG_BOTTOM, t);
+            MAIN.stroke((c >> 16) & 0xFF, (c >> 8) & 0xFF, c & 0xFF);
+            MAIN.line(x0, y0 + i, x0 + w0, y0 + i);
+        }
+    }
+
+    private int lerpRgb(int c1, int c2, float t) {
+        int r1 = (c1 >> 16) & 0xFF;
+        int g1 = (c1 >> 8) & 0xFF;
+        int b1 = c1 & 0xFF;
+        int r2 = (c2 >> 16) & 0xFF;
+        int g2 = (c2 >> 8) & 0xFF;
+        int b2 = c2 & 0xFF;
+        int r = (int) PApplet.lerp(r1, r2, t);
+        int g = (int) PApplet.lerp(g1, g2, t);
+        int b = (int) PApplet.lerp(b1, b2, t);
+        return ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | (b & 0xFF);
     }
 
     void channelSelectFlexWidgetUI() {

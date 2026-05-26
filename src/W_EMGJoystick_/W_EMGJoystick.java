@@ -29,6 +29,17 @@ import Globel.GUI;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 public class W_EMGJoystick extends Widget {
+    // Match W_CFC / W_Connectivity dark tech palette.
+    private static final int COLOR_BG_TOP = 0xFF0A1220;
+    private static final int COLOR_BG_BOTTOM = 0xFF0D1830;
+    private static final int COLOR_PANEL = 0xE013243F;
+    private static final int COLOR_BORDER = 0x6683A2CC;
+    private static final int COLOR_GRID = 0x5A9ABFE3;
+    private static final int COLOR_TEXT = 0xFFEAF2FF;
+    private static final int COLOR_TEXT_SUB = 0xFFDCEAFF;
+    private static final int COLOR_DROPDOWN_BG = 0xFF1A2B46;
+    private static final int COLOR_DROPDOWN_OUTLINE = 0x4D6E91B8;
+
     GUI MAIN;
     private ControlP5 emgCp5;
     private Button emgSettingsButton;
@@ -93,10 +104,10 @@ public class W_EMGJoystick extends Widget {
     public W_EMGJoystick(GUI MAIN){
         super(MAIN); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
         this.MAIN = MAIN;
-        graphStroke = MAIN.color(210);
-        graphBG = MAIN.color(245);
-        textColor = MAIN.OPENBCI_DARKBLUE;
-        strokeColor = MAIN.color(138, 146, 153);
+        graphStroke = COLOR_GRID;
+        graphBG = 0xFF142843;
+        textColor = COLOR_TEXT_SUB;
+        strokeColor = 0xFF8DA7C8;
         xNegativeInputLabelImage = MAIN.loadImage("LEFT_100x100.png");
         xPositiveInputLabelImage = MAIN.loadImage("RIGHT_100x100.png");
         yPositiveInputLabelImage = MAIN.loadImage("UP_100x100.png");
@@ -132,6 +143,16 @@ public class W_EMGJoystick extends Widget {
 
     public void draw(){
         super.draw(); //calls the parent draw() method of Widget (DON'T REMOVE)
+
+        MAIN.pushStyle();
+        drawGradientBackground(x, y - 1, w, h + 1);
+        MAIN.noStroke();
+        MAIN.fill(COLOR_PANEL);
+        MAIN.rect(x, y - 1, w, h + 1);
+        MAIN.stroke(COLOR_BORDER);
+        MAIN.noFill();
+        MAIN.rect(x, y - 1, w, h + 1);
+        MAIN.popStyle();
 
         drawJoystickXYGraph();
 
@@ -201,7 +222,7 @@ public class W_EMGJoystick extends Widget {
         MAIN.circle(polarWindowX, polarWindowY, polarWindowDiameter);
 
         //X and Y axis lines
-        MAIN.stroke(180);
+        MAIN.stroke(COLOR_GRID);
         MAIN.line(polarWindowX - polarWindowHalfDiameter, polarWindowY, polarWindowX + polarWindowHalfDiameter, polarWindowY);
         MAIN.line(polarWindowX, polarWindowY - polarWindowHalfDiameter, polarWindowX, polarWindowY + polarWindowHalfDiameter);
 
@@ -220,7 +241,7 @@ public class W_EMGJoystick extends Widget {
 
         //Draw indicator
         MAIN.noFill();
-        MAIN.stroke(MAIN.color(31,69,110));
+        MAIN.stroke(79, 216, 255);
         MAIN.strokeWeight(2);
         MAIN.circle(xMapped, yMapped, INDICATOR_DIAMETER);
         MAIN.line(xMapped-10, yMapped, xMapped+10, yMapped);
@@ -290,18 +311,18 @@ public class W_EMGJoystick extends Widget {
         MAIN.pushStyle();
 
         //Realtime
-        MAIN.fill(MAIN.channelColors[colorIndex], 200);
+        MAIN.fill(MAIN.channelColors[colorIndex], 235);
         MAIN.noStroke();
         MAIN.circle(circleX, circleY, scaleFactor * emgSettingsValues.averageuV[channel]);
 
         //Circle for outer threshold
         MAIN.noFill();
         MAIN.strokeWeight(1);
-        MAIN.stroke(MAIN.OPENBCI_DARKBLUE);
+        MAIN.stroke(COLOR_GRID, 215);
         MAIN.circle(circleX, circleY, scaleFactor * emgSettingsValues.upperThreshold[channel]);
 
         //Circle for inner threshold
-        MAIN.stroke(MAIN.OPENBCI_DARKBLUE);
+        MAIN.stroke(COLOR_GRID, 215);
         MAIN.circle(circleX, circleY, scaleFactor * emgSettingsValues.lowerThreshold[channel]);
 
         //Map value for height of bar graph
@@ -309,12 +330,12 @@ public class W_EMGJoystick extends Widget {
 
         //Draw normalized bar graph of uV w/ matching channel color
         MAIN.noStroke();
-        MAIN.fill(MAIN.channelColors[colorIndex], 200);
+        MAIN.fill(MAIN.channelColors[colorIndex], 230);
         MAIN.rect(barX, barY, BAR_WIDTH, normalizedBAR_HEIGHTeight);
 
         //Draw background bar container for mapped uV value indication
         MAIN.strokeWeight(1);
-        MAIN.stroke(MAIN.OPENBCI_DARKBLUE);
+        MAIN.stroke(COLOR_GRID, 215);
         MAIN.noFill();
         MAIN.rect(barX, barY, BAR_WIDTH, BAR_HEIGHT * -1);
 
@@ -324,7 +345,7 @@ public class W_EMGJoystick extends Widget {
     private void drawChannelLabels() {
         MAIN.pushStyle();
 
-        MAIN.fill(MAIN.OPENBCI_DARKBLUE);
+        MAIN.fill(COLOR_TEXT);
         MAIN.textFont(p7, 14);
         MAIN.textLeading(14);
         MAIN.textAlign(MAIN.CENTER,MAIN.CENTER);
@@ -343,8 +364,11 @@ public class W_EMGJoystick extends Widget {
 
     private void createEmgSettingsButton() {
         emgSettingsButton = MAIN.createButton(emgCp5, "emgSettingsButton", "EMG设置", (int) (x0 + 1),
-                (int) (y0 + navH + 1), 125, navH - 3, p7, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
-        emgSettingsButton.setBorderColor(MAIN.OBJECT_BORDER_GREY);
+                (int) (y0 + navH + 1), 125, navH - 3, p7, 12, MAIN.colorNotPressed, COLOR_TEXT);
+        emgSettingsButton.setColorBackground(0xFF1A2B46);
+        emgSettingsButton.setColorForeground(0xFF25405F);
+        emgSettingsButton.setColorActive(0xFF2D4F76);
+        emgSettingsButton.setBorderColor(COLOR_BORDER);
         emgSettingsButton.onRelease(new CallbackListener() {
             public synchronized void controlEvent(CallbackEvent theEvent) {
                 if (!MAIN.emgSettingsPopupIsOpen) {
@@ -358,12 +382,12 @@ public class W_EMGJoystick extends Widget {
     private ScrollableList createEmgJoystickInputDropdown(String name, EmgJoystickInput joystickInput, int inputNumber) {
         ScrollableList list = emgCp5.addScrollableList(name)
                 .setOpen(false)
-                .setColorBackground(MAIN.WHITE) // text field bg color
-                .setColorValueLabel(MAIN.OPENBCI_DARKBLUE)       // text color
-                .setColorCaptionLabel(MAIN.OPENBCI_DARKBLUE)
-                .setColorForeground(MAIN.color(125))    // border color when not selected
+                .setColorBackground(COLOR_DROPDOWN_BG) // text field bg color
+                .setColorValueLabel(COLOR_TEXT)       // text color
+                .setColorCaptionLabel(COLOR_TEXT)
+                .setColorForeground(MAIN.color(76, 101, 132))    // border color when not selected
                 .setColorActive(MAIN.BUTTON_PRESSED)       // border color when selected
-                .setOutlineColor(MAIN.OBJECT_BORDER_GREY)
+                .setOutlineColor(COLOR_DROPDOWN_OUTLINE)
                 .setSize(DROPDOWN_WIDTH, DROPDOWN_HEIGHT * 6)//temporary size
                 .setBarHeight(DROPDOWN_HEIGHT) //height of top/primary bar
                 .setItemHeight(DROPDOWN_HEIGHT) //height of all item/dropdown bars
@@ -429,10 +453,10 @@ public class W_EMGJoystick extends Widget {
         cp5ElementsToCheck.add(yNegativeInputDropdown);
         //Create labels for the dropdowns
         int labelBG = MAIN.color(255,255,255,0);
-        xNegativeInputDropdownLabel = new TextBox(MAIN, "X-", x, y, MAIN.OPENBCI_DARKBLUE, MAIN.WHITE, 12, h3, MAIN.LEFT, MAIN.TOP);
-        xPositiveInputDropdownLabel = new TextBox(MAIN,"X+", x, y, MAIN.OPENBCI_DARKBLUE, MAIN.WHITE, 12, h3, MAIN.LEFT, MAIN.TOP);
-        yPositiveInputDropdownLabel = new TextBox(MAIN,"Y+", x, y, MAIN.OPENBCI_DARKBLUE, MAIN.WHITE, 12, h3, MAIN.LEFT, MAIN.TOP);
-        yNegativeInputDropdownLabel = new TextBox(MAIN,"Y-", x, y, MAIN.OPENBCI_DARKBLUE, MAIN.WHITE, 12, h3, MAIN.LEFT, MAIN.TOP);
+        xNegativeInputDropdownLabel = new TextBox(MAIN, "X-", x, y, COLOR_TEXT, MAIN.color(0,0,0,0), 12, h3, MAIN.LEFT, MAIN.TOP);
+        xPositiveInputDropdownLabel = new TextBox(MAIN,"X+", x, y, COLOR_TEXT, MAIN.color(0,0,0,0), 12, h3, MAIN.LEFT, MAIN.TOP);
+        yPositiveInputDropdownLabel = new TextBox(MAIN,"Y+", x, y, COLOR_TEXT, MAIN.color(0,0,0,0), 12, h3, MAIN.LEFT, MAIN.TOP);
+        yNegativeInputDropdownLabel = new TextBox(MAIN,"Y-", x, y, COLOR_TEXT, MAIN.color(0,0,0,0), 12, h3, MAIN.LEFT, MAIN.TOP);
     }
 
     private void updateInputDropdownPositions(){
@@ -459,6 +483,28 @@ public class W_EMGJoystick extends Widget {
         MAIN.image(xPositiveInputLabelImage, xPositiveInputDropdown.getPosition()[0] + X_OFFSET, xPositiveInputDropdown.getPosition()[1] + 2, DROPDOWN_HEIGHT, DROPDOWN_HEIGHT);
         MAIN.image(yPositiveInputLabelImage, yPositiveInputDropdown.getPosition()[0] + X_OFFSET, yPositiveInputDropdown.getPosition()[1] + 2, DROPDOWN_HEIGHT, DROPDOWN_HEIGHT);
         MAIN.image(yNegativeInputLabelImage, yNegativeInputDropdown.getPosition()[0] + X_OFFSET, yNegativeInputDropdown.getPosition()[1] + 2, DROPDOWN_HEIGHT, DROPDOWN_HEIGHT);
+    }
+
+    private void drawGradientBackground(int x0, int y0, int w0, int h0) {
+        for (int i = 0; i < h0; i++) {
+            float t = i / (float) Math.max(1, h0 - 1);
+            int c = lerpRgb(COLOR_BG_TOP, COLOR_BG_BOTTOM, t);
+            MAIN.stroke((c >> 16) & 0xFF, (c >> 8) & 0xFF, c & 0xFF);
+            MAIN.line(x0, y0 + i, x0 + w0, y0 + i);
+        }
+    }
+
+    private int lerpRgb(int c1, int c2, float t) {
+        int r1 = (c1 >> 16) & 0xFF;
+        int g1 = (c1 >> 8) & 0xFF;
+        int b1 = c1 & 0xFF;
+        int r2 = (c2 >> 16) & 0xFF;
+        int g2 = (c2 >> 8) & 0xFF;
+        int b2 = c2 & 0xFF;
+        int r = (int) PApplet.lerp(r1, r2, t);
+        int g = (int) PApplet.lerp(g1, g2, t);
+        int b = (int) PApplet.lerp(b1, b2, t);
+        return ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | (b & 0xFF);
     }
 
     public void updateJoystickInput(int inputNumber, Integer value) {
