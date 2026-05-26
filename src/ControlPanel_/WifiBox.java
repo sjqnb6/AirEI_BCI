@@ -124,11 +124,11 @@ public class WifiBox{
     }
 
     public void refreshWifiList() {
-        output("Wifi Devices Refreshing");
+        output("WIFI设备搜索中...");
         wifiList.items.clear();
         Thread thread = new Thread(){
             public void run() {
-                refreshWifi.getCaptionLabel().setText("SEARCHING...");
+                refreshWifi.getCaptionLabel().setText("搜索中...");
                 wifiIsRefreshing = true;
                 try {
                     List<Device> devices = SSDPClient.discover (3000, "urn:schemas-upnp-org:device:Basic:1");
@@ -143,7 +143,7 @@ public class WifiBox{
                     println("Exception in wifi shield scanning");
                     e.printStackTrace ();
                 }
-                refreshWifi.getCaptionLabel().setText("START SEARCH");
+                refreshWifi.getCaptionLabel().setText("开始搜索");
                 wifiIsRefreshing = false;
             }
         };

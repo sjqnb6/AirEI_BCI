@@ -94,7 +94,7 @@ public class InitBox{
                 // Global steps to START SESSION
                 // Prepare the serial port
 
-                //Set data logger outputs to save data to BDF or CSV
+                //设置数据记录器输出以将数据保存到 BDF 或 CSV
                 controlPanel.setDataLoggerOutputs();
 
                 if (controlPanel.getWifiSearchStyle() == controlPanel.WIFI_STATIC && (MAIN.selectedProtocol == BoardProtocol.WIFI || MAIN.selectedProtocol == BoardProtocol.WIFI)) {
@@ -102,7 +102,7 @@ public class InitBox{
                     println("Static IP address of " + wifi_ipAddress);
                 }
 
-                //Set this flag to true, and draw "Starting Session..." to screen after then next draw() loop
+                //将此标志设置为 true，并在下一个 draw() 循环之后将“正在开始会话...”绘制到屏幕上
                 midInit = true;
                 output("尝试建立连接..."); // Show this at the bottom of the GUI
                 println("initButtonPressed: Calling initSystem() after next draw()");

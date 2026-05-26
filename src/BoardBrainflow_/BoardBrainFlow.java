@@ -5,13 +5,13 @@ import Board_.Board;
 import Globel.GUI;
 import PopupMessage_.PopupMessage;
 import SerialParser_.CytonSerialParser;
+import SerialParser_.CytonWifiParser;
 import brainflow.BoardIds;
 import brainflow.BoardShim;
 import brainflow.BrainFlowError;
 import brainflow.BrainFlowInputParams;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import com.fazecast.jSerialComm.SerialPort;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -34,6 +34,7 @@ import static processing.core.PApplet.println;
 public abstract class BoardBrainFlow extends Board {
     GUI MAIN;
     protected CytonSerialParser parser = null;
+    protected CytonWifiParser wifiParser = null;
     protected BoardShim boardShim = null;
     protected int samplingRateCache = -1;
     protected int sampleIndexChannelCache = -1;
@@ -46,6 +47,9 @@ public abstract class BoardBrainFlow extends Board {
     protected boolean streaming = false;
     protected double time_last_datapoint = -1.0;
     protected boolean data_popup_displayed = false;
+    protected boolean useCustomWifiParser = false;
+    protected String customWifiHost = "";
+    protected int customWifiPort = 6677;
 
     private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
@@ -88,6 +92,10 @@ public abstract class BoardBrainFlow extends Board {
     }
     public boolean initializeInternal() {
         try {
+            if (useCustomWifiParser) {
+                wifiParser = new CytonWifiParser(20000);
+                return true;
+            }
             if(getBoardIdInt() == 0 )parser = new CytonSerialParser(20000);
             else{
                 boardShim = new BoardShim (getBoardIdInt(), getParams());
@@ -110,7 +118,7 @@ public abstract class BoardBrainFlow extends Board {
 
         } catch (Exception e) {
             boardShim = null;
-            outputError("错误: " + e + " 未能初始化数据版,没有数据流产生");
+            outputError("Error: " + e + " failed to initialize data source.");
             e.printStackTrace();
             return false;
         }
@@ -118,7 +126,13 @@ public abstract class BoardBrainFlow extends Board {
 
     @Override
     public void uninitializeInternal() {
-        if(isConnected()) {
+        if (useCustomWifiParser) {
+            if (wifiParser != null) {
+                wifiParser.close();
+            }
+            return;
+        }
+        if(isConnected() && parser != null) {
             parser.close();
         }
     }
@@ -163,6 +177,24 @@ public abstract class BoardBrainFlow extends Board {
             return;
         }
 
+        if (useCustomWifiParser) {
+            try {
+                if (wifiParser == null) {
+                    wifiParser = new CytonWifiParser(20000);
+                }
+                String host = customWifiHost;
+                if (host == null || host.isEmpty()) {
+                    host = MAIN.wifi_ipAddress;
+                }
+                wifiParser.start_stream(host, customWifiPort);
+                streaming = true;
+            } catch(IOException e){
+                e.printStackTrace();
+                streaming = false;
+            }
+            return;
+        }
+
         try {
             //sendToSerialPort("COM5", 'b');
             //-----------------------------------------------------------------------
@@ -204,6 +236,24 @@ public abstract class BoardBrainFlow extends Board {
         }
     }
     public void stopStreaming() {
+        if (useCustomWifiParser) {
+            super.stopStreaming();
+
+            println("Brainflow stop streaming");
+            if(!streaming) {
+                println("Already stopped streaming, do nothing");
+                return;
+            }
+            if (wifiParser != null)wifiParser.stop_stream();
+            streaming = false;
+            time_last_datapoint = -1.0;
+
+            if (MAIN.eegDataSource != MAIN.DATASOURCE_PLAYBACKFILE && MAIN.eegDataSource != MAIN.DATASOURCE_STREAMING) {
+                MAIN.dataLogger.fileWriterBF.incrementBrainFlowStreamerFileNumber();
+            }
+            return;
+        }
+
         if(getBoardIdInt() != 0) {
             stopStreaming1();
             return ;
@@ -237,6 +287,9 @@ public abstract class BoardBrainFlow extends Board {
     }
     @Override
     public boolean isConnected() {
+        if (useCustomWifiParser) {
+            return wifiParser != null && wifiParser.isRunning();
+        }
         if (parser != null) {
             try {
                 return true;
@@ -349,6 +402,9 @@ public int[] getEXGChannels() {
 
     @Override
     public int getSampleIndexChannel() {
+        if (useCustomWifiParser) {
+            return 0;
+        }
         if(sampleIndexChannelCache < 0) {
             try {
                 sampleIndexChannelCache = BoardShim.get_package_num_channel(getBoardIdInt());
@@ -367,6 +423,9 @@ public int[] getEXGChannels() {
 
     @Override
     public Pair<Boolean, String> sendCommand(String command) {
+        if (useCustomWifiParser) {
+            return new ImmutablePair<Boolean, String>(Boolean.valueOf(false), "");
+        }
         if (command != null && isConnected()) {
             try {
                 println("Sending config string to board: " + command);
@@ -374,7 +433,7 @@ public int[] getEXGChannels() {
                 return new ImmutablePair<Boolean, String>(Boolean.valueOf(true), resp);
             }
             catch (BrainFlowError e) {
-                outputError("错误: " + e + " 发送指令: " + command);
+                outputError("Error: " + e + " sending command: " + command);
                 e.printStackTrace();
                 return new ImmutablePair<Boolean, String>(Boolean.valueOf(false), "");
             }
@@ -391,11 +450,11 @@ public int[] getEXGChannels() {
                     double cur_time = System.currentTimeMillis() / 1000L;
                     double timeout = 5.0;
                     if (cur_time - time_last_datapoint > timeout) {
-                        if (data_popup_displayed == false) {
-                            PopupMessage msg = new PopupMessage(MAIN,"数据流错误",
-                                    "没有接收到数据持续" + timeout + " 秒. 请检查设备并且重启连接.");
+                        if (!data_popup_displayed) {
+                            PopupMessage msg = new PopupMessage(MAIN,"Data Stream Error",
+                                    "No data received for " + timeout + " seconds. Check device and reconnect.");
                         }
-                        outputError("数据流错误：未收到新数据持续 " + timeout + " 秒. 请检查您的设备并重启GUI会话.");
+                        outputError("Data stream error: no data for " + timeout + " seconds.");
                         data_popup_displayed = true;
                         stopRunning(MAIN);
                         topNav.resetStartStopButton();
@@ -441,6 +500,34 @@ public int[] getEXGChannels() {
 //    }
 
     protected double[][] getNewDataInternal() {
+        if (useCustomWifiParser) {
+            if (streaming) {
+                double[][] data = (wifiParser != null) ? wifiParser.get_data() : emptyData;
+                if ((data[0].length == 0) && (time_last_datapoint > 0)) {
+                    double cur_time = System.currentTimeMillis() / 1000L;
+                    double timeout = 5.0;
+                    if (cur_time - time_last_datapoint > timeout) {
+                        if (!data_popup_displayed) {
+                            PopupMessage msg = new PopupMessage(
+                                    MAIN,
+                                    "Data Stream Error",
+                                    "No data received for " + timeout + " seconds. Check device and reconnect."
+                            );
+                        }
+                        outputError("No data received for " + timeout + " seconds. Check device and reconnect.");
+                        data_popup_displayed = true;
+                        stopRunning(MAIN);
+                        topNav.resetStartStopButton();
+                    }
+                } else {
+                    time_last_datapoint = System.currentTimeMillis() / 1000L;
+                    data_popup_displayed = false;
+                }
+                return data;
+            }
+            return emptyData;
+        }
+
         if(getBoardIdInt() != 0) return getNewDataInternal1();
         if(streaming) {
             //-----------------------------------------------------------------------
@@ -450,11 +537,14 @@ public int[] getEXGChannels() {
                 double cur_time = System.currentTimeMillis() / 1000L;
                 double timeout = 5.0;
                 if (cur_time - time_last_datapoint > timeout) {
-                    if (data_popup_displayed == false) {
-                        PopupMessage msg = new PopupMessage(MAIN,"数据流错误",
-                                "没有接收到数据累计 " + timeout + " 秒. 请检查设备并且重启连接.");
+                    if (!data_popup_displayed) {
+                        PopupMessage msg = new PopupMessage(
+                                MAIN,
+                                "Data Stream Error",
+                                "No data received for " + timeout + " seconds. Check device and reconnect."
+                        );
                     }
-                    outputError("没有接收到数据，累计 " + timeout + " 秒. 请检查设备并且重启连接");
+                    outputError("No data received for " + timeout + " seconds. Check device and reconnect.");
                     data_popup_displayed = true;
                     stopRunning(MAIN);
                     topNav.resetStartStopButton();
@@ -536,6 +626,9 @@ public int[] getEXGChannels() {
     }
     @Override
     public int getTotalChannelCount() {
+        if (useCustomWifiParser) {
+            return 30;
+        }
         if(totalChannelsCache < 0) {
             try {
                 totalChannelsCache = BoardShim.get_num_rows(getBoardIdInt());
@@ -575,6 +668,9 @@ public int[] getEXGChannels() {
 
     @Override
     public void insertMarker(double value) {
+        if (useCustomWifiParser) {
+            return;
+        }
         if (isConnected() && streaming) {
             try {
                 boardShim.insert_marker(value);
@@ -593,6 +689,12 @@ public int[] getEXGChannels() {
     @Override
     public void insertMarker(int value) {
         insertMarker((double) value);
+    }
+
+    protected void enableCustomWifiParser(String host, int port) {
+        useCustomWifiParser = true;
+        customWifiHost = host;
+        customWifiPort = port;
     }
     private void sendToSerialPort(String portName, char c) {
         SerialPort[] ports = SerialPort.getCommPorts();
@@ -632,3 +734,4 @@ public int[] getEXGChannels() {
         }
     }
 };
+
