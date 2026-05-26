@@ -20,6 +20,14 @@ import static Globel.GUI.*;
 
 //========================== PLAYBACKSLIDER ==========================
 class PlaybackScrollbar  {
+    // Match W_CFC / W_Connectivity dark tech palette.
+    private static final int COLOR_PANEL = 0xFF13243F;
+    private static final int COLOR_PANEL_BORDER = 0x6683A2CC;
+    private static final int COLOR_TRACK = 0xFF1F3858;
+    private static final int COLOR_HANDLE_IDLE = 0xFF4F647F;
+    private static final int COLOR_HANDLE_ACTIVE = 0xFF4FD8FF;
+    private static final int COLOR_TEXT = 0xFFF2F7FF;
+
     GUI MAIN;
     private final float ps_Padding = 50.0F; //used to make room for skip to start button
     private int x, y, w, h;
@@ -71,7 +79,7 @@ class PlaybackScrollbar  {
     }
 
     private void createSkipToStartButton(String name, String text, int _x, int _y, int _w, int _h) {
-        skipToStartButton = MAIN.createButton(pbsb_cp5, name, text, _x, _y, _w, _h, 0, p5, 12, MAIN.GREY_235, MAIN.OPENBCI_DARKBLUE, MAIN.BUTTON_HOVER, MAIN.BUTTON_PRESSED, (Integer)null, 0);
+        skipToStartButton = MAIN.createButton(pbsb_cp5, name, text, _x, _y, _w, _h, 0, p5, 12, COLOR_PANEL, COLOR_TEXT, MAIN.BUTTON_HOVER, MAIN.BUTTON_PRESSED, (Integer)null, 0);
         PImage defaultImage = MAIN.loadImage("skipToStart_default-30x26.png");
         skipToStartButton.setImage(defaultImage);
         skipToStartButton.setForceDrawBackground(true);
@@ -190,20 +198,20 @@ class PlaybackScrollbar  {
     public void draw() {
         MAIN.pushStyle();
 
-        MAIN.fill(MAIN.GREY_235);
-        MAIN.stroke(MAIN.OPENBCI_BLUE);
+        MAIN.fill(COLOR_PANEL);
+        MAIN.stroke(COLOR_PANEL_BORDER);
         MAIN.rect(x, y, w, h);
 
         //draw the playback slider inside the playback sub-widget
         MAIN.noStroke();
-        MAIN.fill(MAIN.GREY_200);
+        MAIN.fill(COLOR_TRACK);
         MAIN.rect(xpos, ypos, swidth, sheight);
 
         //select color for playback indicator
         if (over || locked) {
-            MAIN.fill(MAIN.OPENBCI_DARKBLUE);
+            MAIN.fill(COLOR_HANDLE_ACTIVE);
         } else {
-            MAIN.fill(102, 102, 102);
+            MAIN.fill(COLOR_HANDLE_IDLE);
         }
         //draws playback position indicator
         MAIN.rect(spos, ypos, sheight/2, sheight);
@@ -211,7 +219,7 @@ class PlaybackScrollbar  {
         //draw current timestamp and X of Y Seconds above scrollbar
         int fontSize = 17;
         MAIN.textFont(p2, fontSize);
-        MAIN.fill(MAIN.OPENBCI_DARKBLUE);
+        MAIN.fill(COLOR_TEXT);
         float tw = MAIN.textWidth(currentAbsoluteTimeToDisplay);
         MAIN.text(currentAbsoluteTimeToDisplay, xpos + swidth - tw, ypos - fontSize - 4);
         MAIN.text(currentTimeInSecondsToDisplay, xpos, ypos - fontSize - 4);

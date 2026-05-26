@@ -30,6 +30,10 @@ public class W_timeSeries extends Widget {
     GUI MAIN;
 
     public ColorPalette CP;
+    private static final int COLOR_BG_TOP = 0xFF0A1220;
+    private static final int COLOR_BG_BOTTOM = 0xFF0D1830;
+    private static final int COLOR_PANEL = 0xE013243F;
+    private static final int COLOR_BORDER = 0x6683A2CC;
 
 
     private int numChannelBars;
@@ -197,6 +201,16 @@ public class W_timeSeries extends Widget {
     public void draw() {
         super.draw(); //calls the parent draw() method of Widget (DON'T REMOVE)
 
+        MAIN.pushStyle();
+        drawGradientBackground(x, y - 1, w, h + 1);
+        MAIN.noStroke();
+        MAIN.fill(COLOR_PANEL);
+        MAIN.rect(x, y - 1, w, h + 1);
+        MAIN.stroke(COLOR_BORDER);
+        MAIN.noFill();
+        MAIN.rect(x, y - 1, w, h + 1);
+        MAIN.popStyle();
+
         //remember to refer to x,y,w,h which are the positioning variables of the Widget class
         //draw channel bars
         for (int i = 0; i < tsChanSelect.activeChan.size(); i++) {
@@ -327,7 +341,7 @@ public class W_timeSeries extends Widget {
 
     private Button createHSCButton(String name, String text, int _x, int _y, int _w, int _h) {
         final Button myButton = MAIN.createButton(tscp5, name, text, _x, _y, _w, _h);
-        myButton.setBorderColor(CP.OBJECT_BORDER_GREY);
+        myButton.setBorderColor(COLOR_BORDER);
         myButton.onClick(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 MAIN.println("HardwareSettings Toggle: " + !adsSettingsController.getIsVisible());
@@ -382,5 +396,27 @@ public class W_timeSeries extends Widget {
                 }
             }
         }
+    }
+
+    private void drawGradientBackground(int x0, int y0, int w0, int h0) {
+        for (int i = 0; i < h0; i++) {
+            float t = i / (float) Math.max(1, h0 - 1);
+            int c = lerpRgb(COLOR_BG_TOP, COLOR_BG_BOTTOM, t);
+            MAIN.stroke((c >> 16) & 0xFF, (c >> 8) & 0xFF, c & 0xFF);
+            MAIN.line(x0, y0 + i, x0 + w0, y0 + i);
+        }
+    }
+
+    private int lerpRgb(int c1, int c2, float t) {
+        int r1 = (c1 >> 16) & 0xFF;
+        int g1 = (c1 >> 8) & 0xFF;
+        int b1 = c1 & 0xFF;
+        int r2 = (c2 >> 16) & 0xFF;
+        int g2 = (c2 >> 8) & 0xFF;
+        int b2 = c2 & 0xFF;
+        int r = (int) PApplet.lerp(r1, r2, t);
+        int g = (int) PApplet.lerp(g1, g2, t);
+        int b = (int) PApplet.lerp(b1, b2, t);
+        return ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | (b & 0xFF);
     }
 };

@@ -37,13 +37,15 @@ public class W_fft extends Widget {
     GUI MAIN;
     protected PApplet pApplet;
     public ColorPalette CP;
-    // Match W_Prediction industrial gray palette.
-    private static final int COLOR_BG = 226;
-    private static final int COLOR_PANEL = 233;
-    private static final int COLOR_CARD = 239;
-    private static final int COLOR_BORDER = 168;
-    private static final int COLOR_TEXT = 36;
-    private static final int COLOR_GRID = 184;
+    // Match W_CFC / W_Connectivity dark tech palette.
+    private static final int COLOR_BG_TOP = 0xFF0A1220;
+    private static final int COLOR_BG_BOTTOM = 0xFF0D1830;
+    private static final int COLOR_BG = 0xFF0E1A2F;
+    private static final int COLOR_PANEL = 0xFF142843;
+    private static final int COLOR_CARD = 0xFF13243F;
+    private static final int COLOR_BORDER = 0x6683A2CC;
+    private static final int COLOR_TEXT = 0xFFEAF2FF;
+    private static final int COLOR_GRID = 0x2D90AED8;
 
     public ChannelSelect fftChanSelect;
     boolean prevChanSelectIsVisible = false;
@@ -173,8 +175,12 @@ public class W_fft extends Widget {
 
         //remember to refer to x,y,w,h which are the positioning variables of the Widget class
         pApplet.pushStyle();
+        drawGradientBackground(x, y - 1, w, h + 1);
         pApplet.noStroke();
-        pApplet.fill(COLOR_BG);
+        pApplet.fill(COLOR_BG, 210);
+        pApplet.rect(x, y - 1, w, h + 1);
+        pApplet.stroke(COLOR_BORDER);
+        pApplet.noFill();
         pApplet.rect(x, y - 1, w, h + 1);
 
         //draw FFT Graph w/ all plots
@@ -195,9 +201,11 @@ public class W_fft extends Widget {
         }
         fft_plot.endDraw();
 
-        //for this widget need to redraw the grey bar, bc the FFT plot covers it up...
+        //for this widget need to redraw the top bar because the FFT plot covers it up
         pApplet.fill(COLOR_CARD);
         pApplet.rect(x, y - navHeight, w, navHeight); //button bar
+        pApplet.stroke(COLOR_BORDER);
+        pApplet.line(x + 1, y - navHeight + 1, x + w - 1, y - navHeight + 1);
 
         pApplet.popStyle();
 
@@ -231,6 +239,35 @@ public class W_fft extends Widget {
             fft_plot.setPos(x, y - navHeight);
             fft_plot.setOuterDim(w, h + navHeight);
         }
+    }
+
+    private void drawGradientBackground(int x0, int y0, int w0, int h0) {
+        for (int i = 0; i < h0; i++) {
+            float t = i / (float) Math.max(1, h0 - 1);
+            int c = lerpRgb(COLOR_BG_TOP, COLOR_BG_BOTTOM, t);
+            pApplet.stroke((c >> 16) & 0xFF, (c >> 8) & 0xFF, c & 0xFF);
+            pApplet.line(x0, y0 + i, x0 + w0, y0 + i);
+        }
+
+        float glow = 0.5f + 0.5f * (float) Math.sin(MAIN.frameCount * 0.01f);
+        pApplet.noStroke();
+        pApplet.fill(79, 216, 255, (int) (16 * glow));
+        pApplet.ellipse(x0 + w0 * 0.20f, y0 + h0 * 0.28f, w0 * 0.40f, h0 * 0.34f);
+        pApplet.fill(103, 128, 255, (int) (12 * glow));
+        pApplet.ellipse(x0 + w0 * 0.82f, y0 + h0 * 0.74f, w0 * 0.34f, h0 * 0.30f);
+    }
+
+    private int lerpRgb(int c1, int c2, float t) {
+        int r1 = (c1 >> 16) & 0xFF;
+        int g1 = (c1 >> 8) & 0xFF;
+        int b1 = c1 & 0xFF;
+        int r2 = (c2 >> 16) & 0xFF;
+        int g2 = (c2 >> 8) & 0xFF;
+        int b2 = c2 & 0xFF;
+        int r = (int) PApplet.lerp(r1, r2, t);
+        int g = (int) PApplet.lerp(g1, g2, t);
+        int b = (int) PApplet.lerp(b1, b2, t);
+        return ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | (b & 0xFF);
     }
     public void MaxFreq(int n) {
         /* request the selected item based on index n */

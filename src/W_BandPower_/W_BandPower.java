@@ -32,6 +32,16 @@ import Globel.GUI;
 
 public class W_BandPower extends Widget {
     GUI MAIN;
+    // Match W_CFC / W_Connectivity dark tech palette.
+    private static final int COLOR_BG_TOP = 0xFF0A1220;
+    private static final int COLOR_BG_BOTTOM = 0xFF0D1830;
+    private static final int COLOR_BG = 0xFF0E1A2F;
+    private static final int COLOR_PANEL = 0xFF142843;
+    private static final int COLOR_CARD = 0xFF13243F;
+    private static final int COLOR_BORDER = 0x6683A2CC;
+    private static final int COLOR_TEXT = 0xFFEAF2FF;
+    private static final int COLOR_GRID = 0x2D90AED8;
+
     // indexes
     private final int DELTA = 0; // 1-4 Hz
     private final int THETA = 1; // 4-8 Hz
@@ -78,29 +88,34 @@ public class W_BandPower extends Widget {
         bp_plot.getXAxis().getAxisLabel().setOffset(42f);
         bp_plot.startHistograms(GPlot.VERTICAL);
         bp_plot.getHistogram().setDrawLabels(true);
-        bp_plot.getXAxis().setFontColor(MAIN.OPENBCI_DARKBLUE);
-        bp_plot.getXAxis().setLineColor(MAIN.OPENBCI_DARKBLUE);
-        bp_plot.getXAxis().getAxisLabel().setFontColor(MAIN.OPENBCI_DARKBLUE);
-        bp_plot.getYAxis().setFontColor(MAIN.OPENBCI_DARKBLUE);
-        bp_plot.getYAxis().setLineColor(MAIN.OPENBCI_DARKBLUE);
-        bp_plot.getYAxis().getAxisLabel().setFontColor(MAIN.OPENBCI_DARKBLUE);
+        bp_plot.setBgColor(COLOR_BG);
+        bp_plot.setBoxBgColor(COLOR_PANEL);
+        bp_plot.setBoxLineColor(COLOR_BORDER);
+        bp_plot.setGridLineColor(COLOR_GRID);
+        bp_plot.getXAxis().setFontColor(COLOR_TEXT);
+        bp_plot.getXAxis().setLineColor(COLOR_TEXT);
+        bp_plot.getXAxis().getAxisLabel().setFontColor(COLOR_TEXT);
+        bp_plot.getYAxis().setFontColor(COLOR_TEXT);
+        bp_plot.getYAxis().setLineColor(COLOR_TEXT);
+        bp_plot.getYAxis().getAxisLabel().setFontColor(COLOR_TEXT);
 
         //setting border of histograms to match BG
         bp_plot.getHistogram().setLineColors(new int[]{
-                pApplet.color(245), pApplet.color(245), pApplet.color(245), pApplet.color(245), pApplet.color(245)
+                pApplet.color(215, 232, 255), pApplet.color(215, 232, 255), pApplet.color(215, 232, 255),
+                pApplet.color(215, 232, 255), pApplet.color(215, 232, 255)
                 }
         );
-        //setting bg colors of histogram bars to match the color scheme of the channel colors w/ an opacity of 150/255
+        // High-contrast band colors for dark background.
         bp_plot.getHistogram().setBgColors(new int[] {
-                        pApplet.color((int)MAIN.channelColors[6], 200),
-                        pApplet.color((int)MAIN.channelColors[4], 200),
-                        pApplet.color((int)MAIN.channelColors[3], 200),
-                        pApplet.color((int)MAIN.channelColors[2], 200),
-                        pApplet.color((int)MAIN.channelColors[1], 200),
+                        pApplet.color(74, 176, 255, 215),   // Delta
+                        pApplet.color(77, 222, 209, 215),   // Theta
+                        pApplet.color(93, 225, 122, 215),   // Alpha
+                        pApplet.color(255, 196, 89, 215),   // Beta
+                        pApplet.color(255, 118, 118, 215),  // Gamma
                 }
         );
         //setting color of text label for each histogram bar on the x axis
-        bp_plot.getHistogram().setFontColor(MAIN.OPENBCI_DARKBLUE);
+        bp_plot.getHistogram().setFontColor(COLOR_TEXT);
     }
 
     public void update() {
@@ -131,6 +146,13 @@ public class W_BandPower extends Widget {
     public void draw() {
         super.draw(); //calls the parent draw() method of Widget (DON'T REMOVE)
         pApplet.pushStyle();
+        drawGradientBackground(x, y - 1, w, h + 1);
+        pApplet.noStroke();
+        pApplet.fill(COLOR_BG, 210);
+        pApplet.rect(x, y - 1, w, h + 1);
+        pApplet.stroke(COLOR_BORDER);
+        pApplet.noFill();
+        pApplet.rect(x, y - 1, w, h + 1);
 
         //remember to refer to x,y,w,h which are the positioning variables of the Widget class
         // Draw the third plot
@@ -143,9 +165,12 @@ public class W_BandPower extends Widget {
         bp_plot.drawHistograms();
         bp_plot.endDraw();
 
-        //for this widget need to redraw the grey bar, bc the FFT plot covers it up...
-        pApplet.fill(200, 200, 200);
+        //for this widget need to redraw the top bar because the plot covers it up
+        pApplet.noStroke();
+        pApplet.fill(COLOR_CARD);
         pApplet.rect(x, y - navHeight, w, navHeight); //button bar
+        pApplet.stroke(COLOR_BORDER);
+        pApplet.line(x + 1, y - navHeight + 1, x + w - 1, y - navHeight + 1);
 
         pApplet.popStyle();
         bpChanSelect.draw();
@@ -198,5 +223,34 @@ public class W_BandPower extends Widget {
         for (int i = 0; i < NUM_BANDS; i++) {
             normalizedBandPowers[i] = activePower[i] / normalizingSum;
         }
+    }
+
+    private void drawGradientBackground(int x0, int y0, int w0, int h0) {
+        for (int i = 0; i < h0; i++) {
+            float t = i / (float) Math.max(1, h0 - 1);
+            int c = lerpRgb(COLOR_BG_TOP, COLOR_BG_BOTTOM, t);
+            pApplet.stroke((c >> 16) & 0xFF, (c >> 8) & 0xFF, c & 0xFF);
+            pApplet.line(x0, y0 + i, x0 + w0, y0 + i);
+        }
+
+        float glow = 0.5f + 0.5f * (float) Math.sin(MAIN.frameCount * 0.01f);
+        pApplet.noStroke();
+        pApplet.fill(79, 216, 255, (int) (16 * glow));
+        pApplet.ellipse(x0 + w0 * 0.20f, y0 + h0 * 0.28f, w0 * 0.40f, h0 * 0.34f);
+        pApplet.fill(103, 128, 255, (int) (12 * glow));
+        pApplet.ellipse(x0 + w0 * 0.82f, y0 + h0 * 0.74f, w0 * 0.34f, h0 * 0.30f);
+    }
+
+    private int lerpRgb(int c1, int c2, float t) {
+        int r1 = (c1 >> 16) & 0xFF;
+        int g1 = (c1 >> 8) & 0xFF;
+        int b1 = c1 & 0xFF;
+        int r2 = (c2 >> 16) & 0xFF;
+        int g2 = (c2 >> 8) & 0xFF;
+        int b2 = c2 & 0xFF;
+        int r = (int) PApplet.lerp(r1, r2, t);
+        int g = (int) PApplet.lerp(g1, g2, t);
+        int b = (int) PApplet.lerp(b1, b2, t);
+        return ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | (b & 0xFF);
     }
 };

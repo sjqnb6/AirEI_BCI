@@ -39,20 +39,20 @@ public class W_Accelerometer extends Widget {
     GUI MAIN;
     protected PApplet pApplet;
     public ColorPalette CP;
-    // Match W_Prediction industrial gray palette.
-    private static final int COLOR_BG = 226;
-    private static final int COLOR_PANEL = 233;
-    private static final int COLOR_CARD = 239;
-    private static final int COLOR_BORDER = 168;
-    private static final int COLOR_BORDER_DARK = 128;
-    private static final int COLOR_TEXT = 36;
-    private static final int COLOR_TEXT_SECONDARY = 74;
-    private static final int COLOR_GRID = 184;
-    private static final int COLOR_BUTTON = 239;
-    private static final int COLOR_BUTTON_ACTIVE = 218;
-    private static final int COLOR_BUTTON_LOCKED = 185;
-    private static final int COLOR_BUTTON_HOVER = 228;
-    private static final int COLOR_BUTTON_PRESSED = 212;
+    // Match W_CFC / W_Connectivity dark tech palette.
+    private static final int COLOR_BG = 0xFF0E1A2F;
+    private static final int COLOR_PANEL = 0xFF142843;
+    private static final int COLOR_CARD = 0xFF13243F;
+    private static final int COLOR_BORDER = 0x6683A2CC;
+    private static final int COLOR_BORDER_DARK = 0x4D6E91B8;
+    private static final int COLOR_TEXT = 0xFFEAF2FF;
+    private static final int COLOR_TEXT_SECONDARY = 0xFF98AECE;
+    private static final int COLOR_GRID = 0x2D90AED8;
+    private static final int COLOR_BUTTON = 0xFF1A2B46;
+    private static final int COLOR_BUTTON_ACTIVE = 0xFF1F3D5E;
+    private static final int COLOR_BUTTON_LOCKED = 0xFF20314A;
+    private static final int COLOR_BUTTON_HOVER = 0xFF25405F;
+    private static final int COLOR_BUTTON_PRESSED = 0xFF2D4F76;
 
     //Graphing variables
     public int[] xLimOptions = {0, 1, 3, 5, 10, 20}; //number of seconds (x axis of graph)

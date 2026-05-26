@@ -12,6 +12,8 @@ import static Globel.GUI.streamTimeElapsed;
 
 //========================== TimeDisplay ==========================
 public class TimeDisplay{
+    private static final int COLOR_TEXT = 0xFFEAF2FF;
+
     int swidth, sheight;    // width and height of bar
     float xpos, ypos;       // x and y position of bar
     String currentAbsoluteTimeToDisplay = "";
@@ -48,7 +50,7 @@ public class TimeDisplay{
         if (!currentAbsoluteTimeToDisplay.equals(null)) {
             int fontSize = 17;
             MAIN.textFont(MAIN.p2, fontSize);
-            MAIN.fill(MAIN.OPENBCI_DARKBLUE);
+            MAIN.fill(COLOR_TEXT);
             float tw = MAIN.textWidth(currentAbsoluteTimeToDisplay);
             MAIN.text(currentAbsoluteTimeToDisplay, xpos + swidth - tw, ypos);
             MAIN.text(streamTimeElapsed.toString(), xpos + 10, ypos);

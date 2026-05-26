@@ -26,6 +26,16 @@ import Globel.GUI;
 //this class contains the plot and buttons for a single channel of the Time Series widget
 //one of these will be created for each channel (4, 8, or 16)
 class ChannelBar {
+    // Match W_CFC / W_Connectivity dark tech palette.
+    private static final int COLOR_BG = 0xFF0E1A2F;
+    private static final int COLOR_PANEL = 0xFF142843;
+    private static final int COLOR_BOX = 0x6683A2CC;
+    private static final int COLOR_GRID = 0x2D90AED8;
+    private static final int COLOR_TEXT = 0xFFEAF2FF;
+    private static final int COLOR_TEXT_SUB = 0xFFDCEAFF;
+    private static final int COLOR_TEXT_BG = 0x9A12243D;
+    private static final int COLOR_SEPARATOR = 0x5A8FB6DE;
+
     GUI MAIN;
     int channelIndex; //duh
     String channelString;
@@ -100,9 +110,13 @@ class ChannelBar {
         plot.setPointSize(2);
         plot.setPointColor(0);
         plot.setAllFontProperties("Microsoft YaHei", 0, 14);
-        plot.getXAxis().setFontColor(MAIN.OPENBCI_DARKBLUE);
-        plot.getXAxis().setLineColor(MAIN.OPENBCI_DARKBLUE);
-        plot.getXAxis().getAxisLabel().setFontColor(MAIN.OPENBCI_DARKBLUE);
+        plot.setBgColor(COLOR_BG);
+        plot.setBoxBgColor(COLOR_PANEL);
+        plot.setBoxLineColor(COLOR_BOX);
+        plot.setGridLineColor(COLOR_GRID);
+        plot.getXAxis().setFontColor(COLOR_TEXT);
+        plot.getXAxis().setLineColor(COLOR_TEXT);
+        plot.getXAxis().getAxisLabel().setFontColor(COLOR_TEXT);
         if(channelIndex == nchan-1) {
             plot.getXAxis().setAxisLabelText("时间 (s)");
             plot.getXAxis().getAxisLabel().setOffset(plotBottomWellH/2 + 5f);
@@ -126,16 +140,16 @@ class ChannelBar {
         yScaleButton_h = 18;
         yAxisLabel_h = 12;
         int padding = 2;
-        yAxisMax = new TextBox(MAIN, "+"+yAxisUpperLim+"uV", x + uiSpaceWidth + padding, y + (int)(padding*1.5), MAIN.OPENBCI_DARKBLUE, MAIN.color(255,255,255,175), MAIN.LEFT, MAIN.TOP);
-        yAxisMin = new TextBox(MAIN, yAxisLowerLim+"uV", x + uiSpaceWidth + padding, y + h - yAxisLabel_h - padding_4, MAIN.OPENBCI_DARKBLUE, MAIN.color(255,255,255,175), MAIN.LEFT, MAIN.TOP);
+        yAxisMax = new TextBox(MAIN, "+"+yAxisUpperLim+"uV", x + uiSpaceWidth + padding, y + (int)(padding*1.5), COLOR_TEXT_SUB, COLOR_TEXT_BG, MAIN.LEFT, MAIN.TOP);
+        yAxisMin = new TextBox(MAIN, yAxisLowerLim+"uV", x + uiSpaceWidth + padding, y + h - yAxisLabel_h - padding_4, COLOR_TEXT_SUB, COLOR_TEXT_BG, MAIN.LEFT, MAIN.TOP);
         customYLim(yAxisMax, yAxisUpperLim);
         customYLim(yAxisMin, yAxisLowerLim);
         yScaleButton_neg = createYScaleButton(channelIndex, false, "decreaseYscale", "-T", x + uiSpaceWidth + padding, y + w/2 - yScaleButton_h/2, yScaleButton_w, yScaleButton_h, contract_default, contract_hover, contract_active);
         yScaleButton_pos = createYScaleButton(channelIndex, true, "increaseYscale", "+T", x + uiSpaceWidth + padding*2 + yScaleButton_w, y + w/2 - yScaleButton_h/2, yScaleButton_w, yScaleButton_h, expand_default, expand_hover, expand_active);
 
         //Create textBoxes to display the current values
-        impValue = new TextBox(MAIN, "", x + uiSpaceWidth + (int)plot.getDim()[0], y + padding, MAIN.OPENBCI_DARKBLUE, MAIN.color(255,255,255,175), MAIN.RIGHT, MAIN.TOP);
-        voltageValue = new TextBox(MAIN, "", x + uiSpaceWidth + (int)plot.getDim()[0] - padding, y + h, MAIN.OPENBCI_DARKBLUE, MAIN.color(255,255,255,175), MAIN.RIGHT, MAIN.BOTTOM);
+        impValue = new TextBox(MAIN, "", x + uiSpaceWidth + (int)plot.getDim()[0], y + padding, COLOR_TEXT, COLOR_TEXT_BG, MAIN.RIGHT, MAIN.TOP);
+        voltageValue = new TextBox(MAIN, "", x + uiSpaceWidth + (int)plot.getDim()[0] - padding, y + h, COLOR_TEXT, COLOR_TEXT_BG, MAIN.RIGHT, MAIN.BOTTOM);
         drawVoltageValue = true;
 
         //Establish a minimumChannelHeight
@@ -225,7 +239,7 @@ class ChannelBar {
 
         //draw channel holder background
         MAIN.pushStyle();
-        MAIN.stroke(MAIN.OPENBCI_BLUE_ALPHA50);
+        MAIN.stroke(COLOR_BOX);
         MAIN.noFill();
         MAIN.rect(x,y,w,h);
         MAIN.popStyle();
@@ -233,7 +247,7 @@ class ChannelBar {
         //draw channelBar separator line in the middle of interChannelBarSpace
         if (!isBottomChannel()) {
             MAIN.pushStyle();
-            MAIN.stroke(MAIN.OPENBCI_DARKBLUE);
+            MAIN.stroke(COLOR_SEPARATOR);
             MAIN.strokeWeight(1);
             int separator_y = y + h + (int)(w_timeSeries.interChannelBarSpace/2);
             MAIN.line(x, separator_y, x + w, separator_y);
@@ -395,9 +409,9 @@ class ChannelBar {
         final Button myButton = cbCp5.addButton(bName)
                 .setPosition(_x, _y)
                 .setSize(_w, _h)
-                .setColorLabel(MAIN.color(255))
-                .setColorForeground(MAIN.OPENBCI_BLUE)
-                .setColorBackground(MAIN.color(144, 100))
+                .setColorLabel(COLOR_TEXT)
+                .setColorForeground(MAIN.color(56, 95, 136))
+                .setColorBackground(MAIN.color(31, 53, 82, 170))
                 .setImages(_default, _hover, _active)
                 ;
         myButton.onClick(new yScaleButtonCallbackListener(chan, shouldIncrease));

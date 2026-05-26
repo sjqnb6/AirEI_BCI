@@ -22,10 +22,10 @@ public class AccelerometerBar {
     GUI MAIN;
 
     public ColorPalette CP;
-    // Match W_Prediction industrial gray palette.
-    private static final int COLOR_TEXT = 36;
-    private static final int COLOR_BORDER = 168;
-    private static final int COLOR_GRID = 184;
+    // Match W_CFC / W_Connectivity dark tech palette.
+    private static final int COLOR_TEXT = 0xFFEAF2FF;
+    private static final int COLOR_BORDER = 0x6683A2CC;
+    private static final int COLOR_GRID = 0x2D90AED8;
 
     //this class contains the plot for the 2d graph of accelerometer data
     int x, y, w, h;
@@ -87,8 +87,8 @@ public class AccelerometerBar {
         plot.setAllFontProperties("Microsoft YaHei", 0, 14);
         plot.getXAxis().getAxisLabel().setOffset((float)(accBarPadding));
         plot.getYAxis().getAxisLabel().setOffset((float)(accBarPadding));
-        plot.setBgColor(226);
-        plot.setBoxBgColor(233);
+        plot.setBgColor(0xFF0E1A2F);
+        plot.setBoxBgColor(0xFF142843);
         plot.setBoxLineColor(COLOR_BORDER);
         plot.setGridLineColor(COLOR_GRID);
         plot.getXAxis().setFontColor(COLOR_TEXT);
