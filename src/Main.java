@@ -220,8 +220,8 @@ public class Main extends GUI {
             systemUpdate(); //signPost("20");
             systemDraw();   //signPost("30");
             if (midInit) {
-                //If Start Session was clicked, wait 2 draw cycles to show overlay, then init session.
-                //When Init session is started, the screen will seem to hang.
+                //如果单击“开始会话”，请等待 2 个绘制周期以显示叠加，然后初始化会话。
+                //当 Init 会话启动时，屏幕似乎挂起。
                 systemInitSession();
             }
             if(reinitRequested) {

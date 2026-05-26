@@ -31,6 +31,9 @@ public class W_CFC extends Widget {
     private static final int GRID_LINE = 0x2D90AED8;
     private static final int ACCENT = 0xFF4FD8FF;
     private static final int ACCENT_SOFT = 0x4460E2FF;
+    private static final int CARD_BG = 0x2F172B48;
+    private static final int CARD_HIGHLIGHT = 0x30BFE7FF;
+    private static final int CARD_STROKE_STRONG = 0x7AA2BEE3;
 
     private final GUI MAIN;
 
@@ -64,6 +67,7 @@ public class W_CFC extends Widget {
     private float zScore = 0f;
     private float pValue = 1f;
     private float miScaleMax = 0.08f;
+    private float peakPulse = 0f;
 
     private long lastComputeMs = 0L;
     private int fsCache = -1;
@@ -125,6 +129,7 @@ public class W_CFC extends Widget {
         lastComputeMs = now;
 
         computePAC(windowSamples, sampleRate);
+        peakPulse += 0.06f;
     }
 
     @Override
@@ -147,6 +152,8 @@ public class W_CFC extends Widget {
         MAIN.strokeWeight(1.1f);
         MAIN.noFill();
         MAIN.rect(panelX, panelY, panelW, panelH, 4);
+        MAIN.stroke(130, 184, 255, 90);
+        MAIN.line(panelX + 8, panelY + 8, panelX + panelW - 8, panelY + 8);
 
         drawHeader(panelX, panelY, panelW);
 
@@ -177,6 +184,22 @@ public class W_CFC extends Widget {
                 panelX + 12, panelY + 29
         );
 
+        int badgeW = 130;
+        int badgeH = 24;
+        int bx = panelX + panelW - badgeW - 12;
+        int by = panelY + 10;
+        int bc = pValue < 0.05f ? 0xFF52D9A5 : 0xFFE0B15E;
+        MAIN.noStroke();
+        MAIN.fill((bc >> 16) & 0xFF, (bc >> 8) & 0xFF, bc & 0xFF, 38);
+        MAIN.rect(bx, by, badgeW, badgeH, 3);
+        MAIN.stroke((bc >> 16) & 0xFF, (bc >> 8) & 0xFF, bc & 0xFF, 190);
+        MAIN.noFill();
+        MAIN.rect(bx, by, badgeW, badgeH, 3);
+        MAIN.fill(TEXT_MAIN);
+        MAIN.textAlign(PApplet.CENTER, PApplet.CENTER);
+        MAIN.textSize(10);
+        MAIN.text(pValue < 0.05f ? "显著耦合" : "弱显著耦合", bx + badgeW * 0.5f, by + badgeH * 0.5f + 0.5f);
+
         MAIN.stroke(PANEL_STROKE);
         MAIN.line(panelX + 10, panelY + 44, panelX + panelW - 10, panelY + 44);
     }
@@ -188,12 +211,7 @@ public class W_CFC extends Widget {
         int axisT = 18;
         int axisR = 16;
 
-        MAIN.fill(0x331A2C48);
-        MAIN.noStroke();
-        MAIN.rect(rx, ry, rw, rh, 3);
-        MAIN.stroke(PANEL_STROKE);
-        MAIN.noFill();
-        MAIN.rect(rx, ry, rw, rh, 3);
+        drawCardShell(rx, ry, rw, rh);
 
         MAIN.fill(TEXT_SUB);
         MAIN.textFont(p7);
@@ -208,6 +226,7 @@ public class W_CFC extends Widget {
 
         drawHeatGrid(gx, gy, gw, gh);
         drawHeatAxes(gx, gy, gw, gh);
+        drawHeatLegend(rx + rw - 18, gy, gh);
     }
 
     private void drawHeatGrid(int gx, int gy, int gw, int gh) {
@@ -246,6 +265,15 @@ public class W_CFC extends Widget {
         }
 
         float pulse = 0.7f + 0.3f * (float) Math.sin(MAIN.frameCount * 0.08f);
+        MAIN.noStroke();
+        MAIN.fill(79, 216, 255, (int) (28 * pulse));
+        MAIN.rect(
+                gx + peakPi * cellW - 1.5f,
+                gy + gh - (peakAi + 1) * cellH - 1.5f,
+                Math.max(4f, cellW + 3f),
+                Math.max(4f, cellH + 3f),
+                3
+        );
         MAIN.noFill();
         MAIN.stroke(79, 216, 255, (int) (190 * pulse));
         MAIN.strokeWeight(2f);
@@ -313,12 +341,7 @@ public class W_CFC extends Widget {
     }
 
     private void drawTopInfoCard(int x0, int y0, int w0, int h0) {
-        MAIN.noStroke();
-        MAIN.fill(0x2A163153);
-        MAIN.rect(x0, y0, w0, h0, 3);
-        MAIN.stroke(PANEL_STROKE);
-        MAIN.noFill();
-        MAIN.rect(x0, y0, w0, h0, 3);
+        drawCardShell(x0, y0, w0, h0);
 
         MAIN.fill(TEXT_SUB);
         MAIN.textFont(p7);
@@ -340,24 +363,31 @@ public class W_CFC extends Widget {
         MAIN.fill(ACCENT);
         MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
         MAIN.textSize(12);
-        MAIN.text("MI = " + PApplet.nf(peakMI, 1, 4), rightX - 30, y0 + 28);
+        MAIN.text("MI = " + PApplet.nf(peakMI, 1, 4), rightX - 26, y0 + 28);
 
         MAIN.fill(TEXT_SUB);
         MAIN.stroke(PANEL_STROKE);
         MAIN.strokeWeight(1f);
         MAIN.line(rightX, y0 + 50, rightX + rightW - 6, y0 + 50);
         MAIN.textSize(10);
-        MAIN.text("显著性 Z = " + PApplet.nf(zScore, 1, 2), rightX - 33, y0 + 58);
-        MAIN.text("经验 P = " + PApplet.nf(pValue, 1, 3), rightX - 33, y0 + 76);
+        MAIN.text("显著性 Z = " + PApplet.nf(zScore, 1, 2), rightX - 28, y0 + 58);
+        MAIN.text("经验 P = " + PApplet.nf(pValue, 1, 3), rightX - 28, y0 + 76);
+
+        int sigCol = pValue < 0.05f ? 0xFF4FE0B0 : 0xFFE5BD67;
+        MAIN.noStroke();
+        MAIN.fill((sigCol >> 16) & 0xFF, (sigCol >> 8) & 0xFF, sigCol & 0xFF, 40);
+        MAIN.rect(x0 + w0 - 92, y0 + 10, 80, 18, 2);
+        MAIN.stroke((sigCol >> 16) & 0xFF, (sigCol >> 8) & 0xFF, sigCol & 0xFF, 180);
+        MAIN.noFill();
+        MAIN.rect(x0 + w0 - 92, y0 + 10, 80, 18, 2);
+        MAIN.fill(TEXT_MAIN);
+        MAIN.textAlign(PApplet.CENTER, PApplet.CENTER);
+        MAIN.textSize(9);
+        MAIN.text(pValue < 0.05f ? "统计显著" : "趋势显著", x0 + w0 - 52, y0 + 19);
     }
 
     private void drawRoseCard(int x0, int y0, int w0, int h0) {
-        MAIN.noStroke();
-        MAIN.fill(0x2A163153);
-        MAIN.rect(x0, y0, w0, h0, 3);
-        MAIN.stroke(PANEL_STROKE);
-        MAIN.noFill();
-        MAIN.rect(x0, y0, w0, h0, 3);
+        drawCardShell(x0, y0, w0, h0);
 
         MAIN.fill(TEXT_SUB);
         MAIN.textFont(p7);
@@ -395,6 +425,25 @@ public class W_CFC extends Widget {
         }
         MAIN.endShape(PApplet.CLOSE);
 
+        int bestBin = 0;
+        float bestVal = roseBins[0];
+        for (int i = 1; i < PHASE_BINS; i++) {
+            if (roseBins[i] > bestVal) {
+                bestVal = roseBins[i];
+                bestBin = i;
+            }
+        }
+        float bestTheta = PApplet.TWO_PI * bestBin / PHASE_BINS - PApplet.HALF_PI;
+        float bestR = rMax * PApplet.constrain(bestVal / maxVal, 0.08f, 1f);
+        float bestX = cx + bestR * PApplet.cos(bestTheta);
+        float bestY = cy + bestR * PApplet.sin(bestTheta);
+        float glow = 0.6f + 0.4f * (float) Math.sin(peakPulse * 1.8f);
+        MAIN.noStroke();
+        MAIN.fill(79, 216, 255, (int) (140 * glow));
+        MAIN.ellipse(bestX, bestY, 8, 8);
+        MAIN.fill(235, 245, 255, (int) (180 * glow));
+        MAIN.ellipse(bestX, bestY, 3.8f, 3.8f);
+
         MAIN.stroke(ACCENT_SOFT);
         MAIN.strokeWeight(1.2f);
         for (int i = 0; i < PHASE_BINS; i += 3) {
@@ -413,12 +462,7 @@ public class W_CFC extends Widget {
     }
 
     private void drawTrendCard(int x0, int y0, int w0, int h0) {
-        MAIN.noStroke();
-        MAIN.fill(0x2A163153);
-        MAIN.rect(x0, y0, w0, h0, 3);
-        MAIN.stroke(PANEL_STROKE);
-        MAIN.noFill();
-        MAIN.rect(x0, y0, w0, h0, 3);
+        drawCardShell(x0, y0, w0, h0);
 
         MAIN.fill(TEXT_SUB);
         MAIN.textFont(p7);
@@ -465,6 +509,19 @@ public class W_CFC extends Widget {
             return;
         }
 
+        MAIN.noStroke();
+        MAIN.fill(79, 216, 255, 36);
+        MAIN.beginShape();
+        MAIN.vertex(gx, gy + gh);
+        for (int i = 0; i < count; i++) {
+            float v = getTrendValue(i, count);
+            float xx = gx + gw * i / (float) (count - 1);
+            float yy = gy + gh - gh * PApplet.constrain(v / maxV, 0f, 1f);
+            MAIN.vertex(xx, yy);
+        }
+        MAIN.vertex(gx + gw, gy + gh);
+        MAIN.endShape(PApplet.CLOSE);
+
         MAIN.noFill();
         MAIN.stroke(79, 216, 255, 230);
         MAIN.strokeWeight(2f);
@@ -476,6 +533,16 @@ public class W_CFC extends Widget {
             MAIN.vertex(xx, yy);
         }
         MAIN.endShape();
+
+        float lastV = getTrendValue(count - 1, count);
+        float lx = gx + gw;
+        float ly = gy + gh - gh * PApplet.constrain(lastV / maxV, 0f, 1f);
+        float pulse = 0.65f + 0.35f * (float) Math.sin(peakPulse * 2.0f);
+        MAIN.noStroke();
+        MAIN.fill(79, 216, 255, (int) (120 * pulse));
+        MAIN.ellipse(lx, ly, 10, 10);
+        MAIN.fill(236, 246, 255, (int) (220 * pulse));
+        MAIN.ellipse(lx, ly, 4, 4);
     }
 
     private void computePAC(int windowSamples, int fs) {
@@ -814,6 +881,37 @@ public class W_CFC extends Widget {
         return ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | (b & 0xFF);
     }
 
+    private void drawHeatLegend(int x0, int y0, int h0) {
+        int lw = 8;
+        int lh = Math.max(50, h0);
+        for (int i = 0; i < lh; i++) {
+            float t = 1f - i / (float) Math.max(1, lh - 1);
+            int c = pacColor(t);
+            MAIN.stroke((c >> 16) & 0xFF, (c >> 8) & 0xFF, c & 0xFF, 230);
+            MAIN.line(x0, y0 + i, x0 + lw, y0 + i);
+        }
+        MAIN.stroke(PANEL_STROKE);
+        MAIN.noFill();
+        MAIN.rect(x0, y0, lw, lh, 2);
+        MAIN.fill(TEXT_SUB);
+        MAIN.textFont(p7);
+        MAIN.textSize(9);
+        MAIN.textAlign(PApplet.LEFT, PApplet.CENTER);
+        MAIN.text("高", x0 + lw + 4, y0 + 4);
+        MAIN.text("低", x0 + lw + 4, y0 + lh - 4);
+    }
+
+    private void drawCardShell(int x0, int y0, int w0, int h0) {
+        MAIN.noStroke();
+        MAIN.fill(CARD_BG);
+        MAIN.rect(x0, y0, w0, h0, 3);
+        MAIN.fill((CARD_HIGHLIGHT >> 16) & 0xFF, (CARD_HIGHLIGHT >> 8) & 0xFF, CARD_HIGHLIGHT & 0xFF, 24);
+        MAIN.rect(x0 + 1, y0 + 1, w0 - 2, 10, 2);
+        MAIN.stroke(CARD_STROKE_STRONG);
+        MAIN.noFill();
+        MAIN.rect(x0, y0, w0, h0, 3);
+    }
+
     private void drawGradientBackground(int x0, int y0, int w0, int h0) {
         for (int i = 0; i < h0; i++) {
             float t = i / (float) Math.max(1, h0 - 1);
@@ -828,6 +926,22 @@ public class W_CFC extends Widget {
         MAIN.ellipse(x0 + w0 * 0.18f, y0 + h0 * 0.26f, w0 * 0.42f, h0 * 0.36f);
         MAIN.fill(103, 128, 255, (int) (14 * glow));
         MAIN.ellipse(x0 + w0 * 0.82f, y0 + h0 * 0.74f, w0 * 0.36f, h0 * 0.32f);
+
+        MAIN.stroke(95, 140, 210, 40);
+        MAIN.strokeWeight(1f);
+        MAIN.noFill();
+        MAIN.bezier(
+                x0 + w0 * 0.05f, y0 + h0 * 0.80f,
+                x0 + w0 * 0.28f, y0 + h0 * 0.58f,
+                x0 + w0 * 0.52f, y0 + h0 * 0.92f,
+                x0 + w0 * 0.78f, y0 + h0 * 0.70f
+        );
+        MAIN.bezier(
+                x0 + w0 * 0.18f, y0 + h0 * 0.18f,
+                x0 + w0 * 0.34f, y0 + h0 * 0.02f,
+                x0 + w0 * 0.66f, y0 + h0 * 0.24f,
+                x0 + w0 * 0.90f, y0 + h0 * 0.12f
+        );
     }
 
     private int lerpRgb(int c1, int c2, float t) {

@@ -28,6 +28,7 @@ public class W_SignalQuality extends Widget {
     private static final int GOOD = 0xFF54D59D;
     private static final int WARN = 0xFFE9B45A;
     private static final int BAD = 0xFFF06B6E;
+    private static final int INFO = 0xFF56C8FF;
 
     private static final String[] RADAR_NAMES = {"肌电污染", "工频干扰", "基线漂移", "饱和风险", "突发伪迹"};
 
@@ -180,6 +181,7 @@ public class W_SignalQuality extends Widget {
         MAIN.textFont(p7);
         MAIN.textSize(10);
         MAIN.textAlign(PApplet.LEFT, PApplet.CENTER);
+        int hoverChannel = -1;
 
         for (int i = 0; i < n; i++) {
             int yRow = ty + i * rowH;
@@ -219,6 +221,14 @@ public class W_SignalQuality extends Widget {
             MAIN.textAlign(PApplet.RIGHT, PApplet.CENTER);
             MAIN.text(PApplet.nf(q, 1, 0), x0 + w0 - 8, yRow + rowH * 0.5f);
             MAIN.textAlign(PApplet.LEFT, PApplet.CENTER);
+
+            if (isInsideRect(MAIN.mouseX, MAIN.mouseY, tx, yRow, tw, rowH)) {
+                hoverChannel = i;
+            }
+        }
+
+        if (hoverChannel >= 0) {
+            drawChannelHoverDetail(x0 + w0 - 192, y0 + 28, 180, 74, hoverChannel);
         }
     }
 
@@ -265,6 +275,28 @@ public class W_SignalQuality extends Widget {
             MAIN.line(cx, cy, cx + r * PApplet.cos(a), cy + r * PApplet.sin(a));
         }
 
+        float baseThreshold = strictnessIndex == 0 ? 0.58f : (strictnessIndex == 1 ? 0.48f : 0.40f);
+        float ringPulse = 0.03f * (float) Math.sin(MAIN.frameCount * 0.07f);
+        float thresholdR = r * PApplet.constrain(baseThreshold + ringPulse, 0.25f, 0.78f);
+        int tc = alertLevel == 2 ? BAD : (alertLevel == 1 ? WARN : INFO);
+        MAIN.noStroke();
+        MAIN.fill((tc >> 16) & 0xFF, (tc >> 8) & 0xFF, tc & 0xFF, 18);
+        MAIN.beginShape();
+        for (int i = 0; i < RADAR_DIM; i++) {
+            float a = -PApplet.HALF_PI + PApplet.TWO_PI * i / RADAR_DIM;
+            MAIN.vertex(cx + thresholdR * PApplet.cos(a), cy + thresholdR * PApplet.sin(a));
+        }
+        MAIN.endShape(PApplet.CLOSE);
+        MAIN.stroke((tc >> 16) & 0xFF, (tc >> 8) & 0xFF, tc & 0xFF, 180);
+        MAIN.strokeWeight(1.2f);
+        MAIN.noFill();
+        MAIN.beginShape();
+        for (int i = 0; i < RADAR_DIM; i++) {
+            float a = -PApplet.HALF_PI + PApplet.TWO_PI * i / RADAR_DIM;
+            MAIN.vertex(cx + thresholdR * PApplet.cos(a), cy + thresholdR * PApplet.sin(a));
+        }
+        MAIN.endShape(PApplet.CLOSE);
+
         MAIN.noStroke();
         MAIN.fill(79, 216, 255, 120);
         MAIN.beginShape();
@@ -295,6 +327,10 @@ public class W_SignalQuality extends Widget {
             float rr = r + 16;
             MAIN.text(RADAR_NAMES[i], cx + rr * PApplet.cos(a), cy + rr * PApplet.sin(a));
         }
+        MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
+        MAIN.textSize(9);
+        MAIN.fill(TEXT_SUB);
+        MAIN.text("动态阈值环", x0 + 10, y0 + h0 - 16);
     }
 
     private void drawAlertCard(int x0, int y0, int w0, int h0) {
@@ -314,14 +350,77 @@ public class W_SignalQuality extends Widget {
         MAIN.textAlign(PApplet.LEFT, PApplet.CENTER);
         MAIN.text(alertTitle, x0 + 18, y0 + 41);
 
+        drawAlertLevelBar(x0 + 14, y0 + 62, w0 - 28, 14);
+
         MAIN.fill(TEXT_SUB);
         MAIN.textSize(11);
         MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
-        drawWrappedText(alertMsg, x0 + 14, y0 + 62, w0 - 28, 16);
+        drawWrappedText(alertMsg, x0 + 14, y0 + 82, w0 - 28, 16);
 
         MAIN.fill(TEXT_SUB);
         MAIN.textSize(10);
         MAIN.text("E=肌电  L=工频  D=漂移  S=饱和", x0 + 14, y0 + h0 - 16);
+    }
+
+    private void drawAlertLevelBar(int x0, int y0, int w0, int h0) {
+        int segW = Math.max(6, w0 / 3);
+        int[] cols = {GOOD, WARN, BAD};
+        String[] labels = {"稳定", "注意", "警告"};
+        for (int i = 0; i < 3; i++) {
+            int xx = x0 + i * segW;
+            int ww = (i == 2) ? (w0 - segW * 2) : segW;
+            int c = cols[i];
+            MAIN.noStroke();
+            MAIN.fill((c >> 16) & 0xFF, (c >> 8) & 0xFF, c & 0xFF, 78);
+            MAIN.rect(xx, y0, ww, h0, 2);
+            MAIN.fill(TEXT_MAIN);
+            MAIN.textFont(p7);
+            MAIN.textSize(9);
+            MAIN.textAlign(PApplet.CENTER, PApplet.CENTER);
+            MAIN.text(labels[i], xx + ww * 0.5f, y0 + h0 * 0.5f + 0.5f);
+        }
+        MAIN.stroke(PANEL_STROKE);
+        MAIN.noFill();
+        MAIN.rect(x0, y0, w0, h0, 2);
+
+        float levelX = x0 + (alertLevel + 0.5f) * (w0 / 3f);
+        MAIN.stroke(235, 245, 255, 230);
+        MAIN.strokeWeight(2f);
+        MAIN.line(levelX, y0 - 3, levelX, y0 + h0 + 3);
+        MAIN.noStroke();
+        MAIN.fill(235, 245, 255, 230);
+        MAIN.triangle(levelX - 4, y0 - 4, levelX + 4, y0 - 4, levelX, y0 - 9);
+    }
+
+    private void drawChannelHoverDetail(int x0, int y0, int w0, int h0, int ch) {
+        if (ch < 0 || ch >= chQuality.length) {
+            return;
+        }
+        MAIN.noStroke();
+        MAIN.fill(12, 22, 36, 238);
+        MAIN.rect(x0, y0, w0, h0, 3);
+        MAIN.stroke(130, 178, 235, 170);
+        MAIN.noFill();
+        MAIN.rect(x0, y0, w0, h0, 3);
+
+        MAIN.textFont(p7);
+        MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
+        MAIN.fill(TEXT_MAIN);
+        MAIN.textSize(10);
+        MAIN.text("通道 Ch" + (ch + 1) + " 详细分项", x0 + 8, y0 + 6);
+
+        MAIN.fill(TEXT_SUB);
+        MAIN.textSize(9);
+        MAIN.text("质量分 " + PApplet.nf(chQuality[ch], 1, 1), x0 + 8, y0 + 22);
+        MAIN.text("E 肌电: " + PApplet.nf(chEmg[ch] * 100f, 1, 1) + "%", x0 + 8, y0 + 36);
+        MAIN.text("L 工频: " + PApplet.nf(chLine[ch] * 100f, 1, 1) + "%", x0 + 8, y0 + 48);
+        MAIN.text("D 漂移: " + PApplet.nf(chDrift[ch] * 100f, 1, 1) + "%", x0 + 94, y0 + 36);
+        MAIN.text("S 饱和: " + PApplet.nf(chSaturate[ch] * 100f, 1, 1) + "%", x0 + 94, y0 + 48);
+        MAIN.text("B 突发: " + PApplet.nf(chBurst[ch] * 100f, 1, 1) + "%", x0 + 94, y0 + 60);
+    }
+
+    private boolean isInsideRect(float mx, float my, float x0, float y0, float w0, float h0) {
+        return mx >= x0 && mx <= (x0 + w0) && my >= y0 && my <= (y0 + h0);
     }
 
     private void drawTrendCard(int x0, int y0, int w0, int h0) {
