@@ -29,7 +29,7 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
     private static final int BAD = 0xFFEE6A74;
 
     private static final int HISTORY_SIZE = 180;
-    private static final String[] RATE_LABELS = {"Trail Dense", "Trail Normal", "Trail Sparse"};
+    private static final String[] RATE_LABELS = {"轨迹-高密", "轨迹-标准", "轨迹-稀疏"};
 
     private final GUI MAIN;
     private final NeurProtocolClient client;
@@ -63,8 +63,8 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
         super(MAIN);
         this.MAIN = MAIN;
 
-        addDropdown("NeurRateMode", "Trail", java.util.Arrays.asList(RATE_LABELS), 0);
-        addDropdown("NeurViewMode", "View", java.util.Arrays.asList("Track", "Cluster"), 0);
+        addDropdown("NeurRateMode", "轨迹", java.util.Arrays.asList(RATE_LABELS), 0);
+        addDropdown("NeurViewMode", "视图", java.util.Arrays.asList("轨迹视图", "簇视图"), 0);
 
         store = new NeurDataStore();
         client = new NeurProtocolClient(this);
@@ -101,7 +101,7 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
             }
         });
 
-        connectBtn = MAIN.createButton(localCp5, "neurStartStop", "Start", x0 + 230, y0 + navH + 1, 84, navH - 3, p7, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
+        connectBtn = MAIN.createButton(localCp5, "neurStartStop", "开始", x0 + 230, y0 + navH + 1, 84, navH - 3, p7, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
         connectBtn.setColorBackground(0xFF2A4A70);
         connectBtn.setColorForeground(0xFF30557E);
         connectBtn.setColorActive(0xFF366293);
@@ -111,9 +111,9 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
                 toggleStreaming();
             }
         });
-        connectBtn.setDescription("Start/Stop neural clustering streaming.");
+        connectBtn.setDescription("开始/停止神经聚类实时流。");
 
-        clearBtn = MAIN.createButton(localCp5, "neurClear", "Reset", x0 + 320, y0 + navH + 1, 70, navH - 3, p7, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
+        clearBtn = MAIN.createButton(localCp5, "neurClear", "重置", x0 + 320, y0 + navH + 1, 70, navH - 3, p7, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
         clearBtn.setColorBackground(0xFF22344F);
         clearBtn.setColorForeground(0xFF2A3E5E);
         clearBtn.setColorActive(0xFF2F496E);
@@ -235,23 +235,23 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
 
     @Override
     public void onSocketOpen() {
-        setNotice("WS connected");
+        setNotice("WebSocket 已连接");
     }
 
     @Override
     public void onSocketClose(String reason) {
-        setNotice("WS closed: " + reason);
+        setNotice("WebSocket 已关闭: " + reason);
     }
 
     @Override
     public void onSocketError(String error) {
-        setNotice("WS error: " + error);
+        setNotice("WebSocket 错误: " + error);
     }
 
     @Override
     public void onServerError(String message) {
         store.onServerError(message);
-        setNotice("server.error received");
+        setNotice("收到 server.error");
     }
 
     @Override
@@ -279,12 +279,12 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
         if (requestedStreaming) {
             client.setEndpoint(endpointTf.getText());
             client.start();
-            setNotice("Neur session start requested");
+            setNotice("已请求启动会话");
         } else {
             client.stop();
-            setNotice("Neur session stopped");
+            setNotice("会话已停止");
         }
-        connectBtn.getCaptionLabel().setText(requestedStreaming ? "Stop" : "Start");
+        connectBtn.getCaptionLabel().setText(requestedStreaming ? "停止" : "开始");
         connectBtn.setColorBackground(requestedStreaming ? 0xFF7A3645 : 0xFF2A4A70);
     }
 
@@ -298,7 +298,7 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
         }
         histWrite = 0;
         histFilled = false;
-        setNotice("Panel reset");
+        setNotice("界面已重置");
     }
 
     private void resetView() {
@@ -312,21 +312,21 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
         MAIN.textFont(p7);
         MAIN.textSize(15);
         MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
-        MAIN.text("Neural Cluster Center", x0 + 12, y0 + 9);
+        MAIN.text("神经聚类中心", x0 + 12, y0 + 9);
 
-        String ws = client.isConnected() ? "ONLINE" : "OFFLINE";
+        String ws = client.isConnected() ? "在线" : "离线";
         int wsColor = client.isConnected() ? GOOD : WARN;
         drawBadge(x0 + w0 - 204, y0 + 10, 66, 22, ws, wsColor);
         drawBadge(x0 + w0 - 134, y0 + 10, 58, 22, "fs250", client.isConnected() ? GOOD : WARN);
-        drawBadge(x0 + w0 - 72, y0 + 10, 58, 22, requestedStreaming ? "RUN" : "IDLE", requestedStreaming ? GOOD : WARN);
+        drawBadge(x0 + w0 - 72, y0 + 10, 58, 22, requestedStreaming ? "运行" : "待机", requestedStreaming ? GOOD : WARN);
 
         MAIN.fill(TEXT_SUB);
         MAIN.textSize(11);
-        String line = "session " + client.getSessionId()
-                + " | queue " + client.getQueuedSampleCount()
-                + " | active clusters " + store.getParamsCopy().activeClusters
+        String line = "会话 " + client.getSessionId()
+                + " | 缓冲 " + client.getQueuedSampleCount()
+                + " | 活跃簇 " + store.getParamsCopy().activeClusters
                 + "/" + store.getParamsCopy().maxClusters;
-        MAIN.text(line, x0 + 12, y0 + 31);
+        MAIN.text(line, x0 + 52, y0 + 31);
 
         long now = System.currentTimeMillis();
         if (now - connectionNoticeMs < 3000L && connectionNotice != null && connectionNotice.length() > 0) {
@@ -340,7 +340,7 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
     }
 
     private void drawMainScatter(int x0, int y0, int w0, int h0) {
-        drawCard(x0, y0, w0, h0, "Latent Clustering");
+        drawCard(x0, y0, w0, h0, "潜空间聚类图");
 
         int gx = x0 + 38;
         int gy = y0 + 28;
@@ -355,7 +355,7 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
             MAIN.textFont(p7);
             MAIN.textSize(11);
             MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
-            MAIN.text("Waiting for brain.point stream...", gx + 4, gy + 6);
+            MAIN.text("等待 brain.point 实时数据...", gx + 4, gy + 6);
             return;
         }
 
@@ -375,47 +375,64 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
         minY += panY * spanY / Math.max(10f, gh);
         maxY += panY * spanY / Math.max(10f, gh);
 
-        List<NeurDataStore.ClusterState> clusters = store.getClusters();
-        drawClusterEllipses(clusters, gx, gy, gw, gh, minX, maxX, minY, maxY);
+        drawClusterEllipsesFromPoints(points, gx, gy, gw, gh, minX, maxX, minY, maxY);
         drawPointsAndTrajectory(points, gx, gy, gw, gh, minX, maxX, minY, maxY);
         drawEventsOverlay(store.getEvents(), gx, gy, gw);
     }
 
-    private void drawClusterEllipses(List<NeurDataStore.ClusterState> clusters, int gx, int gy, int gw, int gh,
-                                     float minX, float maxX, float minY, float maxY) {
-        for (NeurDataStore.ClusterState c : clusters) {
-            if (c.fade <= 0.01f) {
+    private void drawClusterEllipsesFromPoints(List<NeurDataStore.PointState> points, int gx, int gy, int gw, int gh,
+                                               float minX, float maxX, float minY, float maxY) {
+        java.util.HashMap<String, ClusterStats> statsMap = new java.util.HashMap<String, ClusterStats>();
+        int start = Math.max(0, points.size() - 360);
+        for (int i = start; i < points.size(); i++) {
+            NeurDataStore.PointState p = points.get(i);
+            String uid = p.clusterUid == null ? "unknown" : p.clusterUid;
+            ClusterStats st = statsMap.get(uid);
+            if (st == null) {
+                st = new ClusterStats();
+                st.uid = uid;
+                st.clusterId = p.clusterId;
+                statsMap.put(uid, st);
+            }
+            st.add(p.x, p.y, p.confidence);
+        }
+
+        List<ClusterStats> statsList = new ArrayList<ClusterStats>(statsMap.values());
+        for (ClusterStats st : statsList) {
+            if (st.count < 6) {
                 continue;
             }
-            float cx = mapX(c.centerX, minX, maxX, gx, gw);
-            float cy = mapY(c.centerY, minY, maxY, gy, gh);
-            float[] eig = eig2x2(c.cov00, c.cov01, c.cov10, c.cov11);
-            float l1 = Math.max(1e-5f, eig[0]);
-            float l2 = Math.max(1e-5f, eig[1]);
+            float[] cov = st.covariance();
+            float[] eig = eig2x2(cov[0], cov[1], cov[2], cov[3]);
+            float l1 = PApplet.constrain(eig[0], 0.001f, 1.8f);
+            float l2 = PApplet.constrain(eig[1], 0.001f, 1.8f);
             float angle = eig[2];
+            float cx = mapX(st.mx, minX, maxX, gx, gw);
+            float cy = mapY(st.my, minY, maxY, gy, gh);
 
-            float sigmaScale = 2f;
-            float a = sigmaScale * (float) Math.sqrt(l1);
-            float b = sigmaScale * (float) Math.sqrt(l2);
-            float sx = (a / Math.max(1e-3f, maxX - minX)) * gw;
-            float sy = (b / Math.max(1e-3f, maxY - minY)) * gh;
+            float sigmaScale = 1.85f;
+            float aData = sigmaScale * (float) Math.sqrt(l1);
+            float bData = sigmaScale * (float) Math.sqrt(l2);
+            float sx = (aData / Math.max(1e-3f, maxX - minX)) * gw;
+            float sy = (bData / Math.max(1e-3f, maxY - minY)) * gh;
+            sx = PApplet.constrain(sx, 8f, gw * 0.24f);
+            sy = PApplet.constrain(sy, 8f, gh * 0.24f);
 
-            int color = clusterColor(c.clusterUid);
-            int alphaFill = (int) (42 * c.fade);
-            int alphaStroke = (int) (185 * c.fade);
-            if ("inactive".equals(c.status)) {
-                alphaFill = (int) (22 * c.fade);
-                alphaStroke = (int) (90 * c.fade);
-            }
+            int color = clusterColor(st.uid);
+            float fade = PApplet.constrain(st.avgConfidence * 0.6f + 0.4f, 0.35f, 1f);
 
             MAIN.pushMatrix();
             MAIN.translate(cx, cy);
             MAIN.rotate(-angle);
-            MAIN.noStroke();
-            MAIN.fill((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, alphaFill);
-            MAIN.ellipse(0, 0, sx * 2f, sy * 2f);
-            MAIN.stroke((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, alphaStroke);
-            MAIN.strokeWeight("inactive".equals(c.status) ? 1f : 1.8f);
+            for (int layer = 5; layer >= 1; layer--) {
+                float k = layer / 5f;
+                int alpha = (int) (40f * fade * k * k);
+                MAIN.noStroke();
+                MAIN.fill((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, alpha);
+                MAIN.ellipse(0, 0, sx * 2f * k, sy * 2f * k);
+            }
+            MAIN.stroke((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, (int) (190 * fade));
+            MAIN.strokeWeight(1.7f);
             MAIN.noFill();
             MAIN.ellipse(0, 0, sx * 2f, sy * 2f);
             MAIN.popMatrix();
@@ -424,7 +441,7 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
             MAIN.textFont(p7);
             MAIN.textSize(10);
             MAIN.textAlign(PApplet.LEFT, PApplet.CENTER);
-            MAIN.text(c.clusterUid + " #" + c.clusterId, cx + 4, cy - 8);
+            MAIN.text(st.uid + " #" + st.clusterId, cx + 4, cy - 8);
         }
     }
 
@@ -432,38 +449,38 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
                                          float minX, float maxX, float minY, float maxY) {
         long newestTs = points.get(points.size() - 1).tsMs;
 
-        if (viewMode == 0) {
-            int stride = rateMode == 0 ? 1 : (rateMode == 1 ? 2 : 4);
-            MAIN.noFill();
-            MAIN.strokeWeight(1.2f);
-            for (int i = stride; i < points.size(); i += stride) {
-                NeurDataStore.PointState a = points.get(i - stride);
-                NeurDataStore.PointState b = points.get(i);
-                float age = PApplet.constrain((newestTs - b.tsMs) / 12000f, 0f, 1f);
-                int alpha = (int) PApplet.lerp(220, 30, age);
-                int c = blendColorByTransition(b);
-                MAIN.stroke((c >> 16) & 0xFF, (c >> 8) & 0xFF, c & 0xFF, alpha);
-                MAIN.line(
-                        mapX(a.x, minX, maxX, gx, gw),
-                        mapY(a.y, minY, maxY, gy, gh),
-                        mapX(b.x, minX, maxX, gx, gw),
-                        mapY(b.y, minY, maxY, gy, gh)
-                );
-            }
-        }
-
-        MAIN.noStroke();
+        float latestX = 0f;
+        float latestY = 0f;
+        float latestR = 0f;
         for (int i = 0; i < points.size(); i++) {
             NeurDataStore.PointState p = points.get(i);
             float age = PApplet.constrain((newestTs - p.tsMs) / 12000f, 0f, 1f);
-            int alpha = (int) PApplet.lerp(255, 40, age);
-            alpha = Math.max(18, (int) (alpha * Math.max(0.25f, p.confidence)));
+            float conf = PApplet.constrain(p.confidence, 0f, 1f);
+            int alpha = (int) PApplet.lerp(230, 24, age);
+            alpha = Math.max(18, (int) (alpha * PApplet.lerp(0.55f, 1.0f, conf)));
             int c = blendColorByTransition(p);
-            MAIN.fill((c >> 16) & 0xFF, (c >> 8) & 0xFF, c & 0xFF, alpha);
             float px = mapX(p.x, minX, maxX, gx, gw);
             float py = mapY(p.y, minY, maxY, gy, gh);
-            float rr = 3.2f + 2.4f * p.confidence;
+
+            float rr = 3.6f + 1.4f * conf;
+            MAIN.fill((c >> 16) & 0xFF, (c >> 8) & 0xFF, c & 0xFF, alpha);
+            int strokeAlpha = Math.max(20, (int) (alpha * 0.75f));
+            MAIN.stroke(190, 198, 210, strokeAlpha);
+            MAIN.strokeWeight(1.0f);
             MAIN.circle(px, py, rr);
+
+            if (i == points.size() - 1) {
+                latestX = px;
+                latestY = py;
+                latestR = rr;
+            }
+        }
+
+        if (latestR > 0f) {
+            MAIN.noFill();
+            MAIN.stroke(235, 244, 255, 220);
+            MAIN.strokeWeight(1.2f);
+            MAIN.circle(latestX, latestY, latestR + 3.2f);
         }
     }
 
@@ -480,7 +497,7 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
             MAIN.textAlign(PApplet.RIGHT, PApplet.TOP);
             MAIN.textFont(p7);
             MAIN.textSize(10);
-            MAIN.text(e.event + "  " + e.clusterUid, gx + gw - 6, y);
+            MAIN.text(eventNameCn(e.event) + "  " + e.clusterUid, gx + gw - 6, y);
             y += 12;
             if (y > gy + 60) {
                 break;
@@ -500,7 +517,7 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
     }
 
     private void drawStatusCard(int x0, int y0, int w0, int h0) {
-        drawCard(x0, y0, w0, h0, "Runtime");
+        drawCard(x0, y0, w0, h0, "运行状态");
 
         NeurDataStore.ParamsState ps = store.getParamsCopy();
         float stability = store.getStability();
@@ -512,20 +529,20 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
         MAIN.textSize(11);
         MAIN.text("WebSocket", x0 + 10, y0 + 26);
         MAIN.fill(statusColor);
-        MAIN.text(client.isConnected() ? "connected" : "disconnected", x0 + 94, y0 + 26);
+        MAIN.text(client.isConnected() ? "已连接" : "未连接", x0 + 94, y0 + 26);
 
         MAIN.fill(TEXT_SUB);
-        MAIN.text("Active Clusters", x0 + 10, y0 + 44);
+        MAIN.text("活跃簇", x0 + 10, y0 + 44);
         MAIN.fill(TEXT_MAIN);
         MAIN.text(ps.activeClusters + " / " + ps.maxClusters, x0 + 94, y0 + 44);
 
         MAIN.fill(TEXT_SUB);
-        MAIN.text("Stability", x0 + 10, y0 + 62);
+        MAIN.text("稳定度", x0 + 10, y0 + 62);
         MAIN.fill(qualityColor(stability));
         MAIN.text(fmt(stability), x0 + 94, y0 + 62);
 
         MAIN.fill(TEXT_SUB);
-        MAIN.text("Accept Rate", x0 + 10, y0 + 80);
+        MAIN.text("接受率", x0 + 10, y0 + 80);
         MAIN.fill(TEXT_MAIN);
         MAIN.text(fmt(ps.acceptanceRate), x0 + 94, y0 + 80);
 
@@ -533,7 +550,7 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
         if (sr != NeurProtocolClient.REQUIRED_FS) {
             MAIN.fill(WARN);
             MAIN.textSize(9);
-            MAIN.text("sample_rate must be 250 (now " + sr + ")", x0 + 10, y0 + h0 - 34);
+            MAIN.text("采样率必须为 250 (当前 " + sr + ")", x0 + 10, y0 + h0 - 34);
         }
 
         String clientErr = client.getLastError();
@@ -542,7 +559,7 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
             MAIN.textSize(9);
             MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
             String clippedErr = clientErr.length() > 90 ? clientErr.substring(0, 90) + "..." : clientErr;
-            MAIN.text("ws.error: " + clippedErr, x0 + 10, y0 + h0 - 22);
+            MAIN.text("ws错误: " + clippedErr, x0 + 10, y0 + h0 - 22);
         }
 
         String err = store.getLastServerError();
@@ -551,12 +568,12 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
             MAIN.textSize(9);
             MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
             String clipped = err.length() > 90 ? err.substring(0, 90) + "..." : err;
-            MAIN.text("server.error: " + clipped, x0 + 10, y0 + h0 - 10);
+            MAIN.text("服务端错误", x0 + 10, y0 + h0 - 10);
         }
     }
 
     private void drawTrendCard(int x0, int y0, int w0, int h0) {
-        drawCard(x0, y0, w0, h0, "Params Trend");
+        drawCard(x0, y0, w0, h0, "参数趋势");
         int gx = x0 + 36;
         int gy = y0 + 24;
         int gw = w0 - 46;
@@ -581,12 +598,22 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
         MAIN.textFont(p7);
         MAIN.textSize(9);
         MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
-        MAIN.text("cyan:nll  green:acc  gold:noise  purple:alpha", gx, y0 + 8);
+        MAIN.text("青:nll  绿:acc  金:noise  紫:alpha", gx, y0 + 8);
     }
 
     private void drawWeightCard(int x0, int y0, int w0, int h0) {
-        drawCard(x0, y0, w0, h0, "Cluster Weights");
+        drawCard(x0, y0, w0, h0, "簇权重");
         NeurDataStore.ParamsState ps = store.getParamsCopy();
+        List<NeurDataStore.ClusterState> clusters = store.getClusters();
+        java.util.HashMap<Integer, String> uidByClusterId = new java.util.HashMap<Integer, String>();
+        for (NeurDataStore.ClusterState c : clusters) {
+            if (c == null || c.clusterUid == null) {
+                continue;
+            }
+            if (c.clusterId > 0 && !"inactive".equals(c.status)) {
+                uidByClusterId.put(c.clusterId, c.clusterUid);
+            }
+        }
         int gx = x0 + 12;
         int gy = y0 + 24;
         int gw = w0 - 24;
@@ -597,14 +624,16 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
             MAIN.fill(TEXT_SUB);
             MAIN.textFont(p7);
             MAIN.textSize(11);
-            MAIN.text("Waiting brain.params...", gx, gy + 4);
+            MAIN.text("等待 brain.params 数据...", gx, gy + 4);
             return;
         }
 
         int barW = Math.max(10, (gw - 4 * (ws.length - 1)) / ws.length);
         for (int i = 0; i < ws.length; i++) {
             float v = PApplet.constrain(ws[i], 0f, 1f);
-            int c = clusterColor("weight_" + i);
+            int clusterId = i + 1;
+            String uid = uidByClusterId.get(clusterId);
+            int c = uid != null ? clusterColor(uid) : clusterColor("weight_" + i);
             int x = gx + i * (barW + 4);
             int bh = (int) (gh * v);
             MAIN.noStroke();
@@ -757,9 +786,9 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
 
     private int clusterColor(String uid) {
         int h = uid == null ? 0 : uid.hashCode();
-        int r = 90 + Math.abs((h * 31) % 150);
-        int g = 90 + Math.abs((h * 57) % 150);
-        int b = 90 + Math.abs((h * 83) % 150);
+        int r = 90 + (int) (Math.abs((long) h * 31L) % 150L);
+        int g = 90 + (int) (Math.abs((long) h * 57L) % 150L);
+        int b = 90 + (int) (Math.abs((long) h * 83L) % 150L);
         return (0xFF << 24) | ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | (b & 0xFF);
     }
 
@@ -842,5 +871,58 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
     private void setNotice(String msg) {
         connectionNotice = msg;
         connectionNoticeMs = System.currentTimeMillis();
+    }
+
+    private String eventNameCn(String en) {
+        if ("birth".equals(en)) {
+            return "新生";
+        }
+        if ("death".equals(en)) {
+            return "消亡";
+        }
+        if ("merge".equals(en)) {
+            return "合并";
+        }
+        return en;
+    }
+
+    private static class ClusterStats {
+        String uid;
+        int clusterId;
+        int count;
+        float sumW;
+        float mx;
+        float my;
+        float cxx;
+        float cxy;
+        float cyy;
+        float avgConfidence;
+
+        void add(float x, float y, float conf) {
+            float w = PApplet.constrain(conf, 0.2f, 1f);
+            count++;
+            float prevW = sumW;
+            sumW += w;
+            float dx = x - mx;
+            float dy = y - my;
+            float r = w / Math.max(1e-6f, sumW);
+            mx += r * dx;
+            my += r * dy;
+            cxx += w * dx * (x - mx);
+            cxy += w * dx * (y - my);
+            cyy += w * dy * (y - my);
+            avgConfidence += (conf - avgConfidence) / count;
+        }
+
+        float[] covariance() {
+            float den = Math.max(1e-6f, sumW - 1f);
+            float vxx = cxx / den;
+            float vxy = cxy / den;
+            float vyy = cyy / den;
+            vxx = Math.max(1e-4f, vxx);
+            vyy = Math.max(1e-4f, vyy);
+            vxy = PApplet.constrain(vxy, -0.9f * (float) Math.sqrt(vxx * vyy), 0.9f * (float) Math.sqrt(vxx * vyy));
+            return new float[]{vxx, vxy, vxy, vyy};
+        }
     }
 }
