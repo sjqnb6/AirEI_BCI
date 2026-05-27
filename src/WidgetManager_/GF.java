@@ -55,11 +55,11 @@ public class GF {
             addWidget(w_accelerometer, w);
         }
 
-        if (_this.currentBoard instanceof BoardCyton) {
-            w_cytonImpedance = new W_CytonImpedance(_this);
-            w_cytonImpedance.setTitle("Cyton 信号质量");
-            addWidget(w_cytonImpedance, w);
-        }
+        // if (_this.currentBoard instanceof BoardCyton) {
+        //     w_cytonImpedance = new W_CytonImpedance(_this);
+        //     w_cytonImpedance.setTitle("Cyton 信号质量");
+        //     addWidget(w_cytonImpedance, w);
+        // }
 
         if(_this.currentBoard instanceof DataSourcePlayback){
             w_playback = new W_playback(_this);
@@ -68,12 +68,12 @@ public class GF {
         }
 
         //only instantiate this widget if you are using a Ganglion board for live streaming
-        if(nchan == 4 && _this.currentBoard instanceof BoardGanglion){
-            //If using Ganglion, this is Widget_3
-            w_ganglionImpedance = new W_GanglionImpedance(_this);
-            w_ganglionImpedance.setTitle("Ganglion 信号质量");
-            addWidget(w_ganglionImpedance, w);
-        }
+        // if(nchan == 4 && _this.currentBoard instanceof BoardGanglion){
+        //     //If using Ganglion, this is Widget_3
+        //     w_ganglionImpedance = new W_GanglionImpedance(_this);
+        //     w_ganglionImpedance.setTitle("Ganglion 信号质量");
+        //     addWidget(w_ganglionImpedance, w);
+        // }
 
         w_focus = new W_Focus(_this);
         w_focus.setTitle("专注度");
@@ -119,23 +119,23 @@ public class GF {
         w_spectrogram.setTitle("时频图");
         addWidget(w_spectrogram, w);
 
-        if(_this.currentBoard instanceof AnalogCapableBoard){
-            w_pulsesensor = new W_PulseSensor(_this);
-            w_pulsesensor.setTitle("脉搏传感器");
-            addWidget(w_pulsesensor, w);
-        }
+        // if(_this.currentBoard instanceof AnalogCapableBoard){
+        //     w_pulsesensor = new W_PulseSensor(_this);
+        //     w_pulsesensor.setTitle("脉搏传感器");
+        //     addWidget(w_pulsesensor, w);
+        // }
 
-        if(_this.currentBoard instanceof DigitalCapableBoard) {
-            w_digitalRead = new W_DigitalRead(_this);
-            w_digitalRead.setTitle("数字信号读取");
-            addWidget(w_digitalRead, w);
-        }
+        // if(_this.currentBoard instanceof DigitalCapableBoard) {
+        //     w_digitalRead = new W_DigitalRead(_this);
+        //     w_digitalRead.setTitle("数字信号读取");
+        //     addWidget(w_digitalRead, w);
+        // }
 
-        if(_this.currentBoard instanceof AnalogCapableBoard) {
-            w_analogRead = new W_AnalogRead(_this);
-            w_analogRead.setTitle("模拟信号读取");
-            addWidget(w_analogRead, w);
-        }
+        // if(_this.currentBoard instanceof AnalogCapableBoard) {
+        //     w_analogRead = new W_AnalogRead(_this);
+        //     w_analogRead.setTitle("模拟信号读取");
+        //     addWidget(w_analogRead, w);
+        // }
 
         if (_this.currentBoard instanceof Board) {
             w_packetLoss = new W_PacketLoss(_this);
