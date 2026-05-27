@@ -372,6 +372,10 @@ public class NeurDataStore {
         return lastServerError;
     }
 
+    public synchronized int getColorForClusterUid(String uid) {
+        return colorForUid(uid);
+    }
+
     private int colorForUid(String uid) {
         if (uid == null || uid.isEmpty()) {
             uid = "unknown";

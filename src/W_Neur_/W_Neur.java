@@ -279,10 +279,10 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
         if (requestedStreaming) {
             client.setEndpoint(endpointTf.getText());
             client.start();
-            setNotice("已请求启动会话");
+            setNotice("神经聚类实时流已启动");
         } else {
             client.stop();
-            setNotice("会话已停止");
+            setNotice("神经聚类实时流已停止");
         }
         connectBtn.getCaptionLabel().setText(requestedStreaming ? "停止" : "开始");
         connectBtn.setColorBackground(requestedStreaming ? 0xFF7A3645 : 0xFF2A4A70);
@@ -298,7 +298,7 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
         }
         histWrite = 0;
         histFilled = false;
-        setNotice("界面已重置");
+        setNotice("视图与趋势已重置");
     }
 
     private void resetView() {
@@ -376,7 +376,20 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
         maxY += panY * spanY / Math.max(10f, gh);
 
         List<ClusterStats> recentStats = collectRecentClusterStats(points);
-        drawClusterEllipsesFromStats(recentStats, gx, gy, gw, gh, minX, maxX, minY, maxY);
+        java.util.HashSet<String> weightedActiveUids = new java.util.HashSet<String>();
+        for (NeurDataStore.ClusterState c : store.getClusters()) {
+            if (c == null || c.clusterUid == null || c.clusterUid.isEmpty()) {
+                continue;
+            }
+            if ("inactive".equals(c.status) || c.weight <= 0f) {
+                continue;
+            }
+            weightedActiveUids.add(c.clusterUid);
+        }
+
+        drawClusterEllipsesFromStats(
+                recentStats, weightedActiveUids, gx, gy, gw, gh, minX, maxX, minY, maxY
+        );
         drawPointsAndTrajectory(points, gx, gy, gw, gh, minX, maxX, minY, maxY);
         drawEventsOverlay(store.getEvents(), gx, gy, gw);
         drawClusterCountDebug(recentStats, points, gx, gy, gw, gh);
@@ -401,9 +414,14 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
         return new ArrayList<ClusterStats>(statsMap.values());
     }
 
-    private void drawClusterEllipsesFromStats(List<ClusterStats> statsList, int gx, int gy, int gw, int gh,
+    private void drawClusterEllipsesFromStats(List<ClusterStats> statsList, java.util.Set<String> weightedActiveUids,
+                                              int gx, int gy, int gw, int gh,
                                               float minX, float maxX, float minY, float maxY) {
+        boolean useActiveFilter = weightedActiveUids != null && !weightedActiveUids.isEmpty();
         for (ClusterStats st : statsList) {
+            if (useActiveFilter && !weightedActiveUids.contains(st.uid)) {
+                continue;
+            }
             if (st.count < 6) {
                 continue;
             }
@@ -423,10 +441,7 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
             sx = PApplet.constrain(sx, 8f, gw * 0.24f);
             sy = PApplet.constrain(sy, 8f, gh * 0.24f);
 
-            int color = st.avgRenderedColor();
-            if (color == 0) {
-                color = boostPointColor(clusterColor(st.uid));
-            }
+            int color = alignedClusterColor(st.uid);
             float fade = PApplet.constrain(st.avgConfidence * 0.6f + 0.4f, 0.35f, 1f);
 
             MAIN.pushMatrix();
@@ -535,7 +550,7 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
                 int bb = clamp255(sumBByUid.getOrDefault(uid, 0) / vis);
                 c = ((rr & 0xFF) << 16) | ((gg & 0xFF) << 8) | (bb & 0xFF);
             } else {
-                c = boostPointColor(clusterColor(uid));
+                c = alignedClusterColor(uid);
             }
             MAIN.noStroke();
             MAIN.fill((c >> 16) & 0xFF, (c >> 8) & 0xFF, c & 0xFF, 240);
@@ -656,7 +671,7 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
         MAIN.text(ps.activeClusters + " / " + ps.maxClusters, x0 + 94, y0 + 44);
 
         MAIN.fill(TEXT_SUB);
-        MAIN.text("稳定度", x0 + 10, y0 + 62);
+        MAIN.text("稳定性", x0 + 10, y0 + 62);
         MAIN.fill(qualityColor(stability));
         MAIN.text(fmt(stability), x0 + 94, y0 + 62);
 
@@ -687,7 +702,7 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
             MAIN.textSize(9);
             MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
             String clipped = err.length() > 90 ? err.substring(0, 90) + "..." : err;
-            MAIN.text("服务端错误", x0 + 10, y0 + h0 - 10);
+            MAIN.text("服务端错误: " + clipped, x0 + 10, y0 + h0 - 10);
         }
     }
 
@@ -721,19 +736,46 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
         drawCard(x0, y0, w0, h0, "簇权重");
         NeurDataStore.ParamsState ps = store.getParamsCopy();
         List<NeurDataStore.ClusterState> clusters = store.getClusters();
-        java.util.HashMap<Integer, String> uidByClusterId = new java.util.HashMap<Integer, String>();
-        for (NeurDataStore.ClusterState c : clusters) {
-            if (c == null || c.clusterUid == null) {
-                continue;
-            }
-            if (c.clusterId > 0 && !"inactive".equals(c.status)) {
-                uidByClusterId.put(c.clusterId, c.clusterUid);
-            }
-        }
         int gx = x0 + 12;
         int gy = y0 + 24;
         int gw = w0 - 24;
         int gh = h0 - 34;
+
+        List<NeurDataStore.ClusterState> weightedClusters = new ArrayList<NeurDataStore.ClusterState>();
+        for (NeurDataStore.ClusterState c : clusters) {
+            if (c == null || c.clusterUid == null || c.clusterUid.isEmpty()) {
+                continue;
+            }
+            if ("inactive".equals(c.status)) {
+                continue;
+            }
+            if (c.weight <= 0f) {
+                continue;
+            }
+            weightedClusters.add(c);
+        }
+
+        if (!weightedClusters.isEmpty()) {
+            weightedClusters.sort((a, b) -> Integer.compare(a.clusterId, b.clusterId));
+            int barW = Math.max(10, (gw - 4 * (weightedClusters.size() - 1)) / weightedClusters.size());
+            for (int i = 0; i < weightedClusters.size(); i++) {
+                NeurDataStore.ClusterState cs = weightedClusters.get(i);
+                float v = PApplet.constrain(cs.weight, 0f, 1f);
+                int c = alignedClusterColor(cs.clusterUid);
+                int x = gx + i * (barW + 4);
+                int bh = (int) (gh * v);
+                MAIN.noStroke();
+                MAIN.fill((c >> 16) & 0xFF, (c >> 8) & 0xFF, c & 0xFF, 220);
+                MAIN.rect(x, gy + gh - bh, barW, bh, 2);
+
+                MAIN.fill(TEXT_SUB);
+                MAIN.textFont(p7);
+                MAIN.textSize(9);
+                MAIN.textAlign(PApplet.CENTER, PApplet.TOP);
+                MAIN.text(String.valueOf(cs.clusterId), x + barW * 0.5f, gy + gh + 3);
+            }
+            return;
+        }
 
         float[] ws = ps.clusterWeights;
         if (ws.length < 1) {
@@ -747,13 +789,11 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
         int barW = Math.max(10, (gw - 4 * (ws.length - 1)) / ws.length);
         for (int i = 0; i < ws.length; i++) {
             float v = PApplet.constrain(ws[i], 0f, 1f);
-            int clusterId = i + 1;
-            String uid = uidByClusterId.get(clusterId);
-            int c = uid != null ? clusterColor(uid) : clusterColor("weight_" + i);
+            int c = 0xFF8DA2BD;
             int x = gx + i * (barW + 4);
             int bh = (int) (gh * v);
             MAIN.noStroke();
-            MAIN.fill((c >> 16) & 0xFF, (c >> 8) & 0xFF, c & 0xFF, 215);
+            MAIN.fill((c >> 16) & 0xFF, (c >> 8) & 0xFF, c & 0xFF, 185);
             MAIN.rect(x, gy + gh - bh, barW, bh, 2);
 
             MAIN.fill(TEXT_SUB);
@@ -762,8 +802,13 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
             MAIN.textAlign(PApplet.CENTER, PApplet.TOP);
             MAIN.text(String.valueOf(i + 1), x + barW * 0.5f, gy + gh + 3);
         }
-    }
 
+        MAIN.fill(TEXT_SUB);
+        MAIN.textFont(p7);
+        MAIN.textSize(9);
+        MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
+        MAIN.text("仅params回退", gx, gy - 12);
+    }
     private void drawScatterGrid(int gx, int gy, int gw, int gh) {
         MAIN.stroke(GRID);
         MAIN.strokeWeight(1f);
@@ -926,12 +971,8 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
         return lerpRgb(p.color, p.previousColor, p.colorTransition);
     }
 
-    private int clusterColor(String uid) {
-        int h = uid == null ? 0 : uid.hashCode();
-        int r = 90 + (int) (Math.abs((long) h * 31L) % 150L);
-        int g = 90 + (int) (Math.abs((long) h * 57L) % 150L);
-        int b = 90 + (int) (Math.abs((long) h * 83L) % 150L);
-        return (0xFF << 24) | ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | (b & 0xFF);
+    private int alignedClusterColor(String uid) {
+        return boostPointColor(store.getColorForClusterUid(uid));
     }
 
     private int boostPointColor(int color) {
