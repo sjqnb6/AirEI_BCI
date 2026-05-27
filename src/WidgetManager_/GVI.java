@@ -15,6 +15,7 @@ import W_GanglionImpedance_.W_GanglionImpedance;
 import W_HeadPlot_.W_HeadPlot;
 import W_Marker_.W_Marker;
 import W_Networking_.W_Networking;
+import W_Neur_.W_Neur;
 import W_PacketLoss.W_PacketLoss;
 import W_Playback_.W_playback;
 import W_Prediction_.W_Prediction;
@@ -52,4 +53,5 @@ public class GVI {
     public static W_Connectivity w_connectivity;
     public static W_CFC w_cfc;
     public static W_SignalQuality w_signalQuality;
+    public static W_Neur w_neur;
 }

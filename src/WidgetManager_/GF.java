@@ -28,6 +28,7 @@ import W_TimeSeries_.W_timeSeries;
 import Widget_.Widget;
 import W_Connectivity_.W_Connectivity;
 import W_SignalQuality_.W_SignalQuality;
+import W_Neur_.W_Neur;
 import java.util.ArrayList;
 
 import static Globel.GUI.nchan;
@@ -110,6 +111,10 @@ public class GF {
         w_signalQuality = new W_SignalQuality(_this);
         w_signalQuality.setTitle("信号质量中心");
         addWidget(w_signalQuality, w);
+
+        w_neur = new W_Neur(_this);
+        w_neur.setTitle("神经聚类中枢");
+        addWidget(w_neur, w);
 
         w_emgJoystick = new W_EMGJoystick(_this);
         w_emgJoystick.setTitle("肌电控制摇杆");
