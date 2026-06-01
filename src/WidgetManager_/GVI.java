@@ -24,6 +24,7 @@ import W_SignalQuality_.W_SignalQuality;
 import W_Spectrogram_.W_Spectrogram;
 import W_Template_.W_template;
 import W_TimeSeries_.W_timeSeries;
+import W_Indicator_.W_Indicator;
 import W_Head_.W_Head;
 public class GVI {
 
@@ -54,4 +55,5 @@ public class GVI {
     public static W_CFC w_cfc;
     public static W_SignalQuality w_signalQuality;
     public static W_Neur w_neur;
+    public static W_Indicator w_indicator;
 }

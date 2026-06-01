@@ -29,6 +29,7 @@ import Widget_.Widget;
 import W_Connectivity_.W_Connectivity;
 import W_SignalQuality_.W_SignalQuality;
 import W_Neur_.W_Neur;
+import W_Indicator_.W_Indicator;
 import java.util.ArrayList;
 
 import static Globel.GUI.nchan;
@@ -124,6 +125,9 @@ public class GF {
         w_spectrogram.setTitle("时频图");
         addWidget(w_spectrogram, w);
 
+        w_indicator = new W_Indicator(_this);
+        w_indicator.setTitle("指标图");
+        addWidget(w_indicator, w);
         // if(_this.currentBoard instanceof AnalogCapableBoard){
         //     w_pulsesensor = new W_PulseSensor(_this);
         //     w_pulsesensor.setTitle("脉搏传感器");
