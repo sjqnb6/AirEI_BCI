@@ -36,7 +36,8 @@ final class IndicatorHistory {
             for (int r = 0; r < rows; r++) {
                 float src = sampleInterpolated(perChannel, r, m);
                 float prev = data[m][r][cols - 2];
-                data[m][r][cols - 1] = prev * 0.80f + src * 0.20f;
+                // Keep temporal continuity while preserving sharper local peaks.
+                data[m][r][cols - 1] = prev * 0.68f + src * 0.32f;
             }
         }
         recomputeMinMax();

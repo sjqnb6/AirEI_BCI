@@ -19,7 +19,9 @@ public class W_Indicator extends Widget {
     private static final int HISTORY_COLS = 42;
     private static final long UPDATE_INTERVAL_MS = 100L;
 
-    private static final float Z_GAIN = 0.34f;
+    private static final float Z_GAIN = 0.46f;
+    private static final float PEAK_GAMMA = 0.58f;
+    private static final float BASE_LIFT = 0.035f;
 
     private final GUI MAIN;
     private final IndicatorEngine engine = new IndicatorEngine();
@@ -93,7 +95,7 @@ public class W_Indicator extends Widget {
         MAIN.fill(COLOR_TEXT);
         MAIN.textFont(p7);
         MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
-        MAIN.textSize(15);
+        MAIN.textSize(17);
         MAIN.text("14 indicators from PSD", x + 12, y + 7);
 
         MAIN.fill(COLOR_TEXT_SUB);
@@ -107,10 +109,10 @@ public class W_Indicator extends Widget {
     private void drawSurfaceGrid() {
         int cols = 7;
         int rows = 2;
-        int top = y + 46;
-        int innerPad = 8;
+        int top = y + 48;
+        int innerPad = 6;
         int chartW = (w - innerPad * (cols + 1)) / cols;
-        int chartH = (h - 56 - innerPad * (rows + 1)) / rows;
+        int chartH = (h - 58 - innerPad * (rows + 1)) / rows;
 
         for (int i = 0; i < 14; i++) {
             int r = i / cols;
@@ -123,21 +125,31 @@ public class W_Indicator extends Widget {
 
     private void drawSingleSurface(int x0, int y0, int w0, int h0, int metricIdx) {
         MAIN.noStroke();
-        MAIN.fill(0x2A1A3559);
+        MAIN.fill(0x251A3559);
         MAIN.rect(x0, y0, w0, h0, 4);
-        MAIN.stroke(0x6683A2CC);
+        MAIN.stroke(0x88A8C8EE);
+        MAIN.strokeWeight(1.0f);
         MAIN.noFill();
         MAIN.rect(x0, y0, w0, h0, 4);
 
-        MAIN.fill(COLOR_TEXT);
+        // Strong, clean metric label with subtle glow.
         MAIN.textFont(p7);
-        MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
-        MAIN.textSize(10);
-        MAIN.text(IndicatorEngine.TITLES[metricIdx], x0 + 6, y0 + 5);
+        MAIN.textAlign(PApplet.CENTER, PApplet.TOP);
+        MAIN.textSize(15);
+        float titleX = x0 + w0 * 0.50f;
+        float titleY = y0 + 3;
+        MAIN.fill(90, 170, 255, 85);
+        MAIN.rect(x0 + 3, y0 + 2, w0 - 6, 18, 3);
+        MAIN.fill(12, 22, 36, 200);
+        MAIN.rect(x0 + 4, y0 + 3, w0 - 8, 16, 2);
+        MAIN.fill(200, 230, 255, 140);
+        MAIN.text(IndicatorEngine.TITLES[metricIdx], titleX + 0.8f, titleY + 0.8f);
+        MAIN.fill(COLOR_TEXT);
+        MAIN.text(IndicatorEngine.TITLES[metricIdx], titleX, titleY);
 
         int padL = 18;
         int padR = 8;
-        int padT = 22;
+        int padT = 24;
         int padB = 11;
         float gx = x0 + padL;
         float gy = y0 + padT;
@@ -145,11 +157,11 @@ public class W_Indicator extends Widget {
         float gh = Math.max(20, h0 - padT - padB);
 
         float ox = gx + gw * 0.19f;
-        float oy = gy + gh * 0.86f;
-        float vxX = gw * 0.62f;
+        float oy = gy + gh * 0.90f;
+        float vxX = gw * 0.60f;
         float vxY = -gh * 0.02f;
-        float vyX = -gw * 0.32f;
-        float vyY = -gh * 0.46f;
+        float vyX = -gw * 0.31f;
+        float vyY = -gh * 0.52f;
         float zPix = gh * Z_GAIN;
 
         int rows = history.getRows();
@@ -158,12 +170,20 @@ public class W_Indicator extends Widget {
         float vMax = history.getMetricMax(metricIdx);
         float span = Math.max(1e-6f, vMax - vMin);
 
+        MAIN.stroke(185, 210, 245, 48);
+        MAIN.strokeWeight(0.7f);
+        for (int k = 1; k <= 3; k++) {
+            float tt = k / 3.0f;
+            MAIN.line(ox + tt * vyX, oy + tt * vyY, ox + vxX + tt * vyX, oy + vxY + tt * vyY);
+            MAIN.line(ox + tt * vxX, oy + tt * vxY, ox + tt * vxX + vyX, oy + tt * vxY + vyY);
+        }
+
         for (int r = rows - 2; r >= 0; r--) {
             for (int c = 0; c < cols - 1; c++) {
-                float v00 = norm(history.get(metricIdx, r, c), vMin, span);
-                float v10 = norm(history.get(metricIdx, r + 1, c), vMin, span);
-                float v11 = norm(history.get(metricIdx, r + 1, c + 1), vMin, span);
-                float v01 = norm(history.get(metricIdx, r, c + 1), vMin, span);
+                float v00 = shape(norm(history.get(metricIdx, r, c), vMin, span));
+                float v10 = shape(norm(history.get(metricIdx, r + 1, c), vMin, span));
+                float v11 = shape(norm(history.get(metricIdx, r + 1, c + 1), vMin, span));
+                float v01 = shape(norm(history.get(metricIdx, r, c + 1), vMin, span));
                 float vv = 0.25f * (v00 + v10 + v11 + v01);
                 int col = parula(vv);
 
@@ -177,8 +197,9 @@ public class W_Indicator extends Widget {
                 float[] p11 = project(ox, oy, vxX, vxY, vyX, vyY, zPix, u1, t1, v11);
                 float[] p01 = project(ox, oy, vxX, vxY, vyX, vyY, zPix, u1, t0, v01);
 
-                MAIN.noStroke();
-                MAIN.fill((col >> 16) & 0xFF, (col >> 8) & 0xFF, col & 0xFF, 210);
+                MAIN.stroke(18, 26, 40, 185);
+                MAIN.strokeWeight(0.75f);
+                MAIN.fill((col >> 16) & 0xFF, (col >> 8) & 0xFF, col & 0xFF, 222);
                 MAIN.beginShape(PApplet.QUADS);
                 MAIN.vertex(p00[0], p00[1]);
                 MAIN.vertex(p10[0], p10[1]);
@@ -188,13 +209,13 @@ public class W_Indicator extends Widget {
             }
         }
 
-        MAIN.stroke(255, 255, 255, 42);
-        MAIN.strokeWeight(0.6f);
-        for (int r = 0; r < rows; r += 2) {
+        MAIN.stroke(215, 232, 255, 75);
+        MAIN.strokeWeight(0.9f);
+        for (int r = 0; r < rows; r += 3) {
             MAIN.noFill();
             MAIN.beginShape();
             for (int c = 0; c < cols; c++) {
-                float v = norm(history.get(metricIdx, r, c), vMin, span);
+                float v = shape(norm(history.get(metricIdx, r, c), vMin, span));
                 float u = c / (float) (cols - 1);
                 float t = r / (float) (rows - 1);
                 float[] p = project(ox, oy, vxX, vxY, vyX, vyY, zPix, u, t, v);
@@ -203,17 +224,17 @@ public class W_Indicator extends Widget {
             MAIN.endShape();
         }
 
-        MAIN.stroke(255, 255, 255, 56);
-        MAIN.strokeWeight(0.7f);
+        MAIN.stroke(195, 218, 255, 120);
+        MAIN.strokeWeight(1.1f);
         MAIN.line(ox, oy, ox + vxX, oy + vxY);
         MAIN.line(ox, oy, ox + vyX, oy + vyY);
         MAIN.line(ox + vxX, oy + vxY, ox + vxX + vyX, oy + vxY + vyY);
         MAIN.line(ox + vyX, oy + vyY, ox + vxX + vyX, oy + vxY + vyY);
 
         MAIN.fill(COLOR_TEXT_SUB);
-        MAIN.textSize(9);
-        MAIN.text("Time", ox + vxX + 2, oy + vxY + 2);
-        MAIN.text("Electrode", ox + vyX - 6, oy + vyY - 2);
+        MAIN.textSize(8);
+        MAIN.text("T", ox + vxX + 2, oy + vxY + 1);
+        MAIN.text("E", ox + vyX - 4, oy + vyY - 2);
     }
 
     private float[] project(
@@ -262,6 +283,12 @@ public class W_Indicator extends Widget {
 
     private static float norm(float v, float vMin, float span) {
         return PApplet.constrain((v - vMin) / span, 0f, 1f);
+    }
+
+    private static float shape(float t) {
+        float x = PApplet.constrain(t, 0f, 1f);
+        // Gamma compression + base lift makes peaks look sharper and more sculpted.
+        return PApplet.constrain((float) Math.pow(x, PEAK_GAMMA) + BASE_LIFT * x, 0f, 1.2f);
     }
 
     private static int parula(float t) {
