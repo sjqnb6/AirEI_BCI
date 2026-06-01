@@ -1,10 +1,9 @@
 package SerialParser_;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
-import java.net.Socket;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class CytonWifiParser implements AutoCloseable {
@@ -21,9 +20,9 @@ public class CytonWifiParser implements AutoCloseable {
     private int count = 0;
     private final ReentrantLock bufferLock = new ReentrantLock();
 
-    private Socket socket;
-    private InputStream in;
-    private OutputStream out;
+    private DatagramSocket socket;
+    private InetAddress targetAddress;
+    private int targetPort;
     private Thread readerThread;
     private volatile boolean running = false;
 
@@ -42,19 +41,14 @@ public class CytonWifiParser implements AutoCloseable {
     public synchronized void start_stream(String host, int port) throws IOException {
         if (running) return;
 
-        socket = new Socket();
-        socket.connect(new InetSocketAddress(host, port), 3000);
-        socket.setTcpNoDelay(true);
-        socket.setSoTimeout(0);
+        targetAddress = InetAddress.getByName(host);
+        targetPort = port;
 
-        in = socket.getInputStream();
-        out = socket.getOutputStream();
+        // Bind local UDP port so board broadcast can be received.
+        socket = new DatagramSocket(port);
+        socket.setBroadcast(true);
 
-        try {
-            // Keep behavior similar to serial path for boards that support b/c command.
-            out.write('b');
-            out.flush();
-        } catch (Exception ignore) {}
+        sendCommand("START");
 
         running = true;
         readerThread = new Thread(this::readLoop, "cyton-wifi-reader");
@@ -64,16 +58,7 @@ public class CytonWifiParser implements AutoCloseable {
 
     public synchronized void stop_stream() {
         running = false;
-
-        try {
-            if (out != null) {
-                out.write('c');
-                out.flush();
-            }
-        } catch (Exception ignore) {}
-
-        try { if (in != null) in.close(); } catch (Exception ignore) {}
-        try { if (out != null) out.close(); } catch (Exception ignore) {}
+        sendCommand("STOP");
         try { if (socket != null) socket.close(); } catch (Exception ignore) {}
 
         if (readerThread != null) {
@@ -81,9 +66,9 @@ public class CytonWifiParser implements AutoCloseable {
         }
 
         readerThread = null;
-        in = null;
-        out = null;
         socket = null;
+        targetAddress = null;
+        targetPort = 0;
         framePos = 0;
     }
 
@@ -122,13 +107,14 @@ public class CytonWifiParser implements AutoCloseable {
     }
 
     private void readLoop() {
-        byte[] buf = new byte[1024];
+        byte[] buf = new byte[2048];
+        DatagramPacket packet = new DatagramPacket(buf, buf.length);
         try {
             while (running) {
-                int n = in.read(buf);
-                if (n < 0) break;
-                if (n == 0) continue;
-                processIncoming(buf, n);
+                socket.receive(packet);
+                int n = packet.getLength();
+                if (n <= 0) continue;
+                processIncoming(packet.getData(), n);
             }
         } catch (Exception e) {
             if (running) {
@@ -136,10 +122,17 @@ public class CytonWifiParser implements AutoCloseable {
             }
         } finally {
             running = false;
-            try { if (in != null) in.close(); } catch (Exception ignore) {}
-            try { if (out != null) out.close(); } catch (Exception ignore) {}
             try { if (socket != null) socket.close(); } catch (Exception ignore) {}
         }
+    }
+
+    private void sendCommand(String command) {
+        if (socket == null || targetAddress == null) return;
+        try {
+            byte[] payload = command.getBytes("UTF-8");
+            DatagramPacket packet = new DatagramPacket(payload, payload.length, targetAddress, targetPort);
+            socket.send(packet);
+        } catch (Exception ignore) {}
     }
 
     private void processIncoming(byte[] buf, int len) {

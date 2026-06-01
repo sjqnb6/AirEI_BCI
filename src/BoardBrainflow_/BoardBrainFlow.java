@@ -32,6 +32,9 @@ import static SystemManager.GF.stopRunning;
 import static processing.core.PApplet.println;
 
 public abstract class BoardBrainFlow extends Board {
+    private static final String DEFAULT_CUSTOM_WIFI_HOST = "192.168.4.1";
+    private static final int DEFAULT_CUSTOM_WIFI_PORT = 5005;
+
     GUI MAIN;
     protected CytonSerialParser parser = null;
     protected CytonWifiParser wifiParser = null;
@@ -48,8 +51,8 @@ public abstract class BoardBrainFlow extends Board {
     protected double time_last_datapoint = -1.0;
     protected boolean data_popup_displayed = false;
     protected boolean useCustomWifiParser = false;
-    protected String customWifiHost = "";
-    protected int customWifiPort = 6677;
+    protected String customWifiHost = DEFAULT_CUSTOM_WIFI_HOST;
+    protected int customWifiPort = DEFAULT_CUSTOM_WIFI_PORT;
 
     private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
@@ -185,6 +188,9 @@ public abstract class BoardBrainFlow extends Board {
                 String host = customWifiHost;
                 if (host == null || host.isEmpty()) {
                     host = MAIN.wifi_ipAddress;
+                }
+                if (host == null || host.isEmpty()) {
+                    host = DEFAULT_CUSTOM_WIFI_HOST;
                 }
                 wifiParser.start_stream(host, customWifiPort);
                 streaming = true;
@@ -693,8 +699,8 @@ public int[] getEXGChannels() {
 
     protected void enableCustomWifiParser(String host, int port) {
         useCustomWifiParser = true;
-        customWifiHost = host;
-        customWifiPort = port;
+        customWifiHost = (host == null || host.isEmpty()) ? DEFAULT_CUSTOM_WIFI_HOST : host;
+        customWifiPort = (port > 0) ? port : DEFAULT_CUSTOM_WIFI_PORT;
     }
     private void sendToSerialPort(String portName, char c) {
         SerialPort[] ports = SerialPort.getCommPorts();

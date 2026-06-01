@@ -4,7 +4,7 @@ import Globel.GUI;
 import brainflow.BoardIds;
 
 public class BoardCytonWifi extends BoardCytonWifiBase {
-    private static final int DEFAULT_CUSTOM_WIFI_PORT = 6677;
+    private static final int DEFAULT_CUSTOM_WIFI_PORT = 5005;
 
     public BoardCytonWifi(GUI MAIN) {
         super(MAIN);
