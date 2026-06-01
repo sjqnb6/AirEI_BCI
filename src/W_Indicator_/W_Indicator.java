@@ -15,7 +15,7 @@ public class W_Indicator extends Widget {
     private static final int COLOR_TEXT = 0xFFEAF2FF;
     private static final int COLOR_TEXT_SUB = 0xFF98AECE;
 
-    private static final int GRID_ROWS = 16;
+    private static final int GRID_ROWS = 8;
     private static final int HISTORY_COLS = 42;
     private static final long UPDATE_INTERVAL_MS = 100L;
 
@@ -146,12 +146,12 @@ public class W_Indicator extends Widget {
         MAIN.fill(COLOR_TEXT);
         MAIN.text(IndicatorEngine.TITLES[metricIdx], titleX, titleY);
 
-        float left = x0 + 22;
+        float left = x0 + 14;
         float top = y0 + 24;
-        float right = x0 + w0 - 20;
+        float right = x0 + w0 - 12;
         float bottom = y0 + h0 - 14;
-        float cbW = 7f;
-        float gap = 5f;
+        float cbW = 5f;
+        float gap = 3f;
         float gx = left;
         float gy = top;
         float gw = Math.max(24, (right - left) - cbW - gap);
@@ -201,15 +201,15 @@ public class W_Indicator extends Widget {
     }
 
     private void drawContours(int metricIdx, float gx, float gy, float gw, float gh, int rows, int cols, float vMin, float span) {
-        float[] levels = {0.20f, 0.38f, 0.56f, 0.74f, 0.90f};
+        float[] levels = {0.25f, 0.52f, 0.80f};
         float cellW = gw / Math.max(1, cols - 1);
         float cellH = gh / Math.max(1, rows - 1);
 
         MAIN.strokeWeight(1.0f);
         for (int li = 0; li < levels.length; li++) {
             float level = levels[li];
-            int col = li < 2 ? 0xD5E6FF : (li < 4 ? 0xB3D8FF : 0xFFF8B0);
-            MAIN.stroke((col >> 16) & 0xFF, (col >> 8) & 0xFF, col & 0xFF, 210);
+            int col = li < 1 ? 0xCFE2FF : (li < 2 ? 0xB9D9FF : 0xFFF6B8);
+            MAIN.stroke((col >> 16) & 0xFF, (col >> 8) & 0xFF, col & 0xFF, 225);
             for (int r = 0; r < rows - 1; r++) {
                 for (int c = 0; c < cols - 1; c++) {
                     float v00 = shape(norm(history.get(metricIdx, r, c), vMin, span));
@@ -282,29 +282,25 @@ public class W_Indicator extends Widget {
 
     private void drawAxes(float gx, float gy, float gw, float gh, int rows, int cols, float vMin, float vMax) {
         float secTotal = cols * (UPDATE_INTERVAL_MS / 1000.0f);
-        float vMid = 0.5f * (vMin + vMax);
 
-        MAIN.fill(COLOR_TEXT_SUB);
+        MAIN.fill(216, 232, 252, 220);
         MAIN.textFont(p7);
-        MAIN.textSize(8);
+        MAIN.textSize(9);
         MAIN.textAlign(PApplet.LEFT, PApplet.CENTER);
 
-        MAIN.text("Y", gx - 16, gy + 6);
-        MAIN.text("1", gx - 16, gy + gh - 1);
-        MAIN.text(String.valueOf(Math.max(1, rows / 2)), gx - 16, gy + gh * 0.5f);
-        MAIN.text(String.valueOf(rows), gx - 16, gy + 2);
+        MAIN.text("Y", gx - 12, gy + 6);
+        MAIN.text("1", gx - 12, gy + gh - 1);
+        MAIN.text(String.valueOf(rows), gx - 12, gy + 2);
 
         MAIN.textAlign(PApplet.CENTER, PApplet.TOP);
         MAIN.text("X", gx + gw - 4, gy + gh + 9);
         MAIN.text("0", gx + 1, gy + gh + 5);
-        MAIN.text(formatTickValue(secTotal * 0.5f), gx + gw * 0.5f, gy + gh + 5);
-        MAIN.text(formatTickValue(secTotal), gx + gw - 2, gy + gh + 5);
+        MAIN.text(formatTickShort(secTotal), gx + gw - 2, gy + gh + 5);
 
         MAIN.textAlign(PApplet.LEFT, PApplet.CENTER);
-        MAIN.text("V", gx + gw + 14, gy + 5);
-        MAIN.text(formatTickValue(vMax), gx + gw + 14, gy + 4);
-        MAIN.text(formatTickValue(vMid), gx + gw + 14, gy + gh * 0.5f);
-        MAIN.text(formatTickValue(vMin), gx + gw + 14, gy + gh - 2);
+        MAIN.text("V", gx + gw + 9, gy + 5);
+        MAIN.text(formatTickShort(vMax), gx + gw + 9, gy + 4);
+        MAIN.text(formatTickShort(vMin), gx + gw + 9, gy + gh - 2);
     }
 
     private void drawPeakMark(int metricIdx, float gx, float gy, float cellW, float cellH, int rows, int cols, float vMin, float span) {
@@ -383,13 +379,13 @@ public class W_Indicator extends Widget {
         return PApplet.constrain((level - a) / d, 0f, 1f);
     }
 
-    private static String formatTickValue(float v) {
+    private static String formatTickShort(float v) {
         float av = Math.abs(v);
         if (av >= 1000f) return String.format("%.0f", v);
         if (av >= 100f) return String.format("%.1f", v);
-        if (av >= 10f) return String.format("%.2f", v);
-        if (av >= 1f) return String.format("%.3f", v);
-        return String.format("%.4f", v);
+        if (av >= 10f) return String.format("%.1f", v);
+        if (av >= 1f) return String.format("%.2f", v);
+        return String.format("%.3f", v);
     }
 
     private static int parula(float t) {
