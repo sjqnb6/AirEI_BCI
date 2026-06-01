@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class CytonWifiParser implements AutoCloseable {
@@ -11,6 +12,8 @@ public class CytonWifiParser implements AutoCloseable {
     public static final int NUM_TOTAL = 30;
     private static final int FRAME_SIZE = 33;
     private static final byte HEADER = (byte) 0xA0;
+    private static final int TAIL_PREFIX_MASK = 0xF0;
+    private static final int TAIL_PREFIX = 0xC0;
     private static final int NUM_STORED = NUM_CHANNELS + 1;
 
     private final int capacity;
@@ -29,6 +32,11 @@ public class CytonWifiParser implements AutoCloseable {
     private final byte[] frame = new byte[FRAME_SIZE];
     private int framePos = 0;
     private final int[] tmpSample = new int[NUM_STORED];
+    private volatile long parsedFrames = 0;
+    private volatile long recvPackets = 0;
+    private long lastStatsMs = 0;
+    private long lastStatsPackets = 0;
+    private long lastStatsFrames = 0;
 
     public CytonWifiParser(int bufferCapacitySamples) {
         if (bufferCapacitySamples <= 0) {
@@ -45,20 +53,27 @@ public class CytonWifiParser implements AutoCloseable {
         targetPort = port;
 
         // Bind local UDP port so board broadcast can be received.
-        socket = new DatagramSocket(port);
+        // Use a larger receive buffer to reduce packet drop under burst traffic.
+        socket = new DatagramSocket(null);
+        socket.setReuseAddress(true);
+        socket.bind(new InetSocketAddress(port));
+        socket.setReceiveBufferSize(1024 * 1024);
         socket.setBroadcast(true);
 
-        sendCommand("START");
+        sendCommand("b");
 
         running = true;
         readerThread = new Thread(this::readLoop, "cyton-wifi-reader");
         readerThread.setDaemon(true);
+        lastStatsMs = System.currentTimeMillis();
+        lastStatsPackets = 0;
+        lastStatsFrames = 0;
         readerThread.start();
     }
 
     public synchronized void stop_stream() {
         running = false;
-        sendCommand("STOP");
+        sendCommand("c");
         try { if (socket != null) socket.close(); } catch (Exception ignore) {}
 
         if (readerThread != null) {
@@ -111,10 +126,15 @@ public class CytonWifiParser implements AutoCloseable {
         DatagramPacket packet = new DatagramPacket(buf, buf.length);
         try {
             while (running) {
+                // DatagramPacket length shrinks to last packet size after receive(),
+                // so reset it each loop to avoid truncating subsequent EEG packets.
+                packet.setLength(buf.length);
                 socket.receive(packet);
                 int n = packet.getLength();
                 if (n <= 0) continue;
+                recvPackets++;
                 processIncoming(packet.getData(), n);
+                maybePrintStats();
             }
         } catch (Exception e) {
             if (running) {
@@ -151,7 +171,8 @@ public class CytonWifiParser implements AutoCloseable {
             i += toCopy;
 
             if (framePos == FRAME_SIZE) {
-                if ((frame[FRAME_SIZE - 1] & 0xF0) == (byte) 0xC0) {
+                // Accept OpenBCI-style end byte family 0xC0~0xCF.
+                if ((((int) frame[FRAME_SIZE - 1]) & TAIL_PREFIX_MASK) == TAIL_PREFIX) {
                     parseFrame(frame);
                     framePos = 0;
                 } else {
@@ -191,6 +212,26 @@ public class CytonWifiParser implements AutoCloseable {
         }
 
         pushSample(tmpSample);
+        parsedFrames++;
+    }
+
+    public long getParsedFrames() {
+        return parsedFrames;
+    }
+
+    private void maybePrintStats() {
+        long now = System.currentTimeMillis();
+        if (now - lastStatsMs < 1000) {
+            return;
+        }
+        long p = recvPackets;
+        long f = parsedFrames;
+        long dp = p - lastStatsPackets;
+        long df = f - lastStatsFrames;
+        System.out.println("CytonWifiParser stats: packets/s=" + dp + ", frames/s=" + df + ", totalPackets=" + p + ", totalFrames=" + f);
+        lastStatsMs = now;
+        lastStatsPackets = p;
+        lastStatsFrames = f;
     }
 
     private void pushSample(int[] sample) {

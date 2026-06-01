@@ -73,7 +73,7 @@ public class InitBox{
                 outputWarn("未选择串口/COM端口。尝试自动连接Cyton。");
                 controlPanel.comPortBox.attemptAutoConnectCyton();
                 return;
-            } else if (eegDataSource == DATASOURCE_CYTON && MAIN.selectedProtocol == BoardProtocol.WIFI && wifi_portName == "N/A" && controlPanel.getWifiSearchStyle() == controlPanel.WIFI_DYNAMIC) {
+            } else if (eegDataSource == DATASOURCE_CYTON && MAIN.selectedProtocol == BoardProtocol.WIFI && false && wifi_portName == "N/A" && controlPanel.getWifiSearchStyle() == controlPanel.WIFI_DYNAMIC) {
                 outputWarn("没有选择Wifi。请选择您的 WiFi 并重试系统启动。");
                 return;
             } else if (eegDataSource == DATASOURCE_PLAYBACKFILE && playbackData_fname == "N/A" && sdData_fname == "N/A") { //if data source == playback && playback file == 'N/A'
@@ -82,7 +82,7 @@ public class InitBox{
             } else if (eegDataSource == DATASOURCE_GANGLION && (MAIN.selectedProtocol == BoardProtocol.NATIVE_BLE || MAIN.selectedProtocol == BoardProtocol.BLED112) && ganglion_portName == "N/A") {
                 outputWarn("未选中BLE设备。请选择您的Ganglion设备并重试系统启动。");
                 return;
-            } else if (eegDataSource == DATASOURCE_GANGLION && MAIN.selectedProtocol == BoardProtocol.WIFI && wifi_portName == "N/A" && controlPanel.getWifiSearchStyle() == controlPanel.WIFI_DYNAMIC) {
+            } else if (eegDataSource == DATASOURCE_GANGLION && MAIN.selectedProtocol == BoardProtocol.WIFI && false && wifi_portName == "N/A" && controlPanel.getWifiSearchStyle() == controlPanel.WIFI_DYNAMIC) {
                 outputWarn("没有选择Wifi。请选择您的 WiFi 并重试系统启动。");
                 return;
             } else if (eegDataSource == -1) {//if no data source selected
@@ -100,6 +100,10 @@ public class InitBox{
                 if (controlPanel.getWifiSearchStyle() == controlPanel.WIFI_STATIC && (MAIN.selectedProtocol == BoardProtocol.WIFI || MAIN.selectedProtocol == BoardProtocol.WIFI)) {
                     wifi_ipAddress = controlPanel.wifiBox.staticIPAddressTF.getText();
                     println("Static IP address of " + wifi_ipAddress);
+                }
+                if (MAIN.selectedProtocol == BoardProtocol.WIFI && (wifi_ipAddress == null || wifi_ipAddress.isEmpty() || "N/A".equals(wifi_ipAddress))) {
+                    wifi_ipAddress = "192.168.4.1";
+                    println("Using default WiFi IP address: " + wifi_ipAddress);
                 }
 
                 //将此标志设置为 true，并在下一个 draw() 循环之后将“正在开始会话...”绘制到屏幕上
