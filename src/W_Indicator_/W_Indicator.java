@@ -1,8 +1,12 @@
-package W_Indicator_;
+﻿package W_Indicator_;
 
 import Widget_.Widget;
+import brainflow.BrainFlowError;
+import brainflow.DataFilter;
+import brainflow.DetrendOperations;
+import brainflow.WindowOperations;
+import org.apache.commons.lang3.tuple.Pair;
 import processing.core.PApplet;
-
 import Globel.GUI;
 
 import static Globel.GUI.*;
@@ -17,10 +21,7 @@ public class W_Indicator extends Widget {
 
     private static final int GRID_ROWS = 8;
     private static final int HISTORY_COLS = 42;
-    private static final long UPDATE_INTERVAL_MS = 100L;
-
-    private static final float PEAK_GAMMA = 0.58f;
-    private static final float BASE_LIFT = 0.035f;
+    private static final long UPDATE_INTERVAL_MS = 100L;`r`n    private static final int MATLAB_WINDOW_SECONDS = 2;
 
     private final GUI MAIN;
     private final IndicatorEngine engine = new IndicatorEngine();
@@ -34,7 +35,7 @@ public class W_Indicator extends Widget {
         this.MAIN = MAIN;
     }
 
-    @Override
+        @Override
     public void update() {
         super.update();
 
@@ -52,22 +53,29 @@ public class W_Indicator extends Widget {
         lastUpdateMs = now;
 
         float[][] band = dataProcessing.avgPowerInBins;
-        if (band == null || band.length == 0) {
+        if ((band == null || band.length == 0) && (dataProcessingFilteredBuffer == null || dataProcessingFilteredBuffer.length == 0)) {
             return;
         }
 
-        channelCount = Math.max(1, Math.min(8, Math.min(nchan, band.length)));
+        int availableChannels = band != null ? band.length : dataProcessingFilteredBuffer.length;
+        channelCount = Math.max(1, Math.min(8, Math.min(nchan, availableChannels)));
         float[][] frame = new float[channelCount][14];
 
+        int sampleRate = Math.max(1, MAIN.currentBoard.getSampleRate());
         for (int ch = 0; ch < channelCount; ch++) {
-            if (band[ch] == null || band[ch].length < 4) {
+            float[] matlabLike = computeBandPowersMatlabLike(ch, sampleRate);
+            if (matlabLike != null) {
+                engine.compute(matlabLike[0], matlabLike[1], matlabLike[2], matlabLike[3], frame[ch]);
                 continue;
             }
-            float delta = safe(band[ch][0]);
-            float theta = safe(band[ch][1]);
-            float alpha = safe(band[ch][2]);
-            float beta = safe(band[ch][3]);
-            engine.compute(delta, theta, alpha, beta, frame[ch]);
+
+            if (band != null && ch < band.length && band[ch] != null && band[ch].length >= 4) {
+                float delta = safe(band[ch][0]);
+                float theta = safe(band[ch][1]);
+                float alpha = safe(band[ch][2]);
+                float beta = safe(band[ch][3]);
+                engine.compute(delta, theta, alpha, beta, frame[ch]);
+            }
         }
         history.pushFrame(frame);
     }
@@ -168,10 +176,10 @@ public class W_Indicator extends Widget {
         MAIN.noStroke();
         for (int r = 0; r < rows - 1; r++) {
             for (int c = 0; c < cols - 1; c++) {
-                float v00 = shape(norm(history.get(metricIdx, r, c), vMin, span));
-                float v10 = shape(norm(history.get(metricIdx, r + 1, c), vMin, span));
-                float v11 = shape(norm(history.get(metricIdx, r + 1, c + 1), vMin, span));
-                float v01 = shape(norm(history.get(metricIdx, r, c + 1), vMin, span));
+                float v00 = norm(history.get(metricIdx, r, c), vMin, span);
+                float v10 = norm(history.get(metricIdx, r + 1, c), vMin, span);
+                float v11 = norm(history.get(metricIdx, r + 1, c + 1), vMin, span);
+                float v01 = norm(history.get(metricIdx, r, c + 1), vMin, span);
                 float vv = 0.25f * (v00 + v10 + v11 + v01);
                 int col = parula(vv);
                 MAIN.fill((col >> 16) & 0xFF, (col >> 8) & 0xFF, col & 0xFF, 255);
@@ -181,8 +189,8 @@ public class W_Indicator extends Widget {
 
         drawContours(metricIdx, gx, gy, gw, gh, rows, cols, vMin, span);
 
-        MAIN.stroke(165, 190, 220, 95);
-        MAIN.strokeWeight(0.7f);
+        MAIN.stroke(145, 175, 214, 110);
+        MAIN.strokeWeight(0.85f);
         for (int t = 1; t <= 2; t++) {
             float xx = gx + (t / 2.0f) * gw;
             float yy = gy + (t / 2.0f) * gh;
@@ -190,8 +198,8 @@ public class W_Indicator extends Widget {
             MAIN.line(gx, yy, gx + gw, yy);
         }
 
-        MAIN.stroke(198, 220, 248, 165);
-        MAIN.strokeWeight(1.05f);
+        MAIN.stroke(208, 228, 252, 190);
+        MAIN.strokeWeight(1.2f);
         MAIN.noFill();
         MAIN.rect(gx, gy, gw, gh);
 
@@ -201,21 +209,21 @@ public class W_Indicator extends Widget {
     }
 
     private void drawContours(int metricIdx, float gx, float gy, float gw, float gh, int rows, int cols, float vMin, float span) {
-        float[] levels = {0.25f, 0.52f, 0.80f};
+        float[] levels = {0.22f, 0.48f, 0.72f, 0.90f};
         float cellW = gw / Math.max(1, cols - 1);
         float cellH = gh / Math.max(1, rows - 1);
 
-        MAIN.strokeWeight(1.0f);
+        MAIN.strokeWeight(1.15f);
         for (int li = 0; li < levels.length; li++) {
             float level = levels[li];
-            int col = li < 1 ? 0xCFE2FF : (li < 2 ? 0xB9D9FF : 0xFFF6B8);
-            MAIN.stroke((col >> 16) & 0xFF, (col >> 8) & 0xFF, col & 0xFF, 225);
+            int col = li < 2 ? 0xD8E8FF : (li < 3 ? 0xC7E0FF : 0xFFF8C5);
+            MAIN.stroke((col >> 16) & 0xFF, (col >> 8) & 0xFF, col & 0xFF, 235);
             for (int r = 0; r < rows - 1; r++) {
                 for (int c = 0; c < cols - 1; c++) {
-                    float v00 = shape(norm(history.get(metricIdx, r, c), vMin, span));
-                    float v01 = shape(norm(history.get(metricIdx, r, c + 1), vMin, span));
-                    float v11 = shape(norm(history.get(metricIdx, r + 1, c + 1), vMin, span));
-                    float v10 = shape(norm(history.get(metricIdx, r + 1, c), vMin, span));
+                    float v00 = norm(history.get(metricIdx, r, c), vMin, span);
+                    float v01 = norm(history.get(metricIdx, r, c + 1), vMin, span);
+                    float v11 = norm(history.get(metricIdx, r + 1, c + 1), vMin, span);
+                    float v10 = norm(history.get(metricIdx, r + 1, c), vMin, span);
                     float x = gx + c * cellW;
                     float y = gy + r * cellH;
                     drawContourCell(x, y, cellW, cellH, v00, v01, v11, v10, level);
@@ -281,25 +289,17 @@ public class W_Indicator extends Widget {
     }
 
     private void drawAxes(float gx, float gy, float gw, float gh, int rows, int cols, float vMin, float vMax) {
-        float secTotal = cols * (UPDATE_INTERVAL_MS / 1000.0f);
+        float vMid = 0.5f * (vMin + vMax);
 
-        MAIN.fill(216, 232, 252, 220);
+        MAIN.fill(225, 238, 255, 225);
         MAIN.textFont(p7);
         MAIN.textSize(9);
         MAIN.textAlign(PApplet.LEFT, PApplet.CENTER);
 
-        MAIN.text("Y", gx - 12, gy + 6);
-        MAIN.text("1", gx - 12, gy + gh - 1);
-        MAIN.text(String.valueOf(rows), gx - 12, gy + 2);
-
-        MAIN.textAlign(PApplet.CENTER, PApplet.TOP);
-        MAIN.text("X", gx + gw - 4, gy + gh + 9);
-        MAIN.text("0", gx + 1, gy + gh + 5);
-        MAIN.text(formatTickShort(secTotal), gx + gw - 2, gy + gh + 5);
-
         MAIN.textAlign(PApplet.LEFT, PApplet.CENTER);
         MAIN.text("V", gx + gw + 9, gy + 5);
         MAIN.text(formatTickShort(vMax), gx + gw + 9, gy + 4);
+        MAIN.text(formatTickShort(vMid), gx + gw + 9, gy + gh * 0.5f);
         MAIN.text(formatTickShort(vMin), gx + gw + 9, gy + gh - 2);
     }
 
@@ -309,7 +309,7 @@ public class W_Indicator extends Widget {
         float best = -1f;
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
-                float v = shape(norm(history.get(metricIdx, r, c), vMin, span));
+                float v = norm(history.get(metricIdx, r, c), vMin, span);
                 if (v > best) {
                     best = v;
                     bestR = r;
@@ -361,12 +361,6 @@ public class W_Indicator extends Widget {
         return PApplet.constrain((v - vMin) / span, 0f, 1f);
     }
 
-    private static float shape(float t) {
-        float x = PApplet.constrain(t, 0f, 1f);
-        // Gamma compression + base lift makes peaks look sharper and more sculpted.
-        return PApplet.constrain((float) Math.pow(x, PEAK_GAMMA) + BASE_LIFT * x, 0f, 1.2f);
-    }
-
     private static boolean cross(float a, float b, float level) {
         return (a < level && b >= level) || (a >= level && b < level);
     }
@@ -390,14 +384,17 @@ public class W_Indicator extends Widget {
 
     private static int parula(float t) {
         t = PApplet.constrain(t, 0f, 1f);
-        int c1 = 0x1F2A7C;
-        int c2 = 0x2E6BB5;
-        int c3 = 0x1FBBA6;
-        int c4 = 0x82D34A;
-        int c5 = 0xF2E84C;
+        // Darker, punchier palette for stronger contrast.
+        int c1 = 0x0D1B72;
+        int c2 = 0x1D4FB0;
+        int c3 = 0x0B8EA2;
+        int c4 = 0x4F9715;
+        int c5 = 0xC8AB10;
         if (t < 0.25f) return lerpRgb(c1, c2, t / 0.25f);
         if (t < 0.50f) return lerpRgb(c2, c3, (t - 0.25f) / 0.25f);
         if (t < 0.75f) return lerpRgb(c3, c4, (t - 0.50f) / 0.25f);
         return lerpRgb(c4, c5, (t - 0.75f) / 0.25f);
     }
 }
+
+

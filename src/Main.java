@@ -66,7 +66,7 @@ public class Main extends GUI {
         //LINUX GFX FIX #816
         System.setProperty("jogl.disable.openglcore", "false");
 
-        win_w = 1024;
+        win_w = 1224;
         win_h = 768;
 
         // If less than 1366x768, set smaller minimum GUI size

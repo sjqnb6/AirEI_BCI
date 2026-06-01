@@ -35,9 +35,8 @@ final class IndicatorHistory {
         for (int m = 0; m < metrics; m++) {
             for (int r = 0; r < rows; r++) {
                 float src = sampleInterpolated(perChannel, r, m);
-                float prev = data[m][r][cols - 2];
-                // Keep temporal continuity while preserving sharper local peaks.
-                data[m][r][cols - 1] = prev * 0.68f + src * 0.32f;
+                // MATLAB-like direct display: no extra temporal blending.
+                data[m][r][cols - 1] = src;
             }
         }
         recomputeMinMax();
@@ -75,8 +74,9 @@ final class IndicatorHistory {
                 mn = 0f;
                 mx = 1f;
             }
-            minArr[m] = minArr[m] * 0.85f + mn * 0.15f;
-            maxArr[m] = maxArr[m] * 0.85f + mx * 0.15f;
+            // Keep displayed range consistent with current data values.
+            minArr[m] = mn;
+            maxArr[m] = mx;
             if (maxArr[m] - minArr[m] < 1e-5f) {
                 maxArr[m] = minArr[m] + 1e-5f;
             }
