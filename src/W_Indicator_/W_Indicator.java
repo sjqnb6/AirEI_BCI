@@ -19,7 +19,6 @@ public class W_Indicator extends Widget {
     private static final int HISTORY_COLS = 42;
     private static final long UPDATE_INTERVAL_MS = 100L;
 
-    private static final float Z_GAIN = 0.46f;
     private static final float PEAK_GAMMA = 0.58f;
     private static final float BASE_LIFT = 0.035f;
 
@@ -101,7 +100,7 @@ public class W_Indicator extends Widget {
         MAIN.fill(COLOR_TEXT_SUB);
         MAIN.textSize(11);
         MAIN.text(
-                "8 channels | real-time indicators | MATLAB-style surface",
+                "8 channels | real-time indicators | 2D heatmap + contours",
                 x + 12, y + 28
         );
     }
@@ -147,38 +146,27 @@ public class W_Indicator extends Widget {
         MAIN.fill(COLOR_TEXT);
         MAIN.text(IndicatorEngine.TITLES[metricIdx], titleX, titleY);
 
-        int padL = 18;
-        int padR = 8;
-        int padT = 24;
-        int padB = 11;
-        float gx = x0 + padL;
-        float gy = y0 + padT;
-        float gw = Math.max(20, w0 - padL - padR);
-        float gh = Math.max(20, h0 - padT - padB);
-
-        float ox = gx + gw * 0.19f;
-        float oy = gy + gh * 0.90f;
-        float vxX = gw * 0.60f;
-        float vxY = -gh * 0.02f;
-        float vyX = -gw * 0.31f;
-        float vyY = -gh * 0.52f;
-        float zPix = gh * Z_GAIN;
+        float left = x0 + 22;
+        float top = y0 + 24;
+        float right = x0 + w0 - 20;
+        float bottom = y0 + h0 - 14;
+        float cbW = 7f;
+        float gap = 5f;
+        float gx = left;
+        float gy = top;
+        float gw = Math.max(24, (right - left) - cbW - gap);
+        float gh = Math.max(24, bottom - top);
 
         int rows = history.getRows();
         int cols = history.getCols();
         float vMin = history.getMetricMin(metricIdx);
         float vMax = history.getMetricMax(metricIdx);
         float span = Math.max(1e-6f, vMax - vMin);
+        float cellW = gw / Math.max(1, cols - 1);
+        float cellH = gh / Math.max(1, rows - 1);
 
-        MAIN.stroke(185, 210, 245, 48);
-        MAIN.strokeWeight(0.7f);
-        for (int k = 1; k <= 3; k++) {
-            float tt = k / 3.0f;
-            MAIN.line(ox + tt * vyX, oy + tt * vyY, ox + vxX + tt * vyX, oy + vxY + tt * vyY);
-            MAIN.line(ox + tt * vxX, oy + tt * vxY, ox + tt * vxX + vyX, oy + tt * vxY + vyY);
-        }
-
-        for (int r = rows - 2; r >= 0; r--) {
+        MAIN.noStroke();
+        for (int r = 0; r < rows - 1; r++) {
             for (int c = 0; c < cols - 1; c++) {
                 float v00 = shape(norm(history.get(metricIdx, r, c), vMin, span));
                 float v10 = shape(norm(history.get(metricIdx, r + 1, c), vMin, span));
@@ -186,67 +174,159 @@ public class W_Indicator extends Widget {
                 float v01 = shape(norm(history.get(metricIdx, r, c + 1), vMin, span));
                 float vv = 0.25f * (v00 + v10 + v11 + v01);
                 int col = parula(vv);
-
-                float u0 = c / (float) (cols - 1);
-                float u1 = (c + 1) / (float) (cols - 1);
-                float t0 = r / (float) (rows - 1);
-                float t1 = (r + 1) / (float) (rows - 1);
-
-                float[] p00 = project(ox, oy, vxX, vxY, vyX, vyY, zPix, u0, t0, v00);
-                float[] p10 = project(ox, oy, vxX, vxY, vyX, vyY, zPix, u0, t1, v10);
-                float[] p11 = project(ox, oy, vxX, vxY, vyX, vyY, zPix, u1, t1, v11);
-                float[] p01 = project(ox, oy, vxX, vxY, vyX, vyY, zPix, u1, t0, v01);
-
-                MAIN.stroke(18, 26, 40, 185);
-                MAIN.strokeWeight(0.75f);
-                MAIN.fill((col >> 16) & 0xFF, (col >> 8) & 0xFF, col & 0xFF, 222);
-                MAIN.beginShape(PApplet.QUADS);
-                MAIN.vertex(p00[0], p00[1]);
-                MAIN.vertex(p10[0], p10[1]);
-                MAIN.vertex(p11[0], p11[1]);
-                MAIN.vertex(p01[0], p01[1]);
-                MAIN.endShape();
+                MAIN.fill((col >> 16) & 0xFF, (col >> 8) & 0xFF, col & 0xFF, 255);
+                MAIN.rect(gx + c * cellW, gy + r * cellH, cellW + 0.6f, cellH + 0.6f);
             }
         }
 
-        MAIN.stroke(215, 232, 255, 75);
-        MAIN.strokeWeight(0.9f);
-        for (int r = 0; r < rows; r += 3) {
-            MAIN.noFill();
-            MAIN.beginShape();
-            for (int c = 0; c < cols; c++) {
-                float v = shape(norm(history.get(metricIdx, r, c), vMin, span));
-                float u = c / (float) (cols - 1);
-                float t = r / (float) (rows - 1);
-                float[] p = project(ox, oy, vxX, vxY, vyX, vyY, zPix, u, t, v);
-                MAIN.vertex(p[0], p[1]);
-            }
-            MAIN.endShape();
+        drawContours(metricIdx, gx, gy, gw, gh, rows, cols, vMin, span);
+
+        MAIN.stroke(165, 190, 220, 95);
+        MAIN.strokeWeight(0.7f);
+        for (int t = 1; t <= 2; t++) {
+            float xx = gx + (t / 2.0f) * gw;
+            float yy = gy + (t / 2.0f) * gh;
+            MAIN.line(xx, gy, xx, gy + gh);
+            MAIN.line(gx, yy, gx + gw, yy);
         }
 
-        MAIN.stroke(195, 218, 255, 120);
-        MAIN.strokeWeight(1.1f);
-        MAIN.line(ox, oy, ox + vxX, oy + vxY);
-        MAIN.line(ox, oy, ox + vyX, oy + vyY);
-        MAIN.line(ox + vxX, oy + vxY, ox + vxX + vyX, oy + vxY + vyY);
-        MAIN.line(ox + vyX, oy + vyY, ox + vxX + vyX, oy + vxY + vyY);
+        MAIN.stroke(198, 220, 248, 165);
+        MAIN.strokeWeight(1.05f);
+        MAIN.noFill();
+        MAIN.rect(gx, gy, gw, gh);
 
-        MAIN.fill(COLOR_TEXT_SUB);
-        MAIN.textSize(8);
-        MAIN.text("T", ox + vxX + 2, oy + vxY + 1);
-        MAIN.text("E", ox + vyX - 4, oy + vyY - 2);
+        drawColorBar(gx + gw + gap, gy, cbW, gh);
+        drawAxes(gx, gy, gw, gh, rows, cols, vMin, vMax);
+        drawPeakMark(metricIdx, gx, gy, cellW, cellH, rows, cols, vMin, span);
     }
 
-    private float[] project(
-            float ox, float oy,
-            float vxX, float vxY,
-            float vyX, float vyY,
-            float zScale,
-            float u, float v, float z
+    private void drawContours(int metricIdx, float gx, float gy, float gw, float gh, int rows, int cols, float vMin, float span) {
+        float[] levels = {0.20f, 0.38f, 0.56f, 0.74f, 0.90f};
+        float cellW = gw / Math.max(1, cols - 1);
+        float cellH = gh / Math.max(1, rows - 1);
+
+        MAIN.strokeWeight(1.0f);
+        for (int li = 0; li < levels.length; li++) {
+            float level = levels[li];
+            int col = li < 2 ? 0xD5E6FF : (li < 4 ? 0xB3D8FF : 0xFFF8B0);
+            MAIN.stroke((col >> 16) & 0xFF, (col >> 8) & 0xFF, col & 0xFF, 210);
+            for (int r = 0; r < rows - 1; r++) {
+                for (int c = 0; c < cols - 1; c++) {
+                    float v00 = shape(norm(history.get(metricIdx, r, c), vMin, span));
+                    float v01 = shape(norm(history.get(metricIdx, r, c + 1), vMin, span));
+                    float v11 = shape(norm(history.get(metricIdx, r + 1, c + 1), vMin, span));
+                    float v10 = shape(norm(history.get(metricIdx, r + 1, c), vMin, span));
+                    float x = gx + c * cellW;
+                    float y = gy + r * cellH;
+                    drawContourCell(x, y, cellW, cellH, v00, v01, v11, v10, level);
+                }
+            }
+        }
+    }
+
+    private void drawContourCell(
+            float x, float y, float cw, float ch,
+            float v00, float v01, float v11, float v10,
+            float level
     ) {
-        float px = ox + u * vxX + v * vyX;
-        float py = oy + u * vxY + v * vyY - z * zScale;
-        return new float[] {px, py};
+        float[] xs = new float[4];
+        float[] ys = new float[4];
+        int n = 0;
+
+        if (cross(v00, v01, level)) {
+            float t = interp(v00, v01, level);
+            xs[n] = x + t * cw; ys[n] = y; n++;
+        }
+        if (cross(v01, v11, level)) {
+            float t = interp(v01, v11, level);
+            xs[n] = x + cw; ys[n] = y + t * ch; n++;
+        }
+        if (cross(v10, v11, level)) {
+            float t = interp(v10, v11, level);
+            xs[n] = x + t * cw; ys[n] = y + ch; n++;
+        }
+        if (cross(v00, v10, level)) {
+            float t = interp(v00, v10, level);
+            xs[n] = x; ys[n] = y + t * ch; n++;
+        }
+
+        if (n == 2) {
+            MAIN.line(xs[0], ys[0], xs[1], ys[1]);
+        } else if (n == 4) {
+            float center = 0.25f * (v00 + v01 + v11 + v10);
+            if (center >= level) {
+                MAIN.line(xs[0], ys[0], xs[1], ys[1]);
+                MAIN.line(xs[2], ys[2], xs[3], ys[3]);
+            } else {
+                MAIN.line(xs[0], ys[0], xs[3], ys[3]);
+                MAIN.line(xs[1], ys[1], xs[2], ys[2]);
+            }
+        }
+    }
+
+    private void drawColorBar(float x, float y, float w, float h) {
+        int steps = 64;
+        for (int i = 0; i < steps; i++) {
+            float t0 = i / (float) steps;
+            float t1 = (i + 1) / (float) steps;
+            int col = parula(1f - t0);
+            MAIN.noStroke();
+            MAIN.fill((col >> 16) & 0xFF, (col >> 8) & 0xFF, col & 0xFF, 255);
+            MAIN.rect(x, y + t0 * h, w, (t1 - t0) * h + 0.8f);
+        }
+        MAIN.stroke(205, 225, 248, 180);
+        MAIN.strokeWeight(0.8f);
+        MAIN.noFill();
+        MAIN.rect(x, y, w, h);
+    }
+
+    private void drawAxes(float gx, float gy, float gw, float gh, int rows, int cols, float vMin, float vMax) {
+        float secTotal = cols * (UPDATE_INTERVAL_MS / 1000.0f);
+        float vMid = 0.5f * (vMin + vMax);
+
+        MAIN.fill(COLOR_TEXT_SUB);
+        MAIN.textFont(p7);
+        MAIN.textSize(8);
+        MAIN.textAlign(PApplet.LEFT, PApplet.CENTER);
+
+        MAIN.text("Y", gx - 16, gy + 6);
+        MAIN.text("1", gx - 16, gy + gh - 1);
+        MAIN.text(String.valueOf(Math.max(1, rows / 2)), gx - 16, gy + gh * 0.5f);
+        MAIN.text(String.valueOf(rows), gx - 16, gy + 2);
+
+        MAIN.textAlign(PApplet.CENTER, PApplet.TOP);
+        MAIN.text("X", gx + gw - 4, gy + gh + 9);
+        MAIN.text("0", gx + 1, gy + gh + 5);
+        MAIN.text(formatTickValue(secTotal * 0.5f), gx + gw * 0.5f, gy + gh + 5);
+        MAIN.text(formatTickValue(secTotal), gx + gw - 2, gy + gh + 5);
+
+        MAIN.textAlign(PApplet.LEFT, PApplet.CENTER);
+        MAIN.text("V", gx + gw + 14, gy + 5);
+        MAIN.text(formatTickValue(vMax), gx + gw + 14, gy + 4);
+        MAIN.text(formatTickValue(vMid), gx + gw + 14, gy + gh * 0.5f);
+        MAIN.text(formatTickValue(vMin), gx + gw + 14, gy + gh - 2);
+    }
+
+    private void drawPeakMark(int metricIdx, float gx, float gy, float cellW, float cellH, int rows, int cols, float vMin, float span) {
+        int bestR = 0;
+        int bestC = 0;
+        float best = -1f;
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < cols; c++) {
+                float v = shape(norm(history.get(metricIdx, r, c), vMin, span));
+                if (v > best) {
+                    best = v;
+                    bestR = r;
+                    bestC = c;
+                }
+            }
+        }
+        float px = gx + bestC * cellW;
+        float py = gy + bestR * cellH;
+        MAIN.stroke(255, 245, 165, 225);
+        MAIN.strokeWeight(1.0f);
+        MAIN.line(px - 3, py, px + 3, py);
+        MAIN.line(px, py - 3, px, py + 3);
     }
 
     private void drawGradientBackground(int x0, int y0, int w0, int h0) {
@@ -289,6 +369,27 @@ public class W_Indicator extends Widget {
         float x = PApplet.constrain(t, 0f, 1f);
         // Gamma compression + base lift makes peaks look sharper and more sculpted.
         return PApplet.constrain((float) Math.pow(x, PEAK_GAMMA) + BASE_LIFT * x, 0f, 1.2f);
+    }
+
+    private static boolean cross(float a, float b, float level) {
+        return (a < level && b >= level) || (a >= level && b < level);
+    }
+
+    private static float interp(float a, float b, float level) {
+        float d = (b - a);
+        if (Math.abs(d) < 1e-9f) {
+            return 0.5f;
+        }
+        return PApplet.constrain((level - a) / d, 0f, 1f);
+    }
+
+    private static String formatTickValue(float v) {
+        float av = Math.abs(v);
+        if (av >= 1000f) return String.format("%.0f", v);
+        if (av >= 100f) return String.format("%.1f", v);
+        if (av >= 10f) return String.format("%.2f", v);
+        if (av >= 1f) return String.format("%.3f", v);
+        return String.format("%.4f", v);
     }
 
     private static int parula(float t) {
