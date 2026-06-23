@@ -629,7 +629,7 @@ public class DataWriterBDF {
      * @returns {String} - A fully qualified name of an output file with `str`.
      */
     private String getFileName(String s) {
-        String output = directoryManager.getRecordingsPath()+"OpenBCI-BDF-";
+        String output = directoryManager.getRecordingsPath()+"AirEIBCI-BDF-";
         output += s;
         output += ".bdf";
         return output;

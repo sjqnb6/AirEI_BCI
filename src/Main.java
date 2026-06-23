@@ -108,7 +108,7 @@ public class Main extends GUI {
 //            throw new RuntimeException(e);
 //        };
         System.out.println("---------------------------------------------------");
-        println("=== OpenBCI GUI Setup Started ===");
+        println("=== AirEIBCI Setup Started ===");
         frameRate(30);  // 设置draw函数执行频率
         surface.setResizable(true);         // ✅ 允许最大化        frameRate(90);  // 设置draw函数执行频率
         surface.setLocation(100, 50);  // 将窗口左上角设置在屏幕坐标 (100, 50)
@@ -151,10 +151,10 @@ public class Main extends GUI {
         File dummy = new File(sketchPath());
         if (!dummy.canWrite()) {
             showStartupError = true;
-            startupErrorMessage = "OpenBCI GUI was launched from a read-only location.\n\n" +
+            startupErrorMessage = "AirEIBCI was launched from a read-only location.\n\n" +
                     "Please move the application to a different location and re-launch.\n" +
-                    "If you just downloaded the GUI, move it out of the disk image or Downloads folder.\n\n" +
-                    "If this error persists, contact the OpenBCI team for support.";
+                    "If you just downloaded the application, move it out of the disk image or Downloads folder.\n\n" +
+                    "If this error persists, contact the AirEIBCI support team.";
             return; // early exit
         }
 
@@ -193,7 +193,7 @@ public class Main extends GUI {
             checkIsMacFullDetail();
         }
         println("JVM Version: " + System.getProperty("java.version"));
-        println("Welcome to the Processing-based OpenBCI GUI!"); //Welcome line.
+        println("Welcome to AirEIBCI!"); //Welcome line.
         println("For more information, please visit: https://docs.openbci.com/Software/OpenBCISoftware/GUIDocs/");
 
 
@@ -201,7 +201,7 @@ public class Main extends GUI {
         directoryManager.init();
         settings = new SessionSettings(this);
         guiSettings = new GuiSettings(directoryManager.getSettingsPath());
-        userPlaybackHistoryFile = directoryManager.getSettingsPath()+"UserPlaybackHistory.json";
+        userPlaybackHistoryFile = directoryManager.getSettingsPath()+"AirEIBCIPlaybackHistory.json";
 
         //open window
 //        ourApplet = this;
@@ -246,7 +246,7 @@ public class Main extends GUI {
                 fill(255);
                 textAlign(CENTER, CENTER);
                 textSize(20);
-                text("Initializing OpenBCI GUI...", width/2, height/2);
+                text("Initializing AirEIBCI...", width/2, height/2);
             }
         }
 
@@ -321,7 +321,7 @@ public class Main extends GUI {
             println("ControlPanel created successfully");
 
             setupComplete = true; // signal that the setup thread has finished
-            println("OpenBCI_GUI::Setup: Setup is complete!");
+            println("AirEIBCI::Setup: Setup is complete!");
             println("systemMode = " + systemMode);
             println("setupComplete = " + setupComplete);
         }
@@ -335,7 +335,7 @@ public class Main extends GUI {
         println("systemMode changed to SYSTEMMODE_PREINIT");
 
         if (!isAdminUser() || isElevationNeeded()) {
-            outputError("AirEI_BCI: 该应用未以管理员权限运行。这可能会限制连接设备或读写文件的能力。");
+            outputError("AirEIBCI: 该应用未以管理员权限运行。这可能会限制连接设备或读写文件的能力。");
         }
     }
 
@@ -456,7 +456,7 @@ public class Main extends GUI {
 
         //Display GUI version and FPS in the title bar of the app
         surface.setTitle(
-                "AirEI_BCI GUI "
+                "AirEIBCI GUI "
                         + localGUIVersionString
                         + " - "
                         + localGUIVersionDate
@@ -469,7 +469,7 @@ public class Main extends GUI {
 //    //Always Called after systemDraw()
     void systemInitSession() {
         if (midInitCheck2) {
-            println("OpenBCI_GUI: Start session. Calling initSystem().");
+            println("AirEIBCI: Start session. Calling initSystem().");
             try {
                 initSystem(); //found in OpenBCI_GUI.pde
             } catch (Exception e) {
@@ -543,7 +543,7 @@ public class Main extends GUI {
         println("=================================================");
         println("");
 
-        verbosePrint("OpenBCI_GUI: initSystem: -- Init 0 -- ");
+        verbosePrint("AirEIBCI: initSystem: -- Init 0 -- ");
 
         //reset init variables
         systemHasHalted = false;
@@ -575,16 +575,16 @@ public class Main extends GUI {
                 break;
             case DATASOURCE_SYNTHETIC:
                 currentBoard = new BoardBrainFlowSynthetic(this, nchan);
-                println("OpenBCI_GUI: Init session using Synthetic data source");
+                println("AirEIBCI: Init session using Synthetic data source");
                 break;
             case DATASOURCE_PLAYBACKFILE:
                 if (!playbackData_fname.equals("N/A")) {
                     currentBoard = getDataSourcePlaybackClassFromFile(this, playbackData_fname);
-                    println("OpenBCI_GUI: Init session using Playback data source");
+                    println("AirEIBCI: Init session using Playback data source");
                 } else {
                     if (!sdData_fname.equals("N/A")) {
                         currentBoard = new DataSourceSDCard(this, sdData_fname);
-                        println("OpenBCI_GUI: Init session using Playback data source");
+                        println("AirEIBCI: Init session using Playback data source");
                     }
                     else {
                         // no code path to it
@@ -621,7 +621,7 @@ public class Main extends GUI {
                         controlPanel.streamingBoardBox.getIP(),
                         controlPanel.streamingBoardBox.getPort()
                 );
-                println("OpenBCI_GUI: Init session using Streaming data source");
+                println("AirEIBCI: Init session using Streaming data source");
             default:
                 break;
         }
@@ -633,7 +633,7 @@ public class Main extends GUI {
         //Handle edge cases for Cyton and Cyton+Daisy users immediately after board is initialized. Fixes #954
         if (eegDataSource == DATASOURCE_CYTON) {
             //-------------------------------------------------------------------------------------------
-            println("AirEI_BCI_GUI: 配置Cyton通道数量");
+            println("AirEIBCI: 配置 Cyton 通道数量");
             if (currentBoard instanceof BoardCytonSerial) {
 //                Pair<Boolean, String> res = ((BoardBrainFlow)currentBoard).sendCommand("c");
                 //println(res.getKey().booleanValue(), res.getValue());guiSettings
@@ -654,7 +654,7 @@ public class Main extends GUI {
             //Show a popup to inform first-time Cyton users about the FTDI buffer fix and Cyton Smoothing feature. Fixes #1026
             //Windows Users: Latest BrainFlow will automatically fix this in the background on Session Start! Fixed in #1039
             if (guiSettings.getShowCytonSmoothingPopup()) {
-                println("OpenBCI_GUI: Showing Cyton FTDI Buffer Fix Popup");
+                println("AirEIBCI: Showing Cyton FTDI Buffer Fix Popup");
                 String popupTitle = "Cyton FTDI Buffer Fix Info";
                 String popupString = "The default settings for the Cyton Dongle driver can make data appear \"choppy.\" Visit the OpenBCI Docs to learn how to fix this. For now, the GUI will \"smooth\" the data for you.";
                 String popupButtonText = "View Fix";
@@ -674,20 +674,20 @@ public class Main extends GUI {
 
         dataLogger.initialize();
 
-        verbosePrint("OpenBCI_GUI: initSystem: Initializing core data objects");
+        verbosePrint("AirEIBCI: initSystem: Initializing core data objects");
         initCoreDataObjects();
 
-        verbosePrint("OpenBCI_GUI: initSystem: -- Init 1 -- " + millis());
-        verbosePrint("OpenBCI_GUI: initSystem: Initializing FFT data objects");
+        verbosePrint("AirEIBCI: initSystem: -- Init 1 -- " + millis());
+        verbosePrint("AirEIBCI: initSystem: Initializing FFT data objects");
         initFFTObjectsAndBuffer();
 
-        verbosePrint("OpenBCI_GUI: initSystem: -- Init 2 -- " + millis());
-        verbosePrint("OpenBCI_GUI: initSystem: Closing ControlPanel...");
+        verbosePrint("AirEIBCI: initSystem: -- Init 2 -- " + millis());
+        verbosePrint("AirEIBCI: initSystem: Closing ControlPanel...");
 
         controlPanel.close();
         topNav.controlPanelCollapser.setOff();
 
-        verbosePrint("OpenBCI_GUI: initSystem: -- Init 3 -- " + millis());
+        verbosePrint("AirEIBCI: initSystem: -- Init 3 -- " + millis());
 
         if (abandonInit) {
             haltSystem(this);
@@ -702,7 +702,7 @@ public class Main extends GUI {
             systemMode = SYSTEMMODE_POSTINIT; //tell system it's ok to leave control panel and start interfacing GUI
         }
 
-        verbosePrint("OpenBCI_GUI: initSystem: -- Init 4 -- " + millis());
+        verbosePrint("AirEIBCI: initSystem: -- Init 4 -- " + millis());
 
         //don't save default session settings StreamingBoard
         if (eegDataSource != DATASOURCE_STREAMING) {
@@ -717,7 +717,7 @@ public class Main extends GUI {
         //Instantiate Global Filter Settings Class
         filterSettings = new FilterSettings(this, ((DataSource)currentBoard));
 
-        verbosePrint("OpenBCI_GUI: initSystem: -- Init 5 -- " + millis());
+        verbosePrint("AirEIBCI: initSystem: -- Init 5 -- " + millis());
 
         midInit = false;
     } //end initSystem
@@ -755,7 +755,7 @@ public class Main extends GUI {
         auditoryNfbFilePlayers = new FilePlayer[_numSoundFiles];
         auditoryNfbGains = new ddf.minim.ugens.Gain[_numSoundFiles];
         audioOutput = minim.getLineOut();
-        println("OpenBCI_GUI: AuditoryFeedback: Loading Audio...");
+        println("AirEIBCI: AuditoryFeedback: Loading Audio...");
         for (int i = 0; i < _numSoundFiles; i++) {
             //Use large buffer size and cache files in memory
             try {
@@ -768,7 +768,7 @@ public class Main extends GUI {
                 return;
             }
         }
-        println("OpenBCI_GUI: AuditoryFeedback: Done Loading Audio!");
+        println("AirEIBCI: AuditoryFeedback: Done Loading Audio!");
         audioOutputIsAvailable = true;
     }
 

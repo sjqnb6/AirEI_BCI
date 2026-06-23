@@ -133,7 +133,7 @@ public class W_playback extends Widget {
     public void refreshPlaybackList() {
         File f = new File(userPlaybackHistoryFile);
         if (!f.exists()) {
-            MAIN.println("AirEIBCI::RefreshPlaybackList：找不到回放历史文件。");
+            MAIN.println("AirEIBCI::RefreshPlaybackList: 找不到回放历史文件。");
             return;
         }
 

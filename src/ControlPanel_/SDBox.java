@@ -107,7 +107,7 @@ public class SDBox{
                     int val = (int)sdList.getValue();
                     Map bob = sdList.getItem(val);
                     cyton_sdSetting = (CytonSDMode)bob.get("value");
-                    String outputString = "OpenBCI microSD Setting = " + cyton_sdSetting.getName();
+                    String outputString = "AirEIBCI microSD Setting = " + cyton_sdSetting.getName();
                     if (cyton_sdSetting != CytonSDMode.NO_WRITE) {
                         outputString += " recording time";
                     }

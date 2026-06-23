@@ -5,7 +5,6 @@ import controlP5.CallbackEvent;
 import controlP5.CallbackListener;
 import controlP5.ControlP5;
 import controlP5.ScrollableList;
-import processing.core.PApplet;
 import processing.data.JSONArray;
 import processing.data.JSONObject;
 import processing.data.StringList;
@@ -17,13 +16,13 @@ import java.util.List;
 import static Debugging_.GF.outputError;
 import static Debugging_.GF.verbosePrint;
 import static Extras_.GF.shortenString;
-//import static GUI.GGVI.*;
 import static Globel.GUI.*;
+import static W_Playback_.GF.brandPlaybackName;
 import static W_Playback_.GF.playbackFileFromList;
 
-public class RecentPlaybackBox{
+public class RecentPlaybackBox {
     public GUI gui;
-    public int x, y, w, h, padding; //size and position
+    public int x, y, w, h, padding;
     public StringList shortFileNames = new StringList();
     public StringList longFilePaths = new StringList();
     private String filePickedShort = "选择最近的回放文件";
@@ -37,11 +36,11 @@ public class RecentPlaybackBox{
         x = _x;
         y = _y;
         w = _w;
-        h = titleH + buttonH + _padding*3;
+        h = titleH + buttonH + _padding * 3;
         padding = _padding;
 
         rpb_cp5 = new ControlP5(gui);
-        rpb_cp5.setGraphics(gui, 0,0);
+        rpb_cp5.setGraphics(gui, 0, 0);
         rpb_cp5.setAutoDraw(false);
 
         getRecentPlaybackFiles();
@@ -51,13 +50,12 @@ public class RecentPlaybackBox{
     }
 
     public void update() {
-        //Update the dropdown list if it has not already been done
         if (!recentPlaybackFilesHaveUpdated) {
             recentPlaybackSL.clear();
             getRecentPlaybackFiles();
             String[] temp = shortFileNames.array();
             recentPlaybackSL.addItems(temp);
-            recentPlaybackSL.setSize(w - padding*2, (temp.length + 1) * buttonH);
+            recentPlaybackSL.setSize(w - padding * 2, (temp.length + 1) * buttonH);
         }
     }
 
@@ -65,8 +63,8 @@ public class RecentPlaybackBox{
         return filePickedShort;
     }
 
-    public void setFilePickedShort(String _fileName) {
-        filePickedShort = _fileName;
+    public void setFilePickedShort(String fileName) {
+        filePickedShort = fileName;
     }
 
     public void draw() {
@@ -74,7 +72,7 @@ public class RecentPlaybackBox{
         this.gui.fill(gui.boxColor);
         this.gui.stroke(gui.boxStrokeColor);
         this.gui.strokeWeight(1);
-        this.gui.rect((float) x, (float) y, (float) w, (float) (h + recentPlaybackSL.getHeight() - padding*2.5));
+        this.gui.rect((float) x, (float) y, (float) w, (float) (h + recentPlaybackSL.getHeight() - padding * 2.5));
         this.gui.fill(gui.OPENBCI_DARKBLUE);
         this.gui.textFont(p7, 16);
         this.gui.textAlign(LEFT, TOP);
@@ -89,7 +87,7 @@ public class RecentPlaybackBox{
 
         File f = new File(userPlaybackHistoryFile);
         if (!f.exists()) {
-            println("OpenBCI_GUI::Control Panel:没有找到回放历史文件");
+            println("AirEIBCI::Control Panel: 没有找到回放历史文件");
             recentPlaybackFilesHaveUpdated = true;
             playbackHistoryFileExists = false;
             return;
@@ -99,82 +97,73 @@ public class RecentPlaybackBox{
             JSONObject playbackHistory = gui.loadJSONObject(userPlaybackHistoryFile);
             JSONArray recentFilesArray = playbackHistory.getJSONArray("playbackFileHistory");
             if (recentFilesArray.size() < 10) {
-                println("CP: 回放历史大小 = " + recentFilesArray.size());
+                println("CP: playback history size = " + recentFilesArray.size());
                 numFilesToShow = recentFilesArray.size();
             }
             shortFileNames.clear();
             longFilePaths.clear();
             for (int i = 0; i < numFilesToShow; i++) {
-                JSONObject playbackFile = recentFilesArray.getJSONObject(recentFilesArray.size()-i-1);
-                String shortFileName = playbackFile.getString("id");
+                JSONObject playbackFile = recentFilesArray.getJSONObject(recentFilesArray.size() - i - 1);
+                String shortFileName = brandPlaybackName(playbackFile.getString("id"));
                 String longFilePath = playbackFile.getString("filePath");
-                //truncate display name, if needed
-                shortFileName = shortenString(gui, shortFileName, w-padding*2.f, h3);
-                //store to arrays to set recent playback buttons text and function
+                shortFileName = shortenString(gui, shortFileName, w - padding * 2.f, h3);
                 shortFileNames.append(shortFileName);
                 longFilePaths.append(longFilePath);
-                //println(shortFileName + " " + longFilePath);
             }
 
             playbackHistoryFileExists = true;
         } catch (Exception e) {
-            println("OpenBCI_GUI::Control Panel: 另一个错误！请在Github提交一个问题并分享这个控制台日志。");
+            println("AirEIBCI::Control Panel: 读取回放历史时出现错误。");
             println(e.getMessage());
             playbackHistoryFileExists = false;
         }
         recentPlaybackFilesHaveUpdated = true;
     }
 
-    void createRecentPlaybackFilesDropdown(String name, List<String> _items){
+    void createRecentPlaybackFilesDropdown(String name, List<String> items) {
         recentPlaybackSL = rpb_cp5.addScrollableList(name)
-                .setOpen(false)
-                .setColorBackground(gui.OPENBCI_BLUE) // text field bg color
-                .setColorValueLabel(this.gui.color(255))       // text color
-                .setColorCaptionLabel(this.gui.color(255))
-                .setColorForeground(this.gui.color(125))    // border color when not selected
-                .setColorActive(gui.BUTTON_PRESSED)       // border color when selected
-                // .setColorCursor(color(26,26,26))
-
-                .setSize(w - padding*2,(_items.size()+1)*24)// + maxFreqList.size())
-                .setBarHeight(24) //height of top/primary bar
-                .setItemHeight(24) //height of all item/dropdown bars
-                .addItems(_items) // used to be .addItems(maxFreqList)
-                .setVisible(true)
-        ;
+            .setOpen(false)
+            .setColorBackground(gui.OPENBCI_BLUE)
+            .setColorValueLabel(this.gui.color(255))
+            .setColorCaptionLabel(this.gui.color(255))
+            .setColorForeground(this.gui.color(125))
+            .setColorActive(gui.BUTTON_PRESSED)
+            .setSize(w - padding * 2, (items.size() + 1) * 24)
+            .setBarHeight(24)
+            .setItemHeight(24)
+            .addItems(items)
+            .setVisible(true);
         recentPlaybackSL
-                .getCaptionLabel() //the caption label is the text object in the primary bar
-                .toUpperCase(false) //DO NOT AUTOSET TO UPPERCASE!!!
-                .setText(filePickedShort)
-                .setFont(p7)
-                .setSize(14)
-                .getStyle() //need to grab style before affecting the paddingTop
-                .setPaddingTop(4)
-        ;
+            .getCaptionLabel()
+            .toUpperCase(false)
+            .setText(filePickedShort)
+            .setFont(p7)
+            .setSize(14)
+            .getStyle()
+            .setPaddingTop(4);
         recentPlaybackSL
-                .getValueLabel() //the value label is connected to the text objects in the dropdown item bars
-                .toUpperCase(false) //DO NOT AUTOSET TO UPPERCASE!!!
-                .setText(filePickedShort)
-                .setFont(p7)
-                .setSize(12) //set the font size of the item bars to 14pt
-                .getStyle() //need to grab style before affecting the paddingTop
-                .setPaddingTop(3) //4-pixel vertical offset to center text
-        ;
-        recentPlaybackSL.setPosition(x + padding, y + padding*2 + 13);
-        recentPlaybackSL.setSize(w - padding*2, (_items.size() + 1) * buttonH);
+            .getValueLabel()
+            .toUpperCase(false)
+            .setText(filePickedShort)
+            .setFont(p7)
+            .setSize(12)
+            .getStyle()
+            .setPaddingTop(3);
+        recentPlaybackSL.setPosition(x + padding, y + padding * 2 + 13);
+        recentPlaybackSL.setSize(w - padding * 2, (items.size() + 1) * buttonH);
         recentPlaybackSL.addCallback(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 if (theEvent.getAction() == ControlP5.ACTION_BROADCAST) {
-                    int s = (int)recentPlaybackSL.getValue();
-                    //println("got a menu event from item " + s);
+                    int s = (int) recentPlaybackSL.getValue();
                     String filePath = longFilePaths.get(s);
                     if (new File(filePath).isFile()) {
                         playbackFileFromList(gui, filePath, s);
                     } else {
-                        verbosePrint("回放历史： " + filePath);
-                        outputError("回放历史: 所选文件不存在。试试其他文件或清除设置以删除此条目。");
+                        verbosePrint("回放历史: " + filePath);
+                        outputError("回放历史中的文件不存在，请重新选择可用文件。");
                     }
                 }
             }
         });
     }
-};
+}

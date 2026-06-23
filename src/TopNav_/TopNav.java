@@ -563,20 +563,20 @@ public class TopNav {
             //println("isCheckingImpedanceOnAnythingEZCHECK==",w_cytonImpedance.isCheckingImpedanceOnAnything);
             if (checkingImpOnChan != null || w_cytonImpedance.cytonMasterImpedanceCheckIsActive() || w_cytonImpedance.isCheckingImpedanceOnAnything) {
                 PopupMessage msg = new PopupMessage(MAIN, "Busy Checking Impedance", "Please turn off impedance check to begin recording the data stream.");
-                MAIN.println("OpenBCI_GUI::Cyton: Please turn off impedance check to begin recording the data stream.");
+                MAIN.println("AirEIBCI::Cyton: Please turn off impedance check to begin recording the data stream.");
                 return;
             }
         }
 
         //toggle the data transfer state of the ADS1299...stop it or start it...
         if (MAIN.currentBoard.isStreaming()) {
-            output("AirEIBCI_GUI: 终止按钮被按下了。停止数据传输，等待几秒钟。");
+            output("AirEIBCI: 终止按钮被按下了。停止数据传输，等待几秒钟。");
             stopRunning(MAIN);
             if (!MAIN.currentBoard.isStreaming()) {
                 updateDataStreamingButtonStyle(false);
             }
         } else { //not running
-            output("AirEIBCI_GUI: 启动按钮被按下了。开始数据传输，等待几秒钟。");
+            output("AirEIBCI: 启动按钮被按下了。开始数据传输，等待几秒钟。");
             startRunning(MAIN);
             if (MAIN.currentBoard.isStreaming()) {
                 updateDataStreamingButtonStyle(true);

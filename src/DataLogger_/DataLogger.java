@@ -73,7 +73,7 @@ public class DataLogger {
 
     public void limitRecordingFileDuration() {
         if (MAIN.settings.isLogFileOpen() && outputDataSource == OUTPUT_SOURCE_ODF && MAIN.settings.maxLogTimeReached()) {
-            println("DataLogging: Max recording duration reached for OpenBCI data format. Creating a new recording file in the session folder.");
+            println("DataLogging: Max recording duration reached for AirEIBCI data format. Creating a new recording file in the session folder.");
             closeLogFile();
             openNewLogFile(directoryManager.getFileNameDateTime());
             MAIN.settings.setLogFileStartTime(System.nanoTime());
@@ -92,7 +92,7 @@ public class DataLogger {
         //Print BrainFlow Streamer Info here after ODF and BDF println
         if (eegDataSource != DATASOURCE_PLAYBACKFILE && eegDataSource != DATASOURCE_STREAMING) {
             controlPanel.setBrainFlowStreamerOutput();
-            StringBuilder sb = new StringBuilder("OpenBCI_GUI: BrainFlow Streamer Location: ");
+            StringBuilder sb = new StringBuilder("AirEIBCI: BrainFlow Streamer Location: ");
             sb.append(brainflowStreamer);
             println(sb.toString());
         }
@@ -139,14 +139,14 @@ public class DataLogger {
      */
     private void openNewLogFileBDF(String _fileName) {
         if (fileWriterBDF != null) {
-            println("OpenBCI_GUI: closing log file");
+            println("AirEIBCI: closing log file");
             closeLogFile();
         }
         //open the new file
         fileWriterBDF = new DataWriterBDF(_fileName);
 
         output_fname = fileWriterBDF.fname;
-        println("OpenBCI_GUI: openNewLogFile: opened BDF output file: " + output_fname); //Print filename of new BDF file to console
+        println("AirEIBCI: openNewLogFile: opened BDF output file: " + output_fname);
     }
 
     /**
@@ -156,7 +156,7 @@ public class DataLogger {
      */
     private void openNewLogFileODF(String _fileName) {
         if (fileWriterODF != null) {
-            println("OpenBCI_GUI: closing log file");
+            println("AirEIBCI: closing log file");
             closeLogFile();
         }
         //open the new file
@@ -168,7 +168,7 @@ public class DataLogger {
         }
 
         output_fname = fileWriterODF.fname;
-        println("OpenBCI_GUI: openNewLogFile: opened ODF output file: " + output_fname); //Print filename of new ODF file to console
+        println("AirEIBCI: openNewLogFile: opened ODF output file: " + output_fname);
     }
 
     private void closeLogFile() {
@@ -234,7 +234,7 @@ public class DataLogger {
 
     public void setBfWriterDefaultFolder() {
         if (MAIN.settings.getSessionPath() != "") {
-            MAIN.settings.setSessionPath(directoryManager.getRecordingsPath() + "OpenBCISession_" + sessionName);
+            MAIN.settings.setSessionPath(directoryManager.getRecordingsPath() + "AirEIBCI_Session_" + sessionName);
         }
         fileWriterBF.setBrainFlowStreamerFolderName(sessionName, MAIN.settings.getSessionPath());
     }

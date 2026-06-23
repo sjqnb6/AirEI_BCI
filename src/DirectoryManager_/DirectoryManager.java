@@ -11,11 +11,14 @@ import java.util.Date;
 import static processing.core.PApplet.println;
 
 public class DirectoryManager {
+    private static final String BRAND_NAME = "AirEIBCI";
+    private static final String SAMPLE_DATA_FOLDER = "Sample_Data";
+    private static final String CURRENT_SAMPLE_DATA_FILE = "AirEIBCI-v6-meditation.txt";
 
-    private final String guiDataPath = System.getProperty("user.home")+File.separator+"Documents"+File.separator+"OpenBCI_GUI"+File.separator;
-    private final String recordingsPath = guiDataPath+"Recordings"+File.separator;
-    private final String settingsPath = guiDataPath+"Settings"+File.separator;
-    private final String consoleDataPath = guiDataPath+"Console_Data"+File.separator;
+    private final String guiDataPath = System.getProperty("user.home") + File.separator + "Documents" + File.separator + BRAND_NAME + File.separator;
+    private final String recordingsPath = guiDataPath + "Recordings" + File.separator;
+    private final String settingsPath = guiDataPath + "Settings" + File.separator;
+    private final String consoleDataPath = guiDataPath + "Console_Data" + File.separator;
     private final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
 
     public DirectoryManager() {
@@ -43,80 +46,65 @@ public class DirectoryManager {
     }
 
     public void init() {
-        // Create GUI data folder in Users' Documents and copy sample data if it doesn't already exist
-        String directoryName = guiDataPath + File.separator + "Sample_Data" + File.separator;
-        String guiv4fileName = directoryName + "OpenBCI-sampleData-2-meditation.txt";
-        String guiv5fileName = directoryName + "OpenBCI_GUI-v5-meditation.txt";
-        String guiv6fileName = directoryName + "OpenBCI_GUI-v6-meditation.txt";
-        File directory = new File(directoryName);
-        File guiv4_fileToCheck = new File(guiv4fileName);
-        File guiv5_fileToCheck = new File(guiv5fileName);
-        File guiv6_fileToCheck = new File(guiv6fileName);
-
-        if (guiv4_fileToCheck.exists()) {
-            //Delete old gui v4 files in Documents folder
-            try {
-                for (File subFile : directory.listFiles()) {
-                    subFile.delete();
-                }
-                println("OpenBCI_GUI::Setup: Successfully deleted old GUI v4 sample data files!");
-            } catch (SecurityException e) {
-                println("OpenBCI_GUI::Setup: Error trying to delete old GUI Sample Data in Documents folder.");
-            }
-        }
-
-        if (guiv5_fileToCheck.exists()) {
-            //Delete old gui v5 files in Documents folder
-            try {
-                for (File subFile : directory.listFiles()) {
-                    subFile.delete();
-                }
-                println("OpenBCI_GUI::Setup: Successfully deleted old GUI v5 sample data files!");
-            } catch (SecurityException e) {
-                println("OpenBCI_GUI::Setup: Error trying to delete old GUI Sample Data in Documents folder.");
-            }
-        }
-
-        if (!guiv6_fileToCheck.exists()) {
-            copySampleDataFiles(directory, directoryName);
-        } else {
-            println("OpenBCI_GUI::Setup: GUI v6 Sample Data exists in Documents folder.");
-        }
-
-        makeRecordingsFolder();
+        ensureBaseFolders();
+        syncSampleDataFiles();
     }
 
-    private void copySampleDataFiles(File directory, String directoryName) {
-        println("OpenBCI_GUI::Setup: Copying sample data to Documents/OpenBCI_GUI/Sample_Data");
-        // Make the entire directory path including parents
+    private void ensureBaseFolders() {
+        ensureDirectory(guiDataPath, "Documents" + File.separator + BRAND_NAME);
+        ensureDirectory(recordingsPath, "Documents" + File.separator + BRAND_NAME + File.separator + "Recordings");
+        ensureDirectory(settingsPath, "Documents" + File.separator + BRAND_NAME + File.separator + "Settings");
+        ensureDirectory(consoleDataPath, "Documents" + File.separator + BRAND_NAME + File.separator + "Console_Data");
+        ensureDirectory(guiDataPath + "Screenshots" + File.separator, "Documents" + File.separator + BRAND_NAME + File.separator + "Screenshots");
+        ensureDirectory(guiDataPath + SAMPLE_DATA_FOLDER + File.separator, "Documents" + File.separator + BRAND_NAME + File.separator + SAMPLE_DATA_FOLDER);
+    }
+
+    private void syncSampleDataFiles() {
+        String directoryName = guiDataPath + SAMPLE_DATA_FOLDER + File.separator;
+        File directory = new File(directoryName);
+        File currentSampleData = new File(directory, CURRENT_SAMPLE_DATA_FILE);
+
+        if (!currentSampleData.exists()) {
+            copySampleDataFiles(directory);
+        } else {
+            println("AirEIBCI::Setup: Sample data is ready in Documents/AirEIBCI/Sample_Data.");
+        }
+    }
+
+    private void copySampleDataFiles(File directory) {
+        println("AirEIBCI::Setup: Copying sample data to Documents/AirEIBCI/Sample_Data");
         directory.mkdirs();
         try {
-
-            File dataDir = new File("EEG_Sample_Data");
+            File dataDir = new File("data" + File.separator + "EEG_Sample_Data");
+            if (!dataDir.exists()) {
+                dataDir = new File("EEG_Sample_Data");
+            }
             File[] filesFound = dataDir.listFiles();
-
-
-//            File[] filesFound = new File(dataPath("EEG_Sample_Data")).listFiles();
-            //If this pathname does not denote a directory, then listFiles() returns null.
+            if (filesFound == null) {
+                println("AirEIBCI::Setup: Sample data source folder was not found.");
+                return;
+            }
             for (File file : filesFound) {
                 if (file.isFile()) {
                     Files.copy(file.toPath(),
-                            (new File(directoryName + file.getName())).toPath(),
+                            (new File(directory, brandSampleDataName(file.getName()))).toPath(),
                             StandardCopyOption.REPLACE_EXISTING);
                 }
             }
         } catch (IOException e) {
-            println("OpenBCI_GUI::Setup: Error trying to copy Sample Data to Documents directory.");
+            println("AirEIBCI::Setup: Error trying to copy sample data to Documents.");
         }
     }
 
-    private void makeRecordingsFolder() {
-        //Create \Documents\OpenBCI_GUI\Recordings\ if it doesn't exist
-        String recordingDirString = guiDataPath + File.separator + "Recordings";
-        File recDirectory = new File(recordingDirString);
-        if (recDirectory.mkdir()) {
-            println("OpenBCI_GUI::Setup: Created \\Documents\\OpenBCI_GUI\\Recordings\\");
+    private void ensureDirectory(String absolutePath, String displayPath) {
+        File directory = new File(absolutePath);
+        if (!directory.exists() && directory.mkdirs()) {
+            println("AirEIBCI::Setup: Created " + displayPath);
         }
+    }
+
+    private String brandSampleDataName(String rawName) {
+        return rawName.replace("OpenBCI_GUI", BRAND_NAME).replace("OpenBCI", BRAND_NAME);
     }
 
 };

@@ -40,6 +40,8 @@ import java.io.*;
 
 import static Debugging_.GF.*;
 import static Debugging_.GF.outputError;
+import static W_Playback_.GF.brandPlaybackName;
+import static W_Playback_.GF.isPlaybackHeader;
 
 //import static GUI.GGVI.buttonHelpText;
 //import static GUI.GGVI.p5;
@@ -435,16 +437,15 @@ public class GUI extends PApplet {
         return createButton(_cp5, name, text, _x, _y, _w, _h, 0, p7, 12, colorNotPressed, OPENBCI_DARKBLUE, BUTTON_HOVER, BUTTON_PRESSED, OPENBCI_DARKBLUE, 0);
     }
     //////////////////////////////////////
-// GLOBAL FUNCTIONS BELOW THIS LINE   ： W_Playback_\GF.java
+// GLOBAL FUNCTIONS BELOW THIS LINE   锛?W_Playback_\GF.java
     //////////////////////////////////////
 
     //Called when user selects a playback file from controlPanel dialog box
     public void playbackFileSelected(File selection) {
         if (selection == null) {
-            println("DataLogging: playbackSelected: 窗口关闭或用户点击取消。");
+            println("DataLogging: playbackSelected: dialog was closed or cancelled.");
         } else {
-            println("DataLogging: playbackSelected: 用户已选定: " + selection.getAbsolutePath());
-            //Set the name of the file
+            println("DataLogging: playbackSelected: user selected " + selection.getAbsolutePath());
             playbackFileSelected(selection.getAbsolutePath(), selection.getName());
         }
     }
@@ -453,11 +454,10 @@ public class GUI extends PApplet {
     //Activated when user selects a file using the "Select Playback File" button in PlaybackHistory
     public void playbackSelectedWidgetButton(File selection) {
         if (selection == null) {
-            println("W_Playback: playbackSelected: 窗口关闭或用户点击取消.");
+            println("W_Playback: playbackSelected: dialog was closed or cancelled.");
         } else {
-            println("W_Playback: playbackSelected: 用户已选定 " + selection.getAbsolutePath());
+            println("W_Playback: playbackSelected: user selected " + selection.getAbsolutePath());
             if (playbackFileSelected(selection.getAbsolutePath(), selection.getName())) {
-                // restart the session with the new file
                 requestReinit();
             }
         }
@@ -467,26 +467,23 @@ public class GUI extends PApplet {
     public void userSelectedPlaybackMenuList (String filePath, int listItem) {
         if (new File(filePath).isFile()) {
             playbackFileFromList(filePath, listItem);
-            // restart the session with the new file
             requestReinit();
         } else {
             verbosePrint("Playback: " + filePath);
-            outputError("Playback: 所选文件不存在。试试其他文件或清除设置以删除此条目。");
+            outputError("Playback: 选中的文件不存在，请重新选择可用文件。");
         }
     }
 
     //Called when user selects a playback file from a list
     public void playbackFileFromList (String longName, int listItem) {
         String shortName = "";
-        //look at the JSON file to set the range menu using number of recent file entries
         try {
             savePlaybackHistoryJSON = loadJSONObject(new File(userPlaybackHistoryFile));
             JSONArray recentFilesArray = savePlaybackHistoryJSON.getJSONArray("playbackFileHistory");
             JSONObject playbackFile = recentFilesArray.getJSONObject(-listItem + recentFilesArray.size() - 1);
-            shortName = playbackFile.getString("id");
+            shortName = brandPlaybackName(playbackFile.getString("id"));
             playbackHistoryFileExists = true;
         } catch (NullPointerException e) {
-            //println("Playback history JSON file does not exist. Load first file to make it.");
             playbackHistoryFileExists = false;
         }
         playbackFileSelected(longName, shortName);
@@ -495,31 +492,29 @@ public class GUI extends PApplet {
     //Handles the work for the above cases
     public boolean playbackFileSelected (String longName, String shortName) {
         playbackData_fname = longName;
-        playbackData_ShortName = shortName;
-        //Process the playback file, check if SD card file or something else
-        try {
-            BufferedReader brTest = new BufferedReader(new FileReader(longName));
+        playbackData_ShortName = brandPlaybackName(shortName);
+        try (BufferedReader brTest = new BufferedReader(new FileReader(longName))) {
             String line = brTest.readLine();
-            if (line.equals("%OpenBCI Raw EEG Data") || line.equals("%OpenBCI Raw EXG Data")) {
-                verbosePrint("PLAYBACK: Found OpenBCI Header in File!");
+            if (isPlaybackHeader(line)) {
+                verbosePrint("PLAYBACK: Found playback header in file.");
                 sdData_fname = "N/A";
                 for (int i = 0; i < 3; i++) {
                     line = brTest.readLine();
                     verbosePrint("PLAYBACK: " + line);
                 }
-                if (!line.startsWith("%Board")) {
+                if (line == null || !line.startsWith("%Board")) {
                     playbackData_fname = "N/A";
                     playbackData_ShortName = "N/A";
-                    outputError("找到了 GUI v4 或更早的文件。请使用提供的Python脚本转换此文件。");
-                    PopupMessage msg = new PopupMessage("GUI v4 to v5 File Converter", "Found GUI v4 or earlier file. Please convert this file using the provided Python script. Press the button below to access this open-source fix.", "LINK", "https://github.com/OpenBCI/OpenBCI_GUI/tree/development/tools");
+                    outputError("检测到过旧版本的回放文件，请先完成格式转换后再加载。");
+                    PopupMessage msg = new PopupMessage("旧版回放文件转换", "检测到较旧版本的回放文件，请先转换后再加载。", "LINK", "https://github.com/OpenBCI/OpenBCI_GUI/tree/development/tools");
                     return false;
                 }
-            } else if (line.equals("%STOP AT")) {
-                verbosePrint("PLAYBACK: 在文件里找到了SD文件头！");
+            } else if ("%STOP AT".equals(line)) {
+                verbosePrint("PLAYBACK: Found SD recording header in file.");
                 playbackData_fname = "N/A";
                 sdData_fname = longName;
             } else {
-                outputError("ERROR: 尝试加载一个不支持的文件来播放！请尝试使用有效的文件。");
+                outputError("不支持该回放文件格式，请选择有效的 AirEIBCI 数据文件。");
                 playbackData_fname = "N/A";
                 playbackData_ShortName = "N/A";
                 sdData_fname = "N/A";
@@ -533,21 +528,19 @@ public class GUI extends PApplet {
             return false;
         }
 
-        //Output new playback settings to GUI as success
-        outputSuccess("你已经选定了 \""
-                + shortName + "\" 用于回放。");
+        outputSuccess("已选择 \"" + playbackData_ShortName + "\" 用于回放。");
 
         File f = new File(userPlaybackHistoryFile);
         if (!f.exists()) {
-            println("OpenBCI_GUI::playbackFileSelected:找不到播放历史文件。");
+            println("AirEIBCI::playbackFileSelected: playback history file was not found.");
             playbackHistoryFileExists = false;
         } else {
             try {
                 savePlaybackHistoryJSON = loadJSONObject(new File(userPlaybackHistoryFile));
-                JSONArray recentFilesArray = savePlaybackHistoryJSON.getJSONArray("playbackFileHistory");
+                savePlaybackHistoryJSON.getJSONArray("playbackFileHistory");
                 playbackHistoryFileExists = true;
             } catch (RuntimeException e) {
-                outputError("发现UserPlaybackHistory.json有错误。删除这个文件。请重启GUI。");
+                outputError("回放历史文件损坏，请删除后重新启动软件。");
                 File file = new File(userPlaybackHistoryFile);
                 if (!file.isDirectory()) {
                     file.delete();
@@ -555,7 +548,6 @@ public class GUI extends PApplet {
             }
         }
 
-        //add playback file that was processed to the JSON history
         savePlaybackFileToHistory(longName);
         return true;
     }
@@ -563,75 +555,52 @@ public class GUI extends PApplet {
     public void savePlaybackFileToHistory(String fileName) {
         int maxNumHistoryFiles = 36;
         if (playbackHistoryFileExists) {
-            println("找到了用户播放历史文件！");
+            println("Playback history file found.");
             savePlaybackHistoryJSON = loadJSONObject(new File(userPlaybackHistoryFile));
             JSONArray recentFilesArray = savePlaybackHistoryJSON.getJSONArray("playbackFileHistory");
-            //println("ARRAYSIZE-Check1: " + int(recentFilesArray.size()));
-            //Recent file has recentFileNumber=0, and appears at the end of the JSON array
-            //check if already in the list, if so, remove from the list
             removePlaybackFileFromHistory(recentFilesArray, playbackData_fname);
-            //next, increment fileNumber of all current entries +1
             for (int i = 0; i < recentFilesArray.size(); i++) {
                 JSONObject playbackFile = recentFilesArray.getJSONObject(i);
                 playbackFile.setInt("recentFileNumber", recentFilesArray.size()-i);
-                //println(recentFilesArray.size()-i);
-                playbackFile.setString("id", playbackFile.getString("id"));
+                playbackFile.setString("id", brandPlaybackName(playbackFile.getString("id")));
                 playbackFile.setString("filePath", playbackFile.getString("filePath"));
                 recentFilesArray.setJSONObject(i, playbackFile);
             }
-            //println("ARRAYSIZE-Check2: " + int(recentFilesArray.size()));
-            //append selected playback file to position 1 at the end of the JSONArray
             JSONObject mostRecentFile = new JSONObject();
             mostRecentFile.setInt("recentFileNumber", 0);
             mostRecentFile.setString("id", playbackData_ShortName);
             mostRecentFile.setString("filePath", playbackData_fname);
             recentFilesArray.append(mostRecentFile);
-            //remove entries greater than max num files
             if (recentFilesArray.size() >= maxNumHistoryFiles) {
                 for (int i = 0; i <= recentFilesArray.size()-maxNumHistoryFiles; i++) {
                     recentFilesArray.remove(i);
                     println("ARRAY INDEX " + i + " REMOVED----");
                 }
             }
-            //println("ARRAYSIZE-Check3: " + int(recentFilesArray.size()));
-            //printArray(recentFilesArray);
-
-            //save the JSON array and file
             savePlaybackHistoryJSON.setJSONArray("playbackFileHistory", recentFilesArray);
             saveJSONObject(savePlaybackHistoryJSON, userPlaybackHistoryFile);
 
         } else if (!playbackHistoryFileExists) {
-            println("找不到播放历史文件。需要生成一个新的。");
-            //do this if the file does not exist
-            JSONObject newHistoryFile;
-            newHistoryFile = new JSONObject();
+            println("Playback history file not found. Creating a new one.");
+            JSONObject newHistoryFile = new JSONObject();
             JSONArray newHistoryFileArray = new JSONArray();
-            //save selected playback file to position 1 in recent file history
             JSONObject mostRecentFile = new JSONObject();
             mostRecentFile.setInt("recentFileNumber", 0);
             mostRecentFile.setString("id", playbackData_ShortName);
             mostRecentFile.setString("filePath", playbackData_fname);
             newHistoryFileArray.setJSONObject(0, mostRecentFile);
-            //newHistoryFile.setJSONArray("")
-
-            //save the JSON array and file
             newHistoryFile.setJSONArray("playbackFileHistory", newHistoryFileArray);
             saveJSONObject(newHistoryFile, userPlaybackHistoryFile);
-
-            //now the file exists!
-            println("播放历史 JSON 已经制作！");
+            println("Playback history JSON has been created.");
             playbackHistoryFileExists = true;
         }
     }
 
     public static void removePlaybackFileFromHistory(JSONArray array, String _filePath) {
-        //check if already in the list, if so, remove from the list
         for (int i = 0; i < array.size(); i++) {
             JSONObject playbackFile = array.getJSONObject(i);
-            //println("CHECKING " + i + " : " + playbackFile.getString("id") + " == " + fileName + " ?");
             if (playbackFile.getString("filePath").equals(_filePath)) {
                 array.remove(i);
-                //println("REMOVED: " + fileName);
             }
         }
     }

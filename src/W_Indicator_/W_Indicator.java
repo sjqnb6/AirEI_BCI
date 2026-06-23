@@ -167,12 +167,12 @@ public class W_Indicator extends Widget {
         MAIN.textFont(p7);
         MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
         MAIN.textSize(17);
-        MAIN.text("14 indicators from PSD", x + 12, y + 7);
+        MAIN.text("14项频带指标图谱", x + 12, y + 7);
 
         MAIN.fill(COLOR_TEXT_SUB);
         MAIN.textSize(11);
         MAIN.text(
-                "8 channels | real-time indicators | 2D heatmap + contours",
+                "8通道 | 实时指标 | 二维热力图 + 等值线",
                 x + 12, y + 28
         );
     }
@@ -361,7 +361,7 @@ public class W_Indicator extends Widget {
         MAIN.textAlign(PApplet.LEFT, PApplet.CENTER);
 
         MAIN.textAlign(PApplet.LEFT, PApplet.CENTER);
-        MAIN.text("V", gx + gw + 9, gy + 5);
+        MAIN.text("值", gx + gw + 9, gy + 5);
         MAIN.text(formatTickShort(vMax), gx + gw + 9, gy + 4);
         MAIN.text(formatTickShort(vMid), gx + gw + 9, gy + gh * 0.5f);
         MAIN.text(formatTickShort(vMin), gx + gw + 9, gy + gh - 2);

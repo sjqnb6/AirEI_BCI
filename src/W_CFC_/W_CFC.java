@@ -14,7 +14,7 @@ public class W_CFC extends Widget {
 
     private static final String[] WINDOW_LABELS = {"2秒", "4秒", "6秒"};
     private static final String[] UPDATE_LABELS = {"快速 5Hz", "标准 2.5Hz", "平稳 1.4Hz"};
-    private static final String[] PRESET_LABELS = {"Theta-Gamma 耦合", "Alpha-Gamma 耦合", "全频扫描"};
+    private static final String[] PRESET_LABELS = {"Theta-Gamma", "Alpha-Gamma", "Delta-Beta", "Theta-Beta", "Alpha-Beta", "全频扫描"};
 
     private static final int PHASE_BINS = 18;
     private static final int TREND_POINTS = 180;
@@ -481,7 +481,7 @@ public class W_CFC extends Widget {
             maxV = Math.max(maxV, getTrendValue(i, count));
         }
 
-        // 独立信息行，避免与折线重叠
+        // Draw current and max MI values above the trend plot.
         int infoY = y0 + 22;
         MAIN.fill(TEXT_SUB);
         MAIN.textFont(p7);
@@ -745,15 +745,27 @@ public class W_CFC extends Widget {
         switch (presetIndex) {
             case 0:
                 phaseFreqs = range(4, 8, 1);
-                ampFreqs = range(30, 80, 4);
+                ampFreqs = range(30, 60, 3);
                 break;
             case 1:
                 phaseFreqs = range(8, 13, 1);
-                ampFreqs = range(30, 90, 4);
+                ampFreqs = range(30, 60, 3);
+                break;
+            case 2:
+                phaseFreqs = range(1, 4, 1);
+                ampFreqs = range(13, 30, 2);
+                break;
+            case 3:
+                phaseFreqs = range(4, 8, 1);
+                ampFreqs = range(13, 30, 2);
+                break;
+            case 4:
+                phaseFreqs = range(8, 13, 1);
+                ampFreqs = range(13, 30, 2);
                 break;
             default:
                 phaseFreqs = range(2, 14, 1);
-                ampFreqs = range(30, 90, 4);
+                ampFreqs = range(13, 60, 3);
                 break;
         }
 
@@ -786,7 +798,6 @@ public class W_CFC extends Widget {
             return;
         }
 
-        // 防御性检查：避免外层数组重建后留下空槽导致写入空指针。
         for (int i = 0; i < phaseSeries.length; i++) {
             if (phaseSeries[i] == null) {
                 phaseSeries[i] = new float[n];

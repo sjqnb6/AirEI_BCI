@@ -5,8 +5,6 @@ import DataWriterODF_.DataWriterODF;
 import Globel.GUI;
 public class DataWriterAuxODF extends DataWriterODF {
     GUI MAIN;
-    protected String fileNamePrependString = "OpenBCI-RAW-Aux-";
-    protected String headerFirstLineString = "%OpenBCI Raw Aux Data";
 
     //variation on constructor to have custom name
     public DataWriterAuxODF(GUI MAIN, String _sessionName, String _fileName) {
@@ -32,6 +30,16 @@ public class DataWriterAuxODF extends DataWriterODF {
 
     protected int getTimestampChannel() {
         return ((AuxDataBoard)MAIN.currentBoard).getAuxTimestampChannel();
+    }
+
+    @Override
+    protected String getFileNamePrependString() {
+        return BRAND_NAME + "-RAW-Aux-";
+    }
+
+    @Override
+    protected String getHeaderFirstLineString() {
+        return "%" + BRAND_NAME + " Raw Aux Data";
     }
 
 };

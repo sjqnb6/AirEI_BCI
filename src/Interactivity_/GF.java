@@ -122,10 +122,10 @@ public class GF {
                 return;
 
             case 'm':
-                String picfname = "OpenBCI-" + MAIN.directoryManager.getFileNameDateTime() + ".jpg";
+                String picfname = "AirEIBCI-" + MAIN.directoryManager.getFileNameDateTime() + ".jpg";
                 //println("OpenBCI_GUI: 'm' was pressed...taking screenshot:" + picfname);
                 MAIN.saveFrame(MAIN.directoryManager.getGuiDataPath() + "Screenshots" + System.getProperty("file.separator") + picfname);    // take a shot of that!
-                output("Screenshot captured! Saved to /Documents/OpenBCI_GUI/Screenshots/" + picfname);
+                output("Screenshot captured! Saved to /Documents/AirEIBCI/Screenshots/" + picfname);
                 return;
             default:
                 break;

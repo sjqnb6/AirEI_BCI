@@ -23,7 +23,7 @@ public class Main1 extends GUI {
 
     public void setup() {
         super.setup();
-        println("=== OpenBCI GUI Setup Started ===");
+        println("=== AirEIBCI Setup Started ===");
         frameRate(120);  // 设置draw函数执行频率
         surface.setResizable(true);         // ✅ 允许最大化        frameRate(90);  // 设置draw函数执行频率
         surface.setLocation(100, 50);  // 将窗口左上角设置在屏幕坐标 (100, 50)
@@ -65,10 +65,10 @@ public class Main1 extends GUI {
         File dummy = new File(sketchPath());
         if (!dummy.canWrite()) {
             showStartupError = true;
-            startupErrorMessage = "OpenBCI GUI was launched from a read-only location.\n\n" +
+            startupErrorMessage = "AirEIBCI was launched from a read-only location.\n\n" +
                     "Please move the application to a different location and re-launch.\n" +
-                    "If you just downloaded the GUI, move it out of the disk image or Downloads folder.\n\n" +
-                    "If this error persists, contact the OpenBCI team for support.";
+                    "If you just downloaded the application, move it out of the disk image or Downloads folder.\n\n" +
+                    "If this error persists, contact the AirEIBCI support team.";
             return; // early exit
         }
 
@@ -107,7 +107,7 @@ public class Main1 extends GUI {
             checkIsMacFullDetail();
         }
         println("JVM Version: " + System.getProperty("java.version"));
-        println("Welcome to the Processing-based OpenBCI GUI!"); //Welcome line.
+        println("Welcome to AirEIBCI!"); //Welcome line.
         println("For more information, please visit: https://docs.openbci.com/Software/OpenBCISoftware/GUIDocs/");
 
 
@@ -115,7 +115,7 @@ public class Main1 extends GUI {
         directoryManager.init();
         settings = new SessionSettings(this);
         guiSettings = new GuiSettings(directoryManager.getSettingsPath());
-        userPlaybackHistoryFile = directoryManager.getSettingsPath()+"UserPlaybackHistory.json";
+        userPlaybackHistoryFile = directoryManager.getSettingsPath()+"AirEIBCIPlaybackHistory.json";
 
         //open window
 //        ourApplet = this;

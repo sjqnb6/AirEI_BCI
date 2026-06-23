@@ -287,7 +287,7 @@ public class ControlPanel{
         }
         dataLogger.setSessionName(s);
         StringBuilder sb = new StringBuilder(directoryManager.getRecordingsPath());
-        sb.append("OpenBCISession_");
+        sb.append("AirEIBCI_Session_");
         sb.append(dataLogger.getSessionName());
         sb.append(File.separator);
         MAIN.settings.setSessionPath(sb.toString());

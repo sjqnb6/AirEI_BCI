@@ -152,7 +152,7 @@ public class W_Connectivity extends Widget {
         MAIN.textFont(p7);
         MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
         MAIN.textSize(14);
-        MAIN.text("脑电连接性图谱", panelX + 12, panelY + 10);
+        MAIN.text("脑电连接图谱", panelX + 12, panelY + 10);
 
         MAIN.fill(DIM_TEXT_COLOR);
         MAIN.textSize(11);
@@ -226,6 +226,9 @@ public class W_Connectivity extends Widget {
 
         for (int i = 0; i < n; i++) {
             for (int j = i + 1; j < n; j++) {
+                if (!areChannelsActive(i, j)) {
+                    continue;
+                }
                 float c = coherence[i][j][bandIndex];
                 if (c < threshold) {
                     continue;
@@ -317,20 +320,23 @@ public class W_Connectivity extends Widget {
         for (int i = 0; i < n; i++) {
             float x = screenXY[i][0];
             float y = screenXY[i][1];
+            boolean active = isChannelActive(i);
             float s = PApplet.constrain(nodeStrength[i][bandIndex], 0f, 1f);
-            int col = getHeatColor(s);
+            int col = active ? getHeatColor(s) : rgb(95, 106, 128);
 
-            float halo = 16f + 10f * s * pulse;
-            MAIN.noStroke();
-            MAIN.fill((col >> 16) & 0xFF, (col >> 8) & 0xFF, col & 0xFF, 28 + (int) (70f * s));
-            MAIN.ellipse(x, y, halo, halo);
+            if (active) {
+                float halo = 16f + 10f * s * pulse;
+                MAIN.noStroke();
+                MAIN.fill((col >> 16) & 0xFF, (col >> 8) & 0xFF, col & 0xFF, 28 + (int) (70f * s));
+                MAIN.ellipse(x, y, halo, halo);
+            }
 
-            MAIN.stroke(NODE_RING_COLOR);
+            MAIN.stroke(active ? NODE_RING_COLOR : 0x338EA0C0);
             MAIN.strokeWeight(1f);
-            MAIN.fill(col);
+            MAIN.fill((col >> 16) & 0xFF, (col >> 8) & 0xFF, col & 0xFF, active ? 255 : 120);
             MAIN.ellipse(x, y, 16f, 16f);
 
-            MAIN.fill(TEXT_COLOR);
+            MAIN.fill(active ? TEXT_COLOR : DIM_TEXT_COLOR);
             MAIN.text(labels[i], x, y - 15f);
         }
     }
@@ -367,15 +373,20 @@ public class W_Connectivity extends Widget {
         MAIN.noStroke();
         for (int r = 0; r < n; r++) {
             for (int c = 0; c < n; c++) {
-                float v = (r == c) ? 1f : coherence[r][c][bandIndex];
-                float k = PApplet.constrain((v - threshold) / Math.max(0.001f, (1f - threshold)), 0f, 1f);
-                int col = getBandColorMix(k, BAND_RGB[bandIndex]);
-
-                int alpha = r == c ? 225 : (int) PApplet.lerp(22f, 210f, k);
+                boolean activePair = areChannelsActive(r, c);
+                int alpha = r == c ? 225 : 22;
                 float cx = gx + c * cellW;
                 float cy = gy + r * cellH;
 
-                MAIN.fill((col >> 16) & 0xFF, (col >> 8) & 0xFF, col & 0xFF, alpha);
+                if (!activePair) {
+                    MAIN.fill(48, 56, 74, 90);
+                } else {
+                    float v = (r == c) ? 1f : coherence[r][c][bandIndex];
+                    float k = PApplet.constrain((v - threshold) / Math.max(0.001f, (1f - threshold)), 0f, 1f);
+                    int col = getBandColorMix(k, BAND_RGB[bandIndex]);
+                    alpha = r == c ? 225 : (int) PApplet.lerp(22f, 210f, k);
+                    MAIN.fill((col >> 16) & 0xFF, (col >> 8) & 0xFF, col & 0xFF, alpha);
+                }
                 MAIN.rect(cx + 1, cy + 1, Math.max(1f, cellW - 2), Math.max(1f, cellH - 2));
             }
         }
@@ -395,7 +406,8 @@ public class W_Connectivity extends Widget {
             int rr = (int) ((MAIN.mouseY - gy) / cellH);
             rr = PApplet.constrain(rr, 0, n - 1);
             cc = PApplet.constrain(cc, 0, n - 1);
-            float val = rr == cc ? 1f : coherence[rr][cc][bandIndex];
+            boolean activePair = areChannelsActive(rr, cc);
+            float val = activePair ? (rr == cc ? 1f : coherence[rr][cc][bandIndex]) : 0f;
 
             MAIN.noStroke();
             MAIN.fill(10, 16, 28, 235);
@@ -409,7 +421,8 @@ public class W_Connectivity extends Widget {
             MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
             MAIN.textFont(p6);
             MAIN.text(
-                    labels[rr] + " <-> " + labels[cc] + "   " + PApplet.nf(val, 1, 3),
+                    labels[rr] + " <-> " + labels[cc] + "   "
+                            + (activePair ? PApplet.nf(val, 1, 3) : "disabled"),
                     tipX + 8, tipY + 11
             );
         }
@@ -461,6 +474,13 @@ public class W_Connectivity extends Widget {
 
         for (int i = 0; i < n; i++) {
             for (int j = i; j < n; j++) {
+                if (!areChannelsActive(i, j)) {
+                    for (int b = 0; b < BAND_COUNT; b++) {
+                        coherence[i][j][b] = 0f;
+                        coherence[j][i][b] = 0f;
+                    }
+                    continue;
+                }
                 for (int b = 0; b < BAND_COUNT; b++) {
                     float sumRe = 0f;
                     float sumIm = 0f;
@@ -509,14 +529,22 @@ public class W_Connectivity extends Widget {
     private void updateNodeStrength() {
         int n = coherence.length;
         for (int i = 0; i < n; i++) {
+            if (!isChannelActive(i)) {
+                for (int b = 0; b < BAND_COUNT; b++) {
+                    nodeStrength[i][b] = 0f;
+                }
+                continue;
+            }
             for (int b = 0; b < BAND_COUNT; b++) {
                 float sum = 0f;
+                int activeCount = 0;
                 for (int j = 0; j < n; j++) {
-                    if (i != j) {
+                    if (i != j && isChannelActive(j)) {
                         sum += coherence[i][j][b];
+                        activeCount++;
                     }
                 }
-                nodeStrength[i][b] = n > 1 ? (sum / (n - 1)) : 0f;
+                nodeStrength[i][b] = activeCount > 0 ? (sum / activeCount) : 0f;
             }
         }
     }
@@ -529,6 +557,12 @@ public class W_Connectivity extends Widget {
         float threshold = THRESHOLD_OPTIONS[thresholdIndex];
         for (int i = 0; i < n; i++) {
             for (int j = i + 1; j < n; j++) {
+                if (!areChannelsActive(i, j)) {
+                    for (int p = 0; p < PARTICLES_PER_EDGE; p++) {
+                        particlePhase[i][j][p] = particlePhase[j][i][p];
+                    }
+                    continue;
+                }
                 float c = coherence[i][j][bandIndex];
                 if (c < threshold) {
                     continue;
@@ -574,6 +608,17 @@ public class W_Connectivity extends Widget {
         return MAIN.bezierPoint(a, b, c, d, t);
     }
 
+    private boolean isChannelActive(int channelIndex) {
+        return MAIN.currentBoard != null
+                && channelIndex >= 0
+                && channelIndex < nchan
+                && MAIN.currentBoard.isEXGChannelActive(channelIndex);
+    }
+
+    private boolean areChannelsActive(int i, int j) {
+        return isChannelActive(i) && isChannelActive(j);
+    }
+
     private int getHeatColor(float t) {
         t = PApplet.constrain(t, 0f, 1f);
         if (t < 0.33f) {
@@ -611,3 +656,4 @@ public class W_Connectivity extends Widget {
         return ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | (b & 0xFF);
     }
 }
+

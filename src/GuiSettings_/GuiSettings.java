@@ -30,7 +30,7 @@ public class GuiSettings {
         if (fileExists) {
             loadSettingsValues();
         } else {
-            println("OpenBCI_GUI::Settings: Creating new GUI-wide Settings file.");
+            println("AirEIBCI::Settings: Creating new GUI-wide settings file.");
             saveToFile();
         }
     }
@@ -50,9 +50,9 @@ public class GuiSettings {
             if (validateJsonKeys(fileContents.toString())) {
                 Gson gson = new Gson();
                 values = gson.fromJson(fileContents.toString(), GuiSettingsValues.class);
-                println("OpenBCI_GUI::Settings: Found and loaded existing GUI-wide Settings from file.");
+                println("AirEIBCI::Settings: Found and loaded existing GUI-wide settings from file.");
             } else {
-                println("OpenBCI_GUI::Settings: Incompatible GUI-wide Settings found. Creating new file and resetting defaults.");
+                println("AirEIBCI::Settings: Incompatible GUI-wide settings found. Creating new file and resetting defaults.");
                 saveToFile();
             }
 
@@ -60,7 +60,7 @@ public class GuiSettings {
 
         } catch (IOException e) {
             e.printStackTrace();
-            outputWarn("OpenBCI_GUI::Settings: Error loading GUI-wide settings from file. Attempting to create a new one.");
+            outputWarn("AirEIBCI::Settings: Error loading GUI-wide settings from file. Attempting to create a new one.");
             //If there is an error, attempt to overwrite the file or create a new one
             saveToFile();
             return false;
@@ -85,7 +85,7 @@ public class GuiSettings {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            outputWarn("OpenBCI_GUI::Settings: Error creating /Documents/OpenBCI_GUI/Settings/ folder. Please make an issue on GitHub.");
+            outputWarn("AirEIBCI::Settings: Error creating /Documents/AirEIBCI/Settings/ folder.");
             return false;
         }
 
@@ -93,11 +93,11 @@ public class GuiSettings {
             FileWriter writer = new FileWriter(filename);
             writer.write(json);
             writer.close();
-            println("OpenBCI_GUI::Settings: Successfully saved GUI-wide settings to file!");
+            println("AirEIBCI::Settings: Successfully saved GUI-wide settings to file!");
             return true;
         } catch (IOException e) {
             e.printStackTrace();
-            outputWarn("OpenBCI_GUI::Settings: Error saving GUI-wide settings to file. Please make an issue on GitHub.");
+            outputWarn("AirEIBCI::Settings: Error saving GUI-wide settings to file.");
             return false;
         }
     }

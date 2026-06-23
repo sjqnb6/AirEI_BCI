@@ -12,20 +12,19 @@ import static Globel.GUI.nchan;
 import static processing.core.PApplet.createWriter;
 import Globel.GUI;
 public class DataWriterODF {
+    protected static final String BRAND_NAME = "AirEIBCI";
+    protected static final String SESSION_PREFIX = BRAND_NAME + "_Session_";
     GUI MAIN;
     private PrintWriter output;
     public String fname;
     private int rowsWritten;
     private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-    protected String fileNamePrependString = "OpenBCI-RAW-";
-    protected String headerFirstLineString = "%OpenBCI Raw EXG Data";
-
     //variation on constructor to have custom name
     public DataWriterODF(GUI MAIN, String _sessionName, String _fileName) {
         this.MAIN = MAIN;
-        MAIN.settings.setSessionPath(directoryManager.getRecordingsPath() + "OpenBCISession_" + _sessionName + File.separator);
+        MAIN.settings.setSessionPath(directoryManager.getRecordingsPath() + SESSION_PREFIX + _sessionName + File.separator);
         fname = MAIN.settings.getSessionPath();
-        fname += fileNamePrependString;
+        fname += getFileNamePrependString();
         fname += _fileName;
         fname += ".txt";
         output = createWriter(new File(fname));        //open the file
@@ -34,7 +33,7 @@ public class DataWriterODF {
     }
 
     public void writeHeader() {
-        output.println(headerFirstLineString);
+        output.println(getHeaderFirstLineString());
         output.println("%Number of channels = " + getNumberOfChannels());
         output.println("%Sample Rate = " + getSamplingRate() + " Hz");
         output.println("%Board = " + getUnderlyingBoardClass());
@@ -99,6 +98,14 @@ public class DataWriterODF {
 
     protected int getMarkerChannel() {
         return ((Board)MAIN.currentBoard).getMarkerChannel();
+    }
+
+    protected String getFileNamePrependString() {
+        return BRAND_NAME + "-RAW-";
+    }
+
+    protected String getHeaderFirstLineString() {
+        return "%" + BRAND_NAME + " Raw EXG Data";
     }
 
 };
