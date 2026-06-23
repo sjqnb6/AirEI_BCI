@@ -9,15 +9,21 @@ import controlP5.*;
 import processing.core.PApplet;
 import processing.core.PFont;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
 
 import static Debugging_.GF.output;
+import static Globel.GF.isWindows;
 import static Globel.GUI.*;
 import static processing.core.PApplet.println;
 import static processing.core.PConstants.*;
 
 public class WifiBox{
+    private static final String CUSTOM_WIFI_SSID = "BCI-ESP32";
+    private static final String CUSTOM_WIFI_IP = "192.168.4.1";
+
     public int x, y, w, h, padding; //size and position
     private boolean wifiIsRefreshing = false;
     private ControlP5 wifiBox_cp5;
@@ -131,6 +137,7 @@ public class WifiBox{
                 refreshWifi.getCaptionLabel().setText("搜索中...");
                 wifiIsRefreshing = true;
                 try {
+                    addCustomWifiIfConnected();
                     List<Device> devices = SSDPClient.discover (3000, "urn:schemas-upnp-org:device:Basic:1");
                     if (devices.isEmpty ()) {
                         println("No WIFI Shields found");
@@ -139,15 +146,70 @@ public class WifiBox{
                         wifiList.addItem(devices.get(i).getName(), devices.get(i).getIPAddress(), "");
                     }
                     wifiList.updateMenu();
+                    outputWifiSearchResult();
                 } catch (Exception e) {
                     println("Exception in wifi shield scanning");
                     e.printStackTrace ();
+                    addCustomWifiIfConnected();
+                    wifiList.updateMenu();
+                    outputWifiSearchResult();
                 }
                 refreshWifi.getCaptionLabel().setText("开始搜索");
                 wifiIsRefreshing = false;
             }
         };
         thread.start();
+    }
+
+    private void outputWifiSearchResult() {
+        if (wifiList.items.isEmpty()) {
+            output("WIFI设备搜索完成，未找到设备。");
+        } else {
+            output("WIFI设备搜索完成，找到 " + wifiList.items.size() + " 个设备。");
+        }
+    }
+
+    private void addCustomWifiIfConnected() {
+        if (isConnectedToCustomWifi() && !wifiListHasItem(CUSTOM_WIFI_SSID)) {
+            wifiList.addItem(CUSTOM_WIFI_SSID, CUSTOM_WIFI_IP, "");
+            println("Detected custom WiFi board: " + CUSTOM_WIFI_SSID + " at " + CUSTOM_WIFI_IP);
+        }
+    }
+
+    private boolean wifiListHasItem(String name) {
+        for (Map<String, Object> item : wifiList.items) {
+            Object headline = item.get("headline");
+            if (headline != null && headline.toString().equals(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isConnectedToCustomWifi() {
+        if (!isWindows()) {
+            return false;
+        }
+        try {
+            Process process = new ProcessBuilder("netsh", "wlan", "show", "interfaces").start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String trimmed = line.trim();
+                if (trimmed.startsWith("SSID") && !trimmed.startsWith("BSSID")) {
+                    int colonIndex = trimmed.indexOf(':');
+                    if (colonIndex >= 0) {
+                        String ssid = trimmed.substring(colonIndex + 1).trim();
+                        return CUSTOM_WIFI_SSID.equals(ssid);
+                    }
+                }
+            }
+            process.waitFor();
+        } catch (Exception e) {
+            println("Failed to check current WiFi SSID");
+            e.printStackTrace();
+        }
+        return false;
     }
 
     private void createDynamicIPAddressButton(String name, String text, int _x, int _y, int _w, int _h) {
@@ -162,6 +224,8 @@ public class WifiBox{
                 wifiIPAddressStatic.setOff();
                 staticIPAddressTF.setVisible(false);
                 wifiList.setVisible(true);
+                refreshWifi.setVisible(true);
+                refreshWifi.unlock();
             }
         });
         wifiIPAddressDynamic.setOn();
@@ -179,6 +243,8 @@ public class WifiBox{
                 wifiIPAddressStatic.setOn();
                 staticIPAddressTF.setVisible(true);
                 wifiList.setVisible(false);
+                refreshWifi.setVisible(false);
+                refreshWifi.lock();
             }
         });
     }
@@ -240,6 +306,8 @@ public class WifiBox{
         wifiIPAddressStatic.setOff();
         staticIPAddressTF.setVisible(false);
         wifiList.setVisible(true);
+        refreshWifi.setVisible(true);
+        refreshWifi.unlock();
     }
 
     void setStaticIPTextfield(String text) {

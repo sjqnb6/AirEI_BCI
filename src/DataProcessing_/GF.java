@@ -19,8 +19,9 @@ public class GF {
 
         //update the data buffers
         for (int Ichan=0; Ichan < channelCount; Ichan++) {
+            boolean channelActive = MAIN.currentBoard.isEXGChannelActive(Ichan);
             for(int i = 0; i < getCurrentBoardBufferSize(MAIN); i++) {
-                dataProcessingRawBuffer[Ichan][i] = (float)currentData.get(i)[exgChannels[Ichan]];
+                dataProcessingRawBuffer[Ichan][i] = channelActive ? (float)currentData.get(i)[exgChannels[Ichan]] : 0.0f;
             }
 
             dataProcessingFilteredBuffer[Ichan] = dataProcessingRawBuffer[Ichan].clone();
@@ -56,8 +57,9 @@ public class GF {
         int channelCount = MAIN.currentBoard.getNumEXGChannels();
         //update the data buffers
         for (int Ichan=0; Ichan < channelCount; Ichan++) {
+            boolean channelActive = MAIN.currentBoard.isEXGChannelActive(Ichan);
             for(int i = 0; i < getCurrentBoardBufferSize(MAIN); i++) {
-                dataProcessingRawBuffer[Ichan][i] = (float)currentData.get(i)[exgChannels[Ichan]];
+                dataProcessingRawBuffer[Ichan][i] = channelActive ? (float)currentData.get(i)[exgChannels[Ichan]] : 0.0f;
             }
 
             dataProcessingFilteredBuffer[Ichan] = dataProcessingRawBuffer[Ichan].clone();

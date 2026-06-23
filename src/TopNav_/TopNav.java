@@ -201,7 +201,9 @@ public class TopNav {
         //hide the center logo if buttons would overlap it
         if (MAIN.width > 860) {
             //this is the center logo
-            MAIN.image(logo, MAIN.width/2 - (128/2) - 2, 1, 128, 29);
+            int logoH = 29;
+            int logoW = (int)(logoH * ((float)logo.width / (float)logo.height));
+            MAIN.image(logo, MAIN.width/2 - (logoW/2) - 2, 1, logoW, logoH);
         }
 
         //Draw these buttons during a Session

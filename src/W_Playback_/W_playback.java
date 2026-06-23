@@ -1,17 +1,14 @@
 package W_Playback_;
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//    W_playback.pde (ie "Playback History")
-//
-//    Allow user to load playback files from within GUI without having to restart the system
-//                       Created: Richard Waltman - August 2018
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 import CustomCp5Classes_.MenuList;
 import DataProcessing_.DataProcessing;
-import GUI.ColorPalette;
 import Widget_.Widget;
-import controlP5.*;
+import controlP5.Button;
+import controlP5.CallbackEvent;
+import controlP5.CallbackListener;
+import controlP5.ControlP5;
+import controlP5.Controller;
+import controlP5.ScrollableList;
 import processing.core.PApplet;
 import processing.core.PFont;
 import processing.data.JSONArray;
@@ -22,52 +19,61 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import Globel.GUI;
+
 import static Debugging_.GF.output;
 import static Extras_.GF.shortenString;
 import static Globel.GUI.*;
+import static W_Playback_.GF.brandPlaybackName;
 import static W_Playback_.GF.userSelectedPlaybackMenuList;
-import Globel.GUI;
+
 public class W_playback extends Widget {
+    private static final int BG_TOP = 0xFF0A1220;
+    private static final int BG_BOTTOM = 0xFF0D1830;
+    private static final int PANEL = 0xCC13243F;
+    private static final int PANEL_STROKE = 0x6683A2CC;
+    private static final int CARD_BG = 0x2F172B48;
+    private static final int CARD_STROKE = 0x7AA2BEE3;
+    private static final int TEXT_MAIN = 0xFFEAF2FF;
+    private static final int TEXT_SUB = 0xFF98AECE;
+    private static final int ACCENT = 0xFF4FD8FF;
+    private static final int BUTTON_BG = 0xFF1D3354;
+    private static final int BUTTON_FG = 0xFF27446E;
+    private static final int BUTTON_ACTIVE = 0xFF31598F;
+    private static final int BUTTON_BORDER = 0xFF7EA6D4;
+
     GUI MAIN;
     protected PApplet pApplet;
 
-    public ColorPalette CP;
-
-    //allow access to dataProcessing
     DataProcessing dataProcessing;
-    //Set up variables for Playback widget
     ControlP5 cp5_playback;
     Button selectPlaybackFileButton;
     MenuList playbackMenuList;
-    //Used for spacing
     int padding = 10;
     List<Controller> cp5ElementsToCheck = new ArrayList<Controller>();
 
     private boolean menuHasUpdated = false;
 
     public W_playback(GUI MAIN) {
-        super(MAIN); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
+        super(MAIN);
         this.MAIN = MAIN;
-        CP = new ColorPalette(MAIN);
-
         pApplet = MAIN;
 
         cp5_playback = new ControlP5(pApplet);
-        cp5_playback.setGraphics(pApplet, 0,0);
+        cp5_playback.setGraphics(pApplet, 0, 0);
         cp5_playback.setAutoDraw(false);
 
-        int initialWidth = w - padding*2;
-        createPlaybackMenuList(cp5_playback, "playbackMenuList", x + padding/2, y + 2, initialWidth, h - padding*2, p7);
-        createSelectPlaybackFileButton("selectPlaybackFile_Session", "选择播放文件", x + w/2 - (padding*2), y - navHeight + 2, 200, navHeight - 6);
+        int initialWidth = w - padding * 2;
+        createPlaybackMenuList(cp5_playback, "playbackMenuList", x + padding, y + 54, initialWidth, h - 68, p7);
+        createSelectPlaybackFileButton("selectPlaybackFile_Session", "选择回放文件", x + w - 164, y - navHeight + 2, 162, navHeight - 6);
     }
 
     public void update() {
-        super.update(); //calls the parent update() method of Widget (DON'T REMOVE)
+        super.update();
         if (!menuHasUpdated) {
             refreshPlaybackList();
             menuHasUpdated = true;
         }
-        //Lock the MenuList if Widget selector is open, otherwise update
         if (cp5_widget.get(ScrollableList.class, "WidgetSelector").isOpen() || topNav.getDropdownMenuIsOpen()) {
             if (!playbackMenuList.isLock()) {
                 playbackMenuList.lock();
@@ -84,46 +90,50 @@ public class W_playback extends Widget {
     }
 
     public void draw() {
-        super.draw(); //calls the parent draw() method of Widget (DON'T REMOVE)
+        super.draw();
 
-        //x,y,w,h are the positioning variables of the Widget class
         pApplet.pushStyle();
-        pApplet.fill(CP.boxColor);
-        pApplet.stroke(CP.boxStrokeColor);
-        pApplet.strokeWeight(1);
-        pApplet.rect(x-1, y, w+1, h);
-        //Add text if needed
-        /*
-        fill(OPENBCI_DARKBLUE);
-        textFont(h3, 16);
-        textAlign(LEFT, TOP);
-        text("PLAYBACK FILE", x + padding, y + padding);
-        */
+        drawGradientBackground(x, y, w, h);
+
+        int panelX = x + 10;
+        int panelY = y + 10;
+        int panelW = w - 20;
+        int panelH = h - 20;
+
+        pApplet.noStroke();
+        pApplet.fill(PANEL);
+        pApplet.rect(panelX, panelY, panelW, panelH, 4);
+        pApplet.stroke(PANEL_STROKE);
+        pApplet.strokeWeight(1.1f);
+        pApplet.noFill();
+        pApplet.rect(panelX, panelY, panelW, panelH, 4);
+        pApplet.stroke(130, 184, 255, 90);
+        pApplet.line(panelX + 8, panelY + 8, panelX + panelW - 8, panelY + 8);
+
+        drawHeader(panelX, panelY, panelW);
+        drawListCard(panelX + 10, panelY + 48, panelW - 20, panelH - 58);
+
         pApplet.popStyle();
 
         cp5_playback.draw();
-    } //end draw loop
+    }
 
     public void screenResized() {
-        super.screenResized(); //calls the parent screenResized() method of Widget (DON'T REMOVE)
+        super.screenResized();
 
-        //**IMPORTANT FOR CP5**//
-        //This makes the cp5 objects within the widget scale properly
         cp5_playback.setGraphics(pApplet, 0, 0);
 
-        //Resize and position cp5 objects within this widget
-        selectPlaybackFileButton.setPosition(x + w - selectPlaybackFileButton.getWidth() - 2, y - navHeight + 2);
+        selectPlaybackFileButton.setPosition(x + w - selectPlaybackFileButton.getWidth() - 12, y - navHeight + 2);
 
-        playbackMenuList.setPosition(x + padding/2, y + 2);
-        playbackMenuList.setSize(w - padding*2, h - padding*2);
+        playbackMenuList.setPosition(x + padding + 12, y + 72);
+        playbackMenuList.setSize(w - padding * 2 - 24, h - 102);
         refreshPlaybackList();
     }
 
     public void refreshPlaybackList() {
-
         File f = new File(userPlaybackHistoryFile);
         if (!f.exists()) {
-            MAIN.println("OpenBCI_GUI::RefreshPlaybackList：找不到播放历史文件。");
+            MAIN.println("AirEIBCI::RefreshPlaybackList：找不到回放历史文件。");
             return;
         }
 
@@ -131,57 +141,128 @@ public class W_playback extends Widget {
             playbackMenuList.items.clear();
             loadPlaybackHistoryJSON = pApplet.loadJSONObject(userPlaybackHistoryFile);
             JSONArray loadPlaybackHistoryJSONArray = loadPlaybackHistoryJSON.getJSONArray("playbackFileHistory");
-            //println("Array Size:" + loadPlaybackHistoryJSONArray.size());
-            int currentFileNameToDraw = 0;
-            for (int i = loadPlaybackHistoryJSONArray.size() - 1; i >= 0; i--) { //go through array in reverse since using append
+            for (int i = loadPlaybackHistoryJSONArray.size() - 1; i >= 0; i--) {
                 JSONObject loadRecentPlaybackFile = loadPlaybackHistoryJSONArray.getJSONObject(i);
                 int fileNumber = loadRecentPlaybackFile.getInt("recentFileNumber");
-                String shortFileName = loadRecentPlaybackFile.getString("id");
+                String shortFileName = brandPlaybackName(loadRecentPlaybackFile.getString("id"));
                 String longFilePath = loadRecentPlaybackFile.getString("filePath");
 
-                int totalPadding = padding + playbackMenuList.padding;
-                shortFileName = shortenString(MAIN, shortFileName, w-totalPadding*2.f, p4);
-                //add as an item in the MenuList
+                int totalPadding = padding + playbackMenuList.padding + 24;
+                shortFileName = shortenString(MAIN, shortFileName, w - totalPadding * 2.f, p4);
                 playbackMenuList.addItem(shortFileName, Integer.toString(fileNumber), longFilePath);
-                currentFileNameToDraw++;
             }
             playbackMenuList.updateMenu();
         } catch (NullPointerException e) {
-           MAIN.println("PlaybackWidget: 找不到播放历史文件。");
+            MAIN.println("PlaybackWidget: 找不到回放历史文件。");
         }
     }
 
     private void createSelectPlaybackFileButton(String name, String text, int _x, int _y, int _w, int _h) {
         selectPlaybackFileButton = MAIN.createButton(cp5_playback, name, text, _x, _y, _w, _h);
-        selectPlaybackFileButton.setBorderColor(CP.OBJECT_BORDER_GREY);
+        selectPlaybackFileButton.setColorBackground(BUTTON_BG);
+        selectPlaybackFileButton.setColorForeground(BUTTON_FG);
+        selectPlaybackFileButton.setColorActive(BUTTON_ACTIVE);
+        selectPlaybackFileButton.setBorderColor(BUTTON_BORDER);
         selectPlaybackFileButton.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 output("选择回放文件");
-                pApplet.selectInput("选择预录文件播放：", "playbackSelectedWidgetButton");
+                pApplet.selectInput("选择 AirEIBCI 回放文件：", "playbackSelectedWidgetButton");
             }
         });
-        selectPlaybackFileButton.setDescription("点击打开对话框，选择 OpenBCI 播放文件（.txt 或 .csv）。");
-        cp5ElementsToCheck.add((Controller)selectPlaybackFileButton);
+        selectPlaybackFileButton.setDescription("点击打开对话框，选择 AirEIBCI 回放文件（.txt 或 .csv）。");
+        cp5ElementsToCheck.add((Controller) selectPlaybackFileButton);
     }
 
     private void createPlaybackMenuList(ControlP5 _cp5, String name, int _x, int _y, int _w, int _h, PFont font) {
         playbackMenuList = new MenuList(_cp5, name, _w, _h, font, MAIN);
         playbackMenuList.setPosition(_x, _y);
+        //playbackMenuList.setTheme(0x1A0B1424, 0x3A1A2F4C, 0xAA27486F, 0xFF4FD8FF, 0xFF8EDCFF, 0xFFEAF2FF, 0x883B6D99);
         playbackMenuList.addCallback(new CallbackListener() {
             public void controlEvent(CallbackEvent theEvent) {
                 if (theEvent.getAction() == ControlP5.ACTION_BROADCAST) {
-                    //Check to make sure value of clicked item is in valid range. Fixes #480
                     float valueOfItem = playbackMenuList.getValue();
-                    if (valueOfItem < 0 || valueOfItem > (playbackMenuList.items.size() - 1) ) {
-                        //println("CP: No such item " + value + " found in list.");
-                    } else {
-                        Map m = playbackMenuList.getItem((int)(valueOfItem));
-                        //println("got a menu event from item " + value + " : " + m);
-                        userSelectedPlaybackMenuList(pApplet, m.get("copy").toString(), (int)(valueOfItem));
+                    if (valueOfItem >= 0 && valueOfItem <= (playbackMenuList.items.size() - 1)) {
+                        Map m = playbackMenuList.getItem((int) (valueOfItem));
+                        userSelectedPlaybackMenuList(pApplet, m.get("copy").toString(), (int) (valueOfItem));
                     }
                 }
             }
         });
         playbackMenuList.scrollerLength = 40;
     }
-}; //end Playback widget class
+
+    private void drawHeader(int panelX, int panelY, int panelW) {
+        pApplet.fill(TEXT_MAIN);
+        pApplet.textFont(p7);
+        pApplet.textSize(15);
+        pApplet.textAlign(PApplet.LEFT, PApplet.TOP);
+        pApplet.text("回放历史中心", panelX + 12, panelY + 9);
+
+        pApplet.fill(TEXT_SUB);
+        pApplet.textSize(11);
+        pApplet.text("快速加载 AirEIBCI 历史文件，继续分析、复盘与演示。", panelX + 12, panelY + 29);
+
+        int badgeW = 122;
+        int badgeH = 24;
+        int bx = panelX + panelW - badgeW - 12;
+        int by = panelY + 10;
+        pApplet.noStroke();
+        pApplet.fill((ACCENT >> 16) & 0xFF, (ACCENT >> 8) & 0xFF, ACCENT & 0xFF, 38);
+        pApplet.rect(bx, by, badgeW, badgeH, 3);
+        pApplet.stroke((ACCENT >> 16) & 0xFF, (ACCENT >> 8) & 0xFF, ACCENT & 0xFF, 190);
+        pApplet.noFill();
+        pApplet.rect(bx, by, badgeW, badgeH, 3);
+        pApplet.fill(TEXT_MAIN);
+        pApplet.textAlign(PApplet.CENTER, PApplet.CENTER);
+        pApplet.textSize(10);
+        pApplet.text("历史回放", bx + badgeW * 0.5f, by + badgeH * 0.5f + 0.5f);
+
+        pApplet.stroke(PANEL_STROKE);
+        pApplet.line(panelX + 10, panelY + 44, panelX + panelW - 10, panelY + 44);
+    }
+
+    private void drawListCard(int x0, int y0, int w0, int h0) {
+        pApplet.noStroke();
+        pApplet.fill(CARD_BG);
+        pApplet.rect(x0, y0, w0, h0, 3);
+        pApplet.stroke(CARD_STROKE);
+        pApplet.noFill();
+        pApplet.rect(x0, y0, w0, h0, 3);
+
+        pApplet.fill(TEXT_SUB);
+        pApplet.textFont(p7);
+        pApplet.textSize(11);
+        pApplet.textAlign(PApplet.LEFT, PApplet.TOP);
+        pApplet.text("最近文件", x0 + 8, y0 + 3);
+
+        if (playbackMenuList.items.isEmpty()) {
+            pApplet.fill(TEXT_SUB);
+            pApplet.textFont(p7);
+            pApplet.textSize(11);
+            pApplet.textAlign(PApplet.LEFT, PApplet.TOP);
+            pApplet.text("暂无回放历史，点击右上角按钮选择文件。", x0 + 12, y0 + 34);
+        }
+    }
+
+    private void drawGradientBackground(int gx, int gy, int gw, int gh) {
+        for (int i = 0; i < gh; i++) {
+            float t = i / (float) Math.max(1, gh - 1);
+            int c = lerpRgb(BG_TOP, BG_BOTTOM, t);
+            pApplet.stroke((c >> 16) & 0xFF, (c >> 8) & 0xFF, c & 0xFF);
+            pApplet.line(gx, gy + i, gx + gw, gy + i);
+        }
+    }
+
+    private int lerpRgb(int c1, int c2, float t) {
+        int r1 = (c1 >> 16) & 0xFF;
+        int g1 = (c1 >> 8) & 0xFF;
+        int b1 = c1 & 0xFF;
+        int r2 = (c2 >> 16) & 0xFF;
+        int g2 = (c2 >> 8) & 0xFF;
+        int b2 = c2 & 0xFF;
+        int r = (int) PApplet.lerp(r1, r2, t);
+        int g = (int) PApplet.lerp(g1, g2, t);
+        int b = (int) PApplet.lerp(b1, b2, t);
+        return (r << 16) | (g << 8) | b;
+    }
+}

@@ -98,7 +98,7 @@ public class GF {
         // addWidget(w_headPlot, w);
 
         w_emg = new W_emg(_this);
-        w_emg.setTitle("肌电图");
+        w_emg.setTitle("脑电信号强度");
         addWidget(w_emg, w);
         
         w_connectivity = new W_Connectivity(_this);
@@ -114,16 +114,16 @@ public class GF {
         addWidget(w_signalQuality, w);
 
         w_neur = new W_Neur(_this);
-        w_neur.setTitle("神经聚类中枢");
+        w_neur.setTitle("神经密度图谱");
         addWidget(w_neur, w);
 
         w_emgJoystick = new W_EMGJoystick(_this);
-        w_emgJoystick.setTitle("肌电控制摇杆");
+        w_emgJoystick.setTitle("脑电信号偏移");
         addWidget(w_emgJoystick, w);
 
-        w_spectrogram = new W_Spectrogram(_this);
-        w_spectrogram.setTitle("时频图");
-        addWidget(w_spectrogram, w);
+        // w_spectrogram = new W_Spectrogram(_this);
+        // w_spectrogram.setTitle("时频图");
+        // addWidget(w_spectrogram, w);
 
         w_indicator = new W_Indicator(_this);
         w_indicator.setTitle("指标图");

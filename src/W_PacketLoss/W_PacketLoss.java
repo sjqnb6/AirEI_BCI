@@ -30,6 +30,10 @@ public class W_PacketLoss extends Widget {
     private static final int TEXT_PERCENT = 0xFFFFD889;
     private static final int COLOR_DROPDOWN_BG = 0xFF1A2B46;
     private static final int COLOR_DROPDOWN_FG = 0xFF2D4668;
+    private static final int STATUS_OK = 0xFF4FD18B;
+    private static final int STATUS_NOTICE = 0xFFFFD166;
+    private static final int STATUS_WARN = 0xFFFF9F43;
+    private static final int STATUS_DANGER = 0xFFFF5C6C;
 
     private Grid dataGrid;
     private PacketLossTracker packetLossTracker;
@@ -46,9 +50,9 @@ public class W_PacketLoss extends Widget {
     private CalculationWindowSize tableWindowSize = CalculationWindowSize.SECONDS10;
 
     public W_PacketLoss(GUI MAIN){
-        super(MAIN); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
+        super(MAIN); // 调用 Widget 父类构造函数。
         this.MAIN = MAIN;
-        dataGrid = new Grid(MAIN, 5/*numRows*/, 4/*numCols*/, cellHeight);
+        dataGrid = new Grid(MAIN, 5/*行数*/, 4/*列数*/, cellHeight);
         packetLossTracker = ((Board)MAIN.currentBoard).getPacketLossTracker();
         sessionPacketRecord = packetLossTracker.getSessionPacketRecord();
         streamPacketRecord = packetLossTracker.getStreamPacketRecord();
@@ -65,7 +69,7 @@ public class W_PacketLoss extends Widget {
 
         createTableDropdown();
 
-        // call once in constructor
+        // 构造时先按当前窗口尺寸布局一次。
         screenResized();
     }
 
@@ -78,31 +82,31 @@ public class W_PacketLoss extends Widget {
                 .setColorValueLabel(TEXT_MAIN)
                 .setColorCaptionLabel(TEXT_MAIN)
                 .setOutlineColor(PANEL_STROKE)
-                .setBarHeight(cellHeight) //height of top/primary bar
-                .setItemHeight(cellHeight) //height of all item/dropdown bars
+                .setBarHeight(cellHeight) // 主栏高度。
+                .setItemHeight(cellHeight) // 下拉项高度。
         ;
 
-        // for each entry in the enum, add it to the dropdown.
+        // 将所有时间窗口选项加入下拉菜单。
         for (CalculationWindowSize value : CalculationWindowSize.values()) {
-            // this will store the *actual* enum object inside the dropdown!
+            // 下拉项中保存枚举对象，便于后续直接读取。
             tableDropdown.addItem(getWindowLabel(value), value);
         }
 
-        tableDropdown.getCaptionLabel() //the caption label is the text object in the primary bar
-                .toUpperCase(false) //DO NOT AUTOSET TO UPPERCASE!!!
+        tableDropdown.getCaptionLabel()
+                .toUpperCase(false)
                 .setText(getWindowLabel(tableWindowSize))
                 .setFont(p7)
                 .setSize(12)
-                .getStyle() //need to grab style before affecting the paddingTop
+                .getStyle()
                 .setPaddingTop(3)
         ;
-        tableDropdown.getValueLabel() //the value label is connected to the text objects in the dropdown item bars
-                .toUpperCase(false) //DO NOT AUTOSET TO UPPERCASE!!!
-                .setText("VALUE LABEL")
+        tableDropdown.getValueLabel()
+                .toUpperCase(false)
+                .setText("窗口选项")
                 .setFont(p7)
-                .setSize(12) //set the font size of the item bars to 14pt
-                .getStyle() //need to grab style before affecting the paddingTop
-                .setPaddingTop(3) //4-pixel vertical offset to center text
+                .setSize(12)
+                .getStyle()
+                .setPaddingTop(3)
         ;
 
         tableDropdown.onChange(new CallbackListener() {
@@ -116,26 +120,26 @@ public class W_PacketLoss extends Widget {
     }
 
     public void update(){
-        super.update(); //calls the parent update() method of Widget (DON'T REMOVE)
+        super.update(); // 调用 Widget 父类更新逻辑。
 
         lastMillisPacketRecord = packetLossTracker.getCumulativePacketRecordForLast(tableWindowSize.getMilliseconds());
 
         dataGrid.setString(MAIN.nfc(sessionPacketRecord.numLost), 1, 1);
         dataGrid.setString(MAIN.nfc(sessionPacketRecord.numReceived), 2, 1);
         dataGrid.setString(MAIN.nfc(sessionPacketRecord.getNumExpected()), 3, 1);
-        dataGrid.setString(MAIN.nf(sessionPacketRecord.getLostPercent(), 0, 4 /*decimals*/) + " %", 4, 1);
+        dataGrid.setString(MAIN.nf(sessionPacketRecord.getLostPercent(), 0, 4 /*小数位*/) + " %", 4, 1);
 
         dataGrid.setString(MAIN.nfc(streamPacketRecord.numLost), 1, 2);
         dataGrid.setString(MAIN.nfc(streamPacketRecord.numReceived), 2, 2);
         dataGrid.setString(MAIN.nfc(streamPacketRecord.getNumExpected()), 3, 2);
-        dataGrid.setString(MAIN.nf(streamPacketRecord.getLostPercent(), 0, 4 /*decimals*/) + " %", 4, 2);
+        dataGrid.setString(MAIN.nf(streamPacketRecord.getLostPercent(), 0, 4 /*小数位*/) + " %", 4, 2);
 
         dataGrid.setString(MAIN.nfc(lastMillisPacketRecord.numLost), 1, 3);
         dataGrid.setString(MAIN.nfc(lastMillisPacketRecord.numReceived), 2, 3);
         dataGrid.setString(MAIN.nfc(lastMillisPacketRecord.getNumExpected()), 3, 3);
-        dataGrid.setString(MAIN.nf(lastMillisPacketRecord.getLostPercent(), 0, 4 /*decimals*/) + " %", 4, 3);
+        dataGrid.setString(MAIN.nf(lastMillisPacketRecord.getLostPercent(), 0, 4 /*小数位*/) + " %", 4, 3);
 
-        // place dropdown on table
+        // 将时间窗口下拉菜单放在表格对应单元格中。
         RectDimensions cellDim = dataGrid.getCellDims(0, 3);
         tableDropdown.setPosition(cellDim.x, cellDim.y);
 
@@ -144,7 +148,7 @@ public class W_PacketLoss extends Widget {
     }
 
     public void draw(){
-        super.draw(); //calls the parent draw() method of Widget (DON'T REMOVE)
+        super.draw(); // 调用 Widget 父类绘制逻辑。
 
         MAIN.pushStyle();
         drawGradientBackground(x, y, w, h);
@@ -163,21 +167,22 @@ public class W_PacketLoss extends Widget {
         MAIN.popStyle();
 
         dataGrid.draw();
+        drawPacketLossWarningPanel();
     }
 
     public void screenResized(){
-        super.screenResized(); //calls the parent screenResized() method of Widget (DON'T REMOVE)
+        super.screenResized(); // 调用 Widget 父类尺寸更新逻辑。
 
         dataGrid.setDim(x, y + 50, w);
     }
 
     public void mousePressed(){
-        super.mousePressed(); //calls the parent mousePressed() method of Widget (DON'T REMOVE)
+        super.mousePressed(); // 调用 Widget 父类鼠标按下逻辑。
 
     }
 
     public void mouseReleased(){
-        super.mouseReleased(); //calls the parent mouseReleased() method of Widget (DON'T REMOVE)
+        super.mouseReleased(); // 调用 Widget 父类鼠标释放逻辑。
 
     }
 
@@ -187,6 +192,135 @@ public class W_PacketLoss extends Widget {
         }
 
         return fraction * 100 / total;
+    }
+
+    private void drawPacketLossWarningPanel() {
+        if (lastMillisPacketRecord == null) {
+            return;
+        }
+
+        int panelX = x + 14;
+        int panelY = y + 165;
+        int panelW = w - 28;
+        int panelH = h - 180;
+        if (panelH < 120) {
+            panelH = 120;
+        }
+
+        float lostPercent = lastMillisPacketRecord.getLostPercent();
+        int statusColor = getStatusColor(lostPercent);
+        String level = getStatusLevel(lostPercent);
+        String description = getStatusDescription(lostPercent);
+        String action = getStatusAction(lostPercent);
+
+        MAIN.pushStyle();
+        MAIN.fill(0x661A2B46);
+        MAIN.stroke(PANEL_STROKE);
+        MAIN.rect(panelX, panelY, panelW, panelH, 8);
+
+        MAIN.fill(TEXT_HEADER);
+        MAIN.textFont(p7, 14);
+        MAIN.textAlign(MAIN.LEFT, MAIN.TOP);
+        MAIN.text("丢包警示", panelX + 12, panelY + 10);
+
+        int contentY = panelY + 38;
+        boolean compact = panelW < 430;
+        int leftW = compact ? panelW - 24 : panelW / 2 - 10;
+        int rightX = compact ? panelX + 12 : panelX + leftW + 18;
+        int rightY = compact ? contentY + 142 : contentY;
+
+        MAIN.noStroke();
+        MAIN.fill(statusColor);
+        MAIN.ellipse(panelX + 22, contentY + 14, 16, 16);
+        MAIN.fill(TEXT_VALUE);
+        MAIN.textFont(p7, 16);
+        MAIN.text(level, panelX + 38, contentY + 4);
+
+        MAIN.fill(TEXT_SUB);
+        MAIN.textFont(p7, 12);
+        MAIN.text(description, panelX + 12, contentY + 34, leftW, 34);
+
+        MAIN.fill(TEXT_PERCENT);
+        MAIN.textFont(p7, 13);
+        MAIN.text("当前窗口丢包率: " + MAIN.nf(lostPercent, 0, 4) + " %", panelX + 12, contentY + 74);
+
+        MAIN.fill(TEXT_SUB);
+        MAIN.textFont(p7, 12);
+        MAIN.text(action, panelX + 12, contentY + 98, leftW, 44);
+
+        if (compact) {
+            MAIN.stroke(PANEL_STROKE);
+            MAIN.line(panelX + 12, rightY - 10, panelX + panelW - 12, rightY - 10);
+        } else {
+            MAIN.stroke(PANEL_STROKE);
+            MAIN.line(rightX - 10, contentY, rightX - 10, panelY + panelH - 12);
+        }
+
+        MAIN.fill(TEXT_HEADER);
+        MAIN.textFont(p7, 13);
+        MAIN.text("分级阈值", rightX, rightY + 2);
+
+        drawLevelRow(rightX, rightY + 30, STATUS_OK, "正常", "1% 以下，链路稳定");
+        drawLevelRow(rightX, rightY + 54, STATUS_NOTICE, "关注", "1% - 10%，建议观察");
+        drawLevelRow(rightX, rightY + 78, STATUS_WARN, "警告", "10% - 20%，检查连接");
+        drawLevelRow(rightX, rightY + 102, STATUS_DANGER, "严重", "20% 以上，建议重连");
+
+        MAIN.popStyle();
+    }
+
+    private void drawLevelRow(int rowX, int rowY, int color, String label, String note) {
+        MAIN.noStroke();
+        MAIN.fill(color);
+        MAIN.rect(rowX, rowY + 5, 12, 8, 3);
+        MAIN.fill(TEXT_VALUE);
+        MAIN.textFont(p7, 12);
+        MAIN.text(label, rowX + 20, rowY);
+        MAIN.fill(TEXT_SUB);
+        MAIN.text(note, rowX + 68, rowY);
+    }
+
+    private int getStatusColor(float lostPercent) {
+        if (lostPercent >= 20.0f) {
+            return STATUS_DANGER;
+        } else if (lostPercent >= 10.0f) {
+            return STATUS_WARN;
+        } else if (lostPercent >= 1.0f) {
+            return STATUS_NOTICE;
+        }
+        return STATUS_OK;
+    }
+
+    private String getStatusLevel(float lostPercent) {
+        if (lostPercent >= 20.0f) {
+            return "严重丢包";
+        } else if (lostPercent >= 10.0f) {
+            return "丢包警告";
+        } else if (lostPercent >= 1.0f) {
+            return "轻微丢包";
+        }
+        return "链路正常";
+    }
+
+    private String getStatusDescription(float lostPercent) {
+        if (lostPercent >= 20.0f) {
+            return "当前时间窗口内丢包率较高，波形可能出现明显断续或失真。";
+        } else if (lostPercent >= 10.0f) {
+            return "当前时间窗口内有连续丢包风险，建议尽快检查采集链路。";
+        } else if (lostPercent >= 1.0f) {
+            return "当前时间窗口内出现少量丢包，建议继续观察趋势。";
+        }
+        return "当前时间窗口内未见明显丢包，数据流状态稳定。";
+    }
+
+    private String getStatusAction(float lostPercent) {
+        if (lostPercent >= 20.0f) {
+            return "处理建议: 停止采集后重新连接设备，并检查串口、供电和无线距离。";
+        } else if (lostPercent >= 10.0f) {
+            return "处理建议: 检查接口松动、降低干扰，并观察丢包率是否回落。";
+        } else if (lostPercent >= 1.0f) {
+            return "处理建议: 暂时无需中断采集，持续观察最近窗口变化。";
+        }
+        return "处理建议: 无需处理，保持当前连接状态即可。";
     }
 
     private void drawGradientBackground(int gx, int gy, int gw, int gh) {

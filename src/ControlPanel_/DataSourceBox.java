@@ -29,7 +29,7 @@ public class DataSourceBox{
         this.MAIN = MAIN;
 
 
-        numItems = 5;
+        numItems = 4;
         x = _x;
         y = _y;
         w = _w;
@@ -66,8 +66,7 @@ public class DataSourceBox{
         sourceList.setPosition(_x, _y);
         // sourceList.itemHeight = 28;
         // sourceList.padding = 9;
-        sourceList.addItem("CYTON (在线采集)", DATASOURCE_CYTON);
-        sourceList.addItem("GANGLION (在线采集)", DATASOURCE_GANGLION);
+        sourceList.addItem("在线采集", DATASOURCE_CYTON);
         sourceList.addItem("文件回放", DATASOURCE_PLAYBACKFILE);
         sourceList.addItem("仿真数据", DATASOURCE_SYNTHETIC);
         sourceList.addItem("外部流入", DATASOURCE_STREAMING);

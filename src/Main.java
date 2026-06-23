@@ -285,7 +285,7 @@ public class Main extends GUI {
 
         println("Loading UI images...");
         try {
-            logo_black = loadImage("AirEI_BCI_black.png");
+            logo_black = loadImage("AirEI_BCI_black(1).png");
             if (logo_black == null) println("WARNING: Failed to load obci-logo-blk.png");
             logo_blue = loadImage("obci-logo-blu.png");
             if (logo_blue == null) println("WARNING: Failed to load obci-logo-blu.png");

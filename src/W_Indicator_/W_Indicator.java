@@ -1,4 +1,4 @@
-﻿package W_Indicator_;
+package W_Indicator_;
 
 import Widget_.Widget;
 import brainflow.BrainFlowError;
@@ -21,7 +21,8 @@ public class W_Indicator extends Widget {
 
     private static final int GRID_ROWS = 8;
     private static final int HISTORY_COLS = 42;
-    private static final long UPDATE_INTERVAL_MS = 100L;`r`n    private static final int MATLAB_WINDOW_SECONDS = 2;
+    private static final long UPDATE_INTERVAL_MS = 100L;
+    private static final int MATLAB_WINDOW_SECONDS = 2;
 
     private final GUI MAIN;
     private final IndicatorEngine engine = new IndicatorEngine();
@@ -80,6 +81,69 @@ public class W_Indicator extends Widget {
         history.pushFrame(frame);
     }
 
+    private float[] computeBandPowersMatlabLike(int ch, int sampleRate) {
+        if (dataProcessingFilteredBuffer == null || ch < 0 || ch >= dataProcessingFilteredBuffer.length) {
+            return null;
+        }
+        float[] src = dataProcessingFilteredBuffer[ch];
+        if (src == null || src.length < 64) {
+            return null;
+        }
+
+        int target = Math.max(128, sampleRate * MATLAB_WINDOW_SECONDS);
+        int nfft = target;
+        try {
+            nfft = DataFilter.get_nearest_power_of_two(target);
+        } catch (BrainFlowError ignore) {
+            nfft = target;
+        }
+        nfft = Math.max(128, nfft);
+
+        int winLen = Math.min(src.length, nfft);
+        if ((winLen & 1) == 1) {
+            winLen -= 1;
+        }
+        if (winLen < 64) {
+            return null;
+        }
+
+        double[] data = new double[winLen];
+        int start = src.length - winLen;
+        for (int i = 0; i < winLen; i++) {
+            data[i] = src[start + i];
+        }
+
+        try {
+            DataFilter.detrend(data, DetrendOperations.CONSTANT.get_code());
+            Pair<double[], double[]> psd = DataFilter.get_psd_welch(
+                    data,
+                    winLen,
+                    winLen / 2,
+                    sampleRate,
+                    WindowOperations.NO_WINDOW.get_code()
+            );
+
+            double delta = DataFilter.get_band_power(psd, 0.0, 4.0);
+            double theta = DataFilter.get_band_power(psd, 4.0, 7.0);
+            double alpha = DataFilter.get_band_power(psd, 8.0, 12.0);
+            double beta = DataFilter.get_band_power(psd, 13.0, 30.0);
+
+            if (!Double.isFinite(delta + theta + alpha + beta)) {
+                return null;
+            }
+
+            // Align visual value scale with MATLAB script style: pow = Fs * sum(Pxx).
+            double scale = Math.max(1, sampleRate);
+            return new float[] {
+                    safe((float) (delta * scale)),
+                    safe((float) (theta * scale)),
+                    safe((float) (alpha * scale)),
+                    safe((float) (beta * scale))
+            };
+        } catch (BrainFlowError e) {
+            return null;
+        }
+    }
     @Override
     public void draw() {
         super.draw();
@@ -396,5 +460,10 @@ public class W_Indicator extends Widget {
         return lerpRgb(c4, c5, (t - 0.75f) / 0.25f);
     }
 }
+
+
+
+
+
 
 

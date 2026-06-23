@@ -13,6 +13,8 @@ import static processing.core.PApplet.loadJSONObject;
 import static processing.core.PApplet.println;
 
 public class GF {
+    private static final String BRAND_NAME = "AirEIBCI";
+    private static final String LEGACY_NAME = "OpenBCI";
 
     //////////////////////////////////////
 // GLOBAL FUNCTIONS BELOW THIS LINE //
@@ -63,7 +65,7 @@ public class GF {
             savePlaybackHistoryJSON = loadJSONObject(new File(userPlaybackHistoryFile));
             JSONArray recentFilesArray = savePlaybackHistoryJSON.getJSONArray("playbackFileHistory");
             JSONObject playbackFile = recentFilesArray.getJSONObject(-listItem + recentFilesArray.size() - 1);
-            shortName = playbackFile.getString("id");
+            shortName = brandPlaybackName(playbackFile.getString("id"));
             playbackHistoryFileExists = true;
         } catch (NullPointerException e) {
             //println("Playback history JSON file does not exist. Load first file to make it.");
@@ -75,13 +77,13 @@ public class GF {
     //Handles the work for the above cases
     public static boolean playbackFileSelected (PApplet PApplet, String longName, String shortName) {
         playbackData_fname = longName;
-        playbackData_ShortName = shortName;
+        playbackData_ShortName = brandPlaybackName(shortName);
         //Process the playback file, check if SD card file or something else
         try {
             BufferedReader brTest = new BufferedReader(new FileReader(longName));
             String line = brTest.readLine();
             if (line.equals("%OpenBCI Raw EEG Data") || line.equals("%OpenBCI Raw EXG Data")) {
-                verbosePrint("PLAYBACK: Found OpenBCI Header in File!");
+                verbosePrint("PLAYBACK: Found legacy playback header in file!");
                 sdData_fname = "N/A";
                 for (int i = 0; i < 3; i++) {
                     line = brTest.readLine();
@@ -91,7 +93,7 @@ public class GF {
                     playbackData_fname = "N/A";
                     playbackData_ShortName = "N/A";
                     outputError("找到了 GUI v4 或更早的文件。请使用提供的Python脚本转换此文件。");
-                    PopupMessage msg = new PopupMessage("GUI v4 to v5 File Converter", "Found GUI v4 or earlier file. Please convert this file using the provided Python script. Press the button below to access this open-source fix.", "LINK", "https://github.com/OpenBCI/OpenBCI_GUI/tree/development/tools");
+                    PopupMessage msg = new PopupMessage("旧版回放文件转换", "检测到较旧版本的回放文件，请先转换后再加载。", "LINK", "https://github.com/OpenBCI/OpenBCI_GUI/tree/development/tools");
                     return false;
                 }
             } else if (line.equals("%STOP AT")) {
@@ -155,7 +157,7 @@ public class GF {
                 JSONObject playbackFile = recentFilesArray.getJSONObject(i);
                 playbackFile.setInt("recentFileNumber", recentFilesArray.size()-i);
                 //println(recentFilesArray.size()-i);
-                playbackFile.setString("id", playbackFile.getString("id"));
+                playbackFile.setString("id", brandPlaybackName(playbackFile.getString("id")));
                 playbackFile.setString("filePath", playbackFile.getString("filePath"));
                 recentFilesArray.setJSONObject(i, playbackFile);
             }
@@ -219,5 +221,12 @@ public class GF {
 
     public static void requestReinit() {
         reinitRequested = true;
+    }
+
+    public static String brandPlaybackName(String rawName) {
+        if (rawName == null || rawName.isEmpty()) {
+            return BRAND_NAME;
+        }
+        return rawName.replace(LEGACY_NAME, BRAND_NAME);
     }
 }

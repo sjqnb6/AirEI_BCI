@@ -111,7 +111,7 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
                 toggleStreaming();
             }
         });
-        connectBtn.setDescription("开始/停止神经聚类实时流。");
+        connectBtn.setDescription("开始/停止神经密度实时流。");
 
         clearBtn = MAIN.createButton(localCp5, "neurClear", "重置", x0 + 320, y0 + navH + 1, 70, navH - 3, p7, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
         clearBtn.setColorBackground(0xFF22344F);
@@ -312,7 +312,7 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
         MAIN.textFont(p7);
         MAIN.textSize(15);
         MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
-        MAIN.text("神经聚类中心", x0 + 12, y0 + 9);
+        MAIN.text("神经密度图谱", x0 + 12, y0 + 9);
 
         String ws = client.isConnected() ? "在线" : "离线";
         int wsColor = client.isConnected() ? GOOD : WARN;

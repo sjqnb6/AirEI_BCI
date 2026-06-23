@@ -27,6 +27,7 @@ public abstract class BoardCyton extends BoardBrainFlow
     private final char[] channelSelectForSettings = {'1', '2', '3', '4', '5', '6', '7', '8', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I'};
     GUI MAIN;
     private ADS1299Settings currentADS1299Settings;
+    private boolean[] localEXGChannelActive;
     private boolean[] isCheckingImpedance;
     protected boolean[] isCheckingImpedanceN;
     protected boolean[] isCheckingImpedanceP;
@@ -43,6 +44,9 @@ public abstract class BoardCyton extends BoardBrainFlow
 
         isCheckingImpedance = new boolean[getNumEXGChannels()];
         Arrays.fill(isCheckingImpedance, false);
+
+        localEXGChannelActive = new boolean[getNumEXGChannels()];
+        Arrays.fill(localEXGChannelActive, true);
 
         isCheckingImpedanceN= new boolean[getNumEXGChannels()];
         isCheckingImpedanceP= new boolean[getNumEXGChannels()];
@@ -76,12 +80,12 @@ public abstract class BoardCyton extends BoardBrainFlow
 
     @Override
     public void setEXGChannelActive(int channelIndex, boolean active) {
-        currentADS1299Settings.setChannelActive(channelIndex, active);
+        localEXGChannelActive[channelIndex] = active;
     }
 
     @Override
     public boolean isEXGChannelActive(int channelIndex) {
-        return currentADS1299Settings.isChannelActive(channelIndex);
+        return localEXGChannelActive[channelIndex];
     }
 
     @Override
