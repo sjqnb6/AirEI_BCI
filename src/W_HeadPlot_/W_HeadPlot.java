@@ -8,10 +8,12 @@ import java.util.Arrays;
 import static Globel.GUI.*;
 
 import Globel.GUI;
+
 public class W_HeadPlot extends Widget {
     public HeadPlot headPlot;
     GUI MAIN;
-    public W_HeadPlot(GUI MAIN){
+
+    public W_HeadPlot(GUI MAIN) {
         super(MAIN); //calls the parent CONSTRUCTOR method of Widget (DON'T REMOVE)
         this.MAIN = MAIN;
         //Headplot settings
@@ -24,10 +26,10 @@ public class W_HeadPlot extends Widget {
         //You just need to make sure the "id" (the 1st String) has the same name as the corresponding function
         // addDropdown("Ten20", "Layout", Arrays.asList("10-20", "5-10"), 0);
         // addDropdown("Headset", "Headset", Arrays.asList("None", "Mark II", "Mark III", "Mark IV "), 0);
-        addDropdown("Intensity", "Intensity", Arrays.asList("4x", "2x", "1x", "0.5x", "0.2x", "0.02x"), MAIN.vertScaleFactor_ind);
-        addDropdown("Polarity", "Polarity", Arrays.asList("+/-", " + "), MAIN.settings.hpPolaritySave);
-        addDropdown("ShowContours", "Contours", Arrays.asList("ON", "OFF"), MAIN.settings.hpContoursSave);
-        addDropdown("SmoothingHeadPlot", "Smooth", Arrays.asList("0.0", "0.5", "0.75", "0.9", "0.95", "0.98"), MAIN.smoothFac_ind);
+        addDropdown("Intensity", "\u5f3a\u5ea6", Arrays.asList("4x", "2x", "1x", "0.5x", "0.2x", "0.02x"), MAIN.vertScaleFactor_ind);
+        addDropdown("Polarity", "\u6781\u6027", Arrays.asList("\u53cc\u6781", "\u6b63\u5411"), MAIN.settings.hpPolaritySave);
+        addDropdown("ShowContours", "\u7b49\u503c\u7ebf", Arrays.asList("\u5f00\u542f", "\u5173\u95ed"), MAIN.settings.hpContoursSave);
+        addDropdown("SmoothingHeadPlot", "\u5e73\u6ed1", Arrays.asList("0.0", "0.5", "0.75", "0.9", "0.95", "0.98"), MAIN.smoothFac_ind);
         //Initialize the headplot
         updateHeadPlot(nchan);
     }
@@ -40,17 +42,17 @@ public class W_HeadPlot extends Widget {
         setSmoothFac(MAIN.smoothFac[MAIN.smoothFac_ind]);
     }
 
-    public void update(){
+    public void update() {
         super.update(); //calls the parent update() method of Widget (DON'T REMOVE)
         headPlot.update();
     }
 
-    public void draw(){
+    public void draw() {
         super.draw(); //calls the parent draw() method of Widget (DON'T REMOVE)
         headPlot.draw(); //draw the actual headplot
     }
 
-    public void screenResized(){
+    public void screenResized() {
         super.screenResized(); //calls the parent screenResized() method of Widget (DON'T REMOVE)
         headPlot.hp_x = x;
         headPlot.hp_y = y;
@@ -62,17 +64,17 @@ public class W_HeadPlot extends Widget {
         pApplet.thread("doHardCalcs");
     }
 
-    public void mousePressed(){
+    public void mousePressed() {
         super.mousePressed(); //calls the parent mousePressed() method of Widget (DON'T REMOVE)
         headPlot.mousePressed();
     }
 
-    public void mouseReleased(){
+    public void mouseReleased() {
         super.mouseReleased(); //calls the parent mouseReleased() method of Widget (DON'T REMOVE)
         headPlot.mouseReleased();
     }
 
-    public void mouseDragged(){
+    public void mouseDragged() {
         super.mouseDragged(); //calls the parent mouseReleased() method of Widget (DON'T REMOVE)
         headPlot.mouseDragged();
     }
@@ -81,4 +83,4 @@ public class W_HeadPlot extends Widget {
     void setSmoothFac(float fac) {
         headPlot.smooth_fac = fac;
     }
-};
+}

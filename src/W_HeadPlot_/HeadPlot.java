@@ -82,7 +82,7 @@ public class HeadPlot {
         electrode_xy = new float[n_elec][2];   //x-y position of electrodes (pixels?)
         ref_electrode_xy = new float[2];  //x-y position of reference electrode
         electrode_rgb = new int[3][n_elec];  //rgb color for each electrode
-        font = p5;
+        font = p7;
         drawHeadAsContours = true; //set this to be false for slower computers
 
         hp_x = _x;
@@ -1094,6 +1094,9 @@ public class HeadPlot {
 
         pApplet.pushStyle();
         pApplet.smooth();
+        drawStatusPanel();
+        drawLegendPanel();
+
         //draw head parts
         pApplet.fill(CP.WHITE);
         pApplet.stroke(CP.GREY_125);
@@ -1112,6 +1115,8 @@ public class HeadPlot {
             pApplet.strokeWeight(1);
             pApplet.ellipse(circ_x, circ_y, circ_diam, circ_diam); //big circle for the head
         }
+
+        drawPeakHalo();
 
         //draw electrodes on the head
         if (!isDragging) {
@@ -1145,6 +1150,167 @@ public class HeadPlot {
         }
         pApplet.text("R", ref_electrode_xy[0], ref_electrode_xy[1]);
 
+        drawHotspotPanel();
+        drawHoverCard();
+
         pApplet.popStyle();
     } //end of draw method
+
+    private void drawStatusPanel() {
+        float panelX = hp_x + 14;
+        float panelY = hp_y + navHeight + 14;
+        float panelW = max(190, hp_w * 0.22f);
+        float panelH = 92;
+
+        pApplet.pushStyle();
+        pApplet.noStroke();
+        pApplet.fill(255, 246);
+        pApplet.rect(panelX, panelY, panelW, panelH, 12);
+        pApplet.fill(CP.OPENBCI_DARKBLUE);
+        pApplet.textFont(p7, 16);
+        pApplet.textAlign(LEFT, TOP);
+        pApplet.text("脑电地形图", panelX + 12, panelY + 10);
+
+        pApplet.fill(CP.GREY_125);
+        pApplet.textFont(p7, 12);
+        pApplet.text("极性: " + (use_polarity ? "开启" : "关闭"), panelX + 12, panelY + 38);
+        pApplet.text("等值线: " + (drawHeadAsContours ? "开启" : "关闭"), panelX + 12, panelY + 56);
+        pApplet.text("强度上限: " + pApplet.nf(intense_max_uV, 0, 1) + " uV", panelX + 12, panelY + 74);
+        pApplet.popStyle();
+    }
+
+    private void drawLegendPanel() {
+        float legendW = 22;
+        float legendH = circ_diam * 0.68f;
+        float legendX = circ_x + circ_diam * 0.62f;
+        float legendY = circ_y - legendH * 0.5f;
+
+        pApplet.pushStyle();
+        pApplet.noStroke();
+        for (int i = 0; i < (int)legendH; i++) {
+            float amt = map(i, 0, legendH, 1.0f, -1.0f);
+            float voltage = amt >= 0 ? lerp(intense_min_uV, intense_max_uV, amt) : -lerp(intense_min_uV, intense_max_uV, abs(amt));
+            pApplet.fill(calcPixelColor(voltage));
+            pApplet.rect(legendX, legendY + i, legendW, 1.5f);
+        }
+
+        pApplet.stroke(CP.GREY_125);
+        pApplet.noFill();
+        pApplet.rect(legendX, legendY, legendW, legendH, 8);
+
+        pApplet.fill(CP.OPENBCI_DARKBLUE);
+        pApplet.textFont(p7, 11);
+        pApplet.textAlign(LEFT, CENTER);
+        pApplet.text("正", legendX + legendW + 8, legendY + 8);
+        pApplet.text("零", legendX + legendW + 8, legendY + legendH * 0.5f);
+        pApplet.text("负", legendX + legendW + 8, legendY + legendH - 8);
+        pApplet.textAlign(CENTER, TOP);
+        pApplet.text("强度", legendX + legendW * 0.5f, legendY - 18);
+        pApplet.popStyle();
+    }
+
+    private void drawPeakHalo() {
+        int peakIndex = findPeakElectrodeIndex();
+        if (peakIndex < 0) {
+            return;
+        }
+
+        float px = electrode_xy[peakIndex][0];
+        float py = electrode_xy[peakIndex][1];
+
+        pApplet.pushStyle();
+        pApplet.noFill();
+        pApplet.stroke(224, 56, 45, 90);
+        pApplet.strokeWeight(2.4f);
+        pApplet.ellipse(px, py, elec_diam * 1.8f, elec_diam * 1.8f);
+        pApplet.stroke(224, 56, 45, 38);
+        pApplet.strokeWeight(5f);
+        pApplet.ellipse(px, py, elec_diam * 2.5f, elec_diam * 2.5f);
+        pApplet.popStyle();
+    }
+
+    private void drawHotspotPanel() {
+        int peakIndex = findPeakElectrodeIndex();
+        if (peakIndex < 0) {
+            return;
+        }
+
+        float panelW = max(196, hp_w * 0.2f);
+        float panelH = 84;
+        float panelX = hp_x + hp_w - panelW - 18;
+        float panelY = hp_y + navHeight + 14;
+
+        String polarityText = "+";
+        if (polarity_data != null && peakIndex < polarity_data.length && polarity_data[peakIndex] < 0) {
+            polarityText = "-";
+        }
+
+        pApplet.pushStyle();
+        pApplet.noStroke();
+        pApplet.fill(255, 246);
+        pApplet.rect(panelX, panelY, panelW, panelH, 12);
+        pApplet.fill(CP.OPENBCI_DARKBLUE);
+        pApplet.textFont(p7, 15);
+        pApplet.textAlign(LEFT, TOP);
+        pApplet.text("热点摘要", panelX + 12, panelY + 10);
+
+        pApplet.fill(CP.GREY_125);
+        pApplet.textFont(p7, 12);
+        pApplet.text("最强通道: " + (peakIndex + 1), panelX + 12, panelY + 36);
+        pApplet.text("峰值强度: " + pApplet.nf(intensity_data_uV[peakIndex], 0, 2) + " uV", panelX + 12, panelY + 54);
+        pApplet.text("当前极性: " + polarityText, panelX + 12, panelY + 72);
+        pApplet.popStyle();
+    }
+
+    private void drawHoverCard() {
+        if (mouse_over_elec_index < 0 || mouse_over_elec_index >= electrode_xy.length) {
+            return;
+        }
+
+        float cardW = 142;
+        float cardH = 76;
+        float cardX = constrain(pApplet.mouseX + 16, hp_x + 8, hp_x + hp_w - cardW - 8);
+        float cardY = constrain(pApplet.mouseY - cardH - 10, hp_y + navHeight + 8, hp_y + hp_h - cardH - 8);
+
+        String polarityText = "未知";
+        if (polarity_data != null && mouse_over_elec_index < polarity_data.length) {
+            polarityText = polarity_data[mouse_over_elec_index] < 0 ? "负向" : "正向";
+        }
+
+        String railText = "正常";
+        if (is_railed != null && mouse_over_elec_index < is_railed.length && is_railed[mouse_over_elec_index].is_railed) {
+            railText = "饱和";
+        }
+
+        pApplet.pushStyle();
+        pApplet.noStroke();
+        pApplet.fill(255, 250);
+        pApplet.rect(cardX, cardY, cardW, cardH, 10);
+        pApplet.fill(CP.OPENBCI_DARKBLUE);
+        pApplet.textFont(p7, 12);
+        pApplet.textAlign(LEFT, TOP);
+        pApplet.text("通道 " + (mouse_over_elec_index + 1), cardX + 10, cardY + 10);
+        pApplet.fill(CP.GREY_125);
+        pApplet.text("强度: " + pApplet.nf(intensity_data_uV[mouse_over_elec_index], 0, 2) + " uV", cardX + 10, cardY + 28);
+        pApplet.text("极性: " + polarityText, cardX + 10, cardY + 44);
+        pApplet.text("状态: " + railText, cardX + 10, cardY + 60);
+        pApplet.popStyle();
+    }
+
+    private int findPeakElectrodeIndex() {
+        if (intensity_data_uV == null || intensity_data_uV.length == 0) {
+            return -1;
+        }
+
+        int peakIndex = -1;
+        float peakValue = -1.0f;
+        for (int i = 0; i < min(intensity_data_uV.length, electrode_xy.length); i++) {
+            float value = abs(intensity_data_uV[i]);
+            if (value > peakValue) {
+                peakValue = value;
+                peakIndex = i;
+            }
+        }
+        return peakIndex;
+    }
 };

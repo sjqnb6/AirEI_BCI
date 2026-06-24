@@ -23,6 +23,15 @@ public class W_Indicator extends Widget {
     private static final int HISTORY_COLS = 42;
     private static final long UPDATE_INTERVAL_MS = 100L;
     private static final int MATLAB_WINDOW_SECONDS = 2;
+    private static final int[] DISPLAY_METRICS = {0, 1, 2, 3, 7, 10};
+    private static final String[] BAND_NAMES = {"Delta", "Theta", "Alpha", "Beta"};
+    private static final String[] BAND_NAMES_CN = {"Delta", "Theta", "Alpha", "Beta"};
+    private static final int[] BAND_COLORS = {
+            0xFF4FB4FF,
+            0xFF4FD9C6,
+            0xFF6BE47B,
+            0xFFFFC36D
+    };
 
     private final GUI MAIN;
     private final IndicatorEngine engine = new IndicatorEngine();
@@ -30,6 +39,8 @@ public class W_Indicator extends Widget {
 
     private long lastUpdateMs = 0L;
     private int channelCount = 8;
+    private final float[] latestMetricMean = new float[14];
+    private int dominantBandIndex = 0;
 
     public W_Indicator(GUI MAIN) {
         super(MAIN);
@@ -78,6 +89,7 @@ public class W_Indicator extends Widget {
                 engine.compute(delta, theta, alpha, beta, frame[ch]);
             }
         }
+        updateMetricSummary(frame);
         history.pushFrame(frame);
     }
 
@@ -167,31 +179,139 @@ public class W_Indicator extends Widget {
         MAIN.textFont(p7);
         MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
         MAIN.textSize(17);
-        MAIN.text("14项频带指标图谱", x + 12, y + 7);
+        MAIN.text("核心频带指标图谱", x + 12, y + 7);
 
         MAIN.fill(COLOR_TEXT_SUB);
         MAIN.textSize(11);
         MAIN.text(
-                "8通道 | 实时指标 | 二维热力图 + 等值线",
+                "6项代表指标 | 8通道实时热力图 | 右侧摘要解读",
                 x + 12, y + 28
         );
     }
 
     private void drawSurfaceGrid() {
-        int cols = 7;
-        int rows = 2;
-        int top = y + 48;
-        int innerPad = 6;
-        int chartW = (w - innerPad * (cols + 1)) / cols;
-        int chartH = (h - 58 - innerPad * (rows + 1)) / rows;
+        int outerPad = 8;
+        int sideW = Math.max(188, Math.min(230, (int) (w * 0.27f)));
+        int gridX = x + outerPad;
+        int gridY = y + 48;
+        int gridW = w - sideW - outerPad * 3;
+        int gridH = h - 56;
+        int sideX = gridX + gridW + outerPad;
+        int sideY = gridY;
 
-        for (int i = 0; i < 14; i++) {
+        drawSummaryPanel(sideX, sideY, sideW, gridH);
+        drawMetricGrid(gridX, gridY, gridW, gridH);
+    }
+
+    private void drawMetricGrid(int gridX, int gridY, int gridW, int gridH) {
+        int cols = 3;
+        int rows = 2;
+        int innerPad = 6;
+        int chartW = (gridW - innerPad * (cols + 1)) / cols;
+        int chartH = (gridH - innerPad * (rows + 1)) / rows;
+
+        for (int i = 0; i < DISPLAY_METRICS.length; i++) {
             int r = i / cols;
             int c = i % cols;
-            int cx = x + innerPad + c * (chartW + innerPad);
-            int cy = top + innerPad + r * (chartH + innerPad);
-            drawSingleSurface(cx, cy, chartW, chartH, i);
+            int cx = gridX + innerPad + c * (chartW + innerPad);
+            int cy = gridY + innerPad + r * (chartH + innerPad);
+            drawSingleSurface(cx, cy, chartW, chartH, DISPLAY_METRICS[i]);
         }
+    }
+
+    private void drawSummaryPanel(int x0, int y0, int w0, int h0) {
+        MAIN.noStroke();
+        MAIN.fill(0x251A3559);
+        MAIN.rect(x0, y0 + 6, w0, h0 - 12, 6);
+        MAIN.stroke(0x88A8C8EE);
+        MAIN.strokeWeight(1.0f);
+        MAIN.noFill();
+        MAIN.rect(x0, y0 + 6, w0, h0 - 12, 6);
+
+        MAIN.textFont(p7);
+        MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
+        MAIN.fill(COLOR_TEXT);
+        MAIN.textSize(14);
+        MAIN.text("指标摘要", x0 + 12, y0 + 16);
+
+        MAIN.fill(COLOR_TEXT_SUB);
+        MAIN.textSize(10);
+        MAIN.text("当前频带占比与关键比值", x0 + 12, y0 + 36);
+
+        int chipY = y0 + 58;
+        drawSummaryChip(x0 + 12, chipY, w0 - 24, 34, "主导频带", BAND_NAMES_CN[dominantBandIndex]);
+        drawSummaryChip(x0 + 12, chipY + 40, (w0 - 30) / 2, 34, "通道数", String.valueOf(channelCount));
+        drawSummaryChip(x0 + 18 + (w0 - 30) / 2, chipY + 40, (w0 - 30) / 2, 34, "慢波占比", formatPercent(latestMetricMean[0] + latestMetricMean[1]));
+
+        MAIN.fill(COLOR_TEXT);
+        MAIN.textSize(11);
+        MAIN.text("频带占比", x0 + 12, chipY + 86);
+
+        int barsY = chipY + 108;
+        for (int i = 0; i < 4; i++) {
+            drawBandBar(x0 + 12, barsY + i * 28, w0 - 24, BAND_NAMES_CN[i], latestMetricMean[i], BAND_COLORS[i]);
+        }
+
+        int ratioY = barsY + 4 * 28 + 10;
+        MAIN.fill(COLOR_TEXT);
+        MAIN.textSize(11);
+        MAIN.text("关键比值", x0 + 50, ratioY);
+
+        drawRatioRow(x0 + 12, ratioY + 24, w0 - 24, "θ/β", latestMetricMean[7]);
+        drawRatioRow(x0 + 12, ratioY + 50, w0 - 24, "α/β", latestMetricMean[10]);
+        drawRatioRow(x0 + 12, ratioY + 76, w0 - 24, "δ/β", latestMetricMean[4]);
+    }
+
+    private void drawSummaryChip(int x0, int y0, int w0, int h0, String label, String value) {
+        MAIN.noStroke();
+        MAIN.fill(0x32183357);
+        MAIN.rect(x0, y0, w0, h0, 4);
+        MAIN.stroke(0x66A6C6EC);
+        MAIN.noFill();
+        MAIN.rect(x0, y0, w0, h0, 4);
+
+        MAIN.textFont(p7);
+        MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
+        MAIN.fill(COLOR_TEXT_SUB);
+        MAIN.textSize(10);
+        MAIN.text(label, x0 + 8, y0 + 5);
+        MAIN.fill(COLOR_TEXT);
+        MAIN.textSize(12);
+        MAIN.text(value, x0 + 8, y0 + 17);
+    }
+
+    private void drawBandBar(int x0, int y0, int w0, String label, float value, int color) {
+        float pct = PApplet.constrain(value, 0f, 1f);
+        int trackX = x0 + 52;
+        int trackW = Math.max(30, w0 - 104);
+        int fillW = Math.round(trackW * pct);
+
+        MAIN.textFont(p7);
+        MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
+        MAIN.fill(COLOR_TEXT_SUB);
+        MAIN.textSize(10);
+        MAIN.text(label, x0, y0 + 1);
+
+        MAIN.noStroke();
+        MAIN.fill(0x304E6C97);
+        MAIN.rect(trackX, y0 + 4, trackW, 10, 5);
+        MAIN.fill((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, 225);
+        MAIN.rect(trackX, y0 + 4, Math.max(0, fillW), 10, 5);
+
+        MAIN.fill(COLOR_TEXT);
+        MAIN.textAlign(PApplet.RIGHT, PApplet.TOP);
+        MAIN.text(formatPercent(value), x0 + w0, y0 + 1);
+    }
+
+    private void drawRatioRow(int x0, int y0, int w0, String label, float value) {
+        MAIN.textFont(p7);
+        MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
+        MAIN.fill(COLOR_TEXT_SUB);
+        MAIN.textSize(10);
+        MAIN.text(label, x0, y0);
+        MAIN.fill(COLOR_TEXT);
+        MAIN.textAlign(PApplet.RIGHT, PApplet.TOP);
+        MAIN.text(formatTickShort(value), x0 + w0, y0);
     }
 
     private void drawSingleSurface(int x0, int y0, int w0, int h0, int metricIdx) {
@@ -367,6 +487,39 @@ public class W_Indicator extends Widget {
         MAIN.text(formatTickShort(vMin), gx + gw + 9, gy + gh - 2);
     }
 
+    private void updateMetricSummary(float[][] frame) {
+        if (frame == null || frame.length == 0) {
+            return;
+        }
+
+        for (int m = 0; m < latestMetricMean.length; m++) {
+            latestMetricMean[m] = 0f;
+        }
+
+        for (int ch = 0; ch < frame.length; ch++) {
+            if (frame[ch] == null) {
+                continue;
+            }
+            for (int m = 0; m < Math.min(latestMetricMean.length, frame[ch].length); m++) {
+                latestMetricMean[m] += safe(frame[ch][m]);
+            }
+        }
+
+        float inv = 1f / Math.max(1, frame.length);
+        for (int m = 0; m < latestMetricMean.length; m++) {
+            latestMetricMean[m] *= inv;
+        }
+
+        dominantBandIndex = 0;
+        float best = latestMetricMean[0];
+        for (int i = 1; i < 4; i++) {
+            if (latestMetricMean[i] > best) {
+                best = latestMetricMean[i];
+                dominantBandIndex = i;
+            }
+        }
+    }
+
     private void drawPeakMark(int metricIdx, float gx, float gy, float cellW, float cellH, int rows, int cols, float vMin, float span) {
         int bestR = 0;
         int bestC = 0;
@@ -444,6 +597,10 @@ public class W_Indicator extends Widget {
         if (av >= 10f) return String.format("%.1f", v);
         if (av >= 1f) return String.format("%.2f", v);
         return String.format("%.3f", v);
+    }
+
+    private static String formatPercent(float v) {
+        return String.format("%.1f%%", PApplet.constrain(v, 0f, 1f) * 100f);
     }
 
     private static int parula(float t) {
