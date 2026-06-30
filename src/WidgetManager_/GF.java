@@ -10,6 +10,7 @@ import DigitalCapableBoard_.DigitalCapableBoard;
 import W_Accelerometer_.W_Accelerometer;
 import W_AnalogRead_.W_AnalogRead;
 import W_BandPower_.W_BandPower;
+import W_BaselineCalibration_.W_BaselineCalibration;
 import W_CFC_.W_CFC;
 import W_CytonImpedance_.W_CytonImpedance;
 import W_DigitalRead_.W_DigitalRead;
@@ -92,6 +93,10 @@ public class GF {
         w_bandPower = new W_BandPower(_this);
         w_bandPower.setTitle("频带功率");
         addWidget(w_bandPower, w);
+
+        w_baselineCalibration = new W_BaselineCalibration(_this);
+        w_baselineCalibration.setTitle("个体基线校准");
+        addWidget(w_baselineCalibration, w);
 
         // w_headPlot = new W_HeadPlot(_this);
         // w_headPlot.setTitle("脑电地形图");

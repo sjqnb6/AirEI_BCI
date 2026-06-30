@@ -3,6 +3,7 @@ package WidgetManager_;
 import W_Accelerometer_.W_Accelerometer;
 import W_AnalogRead_.W_AnalogRead;
 import W_BandPower_.W_BandPower;
+import W_BaselineCalibration_.W_BaselineCalibration;
 import W_CFC_.W_CFC;
 import W_Connectivity_.W_Connectivity;
 import W_CytonImpedance_.W_CytonImpedance;
@@ -33,6 +34,7 @@ public class GVI {
     public static W_fft w_fft;
     public static W_Networking w_networking;
     public static W_BandPower w_bandPower;
+    public static W_BaselineCalibration w_baselineCalibration;
     public static W_Accelerometer w_accelerometer;
     public static W_CytonImpedance w_cytonImpedance;
     public static W_GanglionImpedance w_ganglionImpedance;

@@ -373,17 +373,6 @@ public class W_CFC extends Widget {
         MAIN.text("显著性 Z = " + PApplet.nf(zScore, 1, 2), rightX - 28, y0 + 58);
         MAIN.text("经验 P = " + PApplet.nf(pValue, 1, 3), rightX - 28, y0 + 76);
 
-        int sigCol = pValue < 0.05f ? 0xFF4FE0B0 : 0xFFE5BD67;
-        MAIN.noStroke();
-        MAIN.fill((sigCol >> 16) & 0xFF, (sigCol >> 8) & 0xFF, sigCol & 0xFF, 40);
-        MAIN.rect(x0 + w0 - 92, y0 + 10, 80, 18, 2);
-        MAIN.stroke((sigCol >> 16) & 0xFF, (sigCol >> 8) & 0xFF, sigCol & 0xFF, 180);
-        MAIN.noFill();
-        MAIN.rect(x0 + w0 - 92, y0 + 10, 80, 18, 2);
-        MAIN.fill(TEXT_MAIN);
-        MAIN.textAlign(PApplet.CENTER, PApplet.CENTER);
-        MAIN.textSize(9);
-        MAIN.text(pValue < 0.05f ? "统计显著" : "趋势显著", x0 + w0 - 52, y0 + 19);
     }
 
     private void drawRoseCard(int x0, int y0, int w0, int h0) {

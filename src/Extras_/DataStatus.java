@@ -50,8 +50,9 @@ public class DataStatus{
             int endPos = data.length;
             int startPos = Math.max(0, endPos - nPoints);
 
+            final float zeroLineThreshold = 0.00001f;
             boolean is_straight_line = true;
-            if (!MAIN.currentBoard.isStreaming()) {
+            if (!MAIN.currentBoard.isStreaming() || !MAIN.currentBoard.isEXGChannelActive(channel)) {
                 is_straight_line = false;
             }
             float max = Math.abs(data[startPos]);
@@ -59,9 +60,12 @@ public class DataStatus{
                 if (Math.abs(data[i]) > max) {
                     max = Math.abs(data[i]);
                 }
-                if ((Math.abs(data[i - 1] - data[i]) > 0.00001) && (Math.abs(data[i]) > 0.00001)) {
+                if ((Math.abs(data[i - 1] - data[i]) > zeroLineThreshold) && (Math.abs(data[i]) > zeroLineThreshold)) {
                     is_straight_line = false;
                 }
+            }
+            if (max <= zeroLineThreshold) {
+                is_straight_line = false;
             }
             percentage = (max / maxVal) * 100.0;
 
