@@ -23,23 +23,30 @@ public class W_Indicator extends Widget {
     private static final int HISTORY_COLS = 42;
     private static final long UPDATE_INTERVAL_MS = 100L;
     private static final int MATLAB_WINDOW_SECONDS = 2;
-    private static final int[] DISPLAY_METRICS = {0, 1, 2, 3, 7, 10};
-    private static final String[] BAND_NAMES = {"Delta", "Theta", "Alpha", "Beta"};
-    private static final String[] BAND_NAMES_CN = {"Delta", "Theta", "Alpha", "Beta"};
+    private static final int[] DISPLAY_METRICS = {
+            IndicatorEngine.ALPHA_PCT,
+            IndicatorEngine.BETA_PCT,
+            IndicatorEngine.GAMMA_PCT,
+            IndicatorEngine.THETA_BETA,
+            IndicatorEngine.ALPHA_BETA,
+            IndicatorEngine.SLOW_WAVE
+    };
+    private static final String[] BAND_NAMES_CN = {"Delta", "Theta", "Alpha", "Beta", "Gamma"};
     private static final int[] BAND_COLORS = {
             0xFF4FB4FF,
             0xFF4FD9C6,
             0xFF6BE47B,
-            0xFFFFC36D
+            0xFFFFC36D,
+            0xFFFF7AA2
     };
 
     private final GUI MAIN;
     private final IndicatorEngine engine = new IndicatorEngine();
-    private final IndicatorHistory history = new IndicatorHistory(HISTORY_COLS, GRID_ROWS, 14);
+    private final IndicatorHistory history = new IndicatorHistory(HISTORY_COLS, GRID_ROWS, IndicatorEngine.METRIC_COUNT);
 
     private long lastUpdateMs = 0L;
     private int channelCount = 8;
-    private final float[] latestMetricMean = new float[14];
+    private final float[] latestMetricMean = new float[IndicatorEngine.METRIC_COUNT];
     private int dominantBandIndex = 0;
 
     public W_Indicator(GUI MAIN) {
@@ -71,13 +78,13 @@ public class W_Indicator extends Widget {
 
         int availableChannels = band != null ? band.length : dataProcessingFilteredBuffer.length;
         channelCount = Math.max(1, Math.min(8, Math.min(nchan, availableChannels)));
-        float[][] frame = new float[channelCount][14];
+        float[][] frame = new float[channelCount][IndicatorEngine.METRIC_COUNT];
 
         int sampleRate = Math.max(1, MAIN.currentBoard.getSampleRate());
         for (int ch = 0; ch < channelCount; ch++) {
             float[] matlabLike = computeBandPowersMatlabLike(ch, sampleRate);
             if (matlabLike != null) {
-                engine.compute(matlabLike[0], matlabLike[1], matlabLike[2], matlabLike[3], frame[ch]);
+                engine.compute(matlabLike[0], matlabLike[1], matlabLike[2], matlabLike[3], matlabLike[4], frame[ch]);
                 continue;
             }
 
@@ -86,7 +93,8 @@ public class W_Indicator extends Widget {
                 float theta = safe(band[ch][1]);
                 float alpha = safe(band[ch][2]);
                 float beta = safe(band[ch][3]);
-                engine.compute(delta, theta, alpha, beta, frame[ch]);
+                float gamma = band[ch].length >= 5 ? safe(band[ch][4]) : 0f;
+                engine.compute(delta, theta, alpha, beta, gamma, frame[ch]);
             }
         }
         updateMetricSummary(frame);
@@ -139,8 +147,10 @@ public class W_Indicator extends Widget {
             double theta = DataFilter.get_band_power(psd, 4.0, 7.0);
             double alpha = DataFilter.get_band_power(psd, 8.0, 12.0);
             double beta = DataFilter.get_band_power(psd, 13.0, 30.0);
+            double gammaHigh = Math.min(55.0, sampleRate * 0.5 - 1.0);
+            double gamma = gammaHigh > 30.5 ? DataFilter.get_band_power(psd, 30.0, gammaHigh) : 0.0;
 
-            if (!Double.isFinite(delta + theta + alpha + beta)) {
+            if (!Double.isFinite(delta + theta + alpha + beta + gamma)) {
                 return null;
             }
 
@@ -150,7 +160,8 @@ public class W_Indicator extends Widget {
                     safe((float) (delta * scale)),
                     safe((float) (theta * scale)),
                     safe((float) (alpha * scale)),
-                    safe((float) (beta * scale))
+                    safe((float) (beta * scale)),
+                    safe((float) (gamma * scale))
             };
         } catch (BrainFlowError e) {
             return null;
@@ -179,19 +190,19 @@ public class W_Indicator extends Widget {
         MAIN.textFont(p7);
         MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
         MAIN.textSize(17);
-        MAIN.text("核心频带指标图谱", x + 12, y + 7);
+        MAIN.text("频谱状态指标", x + 12, y + 7);
 
         MAIN.fill(COLOR_TEXT_SUB);
         MAIN.textSize(11);
         MAIN.text(
-                "6项代表指标 | 8通道实时热力图 | 右侧摘要解读",
+                "Alpha/Beta/Gamma | 比值指标 | 右侧状态分析",
                 x + 12, y + 28
         );
     }
 
     private void drawSurfaceGrid() {
         int outerPad = 8;
-        int sideW = Math.max(188, Math.min(230, (int) (w * 0.27f)));
+        int sideW = Math.max(220, Math.min(260, (int) (w * 0.30f)));
         int gridX = x + outerPad;
         int gridY = y + 48;
         int gridW = w - sideW - outerPad * 3;
@@ -236,30 +247,43 @@ public class W_Indicator extends Widget {
 
         MAIN.fill(COLOR_TEXT_SUB);
         MAIN.textSize(10);
-        MAIN.text("当前频带占比与关键比值", x0 + 12, y0 + 36);
+        MAIN.text("实时指标与状态解释", x0 + 12, y0 + 36);
 
-        int chipY = y0 + 58;
+        int chipY = y0 + 56;
         drawSummaryChip(x0 + 12, chipY, w0 - 24, 34, "主导频带", BAND_NAMES_CN[dominantBandIndex]);
         drawSummaryChip(x0 + 12, chipY + 40, (w0 - 30) / 2, 34, "通道数", String.valueOf(channelCount));
-        drawSummaryChip(x0 + 18 + (w0 - 30) / 2, chipY + 40, (w0 - 30) / 2, 34, "慢波占比", formatPercent(latestMetricMean[0] + latestMetricMean[1]));
+        drawSummaryChip(
+                x0 + 18 + (w0 - 30) / 2,
+                chipY + 40,
+                (w0 - 30) / 2,
+                34,
+                "慢波占比",
+                formatPercent(latestMetricMean[IndicatorEngine.DELTA_PCT] + latestMetricMean[IndicatorEngine.THETA_PCT])
+        );
 
         MAIN.fill(COLOR_TEXT);
         MAIN.textSize(11);
-        MAIN.text("频带占比", x0 + 12, chipY + 86);
+        MAIN.text("频带占比", x0 + 12, chipY + 82);
 
-        int barsY = chipY + 108;
-        for (int i = 0; i < 4; i++) {
-            drawBandBar(x0 + 12, barsY + i * 28, w0 - 24, BAND_NAMES_CN[i], latestMetricMean[i], BAND_COLORS[i]);
+        int barsY = chipY + 100;
+        for (int i = 0; i < BAND_NAMES_CN.length; i++) {
+            drawBandBar(x0 + 12, barsY + i * 18, w0 - 24, BAND_NAMES_CN[i], latestMetricMean[i], BAND_COLORS[i]);
         }
 
-        int ratioY = barsY + 4 * 28 + 10;
+        int ratioY = barsY + BAND_NAMES_CN.length * 18 + 6;
         MAIN.fill(COLOR_TEXT);
         MAIN.textSize(11);
-        MAIN.text("关键比值", x0 + 50, ratioY);
+        MAIN.text("指标分析", x0 + 55, ratioY);
 
-        drawRatioRow(x0 + 12, ratioY + 24, w0 - 24, "θ/β", latestMetricMean[7]);
-        drawRatioRow(x0 + 12, ratioY + 50, w0 - 24, "α/β", latestMetricMean[10]);
-        drawRatioRow(x0 + 12, ratioY + 76, w0 - 24, "δ/β", latestMetricMean[4]);
+        int rowY = ratioY + 17;
+        drawAnalysisRow(x0 + 12, rowY, w0 - 24, "Alpha", latestMetricMean[IndicatorEngine.ALPHA_PCT], true, analyzeAlpha());
+        drawAnalysisRow(x0 + 12, rowY + 24, w0 - 24, "Beta", latestMetricMean[IndicatorEngine.BETA_PCT], true, analyzeBeta());
+        drawAnalysisRow(x0 + 12, rowY + 48, w0 - 24, "Gamma", latestMetricMean[IndicatorEngine.GAMMA_PCT], true, analyzeGamma());
+        drawAnalysisRow(x0 + 12, rowY + 72, w0 - 24, "Theta/Beta", latestMetricMean[IndicatorEngine.THETA_BETA], false, analyzeThetaBeta());
+        drawAnalysisRow(x0 + 12, rowY + 96, w0 - 24, "Alpha/Beta", latestMetricMean[IndicatorEngine.ALPHA_BETA], false, analyzeAlphaBeta());
+        drawAnalysisRow(x0 + 12, rowY + 120, w0 - 24, "Slow Wave", latestMetricMean[IndicatorEngine.SLOW_WAVE], false, analyzeSlowWave());
+        drawAnalysisRow(x0 + 12, rowY + 144, w0 - 24, "Engagement", latestMetricMean[IndicatorEngine.ENGAGEMENT], false, analyzeEngagement());
+        drawAnalysisRow(x0 + 12, rowY + 168, w0 - 24, "EMG Index", latestMetricMean[IndicatorEngine.EMG_INDEX], false, analyzeEmg());
     }
 
     private void drawSummaryChip(int x0, int y0, int w0, int h0, String label, String value) {
@@ -314,6 +338,84 @@ public class W_Indicator extends Widget {
         MAIN.text(formatTickShort(value), x0 + w0, y0);
     }
 
+    private void drawAnalysisRow(int x0, int y0, int w0, String label, float value, boolean percent, String note) {
+        MAIN.noStroke();
+        MAIN.fill(0x20183357);
+        MAIN.rect(x0, y0, w0, 22, 4);
+
+        MAIN.textFont(p7);
+        MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
+        MAIN.fill(COLOR_TEXT_SUB);
+        MAIN.textSize(9);
+        MAIN.text(label, x0 + 6, y0 + 4);
+
+        MAIN.fill(COLOR_TEXT);
+        MAIN.textAlign(PApplet.RIGHT, PApplet.TOP);
+        MAIN.textSize(9);
+        MAIN.text(percent ? formatPercent(value) : formatTickShort(value), x0 + w0 - 6, y0 + 4);
+
+        MAIN.textAlign(PApplet.LEFT, PApplet.TOP);反映警觉、认知参与或高唤醒状态。Beta 偏高时，也需要结合肌电判断是否存在紧张或干扰。
+        MAIN.fill(COLOR_TEXT_SUB);
+        MAIN.textSize(9);
+        MAIN.text(note, x0 + 6, y0 + 13);
+    }
+
+    private String analyzeAlpha() {
+        float v = latestMetricMean[IndicatorEngine.ALPHA_PCT];
+        if (v >= 0.32f) return "放松/闭眼节律较强";
+        if (v <= 0.14f) return "Alpha偏低, 节律不明显";
+        return "Alpha处于中等水平";
+    }
+
+    private String analyzeBeta() {
+        float v = latestMetricMean[IndicatorEngine.BETA_PCT];
+        if (v >= 0.30f) return "警觉或紧张活动偏高";
+        if (v <= 0.12f) return "Beta偏低, 激活较弱";
+        return "警觉水平较平稳";
+    }
+
+    private String analyzeGamma() {
+        float v = latestMetricMean[IndicatorEngine.GAMMA_PCT];
+        if (v >= 0.18f) return "高频偏高, 留意肌电";
+        if (v <= 0.04f) return "高频活动较低";
+        return "高频活动平稳";
+    }
+
+    private String analyzeThetaBeta() {
+        float v = latestMetricMean[IndicatorEngine.THETA_BETA];
+        if (v >= 2.0f) return "慢波占优, 注意力偏弱";
+        if (v >= 1.2f) return "注意稳定性一般";
+        return "注意状态较稳定";
+    }
+
+    private String analyzeAlphaBeta() {
+        float v = latestMetricMean[IndicatorEngine.ALPHA_BETA];
+        if (v >= 1.5f) return "放松节律占优";
+        if (v <= 0.6f) return "Beta占优, 唤醒较高";
+        return "放松/唤醒较均衡";
+    }
+
+    private String analyzeSlowWave() {
+        float v = latestMetricMean[IndicatorEngine.SLOW_WAVE];
+        if (v >= 1.2f) return "疲劳或困倦倾向";
+        if (v >= 0.7f) return "慢波中等, 可观察";
+        return "慢波较低, 警觉较好";
+    }
+
+    private String analyzeEngagement() {
+        float v = latestMetricMean[IndicatorEngine.ENGAGEMENT];
+        if (v >= 0.8f) return "参与/激活水平较高";
+        if (v <= 0.25f) return "任务参与度偏低";
+        return "参与水平中等";
+    }
+
+    private String analyzeEmg() {
+        float v = latestMetricMean[IndicatorEngine.EMG_INDEX];
+        if (v >= 0.45f) return "可能有肌电污染";
+        if (v >= 0.20f) return "轻度高频干扰";
+        return "肌电风险较低";
+    }
+
     private void drawSingleSurface(int x0, int y0, int w0, int h0, int metricIdx) {
         MAIN.noStroke();
         MAIN.fill(0x251A3559);
@@ -321,7 +423,7 @@ public class W_Indicator extends Widget {
         MAIN.stroke(0x88A8C8EE);
         MAIN.strokeWeight(1.0f);
         MAIN.noFill();
-        MAIN.rect(x0, y0, w0, h0, 4);
+        MAIN.rect(x0, y0, w0, h0, 4);反映高频活动。Gamma 明显升高时，可能与高频脑活动有关，也可能提示咬牙、皱眉等肌电污染。实时 EEG 数据
 
         // Strong, clean metric label with subtle glow.
         MAIN.textFont(p7);
@@ -511,8 +613,8 @@ public class W_Indicator extends Widget {
         }
 
         dominantBandIndex = 0;
-        float best = latestMetricMean[0];
-        for (int i = 1; i < 4; i++) {
+        float best = latestMetricMean[IndicatorEngine.DELTA_PCT];
+        for (int i = 1; i < BAND_NAMES_CN.length; i++) {
             if (latestMetricMean[i] > best) {
                 best = latestMetricMean[i];
                 dominantBandIndex = i;
