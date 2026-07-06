@@ -29,6 +29,7 @@ import W_TimeSeries_.W_timeSeries;
 import Widget_.Widget;
 import W_Connectivity_.W_Connectivity;
 import W_SignalQuality_.W_SignalQuality;
+import W_SpO2_.W_SpO2;
 import W_Neur_.W_Neur;
 import W_Indicator_.W_Indicator;
 import java.util.ArrayList;
@@ -133,6 +134,11 @@ public class GF {
         w_indicator = new W_Indicator(_this);
         w_indicator.setTitle("指标图");
         addWidget(w_indicator, w);
+
+        w_spo2 = new W_SpO2(_this);
+        w_spo2.setTitle("血氧监测");
+        addWidget(w_spo2, w);
+
         // if(_this.currentBoard instanceof AnalogCapableBoard){
         //     w_pulsesensor = new W_PulseSensor(_this);
         //     w_pulsesensor.setTitle("脉搏传感器");
