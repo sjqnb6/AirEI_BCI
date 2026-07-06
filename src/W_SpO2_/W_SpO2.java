@@ -241,22 +241,22 @@ public class W_SpO2 extends Widget {
     private void drawPpgWaveCard(int x0, int y0, int w0, int h0) {
         drawCard(x0, y0, w0, h0, "实时PPG波形");
         int gx = x0 + 12;
-        int gy = y0 + 34;
+        int gy = y0 + 42;
         int gw = w0 - 24;
-        int gh = h0 - 48;
+        int gh = h0 - 62;
+
+        drawLegend(x0 + w0 - 128, y0 + 10, "red", RED_TRACE);
+        drawLegend(x0 + w0 - 68, y0 + 10, "ir", IR_TRACE);
 
         drawGrid(gx, gy, gw, gh);
         drawWave(redWave, gx, gy, gw, gh, RED_TRACE);
         drawWave(irWave, gx, gy, gw, gh, IR_TRACE);
 
-        drawLegend(gx + 8, gy + 8, "red", RED_TRACE);
-        drawLegend(gx + 70, gy + 8, "ir", IR_TRACE);
-
         MAIN.fill(TEXT_SUB);
         MAIN.textFont(p7);
         MAIN.textSize(10);
         MAIN.textAlign(PApplet.RIGHT, PApplet.BOTTOM);
-        MAIN.text("latest red " + PApplet.nf(red, 1, 0) + "  ir " + PApplet.nf(ir, 1, 0), gx + gw - 4, gy + gh - 4);
+        MAIN.text("latest red " + PApplet.nf(red, 1, 0) + "  ir " + PApplet.nf(ir, 1, 0), gx + gw - 4, y0 + h0 - 10);
     }
 
     private void drawTrendCard(int x0, int y0, int w0, int h0) {
@@ -318,24 +318,29 @@ public class W_SpO2 extends Widget {
     }
 
     private void drawMiniTrend(int x0, int y0, int w0, int h0, float[] data, float min, float max, int color, String label) {
+        int labelW = Math.min(62, Math.max(44, w0 / 5));
+        int plotX = x0 + labelW;
+        int plotW = Math.max(20, w0 - labelW);
+
+        MAIN.fill(TEXT_SUB);
+        MAIN.textFont(p7);
+        MAIN.textSize(9);
+        MAIN.textAlign(PApplet.LEFT, PApplet.CENTER);
+        MAIN.text(label, x0 + 2, y0 + h0 * 0.5f);
+
         MAIN.stroke(45, 70, 105, 170);
         MAIN.strokeWeight(1f);
-        MAIN.line(x0, y0 + h0, x0 + w0, y0 + h0);
+        MAIN.line(plotX, y0 + h0, plotX + plotW, y0 + h0);
         MAIN.noFill();
         MAIN.stroke((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, 220);
         MAIN.strokeWeight(1.4f);
         MAIN.beginShape();
         for (int i = 0; i < data.length; i++) {
-            float xx = x0 + w0 * i / (float) (data.length - 1);
+            float xx = plotX + plotW * i / (float) (data.length - 1);
             float yy = y0 + h0 - h0 * PApplet.constrain((data[i] - min) / Math.max(1e-6f, max - min), 0f, 1f);
             MAIN.vertex(xx, yy);
         }
         MAIN.endShape();
-        MAIN.fill(TEXT_SUB);
-        MAIN.textFont(p7);
-        MAIN.textSize(9);
-        MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
-        MAIN.text(label, x0 + 2, y0 + 2);
     }
 
     private void drawWave(float[] data, int gx, int gy, int gw, int gh, int color) {
