@@ -43,7 +43,11 @@ public final class SyHrvSerialClient {
         }
 
         decoder.reset();
-        serialPort.writeBytes(new byte[]{COMMAND_START_MEASUREMENT}, 1);
+        SyHrvRawLogger.beginSession("SERIAL", "port=" + portName + " baud=" + baudRate);
+        byte[] startCommand = {COMMAND_START_MEASUREMENT};
+        int written = serialPort.writeBytes(startCommand, 1);
+        SyHrvRawLogger.logSent("SERIAL", startCommand, 0, 1,
+                written == 1 ? "success" : "failed written=" + written);
         lastError = "";
         listener.onConnectionNotice("已连接 " + portName + "（" + baudRate + "），已发送开始测量命令");
         return true;
@@ -64,6 +68,7 @@ public final class SyHrvSerialClient {
             setError("读取 " + portName + " 失败");
             return;
         }
+        SyHrvRawLogger.logReceived("SERIAL", data, 0, read);
         for (int i = 0; i < read; i++) {
             SyHrvFrame frame = decoder.accept(data[i]);
             if (frame != null) {
@@ -77,11 +82,15 @@ public final class SyHrvSerialClient {
         if (serialPort != null) {
             try {
                 if (serialPort.isOpen()) {
-                    serialPort.writeBytes(new byte[]{COMMAND_STOP_MEASUREMENT}, 1);
+                    byte[] stopCommand = {COMMAND_STOP_MEASUREMENT};
+                    int written = serialPort.writeBytes(stopCommand, 1);
+                    SyHrvRawLogger.logSent("SERIAL", stopCommand, 0, 1,
+                            written == 1 ? "success" : "failed written=" + written);
                     serialPort.closePort();
                 }
             } finally {
                 serialPort = null;
+                SyHrvRawLogger.endSession("SERIAL");
             }
         }
         decoder.reset();

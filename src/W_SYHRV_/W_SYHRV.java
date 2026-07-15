@@ -17,7 +17,7 @@ import java.util.List;
 import static Globel.GUI.p7;
 
 /** Visualizes the calculated health metrics reported by a direct SY-HRV module. */
-public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener {
+public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener, SyHrvBleClient.Listener {
     private static final int BG_TOP = 0xFF071120;
     private static final int BG_BOTTOM = 0xFF0E1A30;
     private static final int PANEL = 0xCC13243F;
@@ -31,15 +31,19 @@ public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener {
     private static final int INFO = 0xFF56C8FF;
     private static final int TREND_POINTS = 180;
     private static final String[] SOURCE_LABELS = {"硬件", "模拟", "暂停"};
+    private static final String[] TRANSPORT_LABELS = {"USB 串口", "蓝牙 BLE"};
     private static final String[] TREND_WINDOW_LABELS = {"60 秒", "120 秒", "180 秒"};
     private static final int[] TREND_WINDOW_POINTS = {60, 120, 180};
 
     private final GUI MAIN;
     private final SyHrvSerialClient serialClient;
+    private final SyHrvBleClient bleClient;
     private final ControlP5 localCp5;
     private final Textfield portTf;
     private final Textfield baudTf;
+    private final Textfield bleDeviceTf;
     private final Button connectBtn;
+    private final Button scanBtn;
     private final Button clearBtn;
     private final List<Controller> cp5Elements = new ArrayList<Controller>();
 
@@ -53,7 +57,9 @@ public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener {
     private boolean historyFilled = false;
 
     private SyHrvFrame frame;
+    private volatile SyHrvFrame incomingFrame;
     private int sourceIndex = 0;
+    private int transportIndex = 0;
     private int trendWindowIndex = 0;
     private long lastDemoMs = 0L;
     private float demoPhase = 0f;
@@ -64,23 +70,33 @@ public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener {
     private float shownSystolic = Float.NaN;
     private float shownDiastolic = Float.NaN;
     private float shownBodyTemperature = Float.NaN;
-    private String connectionNotice = "等待连接 SY-HRV 模块";
-    private long connectionNoticeMs = 0L;
+    private volatile String connectionNotice = "等待连接 SY-HRV 模块";
+    private volatile long connectionNoticeMs = 0L;
+    private volatile List<SyHrvBleClient.Device> pendingBleDevices;
+    private List<SyHrvBleClient.Device> bleCandidates = new ArrayList<SyHrvBleClient.Device>();
+    private SyHrvBleClient.Device selectedBleDevice;
+    private volatile SyHrvBleClient.Device connectedBleDevice;
+    private volatile boolean bleScanInProgress = false;
+    private volatile boolean bleConnectInProgress = false;
+    private volatile boolean bleConnectionFailed = false;
 
     public W_SYHRV(GUI MAIN) {
         super(MAIN);
         this.MAIN = MAIN;
         dropdownWidth = 82;
         addDropdown("SyHrvSource", "数据源", Arrays.asList(SOURCE_LABELS), sourceIndex);
+        addDropdown("SyHrvTransport", "传输方式", Arrays.asList(TRANSPORT_LABELS), transportIndex);
         addDropdown("SyHrvTrendWindow", "趋势窗口", Arrays.asList(TREND_WINDOW_LABELS), trendWindowIndex);
 
         serialClient = new SyHrvSerialClient(this);
+        bleClient = new SyHrvBleClient(this);
         localCp5 = new ControlP5(MAIN);
         localCp5.setGraphics(MAIN, 0, 0);
         localCp5.setAutoDraw(false);
 
         portTf = makeTextfield("syHrvPort", "COM3", x0 + 6, 142);
         baudTf = makeTextfield("syHrvBaud", "9600", x0 + 152, 70);
+        bleDeviceTf = makeTextfield("syHrvBleDevice", "", x0 + 6, 214);
 
         connectBtn = MAIN.createButton(localCp5, "syHrvConnect", "连接", x0 + 226, y0 + navH + 1, 68, navH - 3,
                 p7, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
@@ -88,6 +104,15 @@ public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener {
         connectBtn.onRelease(new CallbackListener() {
             public void controlEvent(CallbackEvent event) {
                 toggleConnection();
+            }
+        });
+
+        scanBtn = MAIN.createButton(localCp5, "syHrvBleScan", "自动查找", x0 + 224, y0 + navH + 1, 70, navH - 3,
+                p7, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
+        scanBtn.setBorderColor(0xFF82A3CC);
+        scanBtn.onRelease(new CallbackListener() {
+            public void controlEvent(CallbackEvent event) {
+                scanBleDevices();
             }
         });
 
@@ -103,8 +128,11 @@ public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener {
 
         cp5Elements.add(portTf);
         cp5Elements.add(baudTf);
+        cp5Elements.add(bleDeviceTf);
         cp5Elements.add(connectBtn);
+        cp5Elements.add(scanBtn);
         cp5Elements.add(clearBtn);
+        layoutTransportControls();
     }
 
     private Textfield makeTextfield(String name, String value, int x, int width) {
@@ -137,6 +165,13 @@ public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener {
         }
     }
 
+    public void SyHrvTransport(int value) {
+        transportIndex = PApplet.constrain(value, 0, TRANSPORT_LABELS.length - 1);
+        layoutTransportControls();
+        setNotice(transportIndex == 0 ? "USB 串口模式：填写 COM 端口后连接"
+                : "蓝牙 BLE 模式：自动查找名称以 simple 开头的设备");
+    }
+
     public void SyHrvTrendWindow(int value) {
         trendWindowIndex = PApplet.constrain(value, 0, TREND_WINDOW_POINTS.length - 1);
     }
@@ -148,10 +183,18 @@ public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener {
         MAIN.textfieldUpdateHelper.checkTextfield(portTf);
         MAIN.textfieldUpdateHelper.checkTextfield(baudTf);
 
-        if (sourceIndex == 0) {
+        applyPendingBleScan();
+        applyPendingBleConnection();
+        applyBleConnectionFailure();
+        if (sourceIndex == 0 && transportIndex == 0) {
             serialClient.poll();
         } else if (sourceIndex == 1) {
             updateDemoFrame();
+        }
+        SyHrvFrame pending = incomingFrame;
+        if (pending != null && sourceIndex == 0) {
+            incomingFrame = null;
+            applyFrame(pending);
         }
         animateDisplayedValues();
     }
@@ -210,16 +253,14 @@ public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener {
         localCp5.setGraphics(pApplet, 0, 0);
         portTf.setPosition(x0 + 6, y0 + navH + 1);
         baudTf.setPosition(x0 + 152, y0 + navH + 1);
-        connectBtn.setPosition(x0 + 226, y0 + navH + 1);
-        clearBtn.setPosition(x0 + 298, y0 + navH + 1);
+        bleDeviceTf.setPosition(x0 + 6, y0 + navH + 1);
+        scanBtn.setPosition(x0 + 224, y0 + navH + 1);
+        layoutTransportControls();
     }
 
     @Override
     public void onFrame(SyHrvFrame decodedFrame) {
-        if (sourceIndex != 0) {
-            return;
-        }
-        applyFrame(decodedFrame);
+        incomingFrame = decodedFrame;
     }
 
     @Override
@@ -228,6 +269,10 @@ public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener {
     }
 
     private void toggleConnection() {
+        if (transportIndex == 1) {
+            toggleBleConnection();
+            return;
+        }
         if (serialClient.isConnected()) {
             serialClient.close();
             connectBtn.getCaptionLabel().setText("连接");
@@ -241,7 +286,151 @@ public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener {
             baudTf.setText(String.valueOf(baud));
             connectBtn.getCaptionLabel().setText("断开");
             connectBtn.setColorBackground(0xFF7A3645);
+            setNotice("已通过 " + TRANSPORT_LABELS[transportIndex] + " 连接，等待测量帧");
         }
+    }
+
+    private void toggleBleConnection() {
+        if (bleConnectInProgress) {
+            setNotice("正在连接并校验设备，请稍候…");
+            return;
+        }
+        if (bleScanInProgress) {
+            setNotice("正在搜索 SY-HRV 设备，请等待搜索完成…");
+            return;
+        }
+        if (bleClient.isConnected()) {
+            bleClient.close();
+            selectedBleDevice = null;
+            bleCandidates.clear();
+            bleDeviceTf.setText("");
+            connectBtn.getCaptionLabel().setText("连接");
+            connectBtn.setColorBackground(0xFF2A4A70);
+            setNotice("蓝牙 BLE 已断开；重新连接前请点击“自动查找”");
+            return;
+        }
+        if (selectedBleDevice == null) {
+            scanBleDevices();
+            return;
+        }
+        beginBleConnection(bleCandidates.isEmpty() ? Arrays.asList(selectedBleDevice) : bleCandidates);
+    }
+
+    private void beginBleConnection(final SyHrvBleClient.Device target) {
+        beginBleConnection(Arrays.asList(target));
+    }
+
+    private void beginBleConnection(final List<SyHrvBleClient.Device> candidates) {
+        final SyHrvBleClient.Device target = candidates == null || candidates.isEmpty() ? null : candidates.get(0);
+        if (target == null || bleConnectInProgress || bleClient.isConnected()) {
+            return;
+        }
+        bleConnectInProgress = true;
+        connectBtn.getCaptionLabel().setText("连接中");
+        setNotice("已匹配 SY-HRV 服务，正在连接 " + target + "…");
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (bleClient.connect(target)) {
+                    connectedBleDevice = target;
+                } else {
+                    bleConnectionFailed = true;
+                }
+                bleConnectInProgress = false;
+            }
+        }, "sy-hrv-ble-connect").start();
+    }
+
+    private void scanBleDevices() {
+        if (transportIndex != 1 || bleScanInProgress || bleConnectInProgress) {
+            return;
+        }
+        if (bleClient.isConnected()) {
+            setNotice("模块已经连接，无需重新查找");
+            return;
+        }
+        bleScanInProgress = true;
+        scanBtn.getCaptionLabel().setText("扫描中");
+        setNotice("正在主动搜索名称以 simple 开头的 BLE 设备（约 10 秒）…");
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                pendingBleDevices = bleClient.scan(10000);
+                bleScanInProgress = false;
+            }
+        }, "sy-hrv-ble-scan").start();
+    }
+
+    private void applyPendingBleScan() {
+        if (bleScanInProgress) {
+            return;
+        }
+        scanBtn.getCaptionLabel().setText("自动查找");
+        List<SyHrvBleClient.Device> result = pendingBleDevices;
+        if (result == null) {
+            updateBleConnectionButton();
+            return;
+        }
+        pendingBleDevices = null;
+        if (result.isEmpty()) {
+            bleCandidates.clear();
+            selectedBleDevice = null;
+            bleDeviceTf.setText("");
+            setNotice(bleClient.getLastError().isEmpty() ? "未发现名称以 simple 开头的 BLE 设备" : bleClient.getLastError());
+        } else {
+            bleCandidates = new ArrayList<SyHrvBleClient.Device>(result);
+            selectedBleDevice = result.get(0);
+            bleDeviceTf.setText(selectedBleDevice.toString());
+            setNotice("已找到设备：" + selectedBleDevice + "，请点击“连接”");
+        }
+        updateBleConnectionButton();
+    }
+
+    private void applyPendingBleConnection() {
+        SyHrvBleClient.Device connectedDevice = connectedBleDevice;
+        if (connectedDevice == null) {
+            return;
+        }
+        connectedBleDevice = null;
+        selectedBleDevice = connectedDevice;
+        bleDeviceTf.setText(connectedDevice.toString());
+    }
+
+    private void applyBleConnectionFailure() {
+        if (!bleConnectionFailed) {
+            return;
+        }
+        bleConnectionFailed = false;
+        selectedBleDevice = null;
+        bleCandidates.clear();
+        bleDeviceTf.setText("");
+        String error = bleClient.getLastError();
+        setNotice((error == null || error.isEmpty() ? "BLE 连接失败" : error) + "；请重新点击“自动查找”");
+        updateBleConnectionButton();
+    }
+
+    private void updateBleConnectionButton() {
+        if (transportIndex != 1 || bleConnectInProgress) {
+            return;
+        }
+        if (bleClient.isConnected()) {
+            connectBtn.getCaptionLabel().setText("断开");
+            connectBtn.setColorBackground(0xFF7A3645);
+        } else {
+            connectBtn.getCaptionLabel().setText("连接");
+            connectBtn.setColorBackground(0xFF2A4A70);
+        }
+    }
+
+    private void layoutTransportControls() {
+        boolean useBle = transportIndex == 1;
+        portTf.setVisible(!useBle);
+        baudTf.setVisible(!useBle);
+        bleDeviceTf.setVisible(useBle);
+        scanBtn.setVisible(useBle);
+        connectBtn.setPosition(useBle ? x0 + 298 : x0 + 226, y0 + navH + 1);
+        clearBtn.setPosition(useBle ? x0 + 370 : x0 + 298, y0 + navH + 1);
+        updateBleConnectionButton();
     }
 
     private int parseBaud(String value) {
@@ -339,16 +528,52 @@ public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener {
         MAIN.text("SY-HRV 健康监测", x0 + 12, y0 + 9);
         MAIN.fill(TEXT_SUB);
         MAIN.textSize(11);
-        MAIN.text("心率 / 血氧 / 血压 / 呼吸 / HRV / 体温 · 直连模块 24 字节协议", x0 + 12, y0 + 32);
+        String transportHint = transportIndex == 0 ? "USB-TTL" : "BLE GATT";
+        String protocolText = "心率 / 血氧 / 血压 / 呼吸 / HRV / 体温 · " + transportHint + " · 24 字节协议";
+        boolean showNotice = sourceIndex == 0 && !connectionNotice.isEmpty()
+                && System.currentTimeMillis() - connectionNoticeMs < 12000L;
+        String headerDetail = showNotice ? connectionNotice : protocolText;
+        MAIN.text(fitTextToWidth(headerDetail, Math.max(120, w0 - 245)), x0 + 12, y0 + 32);
 
         boolean fresh = frame != null && System.currentTimeMillis() - frame.timestampMs < 3500L;
-        int stateColor = sourceIndex == 2 ? WARN : (sourceIndex == 1 ? INFO : (serialClient.isConnected() && fresh ? GOOD : WARN));
-        String state = sourceIndex == 2 ? "已暂停" : (sourceIndex == 1 ? "模拟数据" : (serialClient.isConnected() ? (fresh ? "实时数据" : "等待数据") : "未连接"));
+        boolean connected = transportIndex == 0 ? serialClient.isConnected() : bleClient.isConnected();
+        boolean bleBusy = sourceIndex == 0 && transportIndex == 1 && (bleScanInProgress || bleConnectInProgress);
+        int stateColor = sourceIndex == 2 ? WARN : (sourceIndex == 1 || bleBusy ? INFO : (connected && fresh ? GOOD : WARN));
+        String state = sourceIndex == 2 ? "已暂停"
+                : (sourceIndex == 1 ? "模拟数据"
+                : (bleScanInProgress ? "正在扫描"
+                : (bleConnectInProgress ? "连接校验中"
+                : (connected ? (fresh ? "实时数据" : "等待数据") : "未连接"))));
         drawPill(x0 + w0 - 110, y0 + 11, 94, 22, state, stateColor);
+
+        if (transportIndex == 1 && bleClient.isConnected()) {
+            String deviceName = bleClient.getDeviceName() == null ? "" : bleClient.getDeviceName().trim();
+            if (deviceName.isEmpty()) {
+                deviceName = bleClient.getDeviceAddress();
+            }
+            String deviceLabel = fitTextToWidth("设备：" + deviceName, Math.min(220, w0 * 0.32f));
+            MAIN.fill(GOOD);
+            MAIN.textFont(p7);
+            MAIN.textSize(10);
+            MAIN.textAlign(PApplet.RIGHT, PApplet.TOP);
+            MAIN.text(deviceLabel, x0 + w0 - 16, y0 + 35);
+        }
 
         MAIN.stroke(PANEL_STROKE);
         MAIN.strokeWeight(1f);
         MAIN.line(x0 + 10, y0 + 50, x0 + w0 - 10, y0 + 50);
+    }
+
+    private String fitTextToWidth(String text, float maxWidth) {
+        if (text == null || MAIN.textWidth(text) <= maxWidth) {
+            return text;
+        }
+        String suffix = "…";
+        int end = text.length();
+        while (end > 1 && MAIN.textWidth(text.substring(0, end) + suffix) > maxWidth) {
+            end--;
+        }
+        return text.substring(0, Math.max(1, end)) + suffix;
     }
 
     private void drawValueCard(int x0, int y0, int w0, int h0, String title, String value, String unit, int color, float ratio) {
@@ -400,7 +625,10 @@ public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener {
             MAIN.textFont(p7);
             MAIN.textSize(11);
             MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
-            MAIN.text("填写 COM 端口并点击连接，等待模块上报。", x0 + 10, y0 + 32);
+            String instruction = transportIndex == 0
+                    ? "填写 COM 端口并点击连接，等待模块上报。"
+                    : connectionNotice;
+            MAIN.text(instruction, x0 + 10, y0 + 32, w0 - 20, Math.max(30, h0 - 42));
             return;
         }
         int rowH = 19;
@@ -416,7 +644,9 @@ public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener {
         MAIN.textFont(p7);
         MAIN.textSize(9);
         MAIN.textAlign(PApplet.LEFT, PApplet.BOTTOM);
-        String transport = sourceIndex == 1 ? "模拟帧" : serialClient.getPortName() + " / " + serialClient.getBaudRate();
+        String transport = sourceIndex == 1 ? "模拟帧" : (transportIndex == 0
+                ? TRANSPORT_LABELS[0] + " · " + serialClient.getPortName() + " / " + serialClient.getBaudRate()
+                : TRANSPORT_LABELS[1] + " · " + bleClient.getDeviceName() + " " + bleClient.getDeviceAddress());
         MAIN.text(transport + "  ·  " + ageText(frame.timestampMs), x0 + 10, y0 + h0 - 7);
     }
 

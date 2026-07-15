@@ -27,3 +27,6 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+# Runtime hardware diagnostics
+src/W_SYHRV_/sy_hrv_raw_bytes.log
