@@ -4,6 +4,8 @@ import Globel.GUI;
 import Widget_.Widget;
 import processing.core.PApplet;
 
+import java.util.Arrays;
+
 import static Globel.GUI.p7;
 
 public class W_SpO2 extends Widget {
@@ -20,8 +22,13 @@ public class W_SpO2 extends Widget {
     private static final int INFO = 0xFF56C8FF;
     private static final int RED_TRACE = 0xFFFF5C72;
     private static final int IR_TRACE = 0xFF62D6FF;
-    private static final int WAVE_POINTS = 360;
+    private static final int WAVE_POINTS = 1800;
     private static final int TREND_POINTS = 180;
+    private static final String[] SOURCE_LABELS = {"模拟", "硬件", "暂停"};
+    private static final String[] WAVE_LABELS = {"Red + IR", "仅 Red", "仅 IR", "归一化"};
+    private static final String[] WINDOW_LABELS = {"10秒", "20秒", "30秒", "60秒"};
+    private static final String[] ALERT_LABELS = {"宽松", "标准", "严格"};
+    private static final int[] WINDOW_POINTS = {300, 600, 900, 1800};
 
     private final GUI MAIN;
 
@@ -41,10 +48,21 @@ public class W_SpO2 extends Widget {
     private long lastDemoMs = 0L;
     private float demoPhase = 0f;
     private boolean usingDemoData = true;
+    private boolean hardwareFrameSeen = false;
+    private int sourceIndex = 0;
+    private int waveModeIndex = 0;
+    private int windowIndex = 0;
+    private int alertIndex = 1;
 
     public W_SpO2(GUI MAIN) {
         super(MAIN);
         this.MAIN = MAIN;
+        dropdownWidth = 82;
+
+        addDropdown("SpO2Source", "数据源", Arrays.asList(SOURCE_LABELS), sourceIndex);
+        addDropdown("SpO2Wave", "波形", Arrays.asList(WAVE_LABELS), waveModeIndex);
+        addDropdown("SpO2Window", "时间窗", Arrays.asList(WINDOW_LABELS), windowIndex);
+        addDropdown("SpO2Alert", "阈值", Arrays.asList(ALERT_LABELS), alertIndex);
 
         for (int i = 0; i < WAVE_POINTS; i++) {
             redWave[i] = red;
@@ -57,6 +75,23 @@ public class W_SpO2 extends Widget {
         }
     }
 
+    public void SpO2Source(int n) {
+        sourceIndex = PApplet.constrain(n, 0, SOURCE_LABELS.length - 1);
+        usingDemoData = sourceIndex == 0;
+    }
+
+    public void SpO2Wave(int n) {
+        waveModeIndex = PApplet.constrain(n, 0, WAVE_LABELS.length - 1);
+    }
+
+    public void SpO2Window(int n) {
+        windowIndex = PApplet.constrain(n, 0, WINDOW_LABELS.length - 1);
+    }
+
+    public void SpO2Alert(int n) {
+        alertIndex = PApplet.constrain(n, 0, ALERT_LABELS.length - 1);
+    }
+
     public void updateFromHardwareFrame(
             float spo2Value,
             float heartRateValue,
@@ -66,14 +101,22 @@ public class W_SpO2 extends Widget {
             boolean fingerDetectedValue,
             long timestampValue
     ) {
+        if (sourceIndex == 2) {
+            return;
+        }
+        sourceIndex = 1;
         usingDemoData = false;
+        hardwareFrameSeen = true;
         applyFrame(spo2Value, heartRateValue, redValue, irValue, signalQualityValue, fingerDetectedValue, timestampValue);
     }
 
     @Override
     public void update() {
         super.update();
-        if (usingDemoData) {
+        if (sourceIndex == 2) {
+            return;
+        }
+        if (sourceIndex == 0) {
             updateDemoData();
         }
     }
@@ -141,9 +184,9 @@ public class W_SpO2 extends Widget {
         float secondary = 0.20f * Math.max(0f, PApplet.sin(demoPhase - 1.05f));
         float respiration = 0.5f + 0.5f * PApplet.sin(demoPhase * 0.045f);
 
-        float demoHr = 76f + 3f * PApplet.sin(demoPhase * 0.035f);
-        float demoSpo2 = 98.0f + 0.35f * PApplet.sin(demoPhase * 0.025f);
-        float demoQuality = 88f + 7f * PApplet.sin(demoPhase * 0.018f);
+        float demoHr = 76f + 5.5f * PApplet.sin(demoPhase * 0.18f) + 1.2f * PApplet.sin(demoPhase * 0.055f);
+        float demoSpo2 = 98.0f + 0.65f * PApplet.sin(demoPhase * 0.14f);
+        float demoQuality = 85f + 8f * PApplet.sin(demoPhase * 0.12f) + 2f * PApplet.sin(demoPhase * 0.035f);
         float demoRed = 52000f + 1700f * beat + 420f * secondary + 260f * respiration;
         float demoIr = 62000f + 2300f * beat + 520f * secondary + 320f * respiration;
 
@@ -171,14 +214,14 @@ public class W_SpO2 extends Widget {
         MAIN.textFont(p7);
         MAIN.textSize(16);
         MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
-        MAIN.text("血氧与PPG监测", px + 12, py + 9);
+        MAIN.text("血氧监测", px + 12, py + 9);
 
         MAIN.fill(TEXT_SUB);
         MAIN.textSize(11);
-        MAIN.text("SpO2 / Heart Rate / Red-IR PPG / Signal Quality", px + 12, py + 32);
+        MAIN.text("SpO2 / 心率 / Red-IR PPG 波形", px + 12, py + 32);
 
-        int statusColor = fingerDetected ? GOOD : BAD;
-        String status = usingDemoData ? "DEMO DATA" : "LIVE FRAME";
+        int statusColor = sourceIndex == 2 ? WARN : (fingerDetected ? GOOD : BAD);
+        String status = sourceIndex == 2 ? "已暂停" : (sourceIndex == 0 ? "模拟数据" : (hardwareFrameSeen ? "硬件数据" : "等待硬件"));
         drawPill(px + pw - 112, py + 11, 96, 22, status, statusColor);
 
         MAIN.stroke(PANEL_STROKE);
@@ -225,7 +268,7 @@ public class W_SpO2 extends Widget {
         MAIN.textFont(p7);
         MAIN.textSize(10);
         MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
-        MAIN.text("signal_quality", x0 + 14, y0 + 34);
+        MAIN.text("信号质量", x0 + 14, y0 + 34);
 
         drawProgressBar(x0 + 14, y0 + 52, w0 - 28, 12, signalQuality, qc);
 
@@ -245,18 +288,31 @@ public class W_SpO2 extends Widget {
         int gw = w0 - 24;
         int gh = h0 - 62;
 
-        drawLegend(x0 + w0 - 128, y0 + 10, "red", RED_TRACE);
-        drawLegend(x0 + w0 - 68, y0 + 10, "ir", IR_TRACE);
+        if (waveModeIndex == 0 || waveModeIndex == 1 || waveModeIndex == 3) {
+            drawLegend(x0 + w0 - 156, y0 + 10, waveModeIndex == 3 ? "Red(归一)" : "Red", RED_TRACE);
+        }
+        if (waveModeIndex == 0 || waveModeIndex == 2 || waveModeIndex == 3) {
+            drawLegend(x0 + w0 - 78, y0 + 10, waveModeIndex == 3 ? "IR(归一)" : "IR", IR_TRACE);
+        }
 
         drawGrid(gx, gy, gw, gh);
-        drawWave(redWave, gx, gy, gw, gh, RED_TRACE);
-        drawWave(irWave, gx, gy, gw, gh, IR_TRACE);
+        int displayCount = getWaveDisplayCount();
+        if (waveModeIndex == 0) {
+            float[] range = combinedRange(redWave, irWave, displayCount);
+            drawWaveWithRange(redWave, gx, gy, gw, gh, RED_TRACE, displayCount, range[0], range[1]);
+            drawWaveWithRange(irWave, gx, gy, gw, gh, IR_TRACE, displayCount, range[0], range[1]);
+        } else if (waveModeIndex == 1 || waveModeIndex == 3) {
+            drawWave(redWave, gx, gy, gw, gh, RED_TRACE, displayCount);
+        }
+        if (waveModeIndex == 2 || waveModeIndex == 3) {
+            drawWave(irWave, gx, gy, gw, gh, IR_TRACE, displayCount);
+        }
 
         MAIN.fill(TEXT_SUB);
         MAIN.textFont(p7);
         MAIN.textSize(10);
         MAIN.textAlign(PApplet.RIGHT, PApplet.BOTTOM);
-        MAIN.text("latest red " + PApplet.nf(red, 1, 0) + "  ir " + PApplet.nf(ir, 1, 0), gx + gw - 4, y0 + h0 - 10);
+        MAIN.text(WINDOW_LABELS[windowIndex] + "  最新 Red " + PApplet.nf(red, 1, 0) + "  IR " + PApplet.nf(ir, 1, 0), gx + gw - 4, y0 + h0 - 10);
     }
 
     private void drawTrendCard(int x0, int y0, int w0, int h0) {
@@ -265,36 +321,40 @@ public class W_SpO2 extends Widget {
         int gy = y0 + 30;
         int gw = w0 - 24;
         int rowH = Math.max(28, (h0 - 42) / 3);
-        drawMiniTrend(gx, gy, gw, rowH - 4, spo2Trend, 90f, 100f, RED_TRACE, "SpO2");
-        drawMiniTrend(gx, gy + rowH, gw, rowH - 4, hrTrend, 40f, 140f, INFO, "HR");
-        drawMiniTrend(gx, gy + rowH * 2, gw, rowH - 4, qualityTrend, 0f, 100f, GOOD, "Quality");
+        drawMiniTrend(gx, gy, gw, rowH - 4, spo2Trend, 2f, RED_TRACE, "SpO2", "%");
+        drawMiniTrend(gx, gy + rowH, gw, rowH - 4, hrTrend, 12f, INFO, "HR", " BPM");
+        drawMiniTrend(gx, gy + rowH * 2, gw, rowH - 4, qualityTrend, 18f, GOOD, "信号质量", "%");
     }
 
     private void drawFrameCard(int x0, int y0, int w0, int h0) {
         drawCard(x0, y0, w0, h0, "数据帧预留");
 
         int rowY = y0 + 34;
-        int rowH = 29;
-        drawFieldRow(x0 + 12, rowY, w0 - 24, "spo2", PApplet.nf(spo2, 1, 1) + "%");
-        drawFieldRow(x0 + 12, rowY + rowH, w0 - 24, "heart_rate", PApplet.nf(heartRate, 1, 0) + " BPM");
-        drawFieldRow(x0 + 12, rowY + rowH * 2, w0 - 24, "red", PApplet.nf(red, 1, 0));
-        drawFieldRow(x0 + 12, rowY + rowH * 3, w0 - 24, "ir", PApplet.nf(ir, 1, 0));
-        drawFieldRow(x0 + 12, rowY + rowH * 4, w0 - 24, "signal_quality", PApplet.nf(signalQuality, 1, 0) + "%");
-        drawFieldRow(x0 + 12, rowY + rowH * 5, w0 - 24, "finger_detected", fingerDetected ? "true" : "false");
-        drawFieldRow(x0 + 12, rowY + rowH * 6, w0 - 24, "timestamp", timestamp > 0 ? String.valueOf(timestamp) : "--");
+        int rowH = 24;
+        drawFieldRow(x0 + 12, rowY, w0 - 24, "血氧饱和度", PApplet.nf(spo2, 1, 1) + "%");
+        drawFieldRow(x0 + 12, rowY + rowH, w0 - 24, "心率", PApplet.nf(heartRate, 1, 0) + " BPM");
+        drawFieldRow(x0 + 12, rowY + rowH * 2, w0 - 24, "Red", PApplet.nf(red, 1, 0));
+        drawFieldRow(x0 + 12, rowY + rowH * 3, w0 - 24, "IR", PApplet.nf(ir, 1, 0));
+        drawFieldRow(x0 + 12, rowY + rowH * 4, w0 - 24, "信号质量", PApplet.nf(signalQuality, 1, 0) + "%");
+        drawFieldRow(x0 + 12, rowY + rowH * 5, w0 - 24, "手指检测", fingerDetected ? "已检测" : "未检测");
+        drawFieldRow(x0 + 12, rowY + rowH * 6, w0 - 24, "时间戳", timestamp > 0 ? String.valueOf(timestamp) : "--");
+        drawFieldRow(x0 + 12, rowY + rowH * 7, w0 - 24, "数据源 / 阈值", SOURCE_LABELS[sourceIndex] + " / " + ALERT_LABELS[alertIndex]);
+        drawFieldRow(x0 + 12, rowY + rowH * 8, w0 - 24, "波形 / 时间窗", WAVE_LABELS[waveModeIndex] + " / " + WINDOW_LABELS[windowIndex]);
 
-        int hintY = rowY + rowH * 7 + 8;
+        int hintY = rowY + rowH * 9 + 8;
+        int piY = y0 + h0 - 54;
+        if (hintY < piY - 30) {
         MAIN.fill(TEXT_SUB);
         MAIN.textFont(p7);
         MAIN.textSize(10);
         MAIN.textAlign(PApplet.LEFT, PApplet.TOP);
-        drawWrappedText("后续解析硬件帧时调用 updateFromHardwareFrame(...) 即可刷新此界面。当前为模拟占位数据。", x0 + 12, hintY, w0 - 24, 15);
+        //drawWrappedText("后续解析硬件帧时调用 updateFromHardwareFrame(...) 即可刷新此界面。当前为模拟占位数据。", x0 + 12, hintY, w0 - 24, 15);
+        }
 
-        int piY = y0 + h0 - 54;
         float pi = estimatePerfusionIndex();
         MAIN.fill(TEXT_MAIN);
         MAIN.textSize(12);
-        MAIN.text("Perfusion Index", x0 + 12, piY);
+        MAIN.text("灌注指数", x0 + 12, piY);
         MAIN.fill(INFO);
         MAIN.textSize(24);
         MAIN.text(PApplet.nf(pi, 1, 2), x0 + 12, piY + 16);
@@ -317,23 +377,47 @@ public class W_SpO2 extends Widget {
         MAIN.text(value, x0 + w0 - 7, y0 + 11);
     }
 
-    private void drawMiniTrend(int x0, int y0, int w0, int h0, float[] data, float min, float max, int color, String label) {
-        int labelW = Math.min(62, Math.max(44, w0 / 5));
+    private void drawMiniTrend(int x0, int y0, int w0, int h0, float[] data, float minimumSpan, int color, String label, String unit) {
+        int labelW = Math.min(82, Math.max(58, w0 / 4));
         int plotX = x0 + labelW;
         int plotW = Math.max(20, w0 - labelW);
+
+        float dataMin = Float.POSITIVE_INFINITY;
+        float dataMax = Float.NEGATIVE_INFINITY;
+        for (float value : data) {
+            if (value < dataMin) dataMin = value;
+            if (value > dataMax) dataMax = value;
+        }
+        float span = Math.max(minimumSpan, dataMax - dataMin);
+        float padding = span * 0.20f;
+        float min = dataMin - padding;
+        float max = dataMax + padding;
 
         MAIN.fill(TEXT_SUB);
         MAIN.textFont(p7);
         MAIN.textSize(9);
         MAIN.textAlign(PApplet.LEFT, PApplet.CENTER);
-        MAIN.text(label, x0 + 2, y0 + h0 * 0.5f);
+        MAIN.text(label + " " + PApplet.nf(data[data.length - 1], 1, 0) + unit, x0 + 2, y0 + h0 * 0.5f);
 
         MAIN.stroke(45, 70, 105, 170);
         MAIN.strokeWeight(1f);
         MAIN.line(plotX, y0 + h0, plotX + plotW, y0 + h0);
+
+        MAIN.noStroke();
+        MAIN.fill((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, 35);
+        MAIN.beginShape();
+        MAIN.vertex(plotX, y0 + h0);
+        for (int i = 0; i < data.length; i++) {
+            float xx = plotX + plotW * i / (float) (data.length - 1);
+            float yy = y0 + h0 - h0 * PApplet.constrain((data[i] - min) / Math.max(1e-6f, max - min), 0f, 1f);
+            MAIN.vertex(xx, yy);
+        }
+        MAIN.vertex(plotX + plotW, y0 + h0);
+        MAIN.endShape(PApplet.CLOSE);
+
         MAIN.noFill();
         MAIN.stroke((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, 220);
-        MAIN.strokeWeight(1.4f);
+        MAIN.strokeWeight(2.0f);
         MAIN.beginShape();
         for (int i = 0; i < data.length; i++) {
             float xx = plotX + plotW * i / (float) (data.length - 1);
@@ -343,10 +427,13 @@ public class W_SpO2 extends Widget {
         MAIN.endShape();
     }
 
-    private void drawWave(float[] data, int gx, int gy, int gw, int gh, int color) {
+    private void drawWave(float[] data, int gx, int gy, int gw, int gh, int color, int count) {
+        count = PApplet.constrain(count, 2, data.length);
+        int start = data.length - count;
         float min = Float.POSITIVE_INFINITY;
         float max = Float.NEGATIVE_INFINITY;
-        for (float v : data) {
+        for (int i = start; i < data.length; i++) {
+            float v = data[i];
             if (v < min) min = v;
             if (v > max) max = v;
         }
@@ -356,12 +443,54 @@ public class W_SpO2 extends Widget {
         MAIN.stroke((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, 220);
         MAIN.strokeWeight(1.7f);
         MAIN.beginShape();
-        for (int i = 0; i < data.length; i++) {
-            float xx = gx + gw * i / (float) (data.length - 1);
-            float yy = gy + gh - gh * ((data[i] - min) / span);
+        for (int i = 0; i < count; i++) {
+            float v = data[start + i];
+            float xx = gx + gw * i / (float) (count - 1);
+            float yy = gy + gh - gh * ((v - min) / span);
             MAIN.vertex(xx, yy);
         }
         MAIN.endShape();
+    }
+
+    private void drawWaveWithRange(float[] data, int gx, int gy, int gw, int gh, int color, int count, float min, float max) {
+        count = PApplet.constrain(count, 2, data.length);
+        int start = data.length - count;
+        float span = Math.max(1f, max - min);
+
+        MAIN.noFill();
+        MAIN.stroke((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, 220);
+        MAIN.strokeWeight(1.7f);
+        MAIN.beginShape();
+        for (int i = 0; i < count; i++) {
+            float v = data[start + i];
+            float xx = gx + gw * i / (float) (count - 1);
+            float yy = gy + gh - gh * PApplet.constrain((v - min) / span, 0f, 1f);
+            MAIN.vertex(xx, yy);
+        }
+        MAIN.endShape();
+    }
+
+    private float[] combinedRange(float[] a, float[] b, int count) {
+        count = PApplet.constrain(count, 2, Math.min(a.length, b.length));
+        int start = a.length - count;
+        float min = Float.POSITIVE_INFINITY;
+        float max = Float.NEGATIVE_INFINITY;
+        for (int i = start; i < a.length; i++) {
+            float va = a[i];
+            float vb = b[i];
+            if (va < min) min = va;
+            if (vb < min) min = vb;
+            if (va > max) max = va;
+            if (vb > max) max = vb;
+        }
+        if (!Float.isFinite(min) || !Float.isFinite(max) || min == max) {
+            return new float[] {0f, 1f};
+        }
+        return new float[] {min, max};
+    }
+
+    private int getWaveDisplayCount() {
+        return PApplet.constrain(WINDOW_POINTS[windowIndex], 2, WAVE_POINTS);
     }
 
     private void drawGrid(int gx, int gy, int gw, int gh) {
@@ -487,26 +616,35 @@ public class W_SpO2 extends Widget {
     }
 
     private int spo2Color(float v) {
-        if (v >= 95f) return GOOD;
-        if (v >= 90f) return WARN;
+        float warn = alertIndex == 0 ? 92f : (alertIndex == 1 ? 95f : 96f);
+        float bad = alertIndex == 0 ? 88f : (alertIndex == 1 ? 90f : 93f);
+        if (v >= warn) return GOOD;
+        if (v >= bad) return WARN;
         return BAD;
     }
 
     private int hrColor(float v) {
-        if (v >= 50f && v <= 110f) return INFO;
-        if (v >= 40f && v <= 130f) return WARN;
+        float goodLow = alertIndex == 0 ? 45f : (alertIndex == 1 ? 50f : 55f);
+        float goodHigh = alertIndex == 0 ? 125f : (alertIndex == 1 ? 110f : 100f);
+        float warnLow = alertIndex == 0 ? 35f : (alertIndex == 1 ? 40f : 45f);
+        float warnHigh = alertIndex == 0 ? 150f : (alertIndex == 1 ? 130f : 120f);
+        if (v >= goodLow && v <= goodHigh) return INFO;
+        if (v >= warnLow && v <= warnHigh) return WARN;
         return BAD;
     }
 
     private int qualityColor(float v) {
-        if (v >= 75f) return GOOD;
-        if (v >= 45f) return WARN;
+        float good = alertIndex == 0 ? 70f : (alertIndex == 1 ? 75f : 85f);
+        float warn = alertIndex == 0 ? 40f : (alertIndex == 1 ? 45f : 60f);
+        if (v >= good) return GOOD;
+        if (v >= warn) return WARN;
         return BAD;
     }
 
     private String spo2Label(float v) {
-        if (v >= 95f) return "稳定";
-        if (v >= 90f) return "偏低";
+        int c = spo2Color(v);
+        if (c == GOOD) return "稳定";
+        if (c == WARN) return "偏低";
         return "警告";
     }
 

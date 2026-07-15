@@ -39,6 +39,7 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
     private final Textfield endpointTf;
     private final Button connectBtn;
     private final Button clearBtn;
+    private final Button debugBtn;
     private final List<Controller> cp5Elements = new ArrayList<Controller>();
 
     private boolean requestedStreaming = false;
@@ -47,6 +48,7 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
     private float zoom = 1f;
     private float panX = 0f;
     private float panY = 0f;
+    private boolean debugOverlayEnabled = false;
 
     private final float[] nllHistory = new float[HISTORY_SIZE];
     private final float[] accHistory = new float[HISTORY_SIZE];
@@ -124,9 +126,20 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
             }
         });
 
+        debugBtn = MAIN.createButton(localCp5, "neurDebug", "调试", x0 + 396, y0 + navH + 1, 64, navH - 3, p7, 12, MAIN.colorNotPressed, MAIN.OPENBCI_DARKBLUE);
+        debugBtn.setBorderColor(0xFF6F8FB9);
+        debugBtn.onRelease(new CallbackListener() {
+            public void controlEvent(CallbackEvent theEvent) {
+                debugOverlayEnabled = !debugOverlayEnabled;
+                refreshDebugButton();
+            }
+        });
+        refreshDebugButton();
+
         cp5Elements.add(endpointTf);
         cp5Elements.add(connectBtn);
         cp5Elements.add(clearBtn);
+        cp5Elements.add(debugBtn);
     }
 
     public void NeurRateMode(int n) {
@@ -202,6 +215,7 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
         endpointTf.setPosition(x0 + 6, y0 + navH + 1);
         connectBtn.setPosition(x0 + 230, y0 + navH + 1);
         clearBtn.setPosition(x0 + 320, y0 + navH + 1);
+        debugBtn.setPosition(x0 + 396, y0 + navH + 1);
     }
 
     @Override
@@ -307,6 +321,13 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
         panY = 0f;
     }
 
+    private void refreshDebugButton() {
+        debugBtn.getCaptionLabel().setText(debugOverlayEnabled ? "调试开" : "调试关");
+        debugBtn.setColorBackground(debugOverlayEnabled ? 0xFF5C4A2D : 0xFF22344F);
+        debugBtn.setColorForeground(debugOverlayEnabled ? 0xFF735E39 : 0xFF2A3E5E);
+        debugBtn.setColorActive(debugOverlayEnabled ? 0xFF806A3D : 0xFF2F496E);
+    }
+
     private void drawHeader(int x0, int y0, int w0) {
         MAIN.fill(TEXT_MAIN);
         MAIN.textFont(p7);
@@ -340,7 +361,7 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
     }
 
     private void drawMainScatter(int x0, int y0, int w0, int h0) {
-        drawCard(x0, y0, w0, h0, "潜空间聚类图");
+        drawCard(x0, y0, w0, h0, viewMode == 0 ? "潜空间轨迹图" : "潜空间簇视图");
 
         int gx = x0 + 38;
         int gy = y0 + 28;
@@ -387,12 +408,16 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
             weightedActiveUids.add(c.clusterUid);
         }
 
-        drawClusterEllipsesFromStats(
-                recentStats, weightedActiveUids, gx, gy, gw, gh, minX, maxX, minY, maxY
-        );
-        drawPointsAndTrajectory(points, gx, gy, gw, gh, minX, maxX, minY, maxY);
+        if (viewMode == 1) {
+            drawClusterEllipsesFromStats(
+                    recentStats, weightedActiveUids, gx, gy, gw, gh, minX, maxX, minY, maxY
+            );
+        }
+        drawPointsAndTrajectory(points, gx, gy, gw, gh, minX, maxX, minY, maxY, viewMode == 0);
         drawEventsOverlay(store.getEvents(), gx, gy, gw);
-        drawClusterCountDebug(recentStats, points, gx, gy, gw, gh);
+        if (debugOverlayEnabled) {
+            drawClusterCountDebug(recentStats, points, gx, gy, gw, gh);
+        }
     }
 
     private List<ClusterStats> collectRecentClusterStats(List<NeurDataStore.PointState> points) {
@@ -575,13 +600,40 @@ public class W_Neur extends Widget implements NeurProtocolClient.Listener {
     }
 
     private void drawPointsAndTrajectory(List<NeurDataStore.PointState> points, int gx, int gy, int gw, int gh,
-                                         float minX, float maxX, float minY, float maxY) {
+                                         float minX, float maxX, float minY, float maxY, boolean drawTrajectory) {
         long newestTs = points.get(points.size() - 1).tsMs;
+        int pointStep = rateMode == 0 ? 1 : (rateMode == 1 ? 2 : 4);
+
+        if (drawTrajectory && points.size() > 1) {
+            NeurDataStore.PointState previous = null;
+            for (int i = 0; i < points.size(); i++) {
+                if (i % pointStep != 0 && i != points.size() - 1) {
+                    continue;
+                }
+                NeurDataStore.PointState current = points.get(i);
+                if (previous != null
+                        && current.windowId - previous.windowId <= pointStep * 2
+                        && current.tsMs - previous.tsMs <= 1500L) {
+                    float age = PApplet.constrain((newestTs - current.tsMs) / 12000f, 0f, 1f);
+                    int c = boostPointColor(blendColorByTransition(current));
+                    MAIN.stroke((c >> 16) & 0xFF, (c >> 8) & 0xFF, c & 0xFF, (int) PApplet.lerp(150, 42, age));
+                    MAIN.strokeWeight(rateMode == 0 ? 1.35f : 1.7f);
+                    MAIN.line(
+                            mapX(previous.x, minX, maxX, gx, gw), mapY(previous.y, minY, maxY, gy, gh),
+                            mapX(current.x, minX, maxX, gx, gw), mapY(current.y, minY, maxY, gy, gh)
+                    );
+                }
+                previous = current;
+            }
+        }
 
         float latestX = 0f;
         float latestY = 0f;
         float latestR = 0f;
         for (int i = 0; i < points.size(); i++) {
+            if (i % pointStep != 0 && i != points.size() - 1) {
+                continue;
+            }
             NeurDataStore.PointState p = points.get(i);
             float age = PApplet.constrain((newestTs - p.tsMs) / 12000f, 0f, 1f);
             float conf = PApplet.constrain(p.confidence, 0f, 1f);
