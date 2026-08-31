@@ -10,16 +10,27 @@ public final class SyHrvFrame {
     public final int respirationRate;
     public final int fatigueIndex;
     public final int rrIntervalMs;
+    public final String rrIntervalUnit;
     public final int sdnn;
     public final int rmssd;
     public final float bodyTemperature;
     public final float predictedTemperature;
     public final long timestampMs;
 
-    SyHrvFrame(int heartRate, int spo2, int microcirculation,
-               int systolicPressure, int diastolicPressure, int respirationRate,
-               int fatigueIndex, int rrIntervalMs, int sdnn, int rmssd,
-               float bodyTemperature, float predictedTemperature, long timestampMs) {
+    public SyHrvFrame(int heartRate, int spo2, int microcirculation,
+                      int systolicPressure, int diastolicPressure, int respirationRate,
+                      int fatigueIndex, int rrIntervalMs, int sdnn, int rmssd,
+                      float bodyTemperature, float predictedTemperature, long timestampMs) {
+        this(heartRate, spo2, microcirculation,
+                systolicPressure, diastolicPressure, respirationRate,
+                fatigueIndex, rrIntervalMs, "ms", sdnn, rmssd,
+                bodyTemperature, predictedTemperature, timestampMs);
+    }
+
+    public SyHrvFrame(int heartRate, int spo2, int microcirculation,
+                      int systolicPressure, int diastolicPressure, int respirationRate,
+                      int fatigueIndex, int rrIntervalMs, String rrIntervalUnit, int sdnn, int rmssd,
+                      float bodyTemperature, float predictedTemperature, long timestampMs) {
         this.heartRate = heartRate;
         this.spo2 = spo2;
         this.microcirculation = microcirculation;
@@ -28,6 +39,7 @@ public final class SyHrvFrame {
         this.respirationRate = respirationRate;
         this.fatigueIndex = fatigueIndex;
         this.rrIntervalMs = rrIntervalMs;
+        this.rrIntervalUnit = rrIntervalUnit == null ? "" : rrIntervalUnit;
         this.sdnn = sdnn;
         this.rmssd = rmssd;
         this.bodyTemperature = bodyTemperature;

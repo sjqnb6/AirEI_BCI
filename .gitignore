@@ -3,6 +3,10 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 
+output/
+project_materials_20260720/
+tmp/
+tools/
 ### Eclipse ###
 .apt_generated
 .classpath
@@ -30,3 +34,6 @@ bin/
 
 # Runtime hardware diagnostics
 src/W_SYHRV_/sy_hrv_raw_bytes.log
+src/SerialParser_/cyton_wifi_health_raw.log
+说明书.pdf
+docs/eeg_wifi_protocol_and_spo2_adaptation.svg

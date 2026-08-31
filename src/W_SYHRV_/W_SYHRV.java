@@ -1,6 +1,9 @@
 package W_SYHRV_;
 
+import BoardBrainflow_.BoardBrainFlow;
+import DataSourcePlayback_.DataSourcePlayback;
 import Globel.GUI;
+import SerialParser_.CytonWifiHealthFrame;
 import Widget_.Widget;
 import controlP5.Button;
 import controlP5.CallbackEvent;
@@ -31,8 +34,9 @@ public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener, SyHrv
     private static final int INFO = 0xFF56C8FF;
     private static final int TREND_POINTS = 180;
     private static final String[] SOURCE_LABELS = {"硬件", "模拟", "暂停"};
-    private static final String[] TRANSPORT_LABELS = {"USB 串口", "蓝牙 BLE"};
+    private static final String[] TRANSPORT_LABELS = {"USB 串口", "蓝牙 BLE", "EEG WiFi"};
     private static final String[] TREND_WINDOW_LABELS = {"60 秒", "120 秒", "180 秒"};
+    private static final String[] AUX_DEBUG_LABELS = {"Off", "On"};
     private static final int[] TREND_WINDOW_POINTS = {60, 120, 180};
 
     private final GUI MAIN;
@@ -61,6 +65,7 @@ public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener, SyHrv
     private int sourceIndex = 0;
     private int transportIndex = 0;
     private int trendWindowIndex = 0;
+    private int auxDebugIndex = 0;
     private long lastDemoMs = 0L;
     private float demoPhase = 0f;
     private long lastVisualUpdateMs = 0L;
@@ -79,6 +84,9 @@ public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener, SyHrv
     private volatile boolean bleScanInProgress = false;
     private volatile boolean bleConnectInProgress = false;
     private volatile boolean bleConnectionFailed = false;
+    private long lastWifiHealthTimestampMs = -1L;
+    private String lastPlaybackHealthKey = "";
+    private long lastWifiNoticeMs = 0L;
 
     public W_SYHRV(GUI MAIN) {
         super(MAIN);
@@ -87,6 +95,7 @@ public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener, SyHrv
         addDropdown("SyHrvSource", "数据源", Arrays.asList(SOURCE_LABELS), sourceIndex);
         addDropdown("SyHrvTransport", "传输方式", Arrays.asList(TRANSPORT_LABELS), transportIndex);
         addDropdown("SyHrvTrendWindow", "趋势窗口", Arrays.asList(TREND_WINDOW_LABELS), trendWindowIndex);
+        addDropdown("SyHrvAuxDebug", "AUX", Arrays.asList(AUX_DEBUG_LABELS), auxDebugIndex);
 
         serialClient = new SyHrvSerialClient(this);
         bleClient = new SyHrvBleClient(this);
@@ -168,12 +177,21 @@ public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener, SyHrv
     public void SyHrvTransport(int value) {
         transportIndex = PApplet.constrain(value, 0, TRANSPORT_LABELS.length - 1);
         layoutTransportControls();
-        setNotice(transportIndex == 0 ? "USB 串口模式：填写 COM 端口后连接"
-                : "蓝牙 BLE 模式：自动查找名称以 simple 开头的设备");
+        if (transportIndex == 0) {
+            setNotice("USB 串口模式：填写 COM 端口后连接");
+        } else if (transportIndex == 1) {
+            setNotice("蓝牙 BLE 模式：自动查找名称以 simple 开头的设备");
+        } else {
+            setNotice("EEG WiFi 模式：跟随当前脑电 WiFi 数据流读取 AUX 健康字段");
+        }
     }
 
     public void SyHrvTrendWindow(int value) {
         trendWindowIndex = PApplet.constrain(value, 0, TREND_WINDOW_POINTS.length - 1);
+    }
+
+    public void SyHrvAuxDebug(int value) {
+        auxDebugIndex = PApplet.constrain(value, 0, AUX_DEBUG_LABELS.length - 1);
     }
 
     @Override
@@ -188,11 +206,13 @@ public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener, SyHrv
         applyBleConnectionFailure();
         if (sourceIndex == 0 && transportIndex == 0) {
             serialClient.poll();
+        } else if (sourceIndex == 0 && transportIndex == 2) {
+            pollWifiHealthFrame();
         } else if (sourceIndex == 1) {
             updateDemoFrame();
         }
         SyHrvFrame pending = incomingFrame;
-        if (pending != null && sourceIndex == 0) {
+        if (pending != null && sourceIndex == 0 && transportIndex != 2) {
             incomingFrame = null;
             applyFrame(pending);
         }
@@ -228,7 +248,9 @@ public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener, SyHrv
 
         drawValueCard(cardX, contentY, cardW, topH, "血氧饱和度", valueOrDash(shownSpo2, 1), "%", spo2Color(), safeRatio(shownSpo2, 100f));
         drawValueCard(cardX + (cardW + gap), contentY, cardW, topH, "心率", valueOrDash(shownHeartRate, 1), "BPM", heartColor(), safeRatio(shownHeartRate, 160f));
-        String pressure = frame == null ? "--" : PApplet.nf(frame.systolicPressure, 1, 1) + " / " + PApplet.nf(frame.diastolicPressure, 1, 1);
+        String pressure = frame == null || frame.systolicPressure < 0 || frame.diastolicPressure < 0
+                ? "--"
+                : PApplet.nf(frame.systolicPressure, 1, 1) + " / " + PApplet.nf(frame.diastolicPressure, 1, 1);
         drawValueCard(cardX + (cardW + gap) * 2, contentY, cardW, topH, "血压（收/舒）", pressure, "mmHg", pressureColor(), safeRatio(shownSystolic, 180f));
         drawValueCard(cardX + (cardW + gap) * 3, contentY, cardW, topH, "体温", valueOrDash(shownBodyTemperature, 1), "°C", temperatureColor(), safeRatio(shownBodyTemperature - 34f, 6f));
 
@@ -268,9 +290,116 @@ public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener, SyHrv
         setNotice(message);
     }
 
+    private void pollWifiHealthFrame() {
+        DataSourcePlayback playback = currentPlaybackSource();
+        if (playback != null) {
+            pollPlaybackHealthFrame(playback);
+            return;
+        }
+
+        BoardBrainFlow board = currentBrainFlowBoard();
+        long now = System.currentTimeMillis();
+        if (board == null || !board.isUsingCustomWifiParser()) {
+            if (now - lastWifiNoticeMs > 2500L) {
+                setNotice("请先在控制面板启动脑电 WiFi 采集，再读取 AUX 健康字段");
+                lastWifiNoticeMs = now;
+            }
+            return;
+        }
+
+        CytonWifiHealthFrame wifiFrame = board.getLatestWifiHealthFrame();
+        if (wifiFrame == null) {
+            if (now - lastWifiNoticeMs > 2500L) {
+                setNotice(board.isStreaming()
+                        ? "正在等待 EEG WiFi AUX 中的有效健康数据；0xFF 表示模块尚未给出有效值"
+                        : "脑电 WiFi 数据流未启动");
+                lastWifiNoticeMs = now;
+            }
+            return;
+        }
+
+        if (wifiFrame.timestampMs != lastWifiHealthTimestampMs) {
+            lastWifiHealthTimestampMs = wifiFrame.timestampMs;
+            applyFrame(toSyHrvFrame(wifiFrame));
+        }
+    }
+
+    private void pollPlaybackHealthFrame(DataSourcePlayback playback) {
+        long now = System.currentTimeMillis();
+        if (!playback.hasPlaybackHealthData()) {
+            if (now - lastWifiNoticeMs > 2500L) {
+                setNotice("未找到与当前 EEG 回放文件对应的健康数据文件");
+                lastWifiNoticeMs = now;
+            }
+            clearDisplayedFrame();
+            return;
+        }
+
+        CytonWifiHealthFrame playbackFrame = playback.getPlaybackHealthFrameAtCurrentTime();
+        if (playbackFrame == null) {
+            if (now - lastWifiNoticeMs > 2500L) {
+                setNotice("当前回放时间点之前还没有健康数据");
+                lastWifiNoticeMs = now;
+            }
+            clearDisplayedFrame();
+            return;
+        }
+
+        String playbackKey = playbackFrame.sequence + ":" + playbackFrame.timestampMs;
+        if (!playbackKey.equals(lastPlaybackHealthKey)) {
+            lastPlaybackHealthKey = playbackKey;
+            applyFrame(toSyHrvFrame(playbackFrame));
+        }
+    }
+
+    private SyHrvFrame toSyHrvFrame(CytonWifiHealthFrame healthFrame) {
+        return new SyHrvFrame(
+                healthFrame.heartRate,
+                healthFrame.spo2,
+                healthFrame.microcirculation,
+                healthFrame.systolicPressure,
+                healthFrame.diastolicPressure,
+                healthFrame.respirationRate,
+                healthFrame.fatigueIndex,
+                healthFrame.rrIntervalRaw,
+                "raw",
+                healthFrame.sdnn,
+                healthFrame.rmssd,
+                healthFrame.bodyTemperature,
+                healthFrame.ambientTemperature,
+                healthFrame.timestampMs
+        );
+    }
+
+    private BoardBrainFlow currentBrainFlowBoard() {
+        return MAIN.currentBoard instanceof BoardBrainFlow ? (BoardBrainFlow) MAIN.currentBoard : null;
+    }
+
+    private DataSourcePlayback currentPlaybackSource() {
+        return MAIN.currentBoard instanceof DataSourcePlayback ? (DataSourcePlayback) MAIN.currentBoard : null;
+    }
+
+    private boolean isWifiHealthConnected() {
+        DataSourcePlayback playback = currentPlaybackSource();
+        if (playback != null) {
+            return playback.hasPlaybackHealthData();
+        }
+        BoardBrainFlow board = currentBrainFlowBoard();
+        long now = System.currentTimeMillis();
+        long lastAuxMs = board == null ? -1L : board.getLastWifiHealthAuxFrameTimestampMs();
+        return board != null
+                && board.isUsingCustomWifiParser()
+                && board.isStreaming()
+                && (board.getLatestWifiHealthFrame() != null || (lastAuxMs > 0L && now - lastAuxMs < 3500L));
+    }
+
     private void toggleConnection() {
         if (transportIndex == 1) {
             toggleBleConnection();
+            return;
+        }
+        if (transportIndex == 2) {
+            setNotice("EEG WiFi 模式使用主采集系统连接，无需单独连接 SY-HRV");
             return;
         }
         if (serialClient.isConnected()) {
@@ -424,12 +553,14 @@ public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener, SyHrv
 
     private void layoutTransportControls() {
         boolean useBle = transportIndex == 1;
-        portTf.setVisible(!useBle);
-        baudTf.setVisible(!useBle);
+        boolean useWifi = transportIndex == 2;
+        portTf.setVisible(!useBle && !useWifi);
+        baudTf.setVisible(!useBle && !useWifi);
         bleDeviceTf.setVisible(useBle);
         scanBtn.setVisible(useBle);
+        connectBtn.setVisible(!useWifi);
         connectBtn.setPosition(useBle ? x0 + 298 : x0 + 226, y0 + navH + 1);
-        clearBtn.setPosition(useBle ? x0 + 370 : x0 + 298, y0 + navH + 1);
+        clearBtn.setPosition(useWifi ? x0 + 6 : (useBle ? x0 + 370 : x0 + 298), y0 + navH + 1);
         updateBleConnectionButton();
     }
 
@@ -471,19 +602,19 @@ public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener, SyHrv
         boolean firstFrame = frame == null;
         frame = nextFrame;
         if (firstFrame) {
-            shownSpo2 = nextFrame.spo2;
-            shownHeartRate = nextFrame.heartRate;
-            shownSystolic = nextFrame.systolicPressure;
-            shownDiastolic = nextFrame.diastolicPressure;
-            shownBodyTemperature = nextFrame.bodyTemperature;
+            shownSpo2 = initialDisplayValue(nextFrame.spo2);
+            shownHeartRate = initialDisplayValue(nextFrame.heartRate);
+            shownSystolic = initialDisplayValue(nextFrame.systolicPressure);
+            shownDiastolic = initialDisplayValue(nextFrame.diastolicPressure);
+            shownBodyTemperature = initialDisplayValue(nextFrame.bodyTemperature);
         }
         frameTransitionMs = System.currentTimeMillis();
-        push(spo2History, nextFrame.spo2);
-        push(heartHistory, nextFrame.heartRate);
-        push(respirationHistory, nextFrame.respirationRate);
-        push(rrHistory, nextFrame.rrIntervalMs);
-        push(sdnnHistory, nextFrame.sdnn);
-        push(rmssdHistory, nextFrame.rmssd);
+        push(spo2History, trendValue(nextFrame.spo2, spo2History));
+        push(heartHistory, trendValue(nextFrame.heartRate, heartHistory));
+        push(respirationHistory, trendValue(nextFrame.respirationRate, respirationHistory));
+        push(rrHistory, trendValue(nextFrame.rrIntervalMs, rrHistory));
+        push(sdnnHistory, trendValue(nextFrame.sdnn, sdnnHistory));
+        push(rmssdHistory, trendValue(nextFrame.rmssd, rmssdHistory));
         historyWrite = (historyWrite + 1) % TREND_POINTS;
         if (historyWrite == 0) {
             historyFilled = true;
@@ -502,11 +633,11 @@ public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener, SyHrv
         long elapsed = Math.max(1L, now - lastVisualUpdateMs);
         lastVisualUpdateMs = now;
         float response = 1f - (float) Math.pow(0.002f, elapsed / 650f);
-        shownSpo2 = PApplet.lerp(shownSpo2, frame.spo2, response);
-        shownHeartRate = PApplet.lerp(shownHeartRate, frame.heartRate, response);
-        shownSystolic = PApplet.lerp(shownSystolic, frame.systolicPressure, response);
-        shownDiastolic = PApplet.lerp(shownDiastolic, frame.diastolicPressure, response);
-        shownBodyTemperature = PApplet.lerp(shownBodyTemperature, frame.bodyTemperature, response);
+        shownSpo2 = smoothMetric(shownSpo2, frame.spo2, response);
+        shownHeartRate = smoothMetric(shownHeartRate, frame.heartRate, response);
+        shownSystolic = smoothMetric(shownSystolic, frame.systolicPressure, response);
+        shownDiastolic = smoothMetric(shownDiastolic, frame.diastolicPressure, response);
+        shownBodyTemperature = smoothMetric(shownBodyTemperature, frame.bodyTemperature, response);
     }
 
     private void clearHistory() {
@@ -520,6 +651,19 @@ public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener, SyHrv
         historyFilled = false;
     }
 
+    private void clearDisplayedFrame() {
+        frame = null;
+        shownSpo2 = Float.NaN;
+        shownHeartRate = Float.NaN;
+        shownSystolic = Float.NaN;
+        shownDiastolic = Float.NaN;
+        shownBodyTemperature = Float.NaN;
+        lastVisualUpdateMs = 0L;
+        frameTransitionMs = 0L;
+        lastPlaybackHealthKey = "";
+        clearHistory();
+    }
+
     private void drawHeader(int x0, int y0, int w0) {
         MAIN.fill(TEXT_MAIN);
         MAIN.textFont(p7);
@@ -528,15 +672,16 @@ public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener, SyHrv
         MAIN.text("SY-HRV 健康监测", x0 + 12, y0 + 9);
         MAIN.fill(TEXT_SUB);
         MAIN.textSize(11);
-        String transportHint = transportIndex == 0 ? "USB-TTL" : "BLE GATT";
+        String transportHint = transportIndex == 0 ? "USB-TTL" : (transportIndex == 1 ? "BLE GATT" : "EEG WiFi AUX");
         String protocolText = "心率 / 血氧 / 血压 / 呼吸 / HRV / 体温 · " + transportHint + " · 24 字节协议";
         boolean showNotice = sourceIndex == 0 && !connectionNotice.isEmpty()
                 && System.currentTimeMillis() - connectionNoticeMs < 12000L;
-        String headerDetail = showNotice ? connectionNotice : protocolText;
+        String headerDetail = auxDebugIndex == 1 ? wifiAuxDebugText() : (showNotice ? connectionNotice : protocolText);
         MAIN.text(fitTextToWidth(headerDetail, Math.max(120, w0 - 245)), x0 + 12, y0 + 32);
 
-        boolean fresh = frame != null && System.currentTimeMillis() - frame.timestampMs < 3500L;
-        boolean connected = transportIndex == 0 ? serialClient.isConnected() : bleClient.isConnected();
+        boolean fresh = frame != null && (currentPlaybackSource() != null || System.currentTimeMillis() - frame.timestampMs < 3500L);
+        boolean connected = transportIndex == 0 ? serialClient.isConnected()
+                : (transportIndex == 1 ? bleClient.isConnected() : isWifiHealthConnected());
         boolean bleBusy = sourceIndex == 0 && transportIndex == 1 && (bleScanInProgress || bleConnectInProgress);
         int stateColor = sourceIndex == 2 ? WARN : (sourceIndex == 1 || bleBusy ? INFO : (connected && fresh ? GOOD : WARN));
         String state = sourceIndex == 2 ? "已暂停"
@@ -562,6 +707,32 @@ public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener, SyHrv
         MAIN.stroke(PANEL_STROKE);
         MAIN.strokeWeight(1f);
         MAIN.line(x0 + 10, y0 + 50, x0 + w0 - 10, y0 + 50);
+    }
+
+    private String wifiAuxDebugText() {
+        if (sourceIndex != 0 || transportIndex != 2) {
+            return "AUX debug: select Hardware + EEG WiFi";
+        }
+        DataSourcePlayback playback = currentPlaybackSource();
+        if (playback != null) {
+            return playback.hasPlaybackHealthData()
+                    ? "AUX debug: playback uses decoded health file"
+                    : "AUX debug: no matching health playback file";
+        }
+        BoardBrainFlow board = currentBrainFlowBoard();
+        if (board == null || !board.isUsingCustomWifiParser()) {
+            return "AUX debug: EEG WiFi parser is not active";
+        }
+        if (!board.isStreaming()) {
+            return "AUX debug: EEG WiFi stream is not running";
+        }
+        String debugText = board.getLatestWifiHealthAuxDebugText();
+        if (debugText == null || debugText.isEmpty()) {
+            return "AUX debug: waiting for C1/C2/C3 frames";
+        }
+        long lastAuxMs = board.getLastWifiHealthAuxFrameTimestampMs();
+        long ageMs = lastAuxMs > 0L ? Math.max(0L, System.currentTimeMillis() - lastAuxMs) : -1L;
+        return ageMs >= 0L ? debugText + " age=" + ageMs + "ms" : debugText;
     }
 
     private String fitTextToWidth(String text, float maxWidth) {
@@ -613,7 +784,8 @@ public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener, SyHrv
         int gw = w0 - 20;
         int rowH = Math.max(26, (h0 - 42) / 3);
         int count = visibleHistoryCount();
-        drawMiniTrend(gx, gy, gw, rowH - 3, rrHistory, count, 120f, INFO, "RR", " ms");
+        String rrUnit = frame == null || frame.rrIntervalUnit.isEmpty() ? "" : " " + frame.rrIntervalUnit;
+        drawMiniTrend(gx, gy, gw, rowH - 3, rrHistory, count, 120f, INFO, "RR", rrUnit);
         drawMiniTrend(gx, gy + rowH, gw, rowH - 3, sdnnHistory, count, 24f, 0xFFFFC45E, "SDNN", " ms");
         drawMiniTrend(gx, gy + rowH * 2, gw, rowH - 3, rmssdHistory, count, 24f, 0xFFC998FF, "RMSSD", " ms");
     }
@@ -633,12 +805,13 @@ public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener, SyHrv
         }
         int rowH = 19;
         int rowY = y0 + 28;
-        drawFieldRow(x0 + 10, rowY, w0 - 20, "微循环", frame.microcirculation + "");
-        drawFieldRow(x0 + 10, rowY + rowH, w0 - 20, "疲劳指数", frame.fatigueIndex + "");
-        drawFieldRow(x0 + 10, rowY + rowH * 2, w0 - 20, "RR 间期", frame.rrIntervalMs + " ms");
-        drawFieldRow(x0 + 10, rowY + rowH * 3, w0 - 20, "SDNN", frame.sdnn + " ms");
-        drawFieldRow(x0 + 10, rowY + rowH * 4, w0 - 20, "RMSSD", frame.rmssd + " ms");
-        drawFieldRow(x0 + 10, rowY + rowH * 5, w0 - 20, "环境/预测温度", PApplet.nf(frame.predictedTemperature, 1, 1) + " °C");
+        String rrUnit = frame.rrIntervalUnit.isEmpty() ? "" : " " + frame.rrIntervalUnit;
+        drawFieldRow(x0 + 10, rowY, w0 - 20, "微循环", intOrDash(frame.microcirculation, ""));
+        drawFieldRow(x0 + 10, rowY + rowH, w0 - 20, "疲劳指数", intOrDash(frame.fatigueIndex, ""));
+        drawFieldRow(x0 + 10, rowY + rowH * 2, w0 - 20, "RR 间期", intOrDash(frame.rrIntervalMs, rrUnit));
+        drawFieldRow(x0 + 10, rowY + rowH * 3, w0 - 20, "SDNN", intOrDash(frame.sdnn, " ms"));
+        drawFieldRow(x0 + 10, rowY + rowH * 4, w0 - 20, "RMSSD", intOrDash(frame.rmssd, " ms"));
+        drawFieldRow(x0 + 10, rowY + rowH * 5, w0 - 20, "环境/预测温度", valueWithUnit(frame.predictedTemperature, 1, " °C"));
 
         MAIN.fill(TEXT_SUB);
         MAIN.textFont(p7);
@@ -646,8 +819,10 @@ public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener, SyHrv
         MAIN.textAlign(PApplet.LEFT, PApplet.BOTTOM);
         String transport = sourceIndex == 1 ? "模拟帧" : (transportIndex == 0
                 ? TRANSPORT_LABELS[0] + " · " + serialClient.getPortName() + " / " + serialClient.getBaudRate()
-                : TRANSPORT_LABELS[1] + " · " + bleClient.getDeviceName() + " " + bleClient.getDeviceAddress());
-        MAIN.text(transport + "  ·  " + ageText(frame.timestampMs), x0 + 10, y0 + h0 - 7);
+                : (transportIndex == 1
+                ? TRANSPORT_LABELS[1] + " · " + bleClient.getDeviceName() + " " + bleClient.getDeviceAddress()
+                : TRANSPORT_LABELS[2] + " · AUX C1/C2/C3"));
+        MAIN.text(transport + "  ·  " + frameTimeText(), x0 + 10, y0 + h0 - 7);
     }
 
     private void drawMiniTrend(int x0, int y0, int w0, int h0, float[] data, int count,
@@ -831,8 +1006,48 @@ public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener, SyHrv
         values[historyWrite] = value;
     }
 
+    private float initialDisplayValue(float value) {
+        return isValidMetric(value) ? value : Float.NaN;
+    }
+
+    private float smoothMetric(float current, float target, float response) {
+        if (!isValidMetric(target)) {
+            return current;
+        }
+        if (!isValidMetric(current)) {
+            return target;
+        }
+        return PApplet.lerp(current, target, response);
+    }
+
+    private float trendValue(float value, float[] history) {
+        if (isValidMetric(value)) {
+            return value;
+        }
+        int count = historyCount();
+        if (count <= 0) {
+            return 0f;
+        }
+        int previousIndex = historyFilled
+                ? (historyWrite - 1 + TREND_POINTS) % TREND_POINTS
+                : Math.max(0, historyWrite - 1);
+        return history[previousIndex];
+    }
+
+    private boolean isValidMetric(float value) {
+        return !Float.isNaN(value) && value >= 0f;
+    }
+
     private String valueOrDash(float value, int decimals) {
         return Float.isNaN(value) || value < 0f ? "--" : PApplet.nf(value, 1, decimals);
+    }
+
+    private String valueWithUnit(float value, int decimals, String unit) {
+        return isValidMetric(value) ? PApplet.nf(value, 1, decimals) + unit : "--";
+    }
+
+    private String intOrDash(int value, String unit) {
+        return value >= 0 ? value + unit : "--";
     }
 
     private float safeRatio(float numerator, float denominator) {
@@ -869,6 +1084,14 @@ public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener, SyHrv
     private String ageText(long timestampMs) {
         long seconds = Math.max(0L, (System.currentTimeMillis() - timestampMs) / 1000L);
         return seconds == 0L ? "刚更新" : seconds + " 秒前";
+    }
+
+    private String frameTimeText() {
+        DataSourcePlayback playback = currentPlaybackSource();
+        if (playback != null) {
+            return "回放 " + PApplet.nf(playback.getCurrentTimeSeconds(), 1, 1) + " s";
+        }
+        return ageText(frame.timestampMs);
     }
 
     private void setNotice(String message) {

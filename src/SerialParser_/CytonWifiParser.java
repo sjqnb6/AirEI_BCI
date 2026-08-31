@@ -14,6 +14,12 @@ public class CytonWifiParser implements AutoCloseable {
     private static final byte HEADER = (byte) 0xA0;
     private static final int TAIL_PREFIX_MASK = 0xF0;
     private static final int TAIL_PREFIX = 0xC0;
+    private static final int AUX_OFFSET = 26;
+    private static final int AUX_SIZE = 6;
+    private static final int AUX_TYPE_C1 = 0x01;
+    private static final int AUX_TYPE_C2 = 0x02;
+    private static final int AUX_TYPE_C3 = 0x03;
+    private static final int INVALID_U8 = 0xFF;
     private static final int NUM_STORED = NUM_CHANNELS + 1;
 
     private final int capacity;
@@ -34,6 +40,22 @@ public class CytonWifiParser implements AutoCloseable {
     private final int[] tmpSample = new int[NUM_STORED];
     private volatile long parsedFrames = 0;
     private volatile long recvPackets = 0;
+    private volatile CytonWifiHealthFrame latestHealthFrame = null;
+    private volatile long lastHealthAuxFrameTimestampMs = -1L;
+    private volatile String latestHealthAuxDebugText = "";
+    private volatile String latestHealthC1AuxHex = "--";
+    private volatile String latestHealthC2AuxHex = "--";
+    private volatile String latestHealthC3AuxHex = "--";
+    private volatile int latestHealthAuxSeq = -1;
+    private volatile int latestHealthAuxType = -1;
+    private final int[] healthC1 = new int[AUX_SIZE];
+    private final int[] healthC2 = new int[AUX_SIZE];
+    private final int[] healthC3 = new int[AUX_SIZE];
+    private int currentHealthSeq = -1;
+    private int lastPublishedHealthSeq = -1;
+    private boolean hasHealthC1 = false;
+    private boolean hasHealthC2 = false;
+    private boolean hasHealthC3 = false;
     private long lastStatsMs = 0;
     private long lastStatsPackets = 0;
     private long lastStatsFrames = 0;
@@ -51,6 +73,7 @@ public class CytonWifiParser implements AutoCloseable {
 
         targetAddress = InetAddress.getByName(host);
         targetPort = port;
+        resetHealthState();
 
         // Bind local UDP port so board broadcast can be received.
         // Use a larger receive buffer to reduce packet drop under burst traffic.
@@ -61,6 +84,8 @@ public class CytonWifiParser implements AutoCloseable {
         socket.setBroadcast(true);
 
         sendCommand("b");
+        CytonWifiHealthRawLogger.beginSession(host, port);
+        System.out.println("Cyton WiFi health raw log: " + CytonWifiHealthRawLogger.getLogPath());
 
         running = true;
         readerThread = new Thread(this::readLoop, "cyton-wifi-reader");
@@ -85,6 +110,8 @@ public class CytonWifiParser implements AutoCloseable {
         targetAddress = null;
         targetPort = 0;
         framePos = 0;
+        resetHealthState();
+        CytonWifiHealthRawLogger.endSession();
     }
 
     @Override
@@ -212,11 +239,24 @@ public class CytonWifiParser implements AutoCloseable {
         }
 
         pushSample(tmpSample);
+        parseHealthAux(f);
         parsedFrames++;
     }
 
     public long getParsedFrames() {
         return parsedFrames;
+    }
+
+    public CytonWifiHealthFrame getLatestHealthFrame() {
+        return latestHealthFrame;
+    }
+
+    public long getLastHealthAuxFrameTimestampMs() {
+        return lastHealthAuxFrameTimestampMs;
+    }
+
+    public String getLatestHealthAuxDebugText() {
+        return latestHealthAuxDebugText;
     }
 
     private void maybePrintStats() {
@@ -250,5 +290,140 @@ public class CytonWifiParser implements AutoCloseable {
         } finally {
             bufferLock.unlock();
         }
+    }
+
+    private void parseHealthAux(byte[] f) {
+        int tail = f[FRAME_SIZE - 1] & 0xFF;
+        int auxType = tail & 0x0F;
+        if (auxType < AUX_TYPE_C1 || auxType > AUX_TYPE_C3) {
+            return;
+        }
+
+        int healthSeq = f[AUX_OFFSET] & 0xFF;
+        lastHealthAuxFrameTimestampMs = System.currentTimeMillis();
+        if (healthSeq != currentHealthSeq) {
+            currentHealthSeq = healthSeq;
+            hasHealthC1 = false;
+            hasHealthC2 = false;
+            hasHealthC3 = false;
+            latestHealthC1AuxHex = "--";
+            latestHealthC2AuxHex = "--";
+            latestHealthC3AuxHex = "--";
+        }
+        updateHealthAuxDebug(auxType, healthSeq, f);
+
+        CytonWifiHealthRawLogger.logHealthFrame(auxType, healthSeq, f, AUX_OFFSET, AUX_SIZE);
+
+        if (healthSeq == lastPublishedHealthSeq) {
+            return;
+        }
+
+        int[] target;
+        if (auxType == AUX_TYPE_C1) {
+            target = healthC1;
+            hasHealthC1 = true;
+        } else if (auxType == AUX_TYPE_C2) {
+            target = healthC2;
+            hasHealthC2 = true;
+        } else {
+            target = healthC3;
+            hasHealthC3 = true;
+        }
+
+        for (int i = 0; i < AUX_SIZE; i++) {
+            target[i] = f[AUX_OFFSET + i] & 0xFF;
+        }
+
+        if (hasHealthC1 && hasHealthC2 && hasHealthC3) {
+            CytonWifiHealthFrame decodedHealthFrame = buildHealthFrame(healthSeq);
+            if (decodedHealthFrame.hasMeasurement()) {
+                latestHealthFrame = decodedHealthFrame;
+                lastPublishedHealthSeq = healthSeq;
+            }
+        }
+    }
+
+    private void resetHealthState() {
+        latestHealthFrame = null;
+        lastHealthAuxFrameTimestampMs = -1L;
+        latestHealthAuxDebugText = "";
+        latestHealthC1AuxHex = "--";
+        latestHealthC2AuxHex = "--";
+        latestHealthC3AuxHex = "--";
+        latestHealthAuxSeq = -1;
+        latestHealthAuxType = -1;
+        currentHealthSeq = -1;
+        lastPublishedHealthSeq = -1;
+        hasHealthC1 = false;
+        hasHealthC2 = false;
+        hasHealthC3 = false;
+        for (int i = 0; i < AUX_SIZE; i++) {
+            healthC1[i] = 0;
+            healthC2[i] = 0;
+            healthC3[i] = 0;
+        }
+    }
+
+    private CytonWifiHealthFrame buildHealthFrame(int healthSeq) {
+        return new CytonWifiHealthFrame(
+                healthSeq,
+                validU8(healthC1[1]),
+                validU8(healthC1[2]),
+                validU8(healthC1[3]),
+                validU8(healthC1[4]),
+                validU8(healthC1[5]),
+                validU8(healthC2[1]),
+                validU8(healthC2[2]),
+                validU8(healthC2[3]),
+                validU8(healthC2[4]),
+                validU8(healthC2[5]),
+                validTemperature(healthC3[1], healthC3[2]),
+                validTemperature(healthC3[3], healthC3[4]),
+                System.currentTimeMillis()
+        );
+    }
+
+    private static int validU8(int value) {
+        return value == INVALID_U8 ? -1 : value;
+    }
+
+    private static float validTemperature(int integerPart, int decimalPart) {
+        if (integerPart == INVALID_U8 || decimalPart == INVALID_U8) {
+            return Float.NaN;
+        }
+        return integerPart + decimalPart / 100.0f;
+    }
+
+    private void updateHealthAuxDebug(int auxType, int healthSeq, byte[] frameBytes) {
+        String auxHex = formatAuxHex(frameBytes);
+        if (auxType == AUX_TYPE_C1) {
+            latestHealthC1AuxHex = auxHex;
+        } else if (auxType == AUX_TYPE_C2) {
+            latestHealthC2AuxHex = auxHex;
+        } else if (auxType == AUX_TYPE_C3) {
+            latestHealthC3AuxHex = auxHex;
+        }
+        latestHealthAuxSeq = healthSeq;
+        latestHealthAuxType = auxType;
+        latestHealthAuxDebugText = "AUX seq=" + healthSeq
+                + " last=C" + auxType
+                + " C1=" + latestHealthC1AuxHex
+                + " C2=" + latestHealthC2AuxHex
+                + " C3=" + latestHealthC3AuxHex;
+    }
+
+    private static String formatAuxHex(byte[] frameBytes) {
+        StringBuilder sb = new StringBuilder(AUX_SIZE * 3);
+        for (int i = 0; i < AUX_SIZE; i++) {
+            if (i > 0) {
+                sb.append(' ');
+            }
+            int value = frameBytes[AUX_OFFSET + i] & 0xFF;
+            if (value < 0x10) {
+                sb.append('0');
+            }
+            sb.append(Integer.toHexString(value).toUpperCase());
+        }
+        return sb.toString();
     }
 }

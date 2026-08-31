@@ -4,10 +4,14 @@ import Board_.Board;
 import DataSource_.DataSource;
 import FileBoard_.FileBoard;
 import GUI.GUIManager;
+import SerialParser_.CytonWifiHealthFrame;
 
+import java.io.File;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static Debugging_.GF.outputError;
 import static Debugging_.GF.outputWarn;
@@ -20,9 +24,12 @@ public abstract class DataSourcePlayback implements DataSource, FileBoard {
     GUI MAIN;
     private String playbackFilePathExg;
     private ArrayList<double[]> rawDataExg;
+    private ArrayList<PlaybackHealthRecord> rawDataHealth;
     private int currentSampleExg;
+    private int currentHealthIndex = -1;
     private int timeOfLastUpdateMSExg;
     private String underlyingClassName;
+    private String playbackFilePathHealth = "";
     private int numNewSamplesThisFrameExg;
 
     private boolean initialized = false;
@@ -52,6 +59,7 @@ public abstract class DataSourcePlayback implements DataSource, FileBoard {
         if(!parseExgData(lines)) {
             return false;
         }
+        parseHealthData();
 
         return true;
     }
@@ -188,6 +196,140 @@ public abstract class DataSourcePlayback implements DataSource, FileBoard {
         return true;
     }
 
+    private void parseHealthData() {
+        rawDataHealth = new ArrayList<PlaybackHealthRecord>();
+        currentHealthIndex = -1;
+        playbackFilePathHealth = resolveHealthPlaybackFilePath();
+        if (playbackFilePathHealth.isEmpty()) {
+            return;
+        }
+
+        String[] lines = MAIN.loadStrings(playbackFilePathHealth);
+        if (lines == null || lines.length == 0) {
+            return;
+        }
+
+        int headerIndex = -1;
+        for (int i = 0; i < lines.length; i++) {
+            String line = lines[i];
+            if (line == null) {
+                continue;
+            }
+            String trimmed = line.trim();
+            if (!trimmed.isEmpty() && !trimmed.startsWith("%")) {
+                headerIndex = i;
+                break;
+            }
+        }
+        if (headerIndex < 0 || headerIndex + 1 >= lines.length) {
+            return;
+        }
+
+        Map<String, Integer> columns = parseColumnMap(lines[headerIndex]);
+        long firstTimestampMs = -1L;
+        for (int i = headerIndex + 1; i < lines.length; i++) {
+            String line = lines[i];
+            if (line == null || line.trim().isEmpty() || line.trim().startsWith("%")) {
+                continue;
+            }
+            String[] values = line.split(",");
+            long timestampMs = parseLong(values, columns.get("timestamp_ms"), -1L);
+            if (firstTimestampMs < 0L && timestampMs >= 0L) {
+                firstTimestampMs = timestampMs;
+            }
+
+            double elapsedSeconds = parseDouble(values, columns.get("elapsed_seconds"), Double.NaN);
+            if (Double.isNaN(elapsedSeconds)) {
+                elapsedSeconds = timestampMs >= 0L && firstTimestampMs >= 0L
+                        ? (timestampMs - firstTimestampMs) / 1000.0
+                        : rawDataHealth.size();
+            }
+
+            CytonWifiHealthFrame frame = new CytonWifiHealthFrame(
+                    parseInt(values, columns.get("health_seq"), -1),
+                    parseInt(values, columns.get("heart_rate_bpm"), -1),
+                    parseInt(values, columns.get("spo2_percent"), -1),
+                    parseInt(values, columns.get("microcirculation"), -1),
+                    parseInt(values, columns.get("systolic_mmhg"), -1),
+                    parseInt(values, columns.get("diastolic_mmhg"), -1),
+                    parseInt(values, columns.get("respiration_rate_per_min"), -1),
+                    parseInt(values, columns.get("fatigue_index"), -1),
+                    parseInt(values, columns.get("rr_interval_raw"), -1),
+                    parseInt(values, columns.get("hrv_sdnn"), -1),
+                    parseInt(values, columns.get("hrv_rmssd"), -1),
+                    parseFloat(values, columns.get("body_temperature_c"), Float.NaN),
+                    parseFloat(values, columns.get("ambient_temperature_c"), Float.NaN),
+                    timestampMs >= 0L ? timestampMs : 0L
+            );
+            if (frame.hasMeasurement()) {
+                rawDataHealth.add(new PlaybackHealthRecord(elapsedSeconds, frame));
+            }
+        }
+
+        if (!rawDataHealth.isEmpty()) {
+            MAIN.println("Playback: loaded health data file " + playbackFilePathHealth);
+        }
+    }
+
+    private String resolveHealthPlaybackFilePath() {
+        File exgFile = new File(playbackFilePathExg);
+        File parent = exgFile.getParentFile();
+        if (parent == null) {
+            return "";
+        }
+
+        String exgName = exgFile.getName();
+        String healthName = "";
+        if (exgName.startsWith("AirEIBCI-RAW-")) {
+            healthName = "AirEIBCI-Health-" + exgName.substring("AirEIBCI-RAW-".length());
+        } else if (exgName.contains("-RAW-")) {
+            healthName = exgName.replace("-RAW-", "-Health-");
+        }
+
+        if (!healthName.isEmpty()) {
+            File healthFile = new File(parent, healthName);
+            if (healthFile.isFile()) {
+                return healthFile.getAbsolutePath();
+            }
+        }
+        return "";
+    }
+
+    private Map<String, Integer> parseColumnMap(String headerLine) {
+        Map<String, Integer> columns = new HashMap<String, Integer>();
+        String[] names = headerLine.split(",");
+        for (int i = 0; i < names.length; i++) {
+            columns.put(names[i].trim(), i);
+        }
+        return columns;
+    }
+
+    private int parseInt(String[] values, Integer index, int fallback) {
+        double value = parseDouble(values, index, Double.NaN);
+        return Double.isNaN(value) ? fallback : (int) Math.round(value);
+    }
+
+    private long parseLong(String[] values, Integer index, long fallback) {
+        double value = parseDouble(values, index, Double.NaN);
+        return Double.isNaN(value) ? fallback : (long) value;
+    }
+
+    private float parseFloat(String[] values, Integer index, float fallback) {
+        double value = parseDouble(values, index, Double.NaN);
+        return Double.isNaN(value) ? fallback : (float) value;
+    }
+
+    private double parseDouble(String[] values, Integer index, double fallback) {
+        if (index == null || index < 0 || index >= values.length) {
+            return fallback;
+        }
+        try {
+            return Double.parseDouble(values[index].trim());
+        } catch (Exception ignored) {
+            return fallback;
+        }
+    }
+
     @Override
     public void update() {
         if (!streaming) {
@@ -281,6 +423,37 @@ public abstract class DataSourcePlayback implements DataSource, FileBoard {
         return (float) (getCurrentSample()) / (getSampleRate());
     }
 
+    public boolean hasPlaybackHealthData() {
+        return rawDataHealth != null && !rawDataHealth.isEmpty();
+    }
+
+    public String getPlaybackHealthFilePath() {
+        return playbackFilePathHealth;
+    }
+
+    public CytonWifiHealthFrame getPlaybackHealthFrameAtCurrentTime() {
+        if (!hasPlaybackHealthData()) {
+            return null;
+        }
+
+        double currentTimeSeconds = getCurrentTimeSeconds();
+        int lo = 0;
+        int hi = rawDataHealth.size() - 1;
+        int result = -1;
+        while (lo <= hi) {
+            int mid = (lo + hi) / 2;
+            if (rawDataHealth.get(mid).elapsedSeconds <= currentTimeSeconds) {
+                result = mid;
+                lo = mid + 1;
+            } else {
+                hi = mid - 1;
+            }
+        }
+
+        currentHealthIndex = result;
+        return result >= 0 ? rawDataHealth.get(result).frame : null;
+    }
+
     @Override
     public int getMarkerChannel() {
         return underlyingBoard.getMarkerChannel();
@@ -338,4 +511,13 @@ public abstract class DataSourcePlayback implements DataSource, FileBoard {
         return currentSampleExg >= getTotalSamples();
     }
 
+    private static final class PlaybackHealthRecord {
+        final double elapsedSeconds;
+        final CytonWifiHealthFrame frame;
+
+        PlaybackHealthRecord(double elapsedSeconds, CytonWifiHealthFrame frame) {
+            this.elapsedSeconds = elapsedSeconds;
+            this.frame = frame;
+        }
+    }
 }

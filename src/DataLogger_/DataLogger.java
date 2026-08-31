@@ -1,9 +1,11 @@
 package DataLogger_;
 
 import AuxDataBoard_.AuxDataBoard;
+import BoardBrainflow_.BoardBrainFlow;
 import DataWriterAuxODF_.DataWriterAuxODF;
 import DataWriterBDF_.DataWriterBDF;
 import DataWriterBF_.DataWriterBF;
+import DataWriterHealthODF_.DataWriterHealthODF;
 import DataWriterODF_.DataWriterODF;
 import Globel.GUI;
 import processing.core.PApplet;
@@ -16,6 +18,7 @@ public class DataLogger {
     //variables for writing EEG data out to a file
     private DataWriterODF fileWriterODF;
     private DataWriterAuxODF fileWriterAuxODF;
+    private DataWriterHealthODF fileWriterHealthODF;
     private DataWriterBDF fileWriterBDF;
     public DataWriterBF fileWriterBF; //Add the ability to simulataneously save to BrainFlow CSV, independent of BDF or ODF
     private String sessionName = "N/A";
@@ -60,6 +63,9 @@ public class DataLogger {
                 fileWriterODF.append(newData);
                 if (MAIN.currentBoard instanceof AuxDataBoard)
                     fileWriterAuxODF.append(((AuxDataBoard)MAIN.currentBoard).getAuxFrameData());
+                if (fileWriterHealthODF != null && MAIN.currentBoard instanceof BoardBrainFlow) {
+                    fileWriterHealthODF.appendLatest((BoardBrainFlow) MAIN.currentBoard);
+                }
                 break;
             case OUTPUT_SOURCE_BDF:
                 fileWriterBDF.writeRawData_dataPacket(MAIN, newData);
@@ -166,6 +172,12 @@ public class DataLogger {
                 fileWriterAuxODF.closeFile();
             fileWriterAuxODF = new DataWriterAuxODF(MAIN, sessionName, _fileName);
         }
+        if (supportsWifiHealthData()) {
+            if (fileWriterHealthODF != null) {
+                fileWriterHealthODF.closeFile();
+            }
+            fileWriterHealthODF = new DataWriterHealthODF(MAIN, sessionName, _fileName);
+        }
 
         output_fname = fileWriterODF.fname;
         println("AirEIBCI: openNewLogFile: opened ODF output file: " + output_fname);
@@ -210,6 +222,15 @@ public class DataLogger {
             fileWriterAuxODF.closeFile();
         }
         fileWriterAuxODF = null;
+        if (fileWriterHealthODF != null) {
+            fileWriterHealthODF.closeFile();
+        }
+        fileWriterHealthODF = null;
+    }
+
+    private boolean supportsWifiHealthData() {
+        return MAIN.currentBoard instanceof BoardBrainFlow
+                && ((BoardBrainFlow) MAIN.currentBoard).isUsingCustomWifiParser();
     }
 
     public int getDataLoggerOutputFormat() {

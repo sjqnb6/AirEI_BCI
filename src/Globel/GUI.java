@@ -48,7 +48,7 @@ import static W_Playback_.GF.isPlaybackHeader;
 
 public class GUI extends PApplet {
     //Used to check GUI version in TopNav.pde and displayed on the splash screen on startup
-    public static String localGUIVersionString = "v1.0.0-beta.1";
+    public static String localGUIVersionString = "v1.0";
     public static String localGUIVersionDate = "November 2025";
     public static String guiLatestVersionGithubAPI = "https://api.github.com/repos/OpenBCI/OpenBCI_GUI/releases/latest";
     public static String guiLatestReleaseLocation = "https://github.com/OpenBCI/OpenBCI_GUI/releases/latest";

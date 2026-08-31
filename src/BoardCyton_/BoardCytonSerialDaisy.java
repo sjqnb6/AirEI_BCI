@@ -9,6 +9,7 @@ import brainflow.BoardIds;
 public class BoardCytonSerialDaisy extends BoardCytonSerialBase {
     public BoardCytonSerialDaisy(GUI gui) {
         super(gui);
+
     }
 
     public BoardCytonSerialDaisy(GUI gui, String serialPort) {

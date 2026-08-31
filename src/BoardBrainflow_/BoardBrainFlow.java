@@ -5,6 +5,7 @@ import Board_.Board;
 import Globel.GUI;
 import PopupMessage_.PopupMessage;
 import SerialParser_.CytonSerialParser;
+import SerialParser_.CytonWifiHealthFrame;
 import SerialParser_.CytonWifiParser;
 import brainflow.BoardIds;
 import brainflow.BoardShim;
@@ -425,6 +426,22 @@ public int[] getEXGChannels() {
 
     public int getBoardIdInt() {
         return getBoardId().get_code();
+    }
+
+    public boolean isUsingCustomWifiParser() {
+        return useCustomWifiParser;
+    }
+
+    public CytonWifiHealthFrame getLatestWifiHealthFrame() {
+        return (useCustomWifiParser && wifiParser != null) ? wifiParser.getLatestHealthFrame() : null;
+    }
+
+    public long getLastWifiHealthAuxFrameTimestampMs() {
+        return (useCustomWifiParser && wifiParser != null) ? wifiParser.getLastHealthAuxFrameTimestampMs() : -1L;
+    }
+
+    public String getLatestWifiHealthAuxDebugText() {
+        return (useCustomWifiParser && wifiParser != null) ? wifiParser.getLatestHealthAuxDebugText() : "";
     }
 
     @Override
