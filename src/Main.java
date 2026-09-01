@@ -5,6 +5,7 @@ import BoardBrainFlowSynthetic_.BoardBrainFlowSynthetic;
 import BoardBrainflow_.BoardBrainFlow;
 import BoardCyton_.BoardCytonSerial;
 import BoardCyton_.BoardCytonSerialDaisy;
+import BoardDomesticSerial_.BoardDomesticSerial16;
 import BoardCyton_.BoardCytonWifi;
 import BoardCyton_.BoardCytonWifiDaisy;
 import BoardGanglion_.BoardGanglionBLE;
@@ -558,7 +559,7 @@ public class Main extends GUI {
             case DATASOURCE_CYTON:
                 if (selectedProtocol == BoardProtocol.SERIAL) {
                     if(nchan == 16) {
-                        currentBoard = new BoardCytonSerialDaisy(this, openBCI_portName);
+                        currentBoard = new BoardDomesticSerial16(this, openBCI_portName);
                     }
                     else {
                         currentBoard = new BoardCytonSerial(this, openBCI_portName);

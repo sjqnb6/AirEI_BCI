@@ -51,6 +51,7 @@ public class GF {
             case ("BoardCytonSerialDaisy"):
             case ("BoardCytonWifi"):
             case ("BoardCytonWifiDaisy"):
+            case ("BoardDomesticSerial16"):
                 return new DataSourcePlaybackCyton(MAIN,path);
             case ("BoardGanglionBLE"):
             case ("BoardGanglionNative"):
