@@ -6,6 +6,7 @@ import BoardBrainflow_.BoardBrainFlow;
 import BoardCyton_.BoardCytonSerial;
 import BoardCyton_.BoardCytonSerialDaisy;
 import BoardDomesticSerial_.BoardDomesticSerial16;
+import BoardDomesticWifi_.BoardDomesticWifi16;
 import BoardCyton_.BoardCytonWifi;
 import BoardCyton_.BoardCytonWifiDaisy;
 import BoardGanglion_.BoardGanglionBLE;
@@ -567,7 +568,7 @@ public class Main extends GUI {
                 }
                 else if (selectedProtocol == BoardProtocol.WIFI) {
                     if(nchan == 16) {
-                        currentBoard = new BoardCytonWifiDaisy(this, wifi_ipAddress, selectedSamplingRate);
+                        currentBoard = new BoardDomesticWifi16(this, wifi_ipAddress, selectedSamplingRate);
                     }
                     else {
                         currentBoard = new BoardCytonWifi(this, wifi_ipAddress, selectedSamplingRate);
