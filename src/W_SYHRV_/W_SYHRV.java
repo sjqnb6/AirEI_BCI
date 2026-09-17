@@ -1,6 +1,6 @@
 package W_SYHRV_;
 
-import BoardBrainflow_.BoardBrainFlow;
+import Board_.WifiHealthDataSource;
 import DataSourcePlayback_.DataSourcePlayback;
 import Globel.GUI;
 import SerialParser_.CytonWifiHealthFrame;
@@ -297,7 +297,7 @@ public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener, SyHrv
             return;
         }
 
-        BoardBrainFlow board = currentBrainFlowBoard();
+        WifiHealthDataSource board = currentWifiHealthBoard();
         long now = System.currentTimeMillis();
         if (board == null || !board.isUsingCustomWifiParser()) {
             if (now - lastWifiNoticeMs > 2500L) {
@@ -371,8 +371,10 @@ public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener, SyHrv
         );
     }
 
-    private BoardBrainFlow currentBrainFlowBoard() {
-        return MAIN.currentBoard instanceof BoardBrainFlow ? (BoardBrainFlow) MAIN.currentBoard : null;
+    private WifiHealthDataSource currentWifiHealthBoard() {
+        return MAIN.currentBoard instanceof WifiHealthDataSource
+                ? (WifiHealthDataSource) MAIN.currentBoard
+                : null;
     }
 
     private DataSourcePlayback currentPlaybackSource() {
@@ -384,7 +386,7 @@ public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener, SyHrv
         if (playback != null) {
             return playback.hasPlaybackHealthData();
         }
-        BoardBrainFlow board = currentBrainFlowBoard();
+        WifiHealthDataSource board = currentWifiHealthBoard();
         long now = System.currentTimeMillis();
         long lastAuxMs = board == null ? -1L : board.getLastWifiHealthAuxFrameTimestampMs();
         return board != null
@@ -719,7 +721,7 @@ public class W_SYHRV extends Widget implements SyHrvSerialClient.Listener, SyHrv
                     ? "AUX debug: playback uses decoded health file"
                     : "AUX debug: no matching health playback file";
         }
-        BoardBrainFlow board = currentBrainFlowBoard();
+        WifiHealthDataSource board = currentWifiHealthBoard();
         if (board == null || !board.isUsingCustomWifiParser()) {
             return "AUX debug: EEG WiFi parser is not active";
         }

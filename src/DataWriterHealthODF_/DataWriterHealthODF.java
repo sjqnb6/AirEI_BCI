@@ -1,6 +1,6 @@
 package DataWriterHealthODF_;
 
-import BoardBrainflow_.BoardBrainFlow;
+import Board_.WifiHealthDataSource;
 import Globel.GUI;
 import SerialParser_.CytonWifiHealthFrame;
 
@@ -38,7 +38,7 @@ public class DataWriterHealthODF {
         writeHeader();
     }
 
-    public void appendLatest(BoardBrainFlow board) {
+    public void appendLatest(WifiHealthDataSource board) {
         if (board == null || !board.isUsingCustomWifiParser()) {
             return;
         }

@@ -1,9 +1,11 @@
 package BoardDomesticWifi_;
 
 import Board_.Board;
+import Board_.WifiHealthDataSource;
 import Globel.GUI;
 import PacketLossTracker_.PacketLossTracker;
 import SerialParser_.DualCytonWifi16Parser;
+import SerialParser_.CytonWifiHealthFrame;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -14,7 +16,7 @@ import static Debugging_.GF.outputError;
 import static processing.core.PApplet.println;
 
 /** Two 8-channel WiFi boards on one router exposed as one 16-channel board. */
-public final class BoardDomesticWifi16 extends Board {
+public final class BoardDomesticWifi16 extends Board implements WifiHealthDataSource {
     private static final int DEFAULT_WIFI_PORT = 5005;
     private static final int DEFAULT_SAMPLE_RATE = 250;
     private static final int MARKER_CHANNEL = 29;
@@ -208,6 +210,26 @@ public final class BoardDomesticWifi16 extends Board {
 
     public long getPairedSamples() {
         return parser == null ? 0 : parser.getPairedSamples();
+    }
+
+    @Override
+    public boolean isUsingCustomWifiParser() {
+        return parser != null;
+    }
+
+    @Override
+    public CytonWifiHealthFrame getLatestWifiHealthFrame() {
+        return parser == null ? null : parser.getLatestHealthFrame();
+    }
+
+    @Override
+    public long getLastWifiHealthAuxFrameTimestampMs() {
+        return parser == null ? -1L : parser.getLastHealthAuxFrameTimestampMs();
+    }
+
+    @Override
+    public String getLatestWifiHealthAuxDebugText() {
+        return parser == null ? "" : parser.getLatestHealthAuxDebugText();
     }
 
     private static String[] parseAddresses(String configuration) {

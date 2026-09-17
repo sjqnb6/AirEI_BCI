@@ -2,6 +2,7 @@ package BoardBrainflow_;
 
 import com.fazecast.jSerialComm.SerialPort;
 import Board_.Board;
+import Board_.WifiHealthDataSource;
 import Globel.GUI;
 import PopupMessage_.PopupMessage;
 import SerialParser_.CytonSerialParser;
@@ -32,7 +33,7 @@ import static Globel.GUI.topNav;
 import static SystemManager.GF.stopRunning;
 import static processing.core.PApplet.println;
 
-public abstract class BoardBrainFlow extends Board {
+public abstract class BoardBrainFlow extends Board implements WifiHealthDataSource {
     private static final String DEFAULT_CUSTOM_WIFI_HOST = "192.168.4.1";
     private static final int DEFAULT_CUSTOM_WIFI_PORT = 5005;
 

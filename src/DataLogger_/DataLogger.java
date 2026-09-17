@@ -1,7 +1,7 @@
 package DataLogger_;
 
 import AuxDataBoard_.AuxDataBoard;
-import BoardBrainflow_.BoardBrainFlow;
+import Board_.WifiHealthDataSource;
 import DataWriterAuxODF_.DataWriterAuxODF;
 import DataWriterBDF_.DataWriterBDF;
 import DataWriterBF_.DataWriterBF;
@@ -63,8 +63,8 @@ public class DataLogger {
                 fileWriterODF.append(newData);
                 if (MAIN.currentBoard instanceof AuxDataBoard)
                     fileWriterAuxODF.append(((AuxDataBoard)MAIN.currentBoard).getAuxFrameData());
-                if (fileWriterHealthODF != null && MAIN.currentBoard instanceof BoardBrainFlow) {
-                    fileWriterHealthODF.appendLatest((BoardBrainFlow) MAIN.currentBoard);
+                if (fileWriterHealthODF != null && MAIN.currentBoard instanceof WifiHealthDataSource) {
+                    fileWriterHealthODF.appendLatest((WifiHealthDataSource) MAIN.currentBoard);
                 }
                 break;
             case OUTPUT_SOURCE_BDF:
@@ -229,8 +229,8 @@ public class DataLogger {
     }
 
     private boolean supportsWifiHealthData() {
-        return MAIN.currentBoard instanceof BoardBrainFlow
-                && ((BoardBrainFlow) MAIN.currentBoard).isUsingCustomWifiParser();
+        return MAIN.currentBoard instanceof WifiHealthDataSource
+                && ((WifiHealthDataSource) MAIN.currentBoard).isUsingCustomWifiParser();
     }
 
     public int getDataLoggerOutputFormat() {

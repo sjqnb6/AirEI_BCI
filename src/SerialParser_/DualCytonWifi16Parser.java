@@ -22,9 +22,16 @@ public final class DualCytonWifi16Parser implements AutoCloseable {
 
     private static final int FRAME_SIZE = 33;
     private static final int BOARD_COMMAND_PORT = 5005;
+    private static final String HEALTH_BOARD_IP = "192.168.0.3";
     private static final byte HEADER = (byte) 0xA0;
     private static final int TAIL_PREFIX_MASK = 0xF0;
     private static final int TAIL_PREFIX = 0xC0;
+    private static final int AUX_OFFSET = 26;
+    private static final int AUX_SIZE = 6;
+    private static final int AUX_TYPE_C1 = 0x01;
+    private static final int AUX_TYPE_C2 = 0x02;
+    private static final int AUX_TYPE_C3 = 0x03;
+    private static final int INVALID_U8 = 0xFF;
     private static final long PAIR_TIMEOUT_NANOS = 500_000_000L;
     private static final double SCALE_FACTOR_UV = 4.5 / 8388607.0 / 24.0 * 1_000_000.0;
 
@@ -54,6 +61,20 @@ public final class DualCytonWifi16Parser implements AutoCloseable {
     private volatile long expiredBoard2Samples;
     private volatile long lastBoard1PacketAtMs = -1L;
     private volatile long lastBoard2PacketAtMs = -1L;
+    private volatile CytonWifiHealthFrame latestHealthFrame;
+    private volatile long lastHealthAuxFrameTimestampMs = -1L;
+    private volatile String latestHealthAuxDebugText = "";
+    private volatile String latestHealthC1AuxHex = "--";
+    private volatile String latestHealthC2AuxHex = "--";
+    private volatile String latestHealthC3AuxHex = "--";
+    private final int[] healthC1 = new int[AUX_SIZE];
+    private final int[] healthC2 = new int[AUX_SIZE];
+    private final int[] healthC3 = new int[AUX_SIZE];
+    private int currentHealthSeq = -1;
+    private int lastPublishedHealthSeq = -1;
+    private boolean hasHealthC1;
+    private boolean hasHealthC2;
+    private boolean hasHealthC3;
 
     public DualCytonWifi16Parser(int bufferCapacitySamples) {
         if (bufferCapacitySamples <= 0) {
@@ -107,6 +128,7 @@ public final class DualCytonWifi16Parser implements AutoCloseable {
 
         try {
             sendCommand("b");
+            CytonWifiHealthRawLogger.beginSession(HEALTH_BOARD_IP, BOARD_COMMAND_PORT);
         } catch (IOException e) {
             stop_stream();
             throw e;
@@ -145,6 +167,8 @@ public final class DualCytonWifi16Parser implements AutoCloseable {
         board1State.reset();
         board2State.reset();
         clearPendingSamples();
+        resetHealthState();
+        CytonWifiHealthRawLogger.endSession();
     }
 
     public boolean isRunning() {
@@ -217,6 +241,18 @@ public final class DualCytonWifi16Parser implements AutoCloseable {
 
     public long getLastBoard2PacketAtMs() {
         return lastBoard2PacketAtMs;
+    }
+
+    public CytonWifiHealthFrame getLatestHealthFrame() {
+        return latestHealthFrame;
+    }
+
+    public long getLastHealthAuxFrameTimestampMs() {
+        return lastHealthAuxFrameTimestampMs;
+    }
+
+    public String getLatestHealthAuxDebugText() {
+        return latestHealthAuxDebugText;
     }
 
     @Override
@@ -350,6 +386,140 @@ public final class DualCytonWifi16Parser implements AutoCloseable {
         expiredBoard2Samples = 0;
         lastBoard1PacketAtMs = -1L;
         lastBoard2PacketAtMs = -1L;
+        resetHealthState();
+    }
+
+    private boolean isHealthSource(boolean fromBoard1) {
+        InetAddress source = fromBoard1 ? board1Address : board2Address;
+        return source != null && HEALTH_BOARD_IP.equals(source.getHostAddress());
+    }
+
+    private void parseHealthAux(byte[] frameBytes) {
+        int auxType = frameBytes[FRAME_SIZE - 1] & 0x0F;
+        if (auxType < AUX_TYPE_C1 || auxType > AUX_TYPE_C3) {
+            return;
+        }
+
+        int healthSeq = frameBytes[AUX_OFFSET] & 0xFF;
+        lastHealthAuxFrameTimestampMs = System.currentTimeMillis();
+        if (healthSeq != currentHealthSeq) {
+            currentHealthSeq = healthSeq;
+            hasHealthC1 = false;
+            hasHealthC2 = false;
+            hasHealthC3 = false;
+            latestHealthC1AuxHex = "--";
+            latestHealthC2AuxHex = "--";
+            latestHealthC3AuxHex = "--";
+        }
+        updateHealthAuxDebug(auxType, healthSeq, frameBytes);
+        CytonWifiHealthRawLogger.logHealthFrame(auxType, healthSeq, frameBytes, AUX_OFFSET, AUX_SIZE);
+
+        if (healthSeq == lastPublishedHealthSeq) {
+            return;
+        }
+
+        int[] target;
+        if (auxType == AUX_TYPE_C1) {
+            target = healthC1;
+            hasHealthC1 = true;
+        } else if (auxType == AUX_TYPE_C2) {
+            target = healthC2;
+            hasHealthC2 = true;
+        } else {
+            target = healthC3;
+            hasHealthC3 = true;
+        }
+        for (int i = 0; i < AUX_SIZE; i++) {
+            target[i] = frameBytes[AUX_OFFSET + i] & 0xFF;
+        }
+
+        if (hasHealthC1 && hasHealthC2 && hasHealthC3) {
+            CytonWifiHealthFrame decoded = buildHealthFrame(healthSeq);
+            if (decoded.hasMeasurement()) {
+                latestHealthFrame = decoded;
+                lastPublishedHealthSeq = healthSeq;
+            }
+        }
+    }
+
+    private void resetHealthState() {
+        latestHealthFrame = null;
+        lastHealthAuxFrameTimestampMs = -1L;
+        latestHealthAuxDebugText = "";
+        latestHealthC1AuxHex = "--";
+        latestHealthC2AuxHex = "--";
+        latestHealthC3AuxHex = "--";
+        currentHealthSeq = -1;
+        lastPublishedHealthSeq = -1;
+        hasHealthC1 = false;
+        hasHealthC2 = false;
+        hasHealthC3 = false;
+        for (int i = 0; i < AUX_SIZE; i++) {
+            healthC1[i] = 0;
+            healthC2[i] = 0;
+            healthC3[i] = 0;
+        }
+    }
+
+    private CytonWifiHealthFrame buildHealthFrame(int healthSeq) {
+        return new CytonWifiHealthFrame(
+                healthSeq,
+                validU8(healthC1[1]),
+                validU8(healthC1[2]),
+                validU8(healthC1[3]),
+                validU8(healthC1[4]),
+                validU8(healthC1[5]),
+                validU8(healthC2[1]),
+                validU8(healthC2[2]),
+                validU8(healthC2[3]),
+                validU8(healthC2[4]),
+                validU8(healthC2[5]),
+                validTemperature(healthC3[1], healthC3[2]),
+                validTemperature(healthC3[3], healthC3[4]),
+                System.currentTimeMillis()
+        );
+    }
+
+    private static int validU8(int value) {
+        return value == INVALID_U8 ? -1 : value;
+    }
+
+    private static float validTemperature(int integerPart, int decimalPart) {
+        if (integerPart == INVALID_U8 || decimalPart == INVALID_U8) {
+            return Float.NaN;
+        }
+        return integerPart + decimalPart / 100.0f;
+    }
+
+    private void updateHealthAuxDebug(int auxType, int healthSeq, byte[] frameBytes) {
+        String auxHex = formatAuxHex(frameBytes);
+        if (auxType == AUX_TYPE_C1) {
+            latestHealthC1AuxHex = auxHex;
+        } else if (auxType == AUX_TYPE_C2) {
+            latestHealthC2AuxHex = auxHex;
+        } else if (auxType == AUX_TYPE_C3) {
+            latestHealthC3AuxHex = auxHex;
+        }
+        latestHealthAuxDebugText = "AUX seq=" + healthSeq
+                + " last=C" + auxType
+                + " C1=" + latestHealthC1AuxHex
+                + " C2=" + latestHealthC2AuxHex
+                + " C3=" + latestHealthC3AuxHex;
+    }
+
+    private static String formatAuxHex(byte[] frameBytes) {
+        StringBuilder sb = new StringBuilder(AUX_SIZE * 3);
+        for (int i = 0; i < AUX_SIZE; i++) {
+            if (i > 0) {
+                sb.append(' ');
+            }
+            int value = frameBytes[AUX_OFFSET + i] & 0xFF;
+            if (value < 0x10) {
+                sb.append('0');
+            }
+            sb.append(Integer.toHexString(value).toUpperCase());
+        }
+        return sb.toString();
     }
 
     private void clearPendingSamples() {
@@ -429,6 +599,9 @@ public final class DualCytonWifi16Parser implements AutoCloseable {
                     fromBoard1,
                     new Sample8(packetId, System.nanoTime(), System.currentTimeMillis() / 1000.0, channelsUv)
             );
+            if (isHealthSource(fromBoard1)) {
+                parseHealthAux(frame);
+            }
             parsedFrames++;
         }
 
