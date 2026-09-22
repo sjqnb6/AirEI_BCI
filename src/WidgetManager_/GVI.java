@@ -24,6 +24,7 @@ import W_PulseSensor_.W_PulseSensor;
 import W_SignalQuality_.W_SignalQuality;
 import W_SpO2_.W_SpO2;
 import W_SYHRV_.W_SYHRV;
+import W_ShootingIntent_.W_ShootingIntent;
 import W_Spectrogram_.W_Spectrogram;
 import W_Template_.W_template;
 import W_TimeSeries_.W_timeSeries;
@@ -62,4 +63,5 @@ public class GVI {
     public static W_Indicator w_indicator;
     public static W_SpO2 w_spo2;
     public static W_SYHRV w_syhrv;
+    public static W_ShootingIntent w_shootingIntent;
 }

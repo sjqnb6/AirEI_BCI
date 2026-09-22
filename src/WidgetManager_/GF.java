@@ -31,6 +31,7 @@ import W_Connectivity_.W_Connectivity;
 import W_SignalQuality_.W_SignalQuality;
 import W_SpO2_.W_SpO2;
 import W_SYHRV_.W_SYHRV;
+import W_ShootingIntent_.W_ShootingIntent;
 import W_Neur_.W_Neur;
 import W_Indicator_.W_Indicator;
 import java.util.ArrayList;
@@ -175,6 +176,10 @@ public class GF {
         w_prediction = new W_Prediction(_this);
         w_prediction.setTitle("疲劳检测");
         addWidget(w_prediction, w);
+
+        w_shootingIntent = new W_ShootingIntent(_this);
+        w_shootingIntent.setTitle("射击意图检测");
+        addWidget(w_shootingIntent, w);
 
         //DEVELOPERS: Here is an example widget with the essentials/structure in place
         // w_template1 = new W_template(_this);
